@@ -1,5 +1,6 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: Thudeptrai02/learn-lab-web
   branch: main
 
 media_folder: public/images
