@@ -24,6 +24,14 @@ const { title = 'Learn Lab Web' } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
+    <script is:inline>
+  if (window.location.hash.includes('recovery_token') || 
+      window.location.hash.includes('invite_token') ||
+      window.location.hash.includes('confirmation_token')) {
+    window.location.replace('/admin/' + window.location.hash);
+  }
+</script>
+
   </head>
   <script>
   if (window.netlifyIdentity) {
