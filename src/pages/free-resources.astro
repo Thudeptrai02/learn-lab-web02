@@ -1,38 +1,174 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const resources = [
+  {
+    emoji: '📄',
+    category: 'TOEIC',
+    color: 'teal',
+    title: 'TOEIC Vocabulary Sheets',
+    desc: 'Bộ từ vựng theo chủ đề văn phòng, tài chính, nhân sự — in ra hoặc lưu điện thoại ôn mỗi ngày.',
+    tag: 'PDF · 2 trang',
+    href: '#',
+  },
+  {
+    emoji: '🎧',
+    category: 'Listening',
+    color: 'sky',
+    title: 'Listening Notes — Dictation Tips',
+    desc: 'Ghi chú ngắn về cách nghe hiệu quả, bắt keyword và luyện dictation từ cơ bản.',
+    tag: 'PDF · 1 trang',
+    href: '#',
+  },
+  {
+    emoji: '✅',
+    category: 'Study',
+    color: 'emerald',
+    title: 'Study Checklist 30 ngày',
+    desc: 'Checklist theo dõi tiến độ học tập mỗi ngày — in ra, tick vào, cảm giác rất đã.',
+    tag: 'PDF · 1 trang',
+    href: '#',
+  },
+  {
+    emoji: '📝',
+    category: 'IELTS',
+    color: 'sky',
+    title: 'IELTS Writing Task 2 — Cấu trúc cơ bản',
+    desc: 'Khung bài mẫu, từ nối và cụm từ học thuật hay dùng nhất trong Writing Task 2.',
+    tag: 'PDF · 2 trang',
+    href: '#',
+  },
+  {
+    emoji: '🌱',
+    category: 'Cambridge',
+    color: 'emerald',
+    title: 'Cambridge A2 → B1 Wordlist',
+    desc: 'Danh sách từ vựng cốt lõi theo chủ đề Daily Life, Travel và School — phù hợp người mới.',
+    tag: 'PDF · 3 trang',
+    href: '#',
+  },
+  {
+    emoji: '⚡',
+    category: 'Study Tips',
+    color: 'teal',
+    title: 'Habit Tracker học tiếng Anh',
+    desc: 'Bảng theo dõi thói quen học hằng ngày — thiết kế tối giản, dễ điền, dễ giữ nhịp.',
+    tag: 'PDF · 1 trang',
+    href: '#',
+  },
+];
+
+const colorMap: Record<string, { badge: string; btn: string; icon: string }> = {
+  teal:    { badge: 'bg-teal-50 text-teal-600',       btn: 'bg-teal-500 hover:bg-teal-600',       icon: 'bg-teal-50' },
+  sky:     { badge: 'bg-sky-50 text-sky-600',         btn: 'bg-sky-500 hover:bg-sky-600',         icon: 'bg-sky-50' },
+  emerald: { badge: 'bg-emerald-50 text-emerald-600', btn: 'bg-emerald-500 hover:bg-emerald-600', icon: 'bg-emerald-50' },
+};
 ---
 
 <Layout title="Tài liệu free | Learn Lab">
-  <main class="bg-sky-50/40 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-    <section class="mx-auto max-w-6xl rounded-[28px] border border-sky-100 bg-white px-6 py-8 shadow-sm sm:px-8 sm:py-10">
-      <p class="text-sm font-bold uppercase tracking-[0.3em] text-sky-600">Free Resources</p>
-      <h1 class="mt-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">Tài liệu miễn phí để học ngay</h1>
-      <p class="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-        Tổng hợp worksheet, checklist, file học tập và tài liệu ngắn gọn để bạn có thể tải về và dùng nhanh.
-      </p>
-    </section>
+  <main class="min-h-screen bg-sky-50/40 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <div class="mx-auto max-w-6xl space-y-8">
 
-    <section class="mx-auto mt-6 grid max-w-6xl gap-5 md:grid-cols-2 xl:grid-cols-3">
-      <article class="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-bold text-slate-900">Vocabulary Sheets</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          File từ vựng theo chủ đề, phù hợp để ôn tập từng ngày.
-        </p>
-      </article>
+      <!-- ── Header ── -->
+      <div class="rounded-[28px] border border-sky-100 bg-white px-6 py-8 shadow-sm sm:px-8 sm:py-10">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.3em] text-sky-500">Free Resources</p>
+            <h1 class="mt-3 text-3xl font-extrabold text-slate-900 sm:text-4xl">
+              Tài liệu miễn phí để học ngay
+            </h1>
+            <p class="mt-3 max-w-xl text-base leading-7 text-slate-500">
+              Worksheet, checklist và file học tập được chọn lọc kỹ — tải về và dùng ngay, không cần đăng ký.
+            </p>
+          </div>
+          <div class="flex shrink-0 flex-col gap-2 sm:items-end">
+            <span class="inline-flex rounded-full bg-sky-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-sky-600">
+              {resources.length} tài liệu
+            </span>
+            <span class="inline-flex rounded-full bg-teal-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-teal-600">
+              100% miễn phí
+            </span>
+          </div>
+        </div>
 
-      <article class="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-bold text-slate-900">Listening Notes</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          Ghi chú nghe ngắn, dễ dùng cho luyện nghe và dictation cơ bản.
-        </p>
-      </article>
+        <!-- Filter -->
+        <div class="mt-6 flex flex-wrap gap-2">
+          {['Tất cả', 'TOEIC', 'IELTS', 'Cambridge', 'Study Tips', 'Listening'].map(tag => (
+            <button class={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${tag === 'Tất cả' ? 'bg-sky-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+              {tag}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      <article class="rounded-3xl bg-white p-6 shadow-sm md:col-span-2 xl:col-span-1">
-        <h2 class="text-xl font-bold text-slate-900">Study Checklists</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          Checklist giúp bạn theo dõi tiến độ học tập rõ ràng hơn.
-        </p>
-      </article>
-    </section>
+      <!-- ── Resource grid ── -->
+      <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {resources.map(res => {
+          const c = colorMap[res.color];
+          return (
+            <div class="group flex flex-col rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+
+              <div class="flex items-start justify-between">
+                <div class={`inline-flex h-11 w-11 items-center justify-center rounded-2xl text-xl ${c.icon}`}>
+                  {res.emoji}
+                </div>
+                <span class={`rounded-full px-3 py-1 text-xs font-bold ${c.badge}`}>
+                  {res.category}
+                </span>
+              </div>
+
+              <h2 class="mt-4 text-lg font-extrabold leading-snug text-slate-900">
+                {res.title}
+              </h2>
+              <p class="mt-2 flex-1 text-sm leading-6 text-slate-500">
+                {res.desc}
+              </p>
+
+              <div class="mt-5 flex items-center justify-between">
+                <span class="text-xs font-medium text-slate-400">{res.tag}</span>
+                <a
+                  href={res.href}
+                  class={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold text-white transition ${c.btn}`}
+                >
+                  ↓ Tải về
+                </a>
+              </div>
+
+            </div>
+          );
+        })}
+
+        <!-- Coming soon -->
+        <div class="flex flex-col items-center justify-center rounded-[24px] border border-dashed border-slate-200 bg-slate-50/80 p-6 text-center">
+          <div class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-xl shadow-sm">📦</div>
+          <p class="mt-4 text-sm font-bold text-slate-400">Tài liệu mới sắp có</p>
+          <p class="mt-1 text-xs text-slate-400">Mình đang chuẩn bị thêm — quay lại sớm nhé!</p>
+        </div>
+      </div>
+
+      <!-- ── CTA banner ── -->
+      <div class="rounded-[24px] bg-gradient-to-br from-sky-500 to-sky-600 px-7 py-8 shadow-sm">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-base font-extrabold text-white">Muốn nhận tài liệu mới sớm nhất?</p>
+            <p class="mt-1 text-sm text-sky-100">Để lại email — mình sẽ báo ngay khi có tài liệu mới.</p>
+          </div>
+          <a
+            href="#"
+            class="inline-flex shrink-0 items-center justify-center rounded-2xl bg-white px-6 py-3 text-sm font-bold text-sky-600 transition hover:bg-sky-50"
+          >
+            Đăng ký nhận thông báo
+          </a>
+        </div>
+      </div>
+
+      <!-- ── Back link ── -->
+      <div class="pb-4">
+        <a href="/" class="text-sm font-semibold text-slate-400 hover:text-slate-600">
+          ← Về trang chủ
+        </a>
+      </div>
+
+    </div>
   </main>
 </Layout>

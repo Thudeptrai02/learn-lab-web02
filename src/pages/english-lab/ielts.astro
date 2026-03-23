@@ -3,53 +3,119 @@ import Layout from '../../layouts/Layout.astro';
 ---
 
 <Layout title="IELTS | Learn Lab">
-  <main class="bg-sky-50/40 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-    <section class="mx-auto max-w-5xl rounded-[28px] border border-sky-100 bg-white px-6 py-8 shadow-sm sm:px-8 sm:py-10">
-      <p class="text-sm font-bold uppercase tracking-[0.3em] text-sky-600">English Lab</p>
-      <h1 class="mt-4 text-3xl font-extrabold text-slate-900 sm:text-4xl">IELTS</h1>
-      <p class="mt-4 max-w-3xl text-base leading-7 text-slate-600">
-        Khu vực dành cho bài học theo từng kỹ năng, chiến lược làm bài và tài liệu giúp bạn học IELTS có định hướng hơn.
-      </p>
-      <a
-  href="/english-lab/ielts/flashcards"
-  class="mt-6 inline-flex items-center justify-center rounded-2xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600"
->
-  Mở Flashcards IELTS
-</a>
-<a href="/english-lab/ielts/dictation" class="mt-4 inline-flex rounded-2xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-600">
-  Luyện Dictation
-</a>
+  <main class="min-h-screen bg-sky-50/40 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <div class="mx-auto max-w-5xl space-y-6">
 
-    </section>
+      <!-- ── Header block ── -->
+      <div class="rounded-[28px] border border-sky-100 bg-white px-6 py-8 shadow-sm sm:px-8 sm:py-10">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-sm font-bold uppercase tracking-[0.3em] text-sky-600">English Lab</p>
+            <h1 class="mt-3 text-3xl font-extrabold text-slate-900 sm:text-4xl">IELTS</h1>
+            <p class="mt-3 max-w-xl text-base leading-7 text-slate-500">
+              Từ vựng, dictation và bài luyện theo từng kỹ năng — học đúng trọng tâm, không lan man.
+            </p>
+          </div>
+          <div class="flex shrink-0 flex-col gap-2 sm:items-end">
+            <span class="inline-flex rounded-full bg-sky-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-sky-600">
+              3 chủ đề · 30 câu dictation
+            </span>
+            <span class="inline-flex rounded-full bg-amber-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-amber-600">
+              Quiz · Sắp ra
+            </span>
+          </div>
+        </div>
+      </div>
 
-    <section class="mx-auto mt-6 grid max-w-5xl gap-5 md:grid-cols-2">
-      <article class="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-bold text-slate-900">Listening</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          Luyện nghe theo đoạn ngắn, bắt keyword và tăng khả năng nghe chi tiết.
-        </p>
-      </article>
+      <!-- ── Tools block ── -->
+      <div>
+        <p class="mb-3 px-1 text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Công cụ luyện tập</p>
+        <div class="grid gap-4 sm:grid-cols-3">
 
-      <article class="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-bold text-slate-900">Reading</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          Học cách đọc passage hiệu quả hơn và xử lý các dạng câu hỏi phổ biến.
-        </p>
-      </article>
+          <!-- Flashcards -->
+          <a
+            href="/english-lab/ielts/flashcards"
+            class="group flex flex-col rounded-[24px] border border-sky-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+          >
+            <div class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-xl">🃏</div>
+            <h2 class="mt-4 text-lg font-extrabold text-slate-900">Flashcards</h2>
+            <p class="mt-2 flex-1 text-sm leading-6 text-slate-500">
+              Lật card, đánh dấu đã thuộc. Học từ vựng học thuật theo chủ đề mỗi ngày 5–10 phút.
+            </p>
+            <p class="mt-5 text-sm font-semibold text-sky-600 group-hover:text-sky-700">Mở Flashcards →</p>
+          </a>
 
-      <article class="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-bold text-slate-900">Writing</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          Ghi chú từ vựng học thuật, cấu trúc câu và ý tưởng cho Task 1, Task 2.
-        </p>
-      </article>
+          <!-- Dictation -->
+          <a
+            href="/english-lab/ielts/dictation"
+            class="group flex flex-col rounded-[24px] border border-sky-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+          >
+            <div class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-50 text-xl">🎧</div>
+            <h2 class="mt-4 text-lg font-extrabold text-slate-900">Dictation</h2>
+            <p class="mt-2 flex-1 text-sm leading-6 text-slate-500">
+              Nghe câu → gõ lại real-time → xem kết quả xanh/đỏ từng từ. Streak 🔥 khi đúng liên tiếp.
+            </p>
+            <p class="mt-5 text-sm font-semibold text-sky-600 group-hover:text-sky-700">Luyện Dictation →</p>
+          </a>
 
-      <article class="rounded-3xl bg-white p-6 shadow-sm">
-        <h2 class="text-xl font-bold text-slate-900">Speaking</h2>
-        <p class="mt-3 text-sm leading-6 text-slate-600">
-          Chủ đề mẫu, cách mở rộng câu trả lời và vốn từ để nói tự nhiên hơn.
-        </p>
-      </article>
-    </section>
+          <!-- Quiz coming soon -->
+          <div class="flex flex-col rounded-[24px] border border-slate-100 bg-slate-50 p-6">
+            <div class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-xl shadow-sm">📝</div>
+            <div class="mt-4 flex items-center gap-2">
+              <h2 class="text-lg font-extrabold text-slate-400">Quiz</h2>
+              <span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-600">Sắp ra</span>
+            </div>
+            <p class="mt-2 flex-1 text-sm leading-6 text-slate-400">
+              Luyện đề theo từng kỹ năng, chấm điểm tự động và hiện đáp án ngay sau khi nộp.
+            </p>
+            <p class="mt-5 text-sm font-semibold text-slate-300">Đang phát triển...</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Topics block ── -->
+      <div>
+        <p class="mb-3 px-1 text-xs font-bold uppercase tracking-[0.25em] text-slate-400">Chủ đề có sẵn</p>
+        <div class="grid gap-4 sm:grid-cols-3">
+
+          <div class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-sky-600">Environment</p>
+            <p class="mt-2 text-sm leading-6 text-slate-500">Môi trường, biến đổi khí hậu và phát triển bền vững — chủ đề hay gặp nhất trong IELTS.</p>
+            <div class="mt-4 flex gap-2">
+              <a href="/english-lab/ielts/dictation" class="rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-600 hover:bg-sky-100">Dictation</a>
+              <a href="/english-lab/ielts/flashcards" class="rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-600 hover:bg-sky-100">Flashcard</a>
+            </div>
+          </div>
+
+          <div class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-sky-600">Education</p>
+            <p class="mt-2 text-sm leading-6 text-slate-500">Giáo dục, công nghệ trong lớp học và vai trò của giáo viên trong xã hội hiện đại.</p>
+            <div class="mt-4 flex gap-2">
+              <a href="/english-lab/ielts/dictation" class="rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-600 hover:bg-sky-100">Dictation</a>
+              <a href="/english-lab/ielts/flashcards" class="rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-600 hover:bg-sky-100">Flashcard</a>
+            </div>
+          </div>
+
+          <div class="rounded-[24px] border border-slate-100 bg-white p-5 shadow-sm">
+            <p class="text-xs font-bold uppercase tracking-[0.2em] text-sky-600">Health & Lifestyle</p>
+            <p class="mt-2 text-sm leading-6 text-slate-500">Sức khỏe thể chất, sức khỏe tâm thần và lối sống lành mạnh trong xã hội hiện đại.</p>
+            <div class="mt-4 flex gap-2">
+              <a href="/english-lab/ielts/dictation" class="rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-600 hover:bg-sky-100">Dictation</a>
+              <a href="/english-lab/ielts/flashcards" class="rounded-xl bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-600 hover:bg-sky-100">Flashcard</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Back link ── -->
+      <div class="pb-4">
+        <a href="/english-lab" class="text-sm font-semibold text-slate-400 hover:text-slate-600">
+          ← Quay lại English Lab
+        </a>
+      </div>
+
+    </div>
   </main>
 </Layout>
