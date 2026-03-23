@@ -1,0 +1,376 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+const cards = [
+  {
+    word: 'meeting',
+    meaning: 'cuộc họp',
+    partOfSpeech: 'noun',
+    example: 'The meeting starts at 9 a.m.',
+    audio: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3'
+  },
+  {
+    word: 'schedule',
+    meaning: 'lịch trình',
+    partOfSpeech: 'noun',
+    example: 'Please check the meeting schedule.',
+    audio: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3'
+  },
+  {
+    word: 'employee',
+    meaning: 'nhân viên',
+    partOfSpeech: 'noun',
+    example: 'Every employee must wear an ID card.',
+    audio: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3'
+  },
+  {
+    word: 'invoice',
+    meaning: 'hóa đơn',
+    partOfSpeech: 'noun',
+    example: 'The invoice will be sent by email.',
+    audio: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3'
+  }
+];
+---
+
+<Layout title="TOEIC Flashcards | Learn Lab">
+  <main class="min-h-screen bg-teal-50/40 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <section class="mx-auto max-w-5xl rounded-[28px] border border-teal-100 bg-white px-6 py-8 shadow-sm sm:px-8 sm:py-10">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-sm font-bold uppercase tracking-[0.3em] text-teal-600">TOEIC Flashcards</p>
+          <h1 class="mt-3 text-3xl font-extrabold text-slate-900 sm:text-4xl">Học bằng card hoặc xem dạng sheet</h1>
+        </div>
+
+        <div id="progress" class="inline-flex rounded-2xl bg-teal-50 px-4 py-2 text-sm font-semibold text-teal-700">
+          1 / {cards.length}
+        </div>
+      </div>
+
+      <div class="mt-8 rounded-2xl bg-slate-100 p-1.5">
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            id="tab-flashcards"
+            class="rounded-xl bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-sm transition"
+          >
+            Flashcards
+          </button>
+
+          <button
+            id="tab-sheet"
+            class="rounded-xl px-4 py-3 text-sm font-semibold text-slate-600 transition hover:bg-white/70"
+          >
+            Vocabulary Sheet
+          </button>
+        </div>
+      </div>
+
+      <div id="flashcards-view" class="mt-8">
+        <div id="card-stage" class="relative transition-all duration-300 ease-out">
+          <div class="absolute inset-x-4 top-4 h-[360px] rounded-[28px] bg-white/60 shadow-sm ring-1 ring-teal-100"></div>
+          <div class="absolute inset-x-2 top-2 h-[360px] rounded-[28px] bg-white/80 shadow-sm ring-1 ring-teal-100"></div>
+
+          <div class="[perspective:1200px]">
+            <button
+              id="flashcard"
+              class="group relative block h-[360px] w-full rounded-[28px] text-left focus:outline-none"
+              aria-label="Flip flashcard"
+            >
+              <div
+                id="flashcard-inner"
+                class="relative h-full w-full rounded-[28px] transition duration-500 [transform-style:preserve-3d]"
+              >
+                <div class="absolute inset-0 rounded-[28px] border border-slate-100 bg-slate-50 p-8 shadow-lg [backface-visibility:hidden]">
+                  <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Front</p>
+                  <div class="mt-8">
+                    <p class="text-sm font-semibold text-teal-700">Word</p>
+                    <h2 id="card-word" class="mt-3 text-4xl font-extrabold text-slate-900 sm:text-5xl">
+                      {cards[0].word}
+                    </h2>
+                    <p class="mt-4 inline-flex rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 shadow-sm">
+                      <span id="card-pos-front">{cards[0].partOfSpeech}</span>
+                    </p>
+                    <p id="card-example" class="mt-6 text-base leading-7 text-slate-600">
+                      {cards[0].example}
+                    </p>
+                  </div>
+                  <p class="absolute bottom-8 left-8 text-sm text-slate-400">Tap để lật card</p>
+                </div>
+
+                <div class="absolute inset-0 rounded-[28px] border border-teal-100 bg-white p-8 shadow-lg [backface-visibility:hidden] [transform:rotateY(180deg)]">
+                  <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Back</p>
+                  <div class="mt-8">
+                    <p class="text-sm font-semibold text-teal-700">Meaning</p>
+                    <h3 id="card-meaning" class="mt-3 text-4xl font-extrabold text-slate-900 sm:text-5xl">
+                      {cards[0].meaning}
+                    </h3>
+                    <p class="mt-4 inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-teal-700">
+                      <span id="card-pos-back">{cards[0].partOfSpeech}</span>
+                    </p>
+                    <p class="mt-6 text-base leading-7 text-slate-600">
+                      Hãy tự kiểm tra xem bạn đã nhớ đúng nghĩa chưa trước khi chuyển sang thẻ tiếp theo.
+                    </p>
+                  </div>
+                  <p class="absolute bottom-8 left-8 text-sm text-slate-400">Tap để lật lại</p>
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div id="study-actions" class="mt-8 grid gap-3 sm:grid-cols-2">
+          <button
+            id="not-known"
+            class="inline-flex items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-600"
+          >
+            Chưa thuộc
+          </button>
+
+          <button
+            id="known"
+            class="inline-flex items-center justify-center rounded-2xl bg-teal-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-600"
+          >
+            Đã thuộc
+          </button>
+        </div>
+
+        <div id="done-box" class="mt-8 hidden rounded-[28px] border border-emerald-100 bg-emerald-50 p-6 text-center">
+          <p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-700">Completed</p>
+          <h3 class="mt-3 text-2xl font-bold text-slate-900">Bạn đã học xong bộ flashcard này</h3>
+          <p class="mt-3 text-sm leading-6 text-slate-600">
+            Bạn có thể quay lại khu TOEIC hoặc xem lại toàn bộ từ trong Vocabulary Sheet.
+          </p>
+
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <a
+              href="/english-lab/toeic"
+              class="inline-flex items-center justify-center rounded-2xl bg-teal-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-600"
+            >
+              Quay lại TOEIC
+            </a>
+
+            <button
+              id="go-to-sheet"
+              class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              Xem Vocabulary Sheet
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="sheet-view" class="mt-8 hidden">
+        <div class="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200">
+              <thead class="bg-slate-50">
+                <tr>
+                  <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Word</th>
+                  <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Meaning</th>
+                  <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Part of speech</th>
+                  <th class="px-4 py-4 text-left text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Example</th>
+                </tr>
+              </thead>
+
+              <tbody class="divide-y divide-slate-100">
+                {cards.map((card) => (
+                  <tr class="align-top">
+                    <td class="px-4 py-4 text-sm font-bold text-slate-900">{card.word}</td>
+                    <td class="px-4 py-4 text-sm text-slate-700">{card.meaning}</td>
+                    <td class="px-4 py-4 text-sm text-slate-600">{card.partOfSpeech}</td>
+                    <td class="px-4 py-4 text-sm leading-6 text-slate-600">{card.example}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="mt-4 text-sm text-slate-500">
+          Đây là bảng tổng hợp để tra nhanh từ vựng mà không cần đi lại từ đầu bằng flashcards.
+        </p>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<script define:vars={{ cards }}>
+  let currentIndex = 0;
+  let isFlipped = false;
+  let isAnimating = false;
+
+  const progress = document.getElementById('progress');
+
+  const tabFlashcards = document.getElementById('tab-flashcards');
+  const tabSheet = document.getElementById('tab-sheet');
+  const flashcardsView = document.getElementById('flashcards-view');
+  const sheetView = document.getElementById('sheet-view');
+  const goToSheet = document.getElementById('go-to-sheet');
+
+  const flashcard = document.getElementById('flashcard');
+  const flashcardInner = document.getElementById('flashcard-inner');
+  const cardStage = document.getElementById('card-stage');
+
+  const word = document.getElementById('card-word');
+  const example = document.getElementById('card-example');
+  const meaning = document.getElementById('card-meaning');
+  const posFront = document.getElementById('card-pos-front');
+  const posBack = document.getElementById('card-pos-back');
+
+  const knownBtn = document.getElementById('known');
+  const notKnownBtn = document.getElementById('not-known');
+  const doneBox = document.getElementById('done-box');
+  const studyActions = document.getElementById('study-actions');
+
+  function showFlashcardsTab() {
+    flashcardsView?.classList.remove('hidden');
+    sheetView?.classList.add('hidden');
+
+    tabFlashcards?.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+    tabFlashcards?.classList.remove('text-slate-600');
+
+    tabSheet?.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+    tabSheet?.classList.add('text-slate-600');
+  }
+
+  function showSheetTab() {
+    flashcardsView?.classList.add('hidden');
+    sheetView?.classList.remove('hidden');
+
+    tabSheet?.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+    tabSheet?.classList.remove('text-slate-600');
+
+    tabFlashcards?.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+    tabFlashcards?.classList.add('text-slate-600');
+  }
+
+function playFlipSound() {
+  try {
+    const ctx = new AudioContext();
+
+    // Tiếng "ding" chính
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(1046, ctx.currentTime); // C6
+    gain1.gain.setValueAtTime(0.6, ctx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+    osc1.start(ctx.currentTime);
+    osc1.stop(ctx.currentTime + 0.6);
+
+    // Tiếng "dong" theo sau
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(784, ctx.currentTime + 0.15); // G5
+    gain2.gain.setValueAtTime(0.0, ctx.currentTime);
+    gain2.gain.setValueAtTime(0.5, ctx.currentTime + 0.15);
+    gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+    osc2.start(ctx.currentTime + 0.15);
+    osc2.stop(ctx.currentTime + 0.7);
+
+  } catch (e) {}
+}
+
+
+  function resetCardFace() {
+    isFlipped = false;
+    flashcardInner?.style.setProperty('transform', 'rotateY(0deg)');
+  }
+
+  function renderCard() {
+    const card = cards[currentIndex];
+    if (!card) return;
+
+    if (progress) progress.textContent = `${currentIndex + 1} / ${cards.length}`;
+    if (word) word.textContent = card.word;
+    if (example) example.textContent = card.example;
+    if (meaning) meaning.textContent = card.meaning;
+    if (posFront) posFront.textContent = card.partOfSpeech;
+    if (posBack) posBack.textContent = card.partOfSpeech;
+
+    resetCardFace();
+  }
+
+  function flipCard() {
+    if (isAnimating) return;
+
+    if (!isFlipped) {
+      isFlipped = true;
+      flashcardInner?.style.setProperty('transform', 'rotateY(180deg)');
+      playFlipSound();
+    } else {
+      isFlipped = false;
+      flashcardInner?.style.setProperty('transform', 'rotateY(0deg)');
+    }
+  }
+
+  function animateNextCard() {
+    if (!cardStage) return Promise.resolve();
+
+    return new Promise((resolve) => {
+      cardStage.style.opacity = '0';
+      cardStage.style.transform = 'translateX(70px) rotate(4deg) scale(0.96)';
+      setTimeout(() => resolve(), 260);
+    });
+  }
+
+  function animateCardIn() {
+    if (!cardStage) return;
+
+    cardStage.style.opacity = '0';
+    cardStage.style.transform = 'translateX(-70px) rotate(-4deg) scale(0.96)';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        cardStage.style.opacity = '1';
+        cardStage.style.transform = 'translateX(0) rotate(0deg) scale(1)';
+      });
+    });
+  }
+
+  async function nextCard() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    await animateNextCard();
+    currentIndex += 1;
+
+    if (currentIndex >= cards.length) {
+      flashcard?.classList.add('hidden');
+      cardStage?.classList.add('hidden');
+      studyActions?.classList.add('hidden');
+      doneBox?.classList.remove('hidden');
+      if (progress) progress.textContent = `${cards.length} / ${cards.length}`;
+      isAnimating = false;
+      return;
+    }
+
+    renderCard();
+    animateCardIn();
+
+    setTimeout(() => {
+      isAnimating = false;
+    }, 280);
+  }
+
+  flashcard?.addEventListener('click', flipCard);
+  knownBtn?.addEventListener('click', nextCard);
+  notKnownBtn?.addEventListener('click', nextCard);
+
+  tabFlashcards?.addEventListener('click', showFlashcardsTab);
+  tabSheet?.addEventListener('click', showSheetTab);
+  goToSheet?.addEventListener('click', showSheetTab);
+
+  if (cardStage) {
+    cardStage.style.opacity = '1';
+    cardStage.style.transform = 'translateX(0) rotate(0deg) scale(1)';
+  }
+
+  renderCard();
+  showFlashcardsTab();
+</script>

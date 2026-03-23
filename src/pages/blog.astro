@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const posts = [
+  {
+    category: 'Study Tips',
+    color: 'teal',
+    title: 'Cách học đều mỗi ngày mà không thấy nặng',
+    desc: 'Những cách học nhẹ nhưng bền để giữ nhịp học tiếng Anh lâu dài mà không bị burnout.',
+    date: '20 tháng 3, 2026',
+    readTime: '4 phút đọc',
+    slug: 'cach-hoc-deu-moi-ngay',
+  },
+  {
+    category: 'TOEIC',
+    color: 'sky',
+    title: 'Mẹo xử lý câu hỏi Part 5 & 6 nhanh hơn',
+    desc: 'Ghi chú ngắn gọn giúp bạn làm bài hiệu quả hơn trong thời gian giới hạn.',
+    date: '18 tháng 3, 2026',
+    readTime: '5 phút đọc',
+    slug: 'meo-xu-ly-cau-hoi-toeic',
+  },
+  {
+    category: 'IELTS',
+    color: 'emerald',
+    title: 'Tập trung đúng kỹ năng thay vì học dàn trải',
+    desc: 'Gợi ý cách học theo kỹ năng để tránh dàn trải và đỡ mất sức trong quá trình luyện IELTS.',
+    date: '15 tháng 3, 2026',
+    readTime: '3 phút đọc',
+    slug: 'tap-trung-dung-ky-nang-ielts',
+  },
+];
+
+const colorMap: Record<string, { badge: string; text: string; dot: string }> = {
+  teal:    { badge: 'bg-teal-50 text-teal-600',    text: 'text-teal-600',    dot: 'bg-teal-400' },
+  sky:     { badge: 'bg-sky-50 text-sky-600',      text: 'text-sky-600',     dot: 'bg-sky-400' },
+  emerald: { badge: 'bg-emerald-50 text-emerald-600', text: 'text-emerald-600', dot: 'bg-emerald-400' },
+};
+---
+
+<Layout title="Blog | Learn Lab">
+  <main class="min-h-screen bg-slate-50/60 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <div class="mx-auto max-w-6xl space-y-8">
+
+      <!-- ── Header ── -->
+      <div class="rounded-[28px] border border-slate-100 bg-white px-6 py-8 shadow-sm sm:px-8 sm:py-10">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.3em] text-slate-400">Blog</p>
+            <h1 class="mt-3 text-3xl font-extrabold text-slate-900 sm:text-4xl">
+              Học tiếng Anh dễ áp dụng
+            </h1>
+            <p class="mt-3 max-w-xl text-base leading-7 text-slate-500">
+              Ghi chú học tập, mẹo làm bài và ý tưởng giúp việc học bớt rối — viết ngắn để đọc xong là dùng được.
+            </p>
+          </div>
+          <div class="flex shrink-0 flex-col gap-2 sm:items-end">
+            <span class="inline-flex rounded-full bg-teal-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-teal-600">
+              {posts.length} bài viết
+            </span>
+          </div>
+        </div>
+
+        <!-- Category filter -->
+        <div class="mt-6 flex flex-wrap gap-2">
+          {['Tất cả', 'Study Tips', 'TOEIC', 'IELTS', 'Cambridge', 'Vocabulary'].map(tag => (
+            <button class={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${tag === 'Tất cả' ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+              {tag}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- ── Post grid ── -->
+      <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {posts.map(post => {
+          const c = colorMap[post.color];
+          return (
+            <a
+              href={`/blog/${post.slug}`}
+              class="group flex flex-col rounded-[24px] border border-slate-100 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+            >
+              <div class="flex items-center justify-between">
+                <span class={`rounded-full px-3 py-1 text-xs font-bold ${c.badge}`}>
+                  {post.category}
+                </span>
+                <span class="text-xs text-slate-400">{post.readTime}</span>
+              </div>
+
+              <h2 class="mt-4 text-lg font-extrabold leading-snug text-slate-900">
+                {post.title}
+              </h2>
+              <p class="mt-2 flex-1 text-sm leading-6 text-slate-500">
+                {post.desc}
+              </p>
+
+              <div class="mt-5 flex items-center justify-between">
+                <span class="text-xs text-slate-400">{post.date}</span>
+                <span class={`text-sm font-semibold ${c.text} group-hover:underline`}>
+                  Đọc tiếp →
+                </span>
+              </div>
+            </a>
+          );
+        })}
+
+        <!-- Coming soon card -->
+        <div class="flex flex-col items-center justify-center rounded-[24px] border border-dashed border-slate-200 bg-slate-50/80 p-6 text-center">
+          <div class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-xl shadow-sm">✍️</div>
+          <p class="mt-4 text-sm font-bold text-slate-400">Bài viết mới sắp ra</p>
+          <p class="mt-1 text-xs text-slate-400">Mình đang viết thêm — quay lại sớm nhé!</p>
+        </div>
+      </div>
+
+      <!-- ── Back link ── -->
+      <div class="pb-4">
+        <a href="/" class="text-sm font-semibold text-slate-400 hover:text-slate-600">
+          ← Về trang chủ
+        </a>
+      </div>
+
+    </div>
+  </main>
+</Layout>

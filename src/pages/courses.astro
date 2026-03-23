@@ -1,0 +1,222 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const courses = [
+  {
+    emoji: '🏆',
+    badge: 'Phổ biến nhất',
+    badgeColor: 'bg-amber-100 text-amber-600',
+    category: 'Tiếng Anh',
+    color: 'teal',
+    title: 'TOEIC 600+ trong 30 ngày',
+    desc: 'Lộ trình học có cấu trúc rõ ràng, tập trung vào từ vựng, ngữ pháp và chiến lược làm bài thi thực tế.',
+    details: ['30 buổi học online 1-1 hoặc nhóm nhỏ', 'Tài liệu PDF + flashcard riêng', 'Luyện đề có chữa bài chi tiết', 'Hỗ trợ qua Zalo trong suốt khoá'],
+    level: 'B1 → B2',
+    duration: '30 ngày',
+  },
+  {
+    emoji: '🎓',
+    badge: null,
+    badgeColor: '',
+    category: 'Tiếng Anh',
+    color: 'sky',
+    title: 'IELTS Writing Task 1 & 2',
+    desc: 'Học cách viết bài học thuật đúng cấu trúc, dùng từ tốt và đạt band 6.0–7.0 có lộ trình.',
+    details: ['Phân tích đề mẫu theo từng dạng', 'Chữa bài writing trực tiếp', 'Bộ từ vựng học thuật theo chủ đề', 'Hỗ trợ qua Zalo trong suốt khoá'],
+    level: 'B2 → C1',
+    duration: '45 ngày',
+  },
+  {
+    emoji: '🔬',
+    badge: 'Mới',
+    badgeColor: 'bg-sky-100 text-sky-600',
+    category: 'Nghiên cứu khoa học',
+    color: 'indigo',
+    title: 'Nghiên cứu khoa học cơ bản',
+    desc: 'Từ đặt câu hỏi nghiên cứu đến viết báo cáo — khoá học phù hợp sinh viên và người mới bắt đầu.',
+    details: ['Phương pháp nghiên cứu định tính & định lượng', 'Cách đọc và trích dẫn tài liệu khoa học', 'Viết abstract, introduction, conclusion', 'Hỗ trợ qua Zalo trong suốt khoá'],
+    level: 'Cơ bản → Trung cấp',
+    duration: '30 ngày',
+  },
+  {
+    emoji: '📊',
+    badge: 'Mới',
+    badgeColor: 'bg-emerald-100 text-emerald-600',
+    category: 'Phân tích dữ liệu',
+    color: 'emerald',
+    title: 'Phân tích dữ liệu với Python',
+    desc: 'Học cách xử lý, trực quan hoá và rút ra insight từ dữ liệu thực tế bằng Python và các thư viện phổ biến.',
+    details: ['Pandas, Matplotlib, Seaborn cơ bản đến nâng cao', 'Thực hành với dataset thực tế', 'Xây dựng báo cáo phân tích hoàn chỉnh', 'Hỗ trợ qua Zalo trong suốt khoá'],
+    level: 'Cơ bản → Trung cấp',
+    duration: '45 ngày',
+  },
+  {
+    emoji: '💬',
+    badge: null,
+    badgeColor: '',
+    category: 'Tiếng Anh',
+    color: 'teal',
+    title: 'Tiếng Anh giao tiếp thực tế',
+    desc: 'Luyện phản xạ nói, mở rộng vốn từ giao tiếp và tự tin hơn trong các tình huống thực tế.',
+    details: ['Luyện nói theo chủ đề hằng ngày', 'Sửa phát âm và ngữ điệu', 'Roleplay tình huống thực tế', 'Hỗ trợ qua Zalo trong suốt khoá'],
+    level: 'A2 → B2',
+    duration: '30 ngày',
+  },
+  {
+    emoji: '📈',
+    badge: 'Sắp ra',
+    badgeColor: 'bg-slate-100 text-slate-500',
+    category: 'Phân tích dữ liệu',
+    color: 'emerald',
+    title: 'Excel & Google Sheets nâng cao',
+    desc: 'Làm chủ công cụ phân tích dữ liệu phổ biến nhất trong môi trường công việc thực tế.',
+    details: ['Pivot Table, VLOOKUP, công thức nâng cao', 'Dashboard báo cáo chuyên nghiệp', 'Tự động hoá với Macro cơ bản', 'Hỗ trợ qua Zalo trong suốt khoá'],
+    level: 'Cơ bản → Nâng cao',
+    duration: '20 ngày',
+  },
+];
+
+const colorMap: Record<string, { badge: string; tag: string; icon: string; border: string }> = {
+  teal:    { badge: 'bg-teal-50 text-teal-600',       tag: 'bg-teal-100 text-teal-600',    icon: 'bg-teal-50',    border: 'border-teal-100' },
+  sky:     { badge: 'bg-sky-50 text-sky-600',         tag: 'bg-sky-100 text-sky-600',      icon: 'bg-sky-50',     border: 'border-sky-100' },
+  emerald: { badge: 'bg-emerald-50 text-emerald-600', tag: 'bg-emerald-100 text-emerald-600', icon: 'bg-emerald-50', border: 'border-emerald-100' },
+  indigo:  { badge: 'bg-indigo-50 text-indigo-600',   tag: 'bg-indigo-100 text-indigo-600', icon: 'bg-indigo-50',  border: 'border-indigo-100' },
+};
+---
+
+<Layout title="Khoá học | Learn Lab">
+  <main class="min-h-screen bg-slate-50/60 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <div class="mx-auto max-w-6xl space-y-8">
+
+      <!-- ── Header ── -->
+      <div class="rounded-[28px] border border-slate-100 bg-white px-6 py-8 shadow-sm sm:px-8 sm:py-10">
+        <div class="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-[0.3em] text-slate-400">Khoá học</p>
+            <h1 class="mt-3 text-3xl font-extrabold text-slate-900 sm:text-4xl">
+              Học có người đồng hành
+            </h1>
+            <p class="mt-3 max-w-xl text-base leading-7 text-slate-500">
+              Khoá học online 1-1 và nhóm nhỏ — học thật, chữa bài thật, hỗ trợ trực tiếp qua Zalo trong suốt khoá.
+            </p>
+          </div>
+          <div class="flex shrink-0 flex-col gap-2 sm:items-end">
+            <span class="inline-flex rounded-full bg-teal-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-teal-600">
+              {courses.filter(c => c.badge !== 'Sắp ra').length} khoá đang mở
+            </span>
+            <span class="inline-flex rounded-full bg-amber-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-amber-600">
+              Liên hệ Zalo để đăng ký
+            </span>
+          </div>
+        </div>
+
+        <!-- Category filter -->
+        <div class="mt-6 flex flex-wrap gap-2">
+          {['Tất cả', 'Tiếng Anh', 'Nghiên cứu khoa học', 'Phân tích dữ liệu'].map(tag => (
+            <button class={`rounded-full px-4 py-1.5 text-xs font-semibold transition ${tag === 'Tất cả' ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+              {tag}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- ── Course grid ── -->
+      <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {courses.map(course => {
+          const c = colorMap[course.color];
+          const isComingSoon = course.badge === 'Sắp ra';
+          return (
+            <div class={`flex flex-col rounded-[24px] border bg-white p-6 shadow-sm transition ${isComingSoon ? 'opacity-60' : 'hover:-translate-y-1 hover:shadow-md'} ${c.border}`}>
+
+              <!-- Top row -->
+              <div class="flex items-start justify-between gap-2">
+                <div class={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-xl ${c.icon}`}>
+                  {course.emoji}
+                </div>
+                <div class="flex flex-col items-end gap-1.5">
+                  <span class={`rounded-full px-3 py-1 text-xs font-bold ${c.badge}`}>
+                    {course.category}
+                  </span>
+                  {course.badge && (
+                    <span class={`rounded-full px-3 py-1 text-xs font-bold ${course.badgeColor}`}>
+                      {course.badge}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <!-- Content -->
+              <h2 class="mt-4 text-lg font-extrabold leading-snug text-slate-900">
+                {course.title}
+              </h2>
+              <p class="mt-2 text-sm leading-6 text-slate-500">
+                {course.desc}
+              </p>
+
+              <!-- Details list -->
+              <ul class="mt-4 flex-1 space-y-1.5">
+                {course.details.map(d => (
+                  <li class="flex items-start gap-2 text-xs text-slate-500">
+                    <span class="mt-0.5 text-teal-400">✓</span>
+                    {d}
+                  </li>
+                ))}
+              </ul>
+
+              <!-- Meta + CTA -->
+              <div class="mt-5 flex items-center justify-between border-t border-slate-50 pt-4">
+                <div class="flex flex-col gap-1">
+                  <span class={`rounded-lg px-2.5 py-1 text-xs font-semibold ${c.tag}`}>{course.level}</span>
+                  <span class="text-xs text-slate-400">⏱ {course.duration}</span>
+                </div>
+                {isComingSoon ? (
+                  <span class="rounded-2xl bg-slate-100 px-5 py-2.5 text-xs font-bold text-slate-400">
+                    Sắp ra
+                  </span>
+                ) : (
+                  <a
+                    href="https://zalo.me/0000000000"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-flex items-center gap-1.5 rounded-2xl bg-teal-500 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-teal-600"
+                  >
+                    Đăng ký Zalo →
+                  </a>
+                )}
+              </div>
+
+            </div>
+          );
+        })}
+      </div>
+
+      <!-- ── Zalo CTA banner ── -->
+      <div class="rounded-[24px] bg-gradient-to-br from-teal-500 to-teal-600 px-7 py-8 shadow-sm">
+        <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p class="text-lg font-extrabold text-white">Chưa biết nên chọn khoá nào?</p>
+            <p class="mt-1.5 text-sm text-teal-100">
+              Nhắn tin Zalo — mình sẽ tư vấn miễn phí và chọn khoá phù hợp nhất với mục tiêu của bạn.
+            </p>
+          </div>
+          <a
+            href="https://zalo.me/0000000000"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-7 py-3.5 text-sm font-bold text-teal-600 transition hover:bg-teal-50"
+          >
+            💬 Nhắn Zalo ngay
+          </a>
+        </div>
+      </div>
+
+      <!-- ── Back link ── -->
+      <div class="pb-4">
+        <a href="/" class="text-sm font-semibold text-slate-400 hover:text-slate-600">
+          ← Về trang chủ
+        </a>
+      </div>
+
+    </div>
+  </main>
+</Layout>

@@ -1,0 +1,52 @@
+---
+import Navigation from './Navigation.astro';
+---
+
+<header class="sticky top-0 z-50 border-b border-teal-100 bg-white/90 backdrop-blur">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between py-4">
+      <a href="/" class="text-xl font-extrabold tracking-tight text-teal-700">
+        Learn Lab
+      </a>
+
+      <button
+        id="menu-toggle"
+        class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 md:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        Menu
+      </button>
+
+      <div class="hidden md:block">
+        <Navigation />
+      </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden border-t border-slate-100 py-4 md:hidden">
+      <nav class="flex flex-col gap-3 text-sm font-medium text-slate-700">
+        <a href="/" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">Trang chủ</a>
+        <a href="/english-lab" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">English Lab</a>
+        <a href="/english-lab/toeic" class="rounded-xl px-3 py-2 pl-6 text-slate-600 transition hover:bg-teal-50 hover:text-teal-700">TOEIC</a>
+        <a href="/english-lab/ielts" class="rounded-xl px-3 py-2 pl-6 text-slate-600 transition hover:bg-sky-50 hover:text-sky-700">IELTS</a>
+        <a href="/english-lab/cambridge" class="rounded-xl px-3 py-2 pl-6 text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700">Cambridge</a>
+        <a href="/blog" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">Blog</a>
+        <a href="/free-resources" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">Tài liệu free</a>
+        <a href="/courses" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">Khóa học</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<script>
+  const toggleButton = document.getElementById('menu-toggle');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  if (toggleButton && mobileMenu) {
+    toggleButton.addEventListener('click', () => {
+      const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
+      toggleButton.setAttribute('aria-expanded', String(!isExpanded));
+      mobileMenu.classList.toggle('hidden');
+    });
+  }
+</script>
