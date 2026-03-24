@@ -1,5 +1,7 @@
 ---
-title: 3 mẹo học từ vựng TOEIC nhớ lâu hơn
+title: "3 mẹo học từ vựng TOEIC nhớ lâu hơn"
+date: 2026-03-24T15:59:00.000Z
+description: "Cách dùng flashcard và lặp lại ngắt quãng để nhớ từ vựng TOEIC lâu hơn."
 ---
 \## 1. Học ít nhưng đều mỗi ngày
 
