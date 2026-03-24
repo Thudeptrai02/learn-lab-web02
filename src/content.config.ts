@@ -1,44 +1,44 @@
 import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders'; // <-- Khai báo thêm "máy hút dữ liệu" glob
 
 // 1. Schema cho Blog
 const blog = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }), // Hút file .md từ thư mục blog
   schema: z.object({
     title: z.string(),
     date: z.date(),
-    description: z.string().optional(), // optional() nghĩa là có thể để trống
+    description: z.string().optional(),
   }),
 });
 
 // 2. Schema cho Tài liệu Free
 const resources = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: "**/*.md", base: "./src/content/resources" }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
     url: z.string(),
-    type: z.enum(['PDF', 'Worksheet', 'Checklist']), // Chỉ cho phép 3 giá trị này
+    type: z.enum(['PDF', 'Worksheet', 'Checklist']),
   }),
 });
 
 // 3. Schema cho Dictation (Nghe chép chính tả)
 const dictation = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: "**/*.md", base: "./src/content/dictation" }),
   schema: z.object({
     title: z.string(),
     exam: z.enum(['TOEIC', 'IELTS', 'Cambridge']),
-    audio: z.string(), // File audio trên Decap sẽ được lưu dưới dạng đường dẫn (string)
+    audio: z.string(),
     translation: z.string().optional(),
   }),
 });
 
 // 4. Schema cho Flashcards
 const flashcards = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: "**/*.md", base: "./src/content/flashcards" }),
   schema: z.object({
     title: z.string(),
     exam: z.enum(['TOEIC', 'IELTS', 'Cambridge']),
-    // Đây là mảng (array) chứa danh sách các từ vựng
     words: z.array(
       z.object({
         word: z.string(),
@@ -46,17 +46,16 @@ const flashcards = defineCollection({
         meaning: z.string(),
         example: z.string().optional(),
       })
-    ).default([]), // Mặc định là mảng rỗng nếu chưa có từ nào
+    ).default([]),
   }),
 });
 
 // 5. Schema cho Đề kiểm tra (Exams)
 const exams = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: "**/*.md", base: "./src/content/exams" }),
   schema: z.object({
     title: z.string(),
     exam: z.enum(['TOEIC', 'IELTS', 'Cambridge']),
-    // Mảng chứa danh sách các câu hỏi
     questions: z.array(
       z.object({
         question: z.string(),
@@ -70,7 +69,6 @@ const exams = defineCollection({
   }),
 });
 
-// Cuối cùng, xuất (export) tất cả các collections này ra để Astro sử dụng
 export const collections = {
   blog,
   resources,
