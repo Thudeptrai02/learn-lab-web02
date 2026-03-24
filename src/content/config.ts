@@ -9,4 +9,23 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { blog };
+const courses = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    type: z.enum(['flashcard', 'dictation']),
+    exam: z.enum(['TOEIC', 'IELTS', 'Cambridge']),
+  }),
+});
+
+const resources = defineCollection({
+  type: 'content',
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    url: z.string(),
+    type: z.enum(['PDF', 'Worksheet', 'Checklist']),
+  }),
+});
+
+export const collections = { blog, courses, resources };

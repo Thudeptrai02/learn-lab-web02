@@ -17,3 +17,25 @@ collections:
       - { label: "Ngày đăng", name: "date", widget: "datetime" }
       - { label: "Mô tả ngắn", name: "description", widget: "string" }
       - { label: "Nội dung", name: "body", widget: "markdown" }
+
+  - name: "courses"
+    label: "Flashcards & Dictation"
+    folder: "src/content/courses"
+    create: true
+    extension: md
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Loại", name: "type", widget: "select", options: ["flashcard", "dictation"] }
+      - { label: "Kỳ thi", name: "exam", widget: "select", options: ["TOEIC", "IELTS", "Cambridge"] }
+      - { label: "Nội dung", name: "body", widget: "markdown" }
+
+  - name: "resources"
+    label: "Tài liệu Free"
+    folder: "src/content/resources"
+    create: true
+    extension: md
+    fields:
+      - { label: "Tên tài liệu", name: "title", widget: "string" }
+      - { label: "Mô tả", name: "description", widget: "string" }
+      - { label: "Link tải", name: "url", widget: "string" }
+      - { label: "Loại", name: "type", widget: "select", options: ["PDF", "Worksheet", "Checklist"] }

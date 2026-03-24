@@ -4,16 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
-    <script>
-      if (window.location.hash) {
-        const hash = window.location.hash;
-        if (!window.location.pathname.includes('/admin')) {
-          window.location.href = '/admin/' + hash;
-        }
-      }
-    </script>
   </head>
   <body>
+    <script>
+      if (window.location.hash && !window.location.pathname.startsWith('/admin')) {
+        window.location.replace('/admin/' + window.location.hash);
+      }
+    </script>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </body>
 </html>
