@@ -18,7 +18,6 @@ collections:
       - { label: "Mô tả ngắn", name: "description", widget: "string" }
       - { label: "Nội dung", name: "body", widget: "markdown" }
 
-
   - name: "courses"
     label: "Flashcards & Dictation"
     folder: "src/content/courses"
