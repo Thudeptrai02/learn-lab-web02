@@ -6,11 +6,9 @@ const posts = await getCollection('blog');
 ---
 
 <Layout title="Blog">
-  <h1>DEBUG: {posts.length} posts</h1>
+  <h1>{posts.length} bài viết</h1>
   {posts.map(post => (
     <div>
-      <h2>{post.data.title}</h2>
-      <p>{post.data.date.toLocaleDateString()}</p>
-    </div>
-  ))}
-</Layout>
+      <h2>{post.data.title || 'No title'}</h2>
+      <p>{post.data.date || 'No date'}</p>
+    </
