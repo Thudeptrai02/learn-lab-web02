@@ -3,14 +3,69 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
 const posts = await getCollection('blog');
+// Sắp xếp bài mới nhất lên đầu
+const sortedPosts = posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 ---
 
-<Layout title="Blog">
-  <h1>{posts.length} bài viết</h1>
-  {posts.map(post => (
-    <div>
-      <h2>{post.data.title || 'No title'}</h2>
-      <p>{post.data.date || 'No date'}</p>
-    </div>
-  ))}
+<Layout title="Blog | Learn Lab - Cùng bạn chinh phục Tiếng Anh">
+  <main class="bg-[#fcfdfd] min-h-screen">
+    <section class="max-w-5xl mx-auto px-6 pt-20 pb-12 text-center">
+      <span class="text-teal-600 font-semibold tracking-widest uppercase text-sm bg-teal-50 px-3 py-1 rounded-full">Knowledge Base</span>
+      <h1 class="text-4xl md:text-5xl font-extrabold text-slate-800 mt-6 mb-4 tracking-tight">
+        Học Tiếng Anh <span class="text-teal-600">Thú Vị Hơn</span>
+      </h1>
+      <p class="text-slate-500 text-lg max-w-2xl mx-auto leading-relaxed">
+        Tổng hợp các bài viết về phương pháp học, tài liệu miễn phí và lộ trình tự học từ con số 0.
+      </p>
+    </section>
+
+    <section class="max-w-6xl mx-auto px-6 pb-24">
+      <div class="grid gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+        {sortedPosts.map(post => (
+          <article class="group cursor-pointer">
+            <a href={`/blog/${post.slug}`} class="block space-y-4">
+              <div class="aspect-video bg-gradient-to-br from-teal-500 to-teal-700 rounded-2xl shadow-sm group-hover:shadow-xl group-hover:-translate-y-1 transition-all duration-300 flex items-center justify-center overflow-hidden relative">
+                <span class="text-white/20 font-bold text-5xl select-none">LL</span>
+                {/* Sau này có ảnh bạn chỉ cần thêm thẻ img vào đây */}
+              </div>
+
+              <div class="space-y-2">
+                <div class="flex items-center gap-3 text-sm">
+                   <time class="text-slate-400 font-medium">
+                    {post.data.date ? new Date(post.data.date).toLocaleDateString('vi-VN', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Vừa xong'}
+                  </time>
+                  <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                  <span class="text-teal-600 font-bold">#EnglishLab</span>
+                </div>
+                
+                <h2 class="text-xl font-bold text-slate-800 leading-snug group-hover:text-teal-600 transition-colors line-clamp-2">
+                  {post.data.title}
+                </h2>
+                
+                <p class="text-slate-500 text-sm leading-relaxed line-clamp-3">
+                  {post.data.description || "Khám phá những bí quyết học tập độc đáo chỉ có tại Learn Lab giúp bạn tiến bộ vượt bậc..."}
+                </p>
+              </div>
+            </a>
+          </article>
+        ))}
+      </div>
+
+      {/* Empty State */}
+      {posts.length === 0 && (
+        <div class="text-center py-32">
+          <div class="inline-block p-6 bg-white rounded-3xl shadow-sm border border-slate-100">
+             <p class="text-slate-400 font-medium">Đang chuẩn bị nội dung học tập chất lượng... ✍️</p>
+          </div>
+        </div>
+      )}
+    </section>
+  </main>
 </Layout>
+
+<style>
+  /* Bạn có thể thêm font chữ tùy chỉnh ở đây nếu muốn */
+  h1, h2 {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+</style>

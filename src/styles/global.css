@@ -1,1 +1,23 @@
 @import "tailwindcss";
+@import "tailwindcss";
+
+@theme {
+  /* Định nghĩa bảng màu thương hiệu Learn Lab */
+  --color-learnlab-50: #f0f9f9;
+  --color-learnlab-100: #d9f2f2;
+  --color-learnlab-600: #008080; /* Màu Teal chủ đạo của bạn */
+  --color-learnlab-700: #006666;
+  --color-learnlab-900: #003333;
+
+  /* Định nghĩa màu nền và chữ mặc định */
+  --color-surface: #fcfdfd;
+  --color-text-main: #1e293b; /* Slate 800 */
+  --color-text-muted: #64748b; /* Slate 500 */
+}
+
+/* Các tùy chỉnh CSS bổ sung nếu cần */
+body {
+  background-color: var(--color-surface);
+  color: var(--color-text-main);
+  font-family: 'Inter', system-ui, sans-serif;
+}
