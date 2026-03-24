@@ -1,20 +1,20 @@
---- 
+---
 import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
 const posts = await getCollection('blog');
---- 
+---
 
 <Layout title="Blog">
-  <main>
-    <h1>Blog</h1>
-    
-    {#each posts as post}
-      <article>
-        <h2>{post.data.title}</h2>
-        <p>{post.data.date.toLocaleDateString()}</p>
-        <a href={`/blog/${post.slug}`}>Read more</a>
-      </article>
-    {/each}
-  </main>
+  <h1>Blog</h1>
+  
+  <ul>
+  {posts.map(post => (
+    <li>
+      <a href={`/blog/${post.slug}`}>
+        {post.data.title} - {post.data.date.toLocaleDateString()}
+      </a>
+    </li>
+  ))}
+  </ul>
 </Layout>
