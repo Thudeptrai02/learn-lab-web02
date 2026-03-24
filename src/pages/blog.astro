@@ -11,4 +11,6 @@ const posts = await getCollection('blog');
     <div>
       <h2>{post.data.title || 'No title'}</h2>
       <p>{post.data.date || 'No date'}</p>
-    </
+    </div>
+  ))}
+</Layout>
