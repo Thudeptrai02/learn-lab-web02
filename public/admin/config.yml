@@ -11,6 +11,9 @@ collections:
     label: "Blog"
     folder: "src/content/blog"
     create: true
+    extension: md
     fields:
       - { label: "Title", name: "title", widget: "string" }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Ngày đăng", name: "date", widget: "datetime" }
+      - { label: "Mô tả ngắn", name: "description", widget: "string" }
+      - { label: "Nội dung", name: "body", widget: "markdown" }
