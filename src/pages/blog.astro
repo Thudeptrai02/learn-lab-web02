@@ -3,21 +3,22 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
 const posts = await getCollection('blog').catch(() => []);
-console.log('POSTS count:', posts.length);
 ---
 
 <Layout title="Blog">
-  <h1>Blog</h1>
-  
-  {#if posts.length > 0}
-    {#each posts as post}
-      <article>
-        <h2>{post.data.title}</h2>
-        <time>{post.data.date.toLocaleDateString()}</time>
-        <a href={`/blog/${post.slug}/`}>Đọc tiếp</a>
-      </article>
-    {/each}
-  {:else}
-    <p>Chưa có bài viết nào...</p>
-  {/if}
+  <div class="max-w-4xl mx-auto p-8">
+    <h1 class="text-4xl font-bold mb-12">Blog</h1>
+    
+    {#if posts.length > 0}
+      {#each posts as post}
+        <article class="mb-12 p-6 border rounded-lg">
+          <h2 class="text-2xl font-bold mb-2">{post.data.title}</h2>
+          <time class="text-gray-500 mb-4">{post.data.date.toLocaleDateString('vi-VN')}</time>
+          <a href={`/blog/${post.slug}`} class="text-blue-500 hover:underline">Đọc tiếp →</a>
+        </article>
+      {/each}
+    {:else}
+      <p class="text-xl text-gray-500">Chưa có bài viết nào...</p>
+    {/if}
+  </div>
 </Layout>
