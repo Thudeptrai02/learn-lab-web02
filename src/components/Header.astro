@@ -1,39 +1,60 @@
 ---
-import Navigation from './Navigation.astro';
+// Header.astro - Menu sạch sẽ: English Lab -> TOEIC, IELTS, Cambridge
 ---
 
-<header class="sticky top-0 z-50 border-b border-teal-100 bg-white/90 backdrop-blur">
-  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between py-4">
-      <a href="/" class="text-xl font-extrabold tracking-tight text-teal-700">
-        Learn Lab
+<header class="sticky top-0 z-50 border-b border-slate-100 bg-white/95 backdrop-blur-sm shadow-sm">
+  <div class="mx-auto max-w-7xl px-6 py-4">
+    <div class="flex items-center justify-between">
+      
+      <a href="/" class="flex items-center gap-2.5 group shrink-0">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 shadow-md shadow-teal-100 transition-transform group-hover:rotate-6">
+          <span class="text-xl font-black text-white">L</span>
+        </div>
+        <span class="text-2xl font-black tracking-tight text-slate-900">
+          Learn<span class="text-teal-600">Lab</span>
+        </span>
       </a>
 
-      <button
-        id="menu-toggle"
-        class="inline-flex items-center justify-center rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 md:hidden"
-        aria-expanded="false"
-        aria-controls="mobile-menu"
-      >
-        Menu
-      </button>
+      <nav class="hidden md:flex flex-1 items-center justify-center gap-10 text-sm font-bold text-slate-600">
+        <a href="/" class="transition-colors hover:text-teal-700">Trang chủ</a>
+        
+        <div class="group relative py-2">
+          <button class="flex items-center gap-1 transition-colors group-hover:text-teal-700">
+            English Lab
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-4 w-4 transition-transform group-hover:rotate-180">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+            </svg>
+          </button>
+          
+          <div class="absolute left-1/2 top-full w-48 -translate-x-1/2 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+            <div class="rounded-2xl border border-slate-100 bg-white p-2 shadow-2xl">
+              <a href="/english-lab/toeic" class="block rounded-xl px-4 py-3 text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition-colors font-bold">🎯 TOEIC</a>
+              <a href="/english-lab/ielts" class="block rounded-xl px-4 py-3 text-slate-700 hover:bg-sky-50 hover:text-sky-700 transition-colors font-bold">📘 IELTS</a>
+              <a href="/english-lab/cambridge" class="block rounded-xl px-4 py-3 text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-bold">🎓 Cambridge</a>
+            </div>
+          </div>
+        </div>
 
-      <div class="hidden md:block">
-        <Navigation />
+        <a href="/blog" class="transition-colors hover:text-teal-700">Blog</a>
+        <a href="/free-resources" class="transition-colors hover:text-teal-700">Tài liệu</a>
+      </nav>
+
+      <div class="hidden md:flex items-center gap-3 shrink-0">
+        <a href="/login" class="px-4 py-2.5 text-sm font-bold text-slate-700 transition-all hover:text-teal-700">Đăng nhập</a>
+        <a href="/register" class="rounded-xl bg-teal-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-teal-100 transition-all hover:bg-teal-700 hover:-translate-y-0.5 active:scale-95">Đăng ký</a>
       </div>
+
+      <button id="menu-toggle" class="rounded-xl border border-slate-200 p-2 md:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+      </button>
     </div>
 
-    <div id="mobile-menu" class="hidden border-t border-slate-100 py-4 md:hidden">
-      <nav class="flex flex-col gap-3 text-sm font-medium text-slate-700">
-        <a href="/" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">Trang chủ</a>
-        <a href="/english-lab" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">English Lab</a>
-        <a href="/english-lab/toeic" class="rounded-xl px-3 py-2 pl-6 text-slate-600 transition hover:bg-teal-50 hover:text-teal-700">TOEIC</a>
-        <a href="/english-lab/ielts" class="rounded-xl px-3 py-2 pl-6 text-slate-600 transition hover:bg-sky-50 hover:text-sky-700">IELTS</a>
-        <a href="/english-lab/cambridge" class="rounded-xl px-3 py-2 pl-6 text-slate-600 transition hover:bg-emerald-50 hover:text-emerald-700">Cambridge</a>
-        <a href="/blog" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">Blog</a>
-        <a href="/free-resources" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">Tài liệu free</a>
-        <a href="/courses" class="rounded-xl px-3 py-2 transition hover:bg-teal-50 hover:text-teal-700">Khóa học</a>
-      </nav>
+    <div id="mobile-menu" class="hidden border-t border-slate-100 mt-4 pt-4 md:hidden text-sm font-bold">
+      <a href="/" class="block px-4 py-2 hover:bg-slate-50">Trang chủ</a>
+      <p class="px-4 pt-4 text-[10px] uppercase text-slate-400">Chứng chỉ</p>
+      <a href="/english-lab/toeic" class="block px-4 py-3 pl-8 text-teal-700">TOEIC</a>
+      <a href="/english-lab/ielts" class="block px-4 py-3 pl-8 text-sky-700">IELTS</a>
+      <a href="/english-lab/cambridge" class="block px-4 py-3 pl-8 text-emerald-700">Cambridge</a>
     </div>
   </div>
 </header>
@@ -41,11 +62,8 @@ import Navigation from './Navigation.astro';
 <script>
   const toggleButton = document.getElementById('menu-toggle');
   const mobileMenu = document.getElementById('mobile-menu');
-
   if (toggleButton && mobileMenu) {
     toggleButton.addEventListener('click', () => {
-      const isExpanded = toggleButton.getAttribute('aria-expanded') === 'true';
-      toggleButton.setAttribute('aria-expanded', String(!isExpanded));
       mobileMenu.classList.toggle('hidden');
     });
   }

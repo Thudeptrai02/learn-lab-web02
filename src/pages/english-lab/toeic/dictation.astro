@@ -60,122 +60,148 @@ const topics = [
 ---
 
 <Layout title="TOEIC Dictation | Learn Lab">
-  <main class="min-h-screen bg-teal-50/40 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+  <main class="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
     <section class="mx-auto max-w-3xl">
 
-      <!-- Topic picker -->
       <div id="topic-picker">
-        <div class="rounded-[28px] border border-teal-100 bg-white px-6 py-8 shadow-sm sm:px-8">
-          <p class="text-sm font-bold uppercase tracking-[0.3em] text-teal-600">TOEIC Dictation</p>
-          <h1 class="mt-3 text-3xl font-extrabold text-slate-900 sm:text-4xl">Chọn chủ đề</h1>
-          <p class="mt-3 text-base leading-7 text-slate-600">
-            Mỗi chủ đề có 10 câu. Nghe → Gõ lại → Kiểm tra → Next.
+        <div class="rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-sm sm:px-10 sm:py-10">
+          <p class="text-xs font-bold uppercase tracking-widest text-teal-600">TOEIC Dictation</p>
+          <h1 class="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Chọn chủ đề luyện nghe</h1>
+          <p class="mt-3 text-base leading-relaxed text-slate-600">
+            Mỗi chủ đề gồm 10 câu. Hệ thống sẽ phát âm thanh, nhiệm vụ của bạn là gõ lại chính xác từng từ.
           </p>
         </div>
 
-        <div class="mt-4 flex flex-col gap-4">
+        <div class="mt-6 flex flex-col gap-4">
           {topics.map((topic) => (
             <button
-              class="topic-card text-left rounded-[24px] border border-slate-100 bg-white px-6 py-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              class="topic-card group text-left rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:-translate-y-1 hover:border-teal-300 hover:shadow-md"
               data-topic={topic.id}
             >
-              <p class={`text-sm font-semibold ${
-                topic.color === 'teal' ? 'text-teal-600' :
-                topic.color === 'sky' ? 'text-sky-600' : 'text-emerald-600'
-              }`}>{topic.title}</p>
-              <p class="mt-1 text-base font-bold text-slate-900">{topic.description}</p>
-              <p class="mt-1 text-sm text-slate-500">{topic.sentences.length} câu</p>
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class={`text-xs font-bold uppercase tracking-widest ${
+                    topic.color === 'teal' ? 'text-teal-600' :
+                    topic.color === 'sky' ? 'text-sky-600' : 'text-emerald-600'
+                  }`}>{topic.title}</p>
+                  <p class="mt-1.5 text-lg font-bold text-slate-900">{topic.description}</p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-slate-500 group-hover:bg-teal-50 group-hover:text-teal-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </div>
+              </div>
+              <p class="mt-2 text-sm font-medium text-slate-500">{topic.sentences.length} câu hỏi</p>
             </button>
           ))}
         </div>
       </div>
 
-      <!-- Practice view -->
       <div id="practice-view" class="hidden">
-
+        
         <div class="flex items-center justify-between gap-4">
-          <button id="back-btn" class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-            ← Chủ đề khác
+          <button id="back-btn" class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+            Quay lại
           </button>
-          <span id="progress-label" class="text-sm font-semibold text-slate-500"></span>
+          <span id="progress-label" class="text-sm font-bold text-slate-500"></span>
         </div>
 
-        <!-- Progress bar -->
-        <div class="mt-4 h-2 w-full rounded-full bg-slate-100">
-          <div id="progress-bar" class="h-2 rounded-full bg-teal-500 transition-all duration-500" style="width: 0%"></div>
+        <div class="mt-4 h-2 w-full overflow-hidden rounded-full bg-slate-200">
+          <div id="progress-bar" class="h-full rounded-full bg-teal-500 transition-all duration-500 ease-out" style="width: 0%"></div>
         </div>
 
-        <!-- Streak banner -->
-        <div id="streak-banner" class="hidden mt-4 rounded-2xl bg-orange-50 border border-orange-100 px-5 py-3 flex items-center gap-3">
-          <span class="text-xl">🔥</span>
-          <span id="streak-text" class="text-sm font-bold text-orange-600"></span>
+        <div id="streak-banner" class="hidden mt-6 rounded-xl border border-amber-200 bg-amber-50 px-5 py-3 flex items-center justify-center gap-3 shadow-sm">
+          <span class="text-xl animate-bounce">🔥</span>
+          <span id="streak-text" class="text-sm font-bold text-amber-700"></span>
         </div>
 
-        <div class="mt-4 rounded-[28px] border border-teal-100 bg-white px-6 py-8 shadow-sm sm:px-8">
+        <div class="mt-6 rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-sm sm:px-10">
 
-          <div class="flex items-center justify-between">
-            <p id="topic-label" class="text-sm font-bold uppercase tracking-[0.3em] text-teal-600"></p>
-            <span id="level-badge" class="text-xs font-semibold text-slate-400"></span>
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <p id="topic-label" class="text-xs font-bold uppercase tracking-widest text-teal-600"></p>
+            <span id="level-badge" class="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500"></span>
           </div>
 
-          <h2 class="mt-4 text-lg font-bold text-slate-900">Nghe và gõ lại câu bạn nghe được</h2>
-          <p class="mt-1 text-xs text-slate-400">Ctrl để nghe lại · Enter để kiểm tra</p>
-
-          <!-- Play + speed controls -->
-          <div class="mt-6 flex flex-wrap items-center gap-3">
-            <button id="play-btn" class="inline-flex items-center gap-2 rounded-2xl bg-teal-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-600">
-              ▶ Phát câu
+          <h2 class="mt-6 text-xl font-bold text-slate-900 text-center">Nghe và gõ lại câu bạn nghe được</h2>
+          
+          <div class="mt-6 flex flex-wrap items-center justify-center gap-4 rounded-xl bg-slate-50 p-4 border border-slate-100">
+            <button id="play-btn" class="inline-flex h-12 items-center gap-2 rounded-xl bg-teal-600 px-6 text-sm font-bold text-white shadow-md shadow-teal-200 transition hover:bg-teal-700 active:scale-95">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd" /></svg>
+              Phát âm thanh
             </button>
 
-            <div class="flex items-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1">
-              <button data-speed="0.5" class="speed-btn rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-white hover:text-slate-800">0.5x</button>
-              <button data-speed="0.75" class="speed-btn rounded-xl px-3 py-1.5 text-xs font-semibold text-slate-500 transition hover:bg-white hover:text-slate-800">0.75x</button>
-              <button data-speed="1" class="speed-btn active-speed rounded-xl bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 shadow-sm transition">1x</button>
+            <div class="relative">
+              <button id="speed-toggle" class="inline-flex h-12 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-teal-600 focus:outline-none">
+                <span id="current-speed-text">1.0x</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-4 w-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+              
+              <div id="speed-menu" class="absolute left-0 top-full mt-2 hidden w-28 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl z-20 origin-top-left">
+                <button data-speed="0.5" class="speed-option px-4 py-2.5 text-left text-sm font-bold text-slate-600 transition hover:bg-teal-50 hover:text-teal-700">0.5x</button>
+                <button data-speed="0.75" class="speed-option px-4 py-2.5 text-left text-sm font-bold text-slate-600 transition hover:bg-teal-50 hover:text-teal-700">0.75x</button>
+                <button data-speed="1.0" class="speed-option bg-teal-50 px-4 py-2.5 text-left text-sm font-bold text-teal-700 transition hover:bg-teal-50 hover:text-teal-700">1.0x</button>
+                <button data-speed="1.25" class="speed-option px-4 py-2.5 text-left text-sm font-bold text-slate-600 transition hover:bg-teal-50 hover:text-teal-700">1.25x</button>
+                <button data-speed="1.5" class="speed-option px-4 py-2.5 text-left text-sm font-bold text-slate-600 transition hover:bg-teal-50 hover:text-teal-700">1.5x</button>
+              </div>
             </div>
 
-            <span class="text-xs text-slate-400">Ctrl nghe lại</span>
+            <div class="ml-4 text-xs font-medium text-slate-400">
+              Nhấn <kbd class="rounded border border-slate-300 bg-white px-1 font-mono text-slate-500">Ctrl</kbd> để nghe lại
+            </div>
           </div>
 
-          <!-- Word slots -->
-          <div class="mt-8">
-            <div id="word-slots" class="flex flex-wrap gap-x-5 gap-y-5 pb-2"></div>
+          <div class="mt-10 rounded-xl border-2 border-slate-100 bg-white p-6 shadow-inner min-h-[120px] focus-within:border-teal-200 focus-within:ring-4 focus-within:ring-teal-50 transition-all">
+            <div id="word-slots" class="flex flex-wrap justify-center gap-y-6 gap-x-3 text-2xl font-mono text-slate-700 focus:outline-none" tabindex="0">
+            </div>
           </div>
 
-          <!-- Actions -->
-          <div class="mt-6 flex flex-wrap items-center gap-3">
-            <button id="check-btn" class="inline-flex rounded-2xl bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700">
-              Kiểm tra
+          <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <button id="check-btn" class="inline-flex rounded-xl bg-slate-800 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-slate-900 shadow-md">
+              Kiểm tra (Enter)
             </button>
-            <button id="show-btn" class="inline-flex rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+            <button id="show-btn" class="inline-flex rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900">
               Xem đáp án
             </button>
-            <button id="reset-btn" class="inline-flex rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
-              Làm lại
+            <button id="reset-btn" class="inline-flex rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-600 transition hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200">
+              Xóa gõ lại
             </button>
           </div>
 
-          <div id="result-box" class="hidden mt-5 rounded-2xl bg-slate-50 px-5 py-4 text-sm leading-8"></div>
-          <div id="score-box" class="hidden mt-3 text-sm font-semibold"></div>
+          <div id="result-box" class="hidden mt-6 text-center rounded-xl bg-slate-50 border border-slate-200 p-6 text-lg leading-relaxed font-medium"></div>
+          <div id="score-box" class="hidden mt-4 text-center text-base font-bold"></div>
 
-          <div id="next-wrap" class="hidden mt-6 border-t border-slate-100 pt-6">
-            <button id="next-btn" class="inline-flex w-full items-center justify-center rounded-2xl bg-teal-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-600">
-              Câu tiếp theo →
+          <div id="next-wrap" class="hidden mt-8 border-t border-slate-100 pt-8">
+            <button id="next-btn" class="mx-auto flex w-full max-w-sm items-center justify-center gap-2 rounded-xl bg-teal-600 px-6 py-4 text-base font-bold text-white shadow-md shadow-teal-200 transition hover:bg-teal-700 hover:-translate-y-0.5">
+              Câu tiếp theo
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </button>
           </div>
+
         </div>
       </div>
 
-      <!-- Done screen -->
-      <div id="done-screen" class="hidden rounded-[28px] border border-emerald-100 bg-emerald-50 px-6 py-10 text-center shadow-sm">
-        <p class="text-sm font-bold uppercase tracking-[0.3em] text-emerald-600">Hoàn thành</p>
+      <div id="done-screen" class="hidden rounded-2xl border border-teal-100 bg-white px-6 py-12 text-center shadow-sm sm:px-12">
+        <div class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-teal-100">
+          <span class="text-4xl">🎉</span>
+        </div>
+        <p class="text-xs font-bold uppercase tracking-widest text-teal-600">Hoàn thành xuất sắc</p>
         <h2 class="mt-3 text-3xl font-extrabold text-slate-900">Bạn đã luyện xong chủ đề này!</h2>
-        <p id="final-score" class="mt-4 text-lg font-semibold text-slate-700"></p>
-        <p id="best-streak" class="mt-2 text-sm font-semibold text-orange-500"></p>
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <button id="retry-btn" class="inline-flex items-center justify-center rounded-2xl bg-teal-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-teal-600">
+        
+        <div class="mt-8 rounded-xl bg-slate-50 p-6 inline-block min-w-[250px]">
+          <p id="final-score" class="text-xl font-bold text-slate-800"></p>
+          <div class="mt-3 h-px w-full bg-slate-200"></div>
+          <p id="best-streak" class="mt-3 text-sm font-bold text-amber-600"></p>
+        </div>
+
+        <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <button id="retry-btn" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-6 py-3.5 text-sm font-bold text-white shadow-md shadow-teal-200 transition hover:bg-teal-700 hover:-translate-y-0.5">
             Luyện lại chủ đề này
           </button>
-          <button id="home-btn" class="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+          <button id="home-btn" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50 hover:text-slate-900">
             Chọn chủ đề khác
           </button>
         </div>
@@ -192,7 +218,7 @@ const topics = [
   let totalWords    = 0;
   let typedValue    = '';
   let isChecked     = false;
-  let currentSpeed  = 1;
+  let currentSpeed  = 1.0;
   let streak        = 0;
   let bestStreak    = 0;
 
@@ -220,30 +246,72 @@ const topics = [
   const streakBanner  = document.getElementById('streak-banner');
   const streakText    = document.getElementById('streak-text');
 
-  // ── Speech ────────────────────────────────────────────────────
+  const speedToggle   = document.getElementById('speed-toggle');
+  const speedMenu     = document.getElementById('speed-menu');
+  const speedText     = document.getElementById('current-speed-text');
+  const speedOptions  = document.querySelectorAll('.speed-option');
+
+  function playNextSound() {
+    try {
+      const ctx = new window.AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+      
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.15);
+    } catch (e) {
+      console.warn("Audio Context failed to start", e);
+    }
+  }
+
   function speak(text, onEnd) {
     window.speechSynthesis.cancel();
-    const utter  = new SpeechSynthesisUtterance(text);
-    utter.lang   = 'en-US';
-    utter.rate   = currentSpeed;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang  = 'en-US';
+    utter.rate  = currentSpeed;
     if (onEnd) utter.onend = onEnd;
     window.speechSynthesis.speak(utter);
   }
 
-  // ── Speed buttons ─────────────────────────────────────────────
-  document.querySelectorAll('.speed-btn').forEach(btn => {
+  speedToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    speedMenu?.classList.toggle('hidden');
+    speedMenu?.classList.toggle('flex');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (speedToggle && speedMenu && !speedToggle.contains(e.target) && !speedMenu.contains(e.target)) {
+      speedMenu.classList.add('hidden');
+      speedMenu.classList.remove('flex');
+    }
+  });
+
+  speedOptions.forEach(btn => {
     btn.addEventListener('click', () => {
       currentSpeed = parseFloat(btn.dataset.speed);
-      document.querySelectorAll('.speed-btn').forEach(b => {
-        b.classList.remove('active-speed', 'bg-white', 'text-slate-800', 'shadow-sm');
-        b.classList.add('text-slate-500');
+      if(speedText) speedText.textContent = btn.dataset.speed + 'x';
+      
+      speedOptions.forEach(b => {
+        b.classList.remove('bg-teal-50', 'text-teal-700');
+        b.classList.add('text-slate-600');
       });
-      btn.classList.add('active-speed', 'bg-white', 'text-slate-800', 'shadow-sm');
-      btn.classList.remove('text-slate-500');
+      btn.classList.add('bg-teal-50', 'text-teal-700');
+      btn.classList.remove('text-slate-600');
+      
+      speedMenu?.classList.add('hidden');
+      speedMenu?.classList.remove('flex');
     });
   });
 
-  // ── Streak ────────────────────────────────────────────────────
   function updateStreak(isPerfect) {
     if (isPerfect) {
       streak++;
@@ -258,33 +326,33 @@ const topics = [
     }
   }
 
-  // ── Word slots ────────────────────────────────────────────────
   function buildWordSlots(text) {
     const words = text.replace(/[^a-zA-Z0-9\s]/g, '').split(/\s+/);
     wordSlots.innerHTML = '';
 
     words.forEach((word) => {
       const wrapper = document.createElement('div');
-      wrapper.className = 'flex flex-col items-start gap-1';
+      wrapper.className = 'relative flex flex-col justify-end min-w-[12px]';
       wrapper.dataset.word = word.toLowerCase();
 
       const display = document.createElement('div');
-      display.className = 'word-display min-h-[24px] text-base font-semibold tracking-wide text-slate-300';
-
-      const bars = document.createElement('div');
-      bars.className = 'flex gap-[3px]';
+      display.className = 'word-display absolute bottom-[6px] left-0 w-full text-center text-xl tracking-widest font-bold text-slate-800 pointer-events-none';
+      
+      const barsContainer = document.createElement('div');
+      barsContainer.className = 'flex gap-[2px] w-full justify-center';
 
       for (let j = 0; j < word.length; j++) {
         const bar = document.createElement('div');
-        bar.className = 'letter-bar h-[3px] w-[9px] rounded-full bg-slate-200 transition-all duration-150';
-        bars.appendChild(bar);
+        bar.className = 'letter-bar h-[3px] w-[14px] rounded-sm bg-slate-300 transition-colors duration-200';
+        barsContainer.appendChild(bar);
       }
 
       wrapper.appendChild(display);
-      wrapper.appendChild(bars);
+      wrapper.appendChild(barsContainer);
       wordSlots.appendChild(wrapper);
     });
 
+    wordSlots.focus();
     updateDisplay('');
   }
 
@@ -299,28 +367,20 @@ const topics = [
       const typed   = (typedWords[i] ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
 
       display.textContent = typedWords[i] ?? '';
-
-      // Real-time highlight: nếu đã gõ xong từ (có space sau) thì check ngay
       const wordDone = i < typedWords.length - 1;
 
-      if (value.trim() === '') {
-        display.className = 'word-display min-h-[24px] text-base font-semibold tracking-wide text-slate-300';
-      } else if (wordDone) {
-        const isCorrect = typed === target;
-        display.className = `word-display min-h-[24px] text-base font-semibold tracking-wide ${isCorrect ? 'text-emerald-500' : 'text-red-400'}`;
-      } else if (i === typedWords.length - 1) {
-        display.className = 'word-display min-h-[24px] text-base font-semibold tracking-wide text-teal-500';
-      } else {
-        display.className = 'word-display min-h-[24px] text-base font-semibold tracking-wide text-slate-300';
-      }
-
-      // Gạch màu
       bars.forEach((bar, j) => {
-        bar.classList.remove('bg-slate-200', 'bg-teal-400', 'bg-emerald-400', 'bg-red-400');
+        bar.classList.remove('bg-slate-300', 'bg-teal-400', 'bg-emerald-500', 'bg-rose-500');
+        
         if (wordDone) {
-          bar.classList.add(typed === target ? 'bg-emerald-400' : 'bg-red-400');
+          bar.classList.add(typed === target ? 'bg-emerald-500' : 'bg-rose-500');
+          display.className = `word-display absolute bottom-[6px] left-0 w-full text-center text-xl tracking-widest font-bold pointer-events-none ${typed === target ? 'text-emerald-600' : 'text-rose-500'}`;
+        } else if (i === typedWords.length - 1) {
+          bar.classList.add(j < typed.length ? 'bg-teal-400' : 'bg-slate-300');
+          display.className = 'word-display absolute bottom-[6px] left-0 w-full text-center text-xl tracking-widest font-bold text-teal-600 pointer-events-none';
         } else {
-          bar.classList.add(j < typed.length ? 'bg-teal-400' : 'bg-slate-200');
+          bar.classList.add('bg-slate-300');
+          display.className = 'word-display absolute bottom-[6px] left-0 w-full text-center text-xl tracking-widest font-bold text-slate-800 pointer-events-none';
         }
       });
     });
@@ -337,19 +397,16 @@ const topics = [
       const typed     = (typedWords[i] ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
       const isCorrect = typed === target;
 
-      display.className = `word-display min-h-[24px] text-base font-semibold tracking-wide ${isCorrect ? 'text-emerald-600' : 'text-red-500'}`;
+      display.className = `word-display absolute bottom-[6px] left-0 w-full text-center text-xl tracking-widest font-bold pointer-events-none ${isCorrect ? 'text-emerald-600' : 'text-rose-500'}`;
 
       bars.forEach((bar) => {
-        bar.classList.remove('bg-slate-200', 'bg-teal-400', 'bg-emerald-400', 'bg-red-400');
-        bar.classList.add(isCorrect ? 'bg-emerald-400' : 'bg-red-400');
+        bar.classList.remove('bg-slate-300', 'bg-teal-400', 'bg-emerald-500', 'bg-rose-500');
+        bar.classList.add(isCorrect ? 'bg-emerald-500' : 'bg-rose-500');
       });
     });
   }
 
-  // ── Check answer ──────────────────────────────────────────────
-  function normalise(str) {
-    return str.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
-  }
+  function normalise(str) { return str.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim(); }
 
   function checkAnswer(original, userInput) {
     const origWords  = normalise(original).split(/\s+/);
@@ -360,20 +417,18 @@ const topics = [
       const userWord = inputWords[i] ?? '';
       if (userWord === word) {
         correct++;
-        return `<span class="rounded px-1 bg-emerald-100 text-emerald-800 font-semibold">${word}</span>`;
+        return `<span class="rounded bg-emerald-100/50 px-1.5 py-0.5 text-emerald-700 font-bold">${word}</span>`;
       } else {
-        return `<span class="rounded px-1 bg-red-100 text-red-700 font-semibold" title="Bạn gõ: ${userWord || '(trống)'}">${word}</span>`;
+        return `<span class="rounded bg-rose-100/50 px-1.5 py-0.5 text-rose-600 font-bold line-through" title="Bạn gõ: ${userWord || '(trống)'}">${word}</span>`;
       }
     }).join(' ');
-
     return { html, correct, total: origWords.length };
   }
 
-  // ── Load / start ──────────────────────────────────────────────
   function loadSentence() {
     const total = currentTopic.sentences.length;
     progressLabel.textContent = `Câu ${currentIndex + 1} / ${total}`;
-    progressBar.style.width   = `${(currentIndex / total) * 100}%`;
+    progressBar.style.width   = `${((currentIndex) / total) * 100}%`;
     topicLabel.textContent    = currentTopic.title;
     levelBadge.textContent    = `Câu ${currentIndex + 1}`;
 
@@ -383,10 +438,11 @@ const topics = [
     resultBox.classList.add('hidden');
     scoreBox.classList.add('hidden');
     nextWrap.classList.add('hidden');
-    playBtn.textContent = '▶ Phát câu';
-    playBtn.disabled    = false;
+    playBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd" /></svg> Phát âm thanh`;
+    playBtn.disabled  = false;
 
     buildWordSlots(currentTopic.sentences[currentIndex]);
+    setTimeout(() => { playBtn.click(); }, 300);
   }
 
   function startTopic(topicId) {
@@ -396,55 +452,35 @@ const topics = [
     totalWords   = 0;
     streak       = 0;
     bestStreak   = 0;
-
     streakBanner.classList.add('hidden');
     topicPicker.classList.add('hidden');
     doneScreen.classList.add('hidden');
     practiceView.classList.remove('hidden');
-
     loadSentence();
   }
 
-  function showDone() {
-    practiceView.classList.add('hidden');
-    doneScreen.classList.remove('hidden');
-    const pct = totalWords > 0 ? Math.round((totalCorrect / totalWords) * 100) : 0;
-    finalScore.textContent    = `Độ chính xác tổng: ${totalCorrect}/${totalWords} từ — ${pct}%`;
-    bestStreakEl.textContent   = bestStreak >= 2 ? `🔥 Streak tốt nhất: ${bestStreak} câu liên tiếp` : '';
-    progressBar.style.width   = '100%';
-  }
-
-  // ── Keyboard ──────────────────────────────────────────────────
   document.addEventListener('keydown', (e) => {
     if (!practiceView || practiceView.classList.contains('hidden')) return;
-
-    if ([' ', 'Tab', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
-      e.preventDefault();
-    }
-
+    if ([' ', 'Tab', 'ArrowUp', 'ArrowDown'].includes(e.key)) e.preventDefault();
     if (isChecked) {
       if (e.key === 'Enter') { e.preventDefault(); nextBtn.click(); }
       return;
     }
-
     if (e.key === 'Control') {
       e.preventDefault();
       speak(currentTopic.sentences[currentIndex]);
       return;
     }
-
     if (e.key === 'Enter') {
       e.preventDefault();
       checkBtn.click();
       return;
     }
-
     if (e.key === 'Backspace') {
       typedValue = typedValue.slice(0, -1);
       updateDisplay(typedValue);
       return;
     }
-
     if (e.key.length === 1) {
       if (e.key === ' ' && typedValue.endsWith(' ')) return;
       typedValue += e.key;
@@ -452,84 +488,72 @@ const topics = [
     }
   });
 
-  // ── Button events ─────────────────────────────────────────────
   document.querySelectorAll('.topic-card').forEach(card => {
     card.addEventListener('click', () => startTopic(card.dataset.topic));
   });
 
   playBtn.addEventListener('click', () => {
     const text = currentTopic.sentences[currentIndex];
-    playBtn.textContent = '⏸ Đang phát...';
-    playBtn.disabled    = true;
+    playBtn.innerHTML = `⏸ Đang phát...`;
+    playBtn.disabled  = true;
     speak(text, () => {
-      playBtn.textContent = '▶ Phát lại';
-      playBtn.disabled    = false;
+      playBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd" /></svg> Phát lại`;
+      playBtn.disabled  = false;
     });
   });
 
   checkBtn.addEventListener('click', () => {
     if (!typedValue.trim() || isChecked) return;
     isChecked = true;
-
     const { html, correct, total } = checkAnswer(currentTopic.sentences[currentIndex], typedValue);
     totalCorrect += correct;
     totalWords   += total;
-
-    const isPerfect = correct === total;
-    updateStreak(isPerfect);
+    
+    updateStreak(correct === total);
     finaliseDisplay(typedValue);
-
+    
     resultBox.innerHTML = html;
     resultBox.classList.remove('hidden');
-
-    const pct   = Math.round((correct / total) * 100);
-    const color = pct === 100 ? 'text-emerald-600' : pct >= 60 ? 'text-amber-600' : 'text-red-600';
-    scoreBox.innerHTML = `<span class="${color}">${pct === 100 ? '🎉 ' : ''}Đúng ${correct}/${total} từ — ${pct}%</span>`;
+    
+    const pct = Math.round((correct / total) * 100);
+    scoreBox.innerHTML = `<span class="${pct === 100 ? 'text-emerald-600' : 'text-rose-600'}">${pct === 100 ? '🎉 Xuất sắc! ' : ''}Đúng ${correct}/${total} từ (${pct}%)</span>`;
     scoreBox.classList.remove('hidden');
     nextWrap.classList.remove('hidden');
+    nextBtn.focus();
   });
 
   showBtn.addEventListener('click', () => {
     const text = currentTopic.sentences[currentIndex];
-    resultBox.innerHTML = text.split(' ').map(w =>
-      `<span class="rounded px-1 bg-slate-200 text-slate-700">${w}</span>`
-    ).join(' ');
+    resultBox.innerHTML = text.split(' ').map(w => `<span class="rounded bg-slate-200 px-1.5 py-0.5 text-slate-700 font-bold">${w}</span>`).join(' ');
     resultBox.classList.remove('hidden');
     nextWrap.classList.remove('hidden');
-    streak = 0;
-    streakBanner.classList.add('hidden');
+    streak = 0; streakBanner.classList.add('hidden');
+    isChecked = true; nextBtn.focus();
   });
 
   resetBtn.addEventListener('click', () => {
-    typedValue = '';
-    isChecked  = false;
-    resultBox.classList.add('hidden');
-    scoreBox.classList.add('hidden');
-    nextWrap.classList.add('hidden');
-    window.speechSynthesis.cancel();
-    updateDisplay('');
+    typedValue = ''; isChecked = false;
+    resultBox.classList.add('hidden'); scoreBox.classList.add('hidden'); nextWrap.classList.add('hidden');
+    window.speechSynthesis.cancel(); updateDisplay(''); wordSlots.focus();
   });
 
   nextBtn.addEventListener('click', () => {
+    playNextSound();
     currentIndex++;
     if (currentIndex >= currentTopic.sentences.length) {
-      showDone();
+      practiceView.classList.add('hidden');
+      doneScreen.classList.remove('hidden');
+      const pct = totalWords > 0 ? Math.round((totalCorrect / totalWords) * 100) : 0;
+      finalScore.textContent = `Độ chính xác: ${pct}% (${totalCorrect}/${totalWords} từ)`;
+      bestStreakEl.textContent = bestStreak >= 2 ? `🔥 Chuỗi đúng dài nhất: ${bestStreak} câu liên tiếp` : '';
+      progressBar.style.width = '100%';
     } else {
       loadSentence();
     }
   });
 
-  backBtn.addEventListener('click', () => {
-    window.speechSynthesis.cancel();
-    streakBanner.classList.add('hidden');
-    practiceView.classList.add('hidden');
-    topicPicker.classList.remove('hidden');
-  });
-
+  backBtn.addEventListener('click', () => { window.speechSynthesis.cancel(); practiceView.classList.add('hidden'); topicPicker.classList.remove('hidden'); });
   retryBtn.addEventListener('click', () => startTopic(currentTopic.id));
-
-  homeBtn.addEventListener('click', () => {
-    doneScreen.classList.add('hidden');
-    topicPicker.classList.remove('hidden');
-  });
+  homeBtn.addEventListener('click', () => { doneScreen.classList.add('hidden'); topicPicker.classList.remove('hidden'); });
+  wordSlots.addEventListener('keydown', (e) => { if(e.code === 'Space') e.preventDefault(); });
 </script>

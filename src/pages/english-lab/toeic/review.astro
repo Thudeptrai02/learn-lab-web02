@@ -1,0 +1,91 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+// Dữ liệu giả lập 1 câu sai để xem lại
+const reviewData = {
+  title: "Xem lại đáp án: ETS 2024 - Test 01",
+  questionId: 153,
+  question: "Mục đích chính của thông báo là gì?",
+  options: [
+    { text: "Bảo trì hệ thống", isCorrect: true, userSelected: false },
+    { text: "Tuyển dụng nhân sự", isCorrect: false, userSelected: true }, // Giả sử user chọn sai câu này
+    { text: "Thông báo nghỉ lễ", isCorrect: false, userSelected: false },
+    { text: "Tăng lương định kỳ", isCorrect: false, userSelected: false }
+  ],
+  explanation: "Trong đoạn đầu của bản ghi nhớ (Memorandum) có ghi rõ: 'Hệ thống mạng sẽ được bảo trì vào lúc 20:00 thứ 7 tuần này'. Do đó đáp án đúng là Bảo trì hệ thống."
+};
+---
+
+<Layout title="Xem lại đáp án | Learn Lab">
+  <main class="min-h-screen bg-slate-50 py-12 px-4">
+    <div class="mx-auto max-w-3xl">
+      
+      <div class="mb-8 flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-black text-slate-900">{reviewData.title}</h1>
+          <p class="text-sm font-medium text-slate-500 mt-1">Chế độ xem lại (Review Mode)</p>
+        </div>
+        <a href="/english-lab/toeic/result" class="rounded-xl bg-white border-2 border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 transition-all">
+          ← Quay lại bảng điểm
+        </a>
+      </div>
+
+      <div class="rounded-[2rem] bg-white p-8 sm:p-10 shadow-sm border border-slate-100">
+        <div class="flex items-start gap-4 mb-8">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-800 text-sm font-black text-white">{reviewData.questionId}</span>
+          <h2 class="text-xl font-bold text-slate-800 pt-1">{reviewData.question}</h2>
+        </div>
+
+        <div class="space-y-3 mb-10">
+          {reviewData.options.map((opt, i) => {
+            // Xác định class CSS dựa trên trạng thái Đúng/Sai/Đã chọn
+            let boxClass = "border-2 border-slate-100 bg-slate-50 opacity-60"; // Mặc định (Câu không chọn & sai)
+            let iconClass = "border-2 border-slate-200 text-slate-400 bg-white";
+            let resultIcon = "";
+
+            if (opt.isCorrect) {
+              // Đáp án đúng thực sự (Màu xanh lá)
+              boxClass = "border-2 border-emerald-400 bg-emerald-50";
+              iconClass = "bg-emerald-500 text-white border-emerald-500";
+              resultIcon = "✓ Đáp án đúng";
+            } else if (opt.userSelected && !opt.isCorrect) {
+              // User chọn sai (Màu đỏ)
+              boxClass = "border-2 border-rose-400 bg-rose-50";
+              iconClass = "bg-rose-500 text-white border-rose-500";
+              resultIcon = "✗ Bạn đã chọn";
+            }
+
+            return (
+              <div class={`flex items-center justify-between p-4 rounded-2xl transition-all ${boxClass}`}>
+                <div class="flex items-center gap-4">
+                  <div class={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold ${iconClass}`}>
+                    {String.fromCharCode(65 + i)}
+                  </div>
+                  <span class={`font-medium ${opt.isCorrect ? 'text-emerald-800' : (opt.userSelected ? 'text-rose-800' : 'text-slate-500')}`}>
+                    {opt.text}
+                  </span>
+                </div>
+                {resultIcon && (
+                  <span class={`text-xs font-black uppercase tracking-widest ${opt.isCorrect ? 'text-emerald-600' : 'text-rose-600'}`}>
+                    {resultIcon}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <div class="rounded-2xl bg-amber-50 border border-amber-100 p-6 relative">
+          <div class="absolute -top-3 left-6 bg-amber-400 text-amber-900 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+            Giải thích chi tiết
+          </div>
+          <p class="text-amber-900/80 font-medium leading-relaxed mt-2 text-sm">
+            {reviewData.explanation}
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</Layout>

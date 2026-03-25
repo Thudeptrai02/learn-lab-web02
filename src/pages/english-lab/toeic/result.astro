@@ -1,0 +1,102 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+// ==========================================
+// 1. XỬ LÝ LẤY NGÀY THÁNG TỰ ĐỘNG (LIVE DATE)
+// ==========================================
+const today = new Date();
+
+// Format hàm để ra chuẩn yyyy/mm/dd
+const formatDate = (dateObj) => {
+  const yyyy = dateObj.getFullYear();
+  const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const dd = String(dateObj.getDate()).padStart(2, '0');
+  return `${yyyy}/${mm}/${dd}`;
+};
+
+const liveTestDate = formatDate(today);
+
+// Tính ngày hết hạn (Cộng thêm exactly 2 năm)
+const expiryDate = new Date(today);
+expiryDate.setFullYear(expiryDate.getFullYear() + 2);
+const liveValidUntil = formatDate(expiryDate);
+
+
+// ==========================================
+// 2. MÔ PHỎNG DỮ LIỆU TỪ DATABASE
+// ==========================================
+const student = {
+  // Sau này bạn thay chuỗi này bằng biến lấy từ Session/DB (VD: user.fullName)
+  name: "Tên Tài Khoản (Đang chờ DB)", 
+  idNumber: "TOEIC-2026-LIVE",
+  dob: "2000/01/01", // Mốc cố định năm 2000
+  testDate: liveTestDate,
+  validUntil: liveValidUntil,
+  listening: 430, // Thử đổi số này để xem thanh chạy (5 - 495)
+  reading: 410,   // Thử đổi số này để xem thanh chạy (5 - 495)
+};
+
+const totalScore = student.listening + student.reading;
+
+
+// ==========================================
+// 3. THUẬT TOÁN TÍNH TỶ LỆ THANH ĐIỂM
+// ==========================================
+// Điểm TOEIC tối thiểu là 5, tối đa là 495.
+// Công thức: ((Điểm - 5) / (495 - 5)) * 100
+const getPosition = (score) => {
+  const safeScore = Math.min(Math.max(score, 5), 495); // Ép điểm luôn nằm trong khoảng 5-495
+  return ((safeScore - 5) / 490) * 100;
+};
+
+const posL = getPosition(student.listening);
+const posR = getPosition(student.reading);
+---
+
+<Layout title="Chứng chỉ TOEIC | Learn Lab">
+  <main class="min-h-screen bg-slate-50 py-16 px-4">
+    <div class="mx-auto max-w-5xl">
+      
+      <div class="mb-12 flex justify-between items-center">
+        <a href="/english-lab/toeic" class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-teal-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+          Quay lại phòng luyện thi
+        </a>
+        
+        <a href="/english-lab/toeic/review" class="bg-teal-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-teal-700 transition-all inline-block">
+          Xem lại chi tiết đáp án
+        </a>
+      </div>
+
+      <div class="relative mt-10">
+        
+        <div class="absolute -top-[52px] left-1/2 -translate-x-1/2 bg-[#f6a000] text-slate-900 text-center py-2 px-8 sm:px-16 rounded-t-2xl z-10 w-[90%] sm:w-auto shadow-sm">
+          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-800">Listening and Reading</p>
+          <p class="text-lg sm:text-xl font-black uppercase tracking-wide">Official Score Certificate</p>
+        </div>
+
+        <div class="border-[3px] border-[#f6a000] bg-white pt-12 pb-8 px-4 sm:px-8 relative shadow-xl overflow-hidden">
+          
+          <div class="flex flex-col lg:flex-row gap-8">
+            
+            <div class="w-full lg:w-[45%] flex gap-4 lg:pr-8 lg:border-r border-slate-300">
+              
+              <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 mt-2 rounded-full overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
+                <svg class="w-12 h-12 text-slate-300 mt-2" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              </div>
+
+              <div class="flex-1 space-y-4">
+                
+                <div>
+                  <div class="border-b-[1.5px] border-slate-800 pb-1 w-full">
+                    <p class="font-bold text-base sm:text-lg text-slate-900">{student.name}</p>
+                  </div>
+                  <p class="text-[11px] text-slate-400 mt-0.5">Name</p>
+                </div>
+
+                <div class="flex gap-4">
+                  <div class="flex-[1.5]">
+                    <div class="border-b-[1.5px] border-slate-800 pb-1">
+                      <p class="font-bold text-sm sm:text-base text-slate-900">{student.idNumber}</p>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-0.5 leading-tight">Identification<br

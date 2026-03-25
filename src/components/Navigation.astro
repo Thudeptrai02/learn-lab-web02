@@ -1,86 +1,41 @@
 ---
-// 1. Lấy đường dẫn hiện tại để xử lý trạng thái Active
-const { pathname } = Astro.url;
-
-// 2. Hàm kiểm tra trang hiện tại (Tránh lỗi "is not defined")
-const isActive = (href: string) => {
-  const currentPath = pathname.replace(/\/$/, "") || "/";
-  const targetPath = href.replace(/\/$/, "") || "/";
-  
-  if (targetPath === "/") return currentPath === "/";
-  return currentPath === targetPath || currentPath.startsWith(targetPath + "/");
-};
-
-const englishLabSubmenu = [
-  { name: 'Luyện thi TOEIC', href: '/english-lab/toeic', icon: '💼' },
-  { name: 'Luyện thi IELTS', href: '/english-lab/ielts', icon: '🎓' },
-  { name: 'Cambridge (A2-B1)', href: '/english-lab/cambridge', icon: '🏛️' },
-];
 ---
-
-<header class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-100">
-  <div class="max-w-7xl mx-auto px-6 h-20 grid grid-cols-[1fr_auto_1fr] items-center">
+<nav class="flex w-full items-center justify-between">
+  <div class="flex flex-1 items-center justify-center gap-10 text-sm font-bold text-slate-600">
+    <a href="/" class="relative py-2 transition-colors hover:text-teal-700 group">
+      Trang chủ
+      <span class="absolute bottom-0 left-0 h-0.5 w-0 bg-teal-600 transition-all group-hover:w-full"></span>
+    </a>
     
-    <div class="flex justify-start">
-      <a href="/" class="flex items-center gap-2 group">
-        <div class="w-9 h-9 bg-teal-600 rounded-lg flex items-center justify-center group-hover:rotate-6 transition-transform shadow-sm">
-          <span class="text-white font-bold text-lg">L</span>
-        </div>
-        <span class="text-xl font-black text-slate-800 tracking-tight hidden md:block">
-          Learn<span class="text-teal-600">Lab</span>
-        </span>
-      </a>
-    </div>
+    <a href="/english-lab/toeic" class="relative py-2 text-slate-900 transition-colors hover:text-teal-700 group">
+      TOEIC Lab
+      <span class="absolute bottom-0 left-0 h-0.5 w-0 bg-teal-600 transition-all group-hover:w-full"></span>
+    </a>
+    
+    <a href="/blog" class="relative py-2 transition-colors hover:text-teal-700 group">
+      Blog
+      <span class="absolute bottom-0 left-0 h-0.5 w-0 bg-teal-600 transition-all group-hover:w-full"></span>
+    </a>
 
-    <nav class="hidden lg:flex items-center justify-center gap-10 h-full">
-      
-      <a href="/" class={`relative h-full flex items-center text-[16px] font-bold transition-all duration-300 group ${isActive('/') ? 'text-teal-600' : 'text-slate-600 hover:text-teal-600'}`}>
-        Trang chủ
-        <span class={`absolute bottom-0 left-0 h-[3px] bg-teal-600 transition-all duration-300 rounded-full ${isActive('/') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-      </a>
-
-      <div class="relative group h-full flex items-center">
-        <button class={`flex items-center gap-1 text-[16px] font-bold transition-all cursor-pointer ${isActive('/english-lab') ? 'text-teal-600' : 'text-slate-600 group-hover:text-teal-600'}`}>
-          English Lab
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-          <span class={`absolute bottom-0 left-0 h-[3px] bg-teal-600 transition-all duration-300 rounded-full ${isActive('/english-lab') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-        </button>
-
-        <div class="absolute top-[80px] left-1/2 -translate-x-1/2 w-60 opacity-0 invisible translate-y-2 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300">
-          <div class="bg-white border border-slate-100 shadow-2xl rounded-2xl p-2 overflow-hidden">
-            {englishLabSubmenu.map(sub => (
-              <a href={sub.href} class={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive(sub.href) ? 'bg-teal-50 text-teal-700' : 'hover:bg-teal-50 text-slate-700 hover:text-teal-700'}`}>
-                <span class="text-lg">{sub.icon}</span>
-                <span class="font-semibold text-sm">{sub.name}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <a href="/blog" class={`relative h-full flex items-center text-[16px] font-bold transition-all duration-300 group ${isActive('/blog') ? 'text-teal-600' : 'text-slate-600 hover:text-teal-600'}`}>
-        Blog
-        <span class={`absolute bottom-0 left-0 h-[3px] bg-teal-600 transition-all duration-300 rounded-full ${isActive('/blog') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-      </a>
-
-      <a href="/free-resources" class={`relative h-full flex items-center text-[16px] font-bold transition-all duration-300 group ${isActive('/free-resources') ? 'text-teal-600' : 'text-slate-600 hover:text-teal-600'}`}>
-        Tài liệu free
-        <span class={`absolute bottom-0 left-0 h-[3px] bg-teal-600 transition-all duration-300 rounded-full ${isActive('/free-resources') ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
-      </a>
-    </nav>
-
-    <div class="flex justify-end items-center gap-3">
-      <a href="/login" class="px-4 py-2 text-[15px] font-bold text-slate-600 hover:text-teal-600 transition-colors">
-        Đăng nhập
-      </a>
-      <a href="/register" class="px-5 py-2.5 bg-teal-600 text-white text-[15px] font-bold rounded-full hover:bg-teal-700 hover:shadow-lg hover:shadow-teal-100 transition-all active:scale-95">
-        Đăng ký
-      </a>
-    </div>
-
+    <a href="/free-resources" class="relative py-2 transition-colors hover:text-teal-700 group">
+      Tài liệu
+      <span class="absolute bottom-0 left-0 h-0.5 w-0 bg-teal-600 transition-all group-hover:w-full"></span>
+    </a>
   </div>
-</header>
 
-<div class="h-20"></div>
+  <div class="flex items-center gap-3 border-l border-slate-100 pl-8">
+    <a href="/login" class="px-4 py-2 text-sm font-bold text-slate-700 transition-all hover:text-teal-700">
+      Đăng nhập
+    </a>
+    <a href="/register" class="rounded-xl bg-teal-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-teal-100 transition-all hover:bg-teal-700 hover:-translate-y-0.5 active:scale-95">
+      Đăng ký
+    </a>
+  </div>
+</nav>
+
+<style>
+  /* Hiệu ứng gạch chân khi hover cho chuyên nghiệp */
+  a {
+    text-decoration: none;
+  }
+</style>

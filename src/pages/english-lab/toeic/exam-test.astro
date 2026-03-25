@@ -1,0 +1,249 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+const mockSets = [
+  {
+    setId: 0,
+    title: "Reading Part 7 (153-154)",
+    passage: `
+      <p class="font-bold underline text-center mb-4">MEMORANDUM</p>
+      <p>Hệ thống mạng sẽ được bảo trì vào lúc 20:00 thứ 7 tuần này. Mọi truy cập sẽ bị ngắt quãng cho đến 5:00 sáng Chủ nhật. Vui lòng lưu lại toàn bộ tài liệu công việc trước thời gian này.</p>
+    `,
+    questions: [
+      { id: 153, q: "Mục đích chính của thông báo là gì?", opts: ["Bảo trì hệ thống", "Tuyển dụng", "Nghỉ lễ", "Tăng lương"] },
+      { id: 154, q: "Khi nào hệ thống hoạt động lại?", opts: ["8 PM Thứ 7", "10 PM", "5 AM Chủ nhật", "12 PM Thứ 2"] }
+    ]
+  },
+  {
+    setId: 1,
+    title: "Reading Part 7 (155-157)",
+    passage: `
+      <p class="font-bold underline text-center mb-4">EMAIL CÔNG TY</p>
+      <p>Gửi toàn thể nhân viên, bắt đầu từ tháng tới, tất cả báo cáo chi phí phải được nộp qua cổng thông tin nội bộ mới. Hạn chót nộp báo cáo hàng tháng là ngày 5 của tháng tiếp theo. Cảm ơn sự hợp tác của các bạn.</p>
+    `,
+    questions: [
+      { id: 155, q: "Email này gửi cho ai?", opts: ["Quản lý", "Tất cả nhân viên", "Khách hàng", "Đội IT"] },
+      { id: 156, q: "Báo cáo nộp qua đâu?", opts: ["Email", "Trực tiếp", "Cổng mới", "Bưu điện"] },
+      { id: 157, q: "Hạn chót nộp báo cáo là khi nào?", opts: ["Ngày 1", "Ngày 5", "Cuối tháng", "Thứ Sáu"] }
+    ]
+  }
+];
+
+const toeicParts = [
+  { name: "Part 1", range: [1, 6], color: "text-teal-600" },
+  { name: "Part 2", range: [7, 31], color: "text-sky-600" },
+  { name: "Part 3", range: [32, 70], color: "text-indigo-600" },
+  { name: "Part 4", range: [71, 100], color: "text-purple-600" },
+  { name: "Part 5", range: [101, 130], color: "text-rose-600" },
+  { name: "Part 6", range: [131, 146], color: "text-orange-600" },
+  { name: "Part 7", range: [147, 200], color: "text-emerald-600" },
+];
+---
+
+<Layout title="Phòng Thi TOEIC | Learn Lab">
+  <main class="relative flex h-[calc(100vh-80px)] w-full flex-col bg-slate-100 overflow-hidden">
+    
+    <header class="flex h-16 w-full shrink-0 items-center justify-between border-b bg-white px-6 shadow-sm z-[60]">
+      <div class="flex items-center gap-4">
+        <span class="rounded-lg bg-slate-900 px-3 py-1.5 text-[10px] font-black text-white uppercase tracking-widest">Exam Mode</span>
+        <h2 class="font-bold text-slate-800">ETS 2024 - Test 01</h2>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 rounded-full bg-rose-50 px-4 py-1.5 border border-rose-100">
+          <span id="timer" class="font-mono text-lg font-black text-rose-600">120:00</span>
+        </div>
+        
+        <button onclick="window.openMenu()" class="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 hover:bg-teal-600 hover:text-white transition-colors z-[70] cursor-pointer">
+          <svg class="h-6 w-6 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
+        </button>
+
+        <button onclick="window.submitExam()" class="rounded-xl bg-teal-600 px-6 py-2 text-sm font-bold text-white shadow-md hover:bg-teal-700 active:scale-95 transition-all">NỘP BÀI</button>
+      </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative">
+      
+      <div class="w-1/2 overflow-y-auto bg-white p-10 border-r border-slate-200">
+        <div id="passage-container" class="max-w-2xl mx-auto">
+          {mockSets.map((set, idx) => (
+            <div id={`passage-set-${idx}`} class={`passage-set transition-opacity duration-500 ${idx === 0 ? 'block opacity-100' : 'hidden opacity-0'}`}>
+              <span class="text-[10px] font-black text-teal-600 uppercase tracking-widest mb-4 block">{set.title}</span>
+              <div class="rounded-2xl border border-slate-100 bg-slate-50 p-8 shadow-inner text-slate-600 leading-relaxed" set:html={set.passage}></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="w-1/2 flex flex-col bg-slate-50/50">
+        <div class="flex-1 overflow-y-auto p-10 scrollbar-hide">
+          <div class="max-w-xl mx-auto">
+            {mockSets.map((set, idx) => (
+              <div id={`questions-set-${idx}`} class={`questions-set space-y-12 transition-opacity duration-500 ${idx === 0 ? 'block opacity-100' : 'hidden opacity-0'}`}>
+                {set.questions.map((q) => (
+                  <div class="question-block">
+                    <h3 class="flex items-start gap-4 text-lg font-bold text-slate-800 mb-6">
+                      <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-800 text-xs text-white">{q.id}</span>
+                      {q.q}
+                    </h3>
+                    <div class="space-y-3">
+                      {q.opts.map((opt, i) => (
+                        <label class="group flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-white bg-white p-4 shadow-sm hover:border-teal-200 transition-all">
+                          <input type="radio" name={`q-${q.id}`} value={i} class="peer hidden radio-answer" onclick={`window.handleAnswer(${q.id}, ${idx})`} />
+                          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-slate-200 font-bold text-slate-400 peer-checked:border-teal-600 peer-checked:bg-teal-600 peer-checked:text-white transition-all">
+                            {String.fromCharCode(65 + i)}
+                          </div>
+                          <span class="text-slate-700 font-medium group-hover:text-slate-900">{opt}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div class="bg-white border-t p-6 flex justify-between items-center gap-4 shadow-[0_-4px_10px_rgba(0,0,0,0.03)] z-10">
+          <button id="btn-prev" onclick="window.switchSet(window.currentSet - 1)" class="flex-1 px-6 py-4 rounded-2xl border-2 border-slate-200 font-bold text-slate-500 hover:bg-slate-50 transition-all active:scale-95 disabled:opacity-50">
+            ← Câu trước
+          </button>
+          <button id="btn-next" onclick="window.switchSet(window.currentSet + 1)" class="flex-1 px-6 py-4 rounded-2xl bg-slate-900 font-bold text-white hover:bg-slate-800 transition-all active:scale-95 shadow-lg">
+            Tiếp tục →
+          </button>
+        </div>
+      </div>
+
+      <aside id="question-palette" class="fixed top-0 right-0 h-full w-[400px] bg-white shadow-[-10px_0_40px_rgba(0,0,0,0.15)] z-[100] transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-6 border-b flex items-center justify-between bg-slate-50">
+          <div><h3 class="text-xl font-black text-slate-900">Bảng câu hỏi</h3></div>
+          <button onclick="window.closeMenu()" class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-slate-200 text-slate-600 cursor-pointer">✕</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-custom">
+          {toeicParts.map((part) => (
+            <div>
+              <h4 class={`text-[10px] font-black uppercase mb-4 tracking-[0.2em] ${part.color}`}>{part.name}</h4>
+              <div class="grid grid-cols-5 gap-3">
+                {Array.from({ length: part.range[1] - part.range[0] + 1 }, (_, i) => i + part.range[0]).map((num) => (
+                  <button id={`q-nav-${num}`} class="flex h-9 w-9 items-center justify-center rounded-lg border-2 border-slate-200 text-[11px] font-bold text-slate-400 bg-white transition-all">
+                    {num}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </aside>
+
+      <div id="overlay" onclick="window.closeMenu()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[90] hidden opacity-0 transition-opacity duration-300"></div>
+    </div>
+  </main>
+</Layout>
+
+<script is:inline>
+  // 1. CÁC HÀM MENU GẮN VÀO WINDOW (Toàn cục)
+  window.openMenu = function() {
+    document.getElementById('question-palette').classList.remove('translate-x-full');
+    document.getElementById('overlay').classList.remove('hidden');
+    // Delay xíu để CSS kịp nhận diện hidden đã bị xóa rồi mới chạy hiệu ứng opacity
+    setTimeout(() => {
+      document.getElementById('overlay').classList.remove('opacity-0');
+      document.getElementById('overlay').classList.add('opacity-100');
+    }, 20);
+  };
+
+  window.closeMenu = function() {
+    document.getElementById('question-palette').classList.add('translate-x-full');
+    document.getElementById('overlay').classList.remove('opacity-100');
+    document.getElementById('overlay').classList.add('opacity-0');
+    setTimeout(() => document.getElementById('overlay').classList.add('hidden'), 300);
+  };
+
+  // 2. LOGIC CHUYỂN ĐOẠN VÀ AUTO-NEXT
+  window.currentSet = 0;
+  window.totalSets = 2;
+  window.requiredAnswers = { 0: 2, 1: 3 }; // Số câu hỏi mỗi đoạn
+  window.userAnswers = { 0: new Set(), 1: new Set() };
+
+  window.switchSet = function(newIndex) {
+    if (newIndex < 0 || newIndex >= window.totalSets) return;
+    
+    // Fade out
+    document.getElementById(`passage-set-${window.currentSet}`).classList.replace('opacity-100', 'opacity-0');
+    document.getElementById(`questions-set-${window.currentSet}`).classList.replace('opacity-100', 'opacity-0');
+    
+    setTimeout(() => {
+      // Ẩn hẳn
+      document.getElementById(`passage-set-${window.currentSet}`).classList.replace('block', 'hidden');
+      document.getElementById(`questions-set-${window.currentSet}`).classList.replace('block', 'hidden');
+      
+      // Đổi index
+      window.currentSet = newIndex;
+      
+      // Hiện thẻ mới
+      document.getElementById(`passage-set-${window.currentSet}`).classList.replace('hidden', 'block');
+      document.getElementById(`questions-set-${window.currentSet}`).classList.replace('hidden', 'block');
+      
+      // Fade in
+      setTimeout(() => {
+        document.getElementById(`passage-set-${window.currentSet}`).classList.replace('opacity-0', 'opacity-100');
+        document.getElementById(`questions-set-${window.currentSet}`).classList.replace('opacity-0', 'opacity-100');
+      }, 50);
+
+      // Cập nhật trạng thái nút Prev/Next
+      const btnPrev = document.getElementById('btn-prev');
+      const btnNext = document.getElementById('btn-next');
+      if (btnPrev) btnPrev.disabled = (window.currentSet === 0);
+      if (btnNext) btnNext.disabled = (window.currentSet === window.totalSets - 1);
+    }, 300);
+  };
+
+  // Hàm được gọi khi click vào input radio
+  window.handleAnswer = function(qId, setIdx) {
+    // 1. Đổi màu bảng câu hỏi
+    const navBtn = document.getElementById(`q-nav-${qId}`);
+    if (navBtn) {
+      navBtn.classList.remove('border-slate-200', 'text-slate-400');
+      navBtn.classList.add('bg-teal-600', 'text-white', 'border-teal-600');
+    }
+    // Lệnh nộp bài chuyển sang trang Result
+  window.submitExam = function() {
+    const confirmSubmit = confirm("Bạn có chắc chắn muốn nộp bài thi không?");
+    if (confirmSubmit) {
+      window.location.href = "/english-lab/toeic/result";
+    }
+  };
+
+    // 2. Lưu đáp án
+    window.userAnswers[setIdx].add(qId);
+
+    // 3. Kiểm tra auto-next
+    if (window.userAnswers[setIdx].size === window.requiredAnswers[setIdx] && setIdx < window.totalSets - 1) {
+      setTimeout(() => window.switchSet(window.currentSet + 1), 800);
+    }
+  };
+
+  // 3. KHỞI TẠO NÚT PREV (Mờ đi khi ở trang đầu)
+  setTimeout(() => {
+    const btnPrev = document.getElementById('btn-prev');
+    if (btnPrev) btnPrev.disabled = true;
+  }, 100);
+
+  // 4. ĐỒNG HỒ
+  let timeLeft = 120 * 60;
+  setInterval(() => {
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    const timerDisplay = document.getElementById('timer');
+    if (timerDisplay) timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    timeLeft--;
+  }, 1000);
+</script>
+
+<style>
+  .scrollbar-custom::-webkit-scrollbar { width: 6px; }
+  .scrollbar-custom::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-custom::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+</style>
