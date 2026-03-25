@@ -2,7 +2,7 @@ backend:
   name: github
   repo: Thudeptrai02/learn-lab-web02 # Lát nữa đẩy lên Github chúng ta sẽ điền cái này
   branch: main
-
+  base_url: https://auth.sveltia.net
 media_folder: "public/uploads"
 public_folder: "/uploads"
 
