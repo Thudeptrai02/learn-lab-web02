@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: Thudeptrai02na/learn-lab-web02 # Lát nữa đẩy lên Github chúng ta sẽ điền cái này
+  repo: Thudeptrai02/learn-lab-web02 # Lát nữa đẩy lên Github chúng ta sẽ điền cái này
   branch: main
 
 media_folder: "public/uploads"
