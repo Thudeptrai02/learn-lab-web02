@@ -37,7 +37,7 @@ import Layout from '../layouts/Layout.astro';
             <h3 class="text-xl font-bold text-slate-900">Từ Vựng (Flashcards)</h3>
             <p class="mt-2 text-slate-500 text-sm leading-relaxed">Ghi nhớ từ vựng TOEIC bằng phương pháp Spaced Repetition cực kỳ hiệu quả.</p>
             <div class="mt-6 flex items-center text-sm font-bold text-teal-600">
-              Vào học ngay <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              Vào học ngay <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
             </div>
           </a>
 
@@ -50,7 +50,7 @@ import Layout from '../layouts/Layout.astro';
             <h3 class="text-xl font-bold text-slate-900">Lego Grammar 🧱</h3>
             <p class="mt-2 text-slate-500 text-sm leading-relaxed">Học ngữ pháp theo phong cách xếp hình. Lắp ghép các khối để tạo thành câu chuẩn.</p>
             <div class="mt-6 flex items-center text-sm font-bold text-amber-600">
-              Thử thách ngay <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              Thử thách ngay <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
             </div>
           </a>
 
@@ -63,7 +63,7 @@ import Layout from '../layouts/Layout.astro';
             <h3 class="text-xl font-bold text-slate-900">Chép Chính Tả (Dictation)</h3>
             <p class="mt-2 text-slate-500 text-sm leading-relaxed">Tăng khả năng nghe sâu bằng cách gõ lại từng câu. Có Audio cắt sẵn từng giây.</p>
             <div class="mt-6 flex items-center text-sm font-bold text-indigo-600">
-              Bắt đầu nghe <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              Bắt đầu nghe <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
             </div>
           </a>
 
@@ -81,25 +81,39 @@ import Layout from '../layouts/Layout.astro';
   const userNameEl = document.getElementById('user-name');
   const logoutBtn = document.getElementById('logout-btn');
 
-  // --- KIỂM TRA ĐĂNG NHẬP ---
   async function checkUser() {
-    const { data: { session } } = await supabase.auth.getSession();
+    try {
+      // 1. Kiểm tra session từ Supabase
+      const { data: { session }, error } = await supabase.auth.getSession();
 
-    if (!session) {
+      // 2. Nếu chưa đăng nhập hoặc lỗi kết nối -> Đá ra trang login ngay lập tức
+      if (error || !session) {
+        console.warn("Chưa đăng nhập, chuyển hướng...");
+        window.location.href = "/login";
+        return; 
+      }
+
+      // 3. Nếu đã đăng nhập thành công -> Lấy tên user
+      const meta = session.user.user_metadata;
+      const fullName = meta?.full_name || session.user.email?.split('@')[0] || "Học viên";
+      
+      if (userNameEl) userNameEl.textContent = fullName;
+
+      // 4. CHỐT HẠ: Tắt vòng xoay và hiện dashboard
+      loadingScreen?.classList.add('hidden');
+      dashboardContent?.classList.remove('hidden');
+
+    } catch (err) {
+      // Nếu có lỗi hệ thống (ví dụ Supabase URL sai) -> Vẫn cho ra login để web không bị treo
+      console.error("Lỗi script:", err);
       window.location.href = "/login";
-      return;
     }
-
-    const fullName = session.user.user_metadata.full_name || session.user.email;
-    if (userNameEl) userNameEl.textContent = fullName;
-
-    loadingScreen?.classList.add('hidden');
-    dashboardContent?.classList.remove('hidden');
   }
 
+  // Chạy ngay khi tải trang
   checkUser();
 
-  // --- ĐĂNG XUẤT ---
+  // Xử lý nút đăng xuất
   logoutBtn?.addEventListener('click', async () => {
     await supabase.auth.signOut();
     window.location.href = "/login";
