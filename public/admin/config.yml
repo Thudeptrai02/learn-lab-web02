@@ -18,7 +18,7 @@ collections:
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
       - {label: "Tiêu đề bài viết", name: "title", widget: "string"}
-      - {label: "Tóm tắt", name: "description", widget: "text"}
+      - {label: "Tóm tắt", name: "description", widget: "string"}
       - {label: "Ngày đăng", name: "pubDate", widget: "datetime"}
       - {label: "Ảnh bìa", name: "image", widget: "image", required: false}
       - {label: "Nội dung bài viết", name: "body", widget: "markdown"}
