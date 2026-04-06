@@ -1,0 +1,93 @@
+---
+// [id].astro - Giữ nguyên phần Import và getStaticPaths của sếp
+import Layout from '../../../layouts/Layout.astro';
+import { getExamCatalog, getFullExamData } from '../../../lib/loadExam.js';
+
+export async function getStaticPaths() {
+  const catalog = await getExamCatalog();
+  return Object.keys(catalog).map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const catalog = await getExamCatalog();
+const examData = catalog[id];
+let mockSets = await getFullExamData(examData.url);
+
+let totalQuestions = 0;
+mockSets.forEach(set => totalQuestions += set.questions.length);
+const toeicParts = [
+  { name: "Part 1: Photographs", num: 1 },
+  { name: "Part 2: Question-Response", num: 2 },
+  { name: "Part 3: Conversations", num: 3 },
+  { name: "Part 4: Talks", num: 4 },
+  { name: "Part 5: Incomplete Sentences", num: 5 },
+  { name: "Part 6: Text Completion", num: 6 },
+  { name: "Part 7: Reading Comprehension", num: 7 },
+];
+---
+
+<Layout title={`${examData.title} | Thi Thử TOEIC`}>
+  <main id="exam-main" data-duration={examData.duration} class="min-h-screen bg-slate-50 pt-24 pb-32 px-3 md:px-6">
+    </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let timerInterval;
+      let timeLeft;
+
+      function startTimer() {
+        const durationMin = parseInt(document.getElementById('exam-main').dataset.duration) || 120;
+        timeLeft = durationMin * 60; 
+        const timerEl = document.getElementById('timer');
+    
+        timerInterval = setInterval(() => {
+          if (timeLeft > 0) {
+            timeLeft--;
+            const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+            const s = (timeLeft%60).toString().padStart(2,'0');
+            if(timerEl) timerEl.textContent = `${m}:${s}`;
+            if (timeLeft < 300) timerEl.classList.add('text-rose-500', 'animate-pulse'); 
+          } else {
+            clearInterval(timerInterval);
+            alert("Hết giờ làm bài! Hệ thống đang tự động nộp bài.");
+            handleForceSubmit(); // Tự động nộp bài 
+          }
+        }, 1000);
+      }
+
+      // Logic nộp bài xác nhận
+      document.getElementById('btn-submit')?.addEventListener('click', () => {
+        const answered = document.getElementById('answered-count').innerText;
+        const total = {totalQuestions}; // Từ biến Astro
+        if (confirm(`Sếp mới làm được ${answered}/${total} câu. Sếp có chắc muốn nộp bài không?`)) {
+          handleForceSubmit();
+        }
+      });
+
+      function handleForceSubmit() {
+        const results = {
+          score: 0,
+          details: []
+        };
+
+        document.querySelectorAll('.answer-radio:checked').forEach(radio => {
+          results.details.push({
+            id: parseInt(radio.dataset.qnum),
+            userChoice: ['A','B','C','D'].indexOf(radio.value),
+            // Các thông tin khác sếp cần mapping từ dữ liệu gốc
+          });
+        });
+
+        // Lưu kết quả và chuyển trang
+        localStorage.setItem('toeic_latest_result', JSON.stringify(results));
+        window.location.href = "/english-lab/toeic/result";
+      }
+
+      // Start Button [cite: 47]
+      document.getElementById('btn-start-exam')?.addEventListener('click', () => {
+        document.getElementById('intro-screen').style.display = 'none';
+        startTimer();
+      });
+    });
+  </script>
+</Layout>

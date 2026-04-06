@@ -1,0 +1,98 @@
+<div id="smart-popup" class="hidden fixed z-[9999] w-72 bg-white/90 backdrop-blur-xl shadow-2xl rounded-3xl border border-slate-200 p-5 animate-in fade-in zoom-in duration-200">
+  <div class="flex items-center justify-between mb-2">
+    <h3 id="pop-word" class="text-xl font-black text-teal-600 truncate">Word</h3>
+    <button id="pop-audio-btn" class="p-2 bg-teal-50 text-teal-600 rounded-full hover:bg-teal-100 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.984 5.984 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.983 3.983 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd" />
+      </svg>
+    </button>
+  </div>
+
+  <p id="pop-phonetic" class="text-xs font-bold text-slate-400 mb-3 italic">/phonetic/</p>
+
+  <div class="space-y-2 mb-4">
+    <div id="pop-definition" class="text-sm text-slate-600 leading-relaxed line-clamp-3">Đang tra cứu...</div>
+  </div>
+
+  <button id="pop-ai-btn" class="w-full py-2.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-[11px] font-black rounded-xl shadow-lg shadow-teal-100 hover:brightness-110 transition-all active:scale-95">
+    ✨ AI SOI GƯƠNG CÁ NHÂN HÓA
+  </button>
+
+  <div id="pop-ai-result" class="hidden mt-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+    <p id="ai-en" class="text-[11px] font-bold text-slate-800 mb-1"></p>
+    <p id="ai-vi" class="text-[10px] text-slate-500 italic"></p>
+  </div>
+</div>
+
+<script>
+  import { supabase } from '../lib/supabase.js';
+
+  const popup = document.getElementById('smart-popup');
+  const popWord = document.getElementById('pop-word');
+  const popPhonetic = document.getElementById('pop-phonetic');
+  const popDef = document.getElementById('pop-definition');
+  const popAiBtn = document.getElementById('pop-ai-btn');
+  const popAiResult = document.getElementById('pop-ai-result');
+  const aiEn = document.getElementById('ai-en');
+  const aiVi = document.getElementById('ai-vi');
+  let audioUrl = "";
+
+  document.addEventListener('mouseup', async (e) => {
+    const selection = window.getSelection().toString().trim();
+    if (selection.length > 1 && selection.length < 30) {
+      // 1. Hiển thị Popup & Set vị trí
+      popup.style.left = `${Math.min(e.pageX, window.innerWidth - 300)}px`;
+      popup.style.top = `${e.pageY + 20}px`;
+      popup.classList.remove('hidden');
+      popAiResult.classList.add('hidden');
+      popWord.textContent = selection;
+
+      // 2. Tra từ điển thật (Free Dictionary API)
+      try {
+        const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${selection}`);
+        const data = await res.json();
+        if (data[0]) {
+          popPhonetic.textContent = data[0].phonetic || "/n/a/";
+          popDef.textContent = data[0].meanings[0].definitions[0].definition;
+          audioUrl = data[0].phonetics.find(p => p.audio)?.audio || "";
+        }
+      } catch (err) {
+        popDef.textContent = "Không tìm thấy nghĩa của từ này sếp ơi.";
+      }
+    } else {
+      if (!popup.contains(e.target)) popup.classList.add('hidden');
+    }
+  });
+
+  // Xử lý phát âm
+  document.getElementById('pop-audio-btn').addEventListener('click', () => {
+    if (audioUrl) new Audio(audioUrl).play();
+    else alert("Từ này chưa có file âm thanh sếp ạ!");
+  });
+
+  // Xử lý AI Soi Gương
+  popAiBtn.addEventListener('click', async () => {
+    popAiBtn.innerHTML = "Đang soi gương...";
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user?.user_metadata || {};
+
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        body: JSON.stringify({
+          word: popWord.textContent,
+          jobTitle: user.job_title || "Student",
+          careerGoal: user.career_goal || "General",
+          interests: user.interests || "Everything"
+        })
+      });
+      const result = await response.json();
+      aiEn.textContent = result.en;
+      aiVi.textContent = `(${result.vi})`;
+      popAiResult.classList.remove('hidden');
+    } catch (err) {
+      aiEn.textContent = "AI bận rồi sếp ơi!";
+    }
+    popAiBtn.innerHTML = "✨ AI SOI GƯƠNG CÁ NHÂN HÓA";
+  });
+</script>

@@ -1,62 +1,72 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 
-const topics = [
-  {
-    id: 'office',
-    title: 'Office & Meetings',
-    description: 'Từ vựng văn phòng và cuộc họp',
-    color: 'teal',
-    sentences: [
-      'The meeting will be held in the conference room.',
-      'Please submit your report before the deadline.',
-      'The manager reviewed the quarterly financial report.',
-      'All employees are required to attend the training session.',
-      'The office will be closed on public holidays.',
-      'Could you please reschedule the meeting for next Monday?',
-      'The project deadline has been extended by two weeks.',
-      'Please make sure to copy all team members on the email.',
-      'The new policy will take effect from the first of next month.',
-      'We need to finalize the agenda before the board meeting.'
-    ]
-  },
-  {
-    id: 'finance',
-    title: 'Finance & Accounting',
-    description: 'Từ vựng tài chính và kế toán',
-    color: 'sky',
-    sentences: [
-      'The invoice must be paid within thirty days.',
-      'Our company reported a significant increase in annual revenue.',
-      'The budget for next quarter has been approved.',
-      'Please send the financial statement to the accounting department.',
-      'The bank transfer was processed successfully this morning.',
-      'All expenses must be submitted with original receipts.',
-      'The quarterly profit exceeded our initial forecast.',
-      'We need to reduce operational costs by ten percent.',
-      'The audit report will be ready by the end of the week.',
-      'Please review the attached spreadsheet before the meeting.'
-    ]
-  },
-  {
-    id: 'hr',
-    title: 'HR & Recruitment',
-    description: 'Từ vựng nhân sự và tuyển dụng',
-    color: 'emerald',
-    sentences: [
-      'We are looking for a qualified candidate for this position.',
-      'Please send your resume and cover letter by Friday.',
-      'The interview will be conducted via video conference.',
-      'All new employees must complete the onboarding program.',
-      'The performance review will be held at the end of the year.',
-      'Employees are entitled to fifteen days of annual leave.',
-      'The job description has been updated on our website.',
-      'We offer competitive salaries and excellent benefits.',
-      'The training workshop will last for two full days.',
-      'Please contact the HR department for more information.'
-    ]
+const SHEET_ID = '1J77QG5Fh63Kk0cYnK_eGy_RuMuQu0Nzs4qxetC3k0O8';
+const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Dictation`;
+
+let topics = [];
+
+try {
+  const response = await fetch(url);
+  const csvText = await response.text();
+  const rows = csvText.split('\n').filter(row => row.trim() !== '');
+  
+  if (rows.length > 1) {
+    const data = rows.slice(1).map(row => {
+      const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+      return cols.map(col => col.replace(/^"|"$/g, '').trim());
+    });
+
+    const topicsMap = {};
+    const colors = ['teal', 'sky', 'emerald', 'indigo', 'rose', 'amber'];
+    let colorIdx = 0;
+
+    data.forEach(row => {
+      const id = row[0] || 'general';
+      const title = row[1] || 'Chủ đề mới';
+      const desc = row[2] || 'Đang cập nhật mô tả';
+      const sentence = row[3];
+      const audioLink = row[4] || ''; 
+      
+      // HÚT THÊM CỘT F (Bắt đầu) và CỘT G (Kết thúc)
+      const startTime = parseFloat(row[5]) || 0;
+      const endTime = parseFloat(row[6]) || null;
+
+      if (!sentence) return; 
+
+      if (!topicsMap[id]) {
+        topicsMap[id] = {
+          id: id,
+          title: title,
+          description: desc,
+          color: colors[colorIdx % colors.length],
+          items: []
+        };
+        colorIdx++;
+      }
+      topicsMap[id].items.push({
+        text: sentence,
+        audio: audioLink,
+        start: startTime,
+        end: endTime
+      });
+    });
+
+    topics = Object.values(topicsMap);
   }
-];
+} catch (error) {
+  console.error("Lỗi khi kéo dữ liệu Dictation:", error);
+}
+
+if (topics.length === 0) {
+  topics = [{
+    id: 'sample',
+    title: 'Hệ thống Dictation Tự Động',
+    description: 'Vui lòng nhập dữ liệu vào Google Sheets',
+    color: 'teal',
+    items: [{text: 'This is an auto generated sample.', audio: '', start: 0, end: null}]
+  }];
+}
 ---
 
 <Layout title="TOEIC Dictation | Learn Lab">
@@ -68,21 +78,23 @@ const topics = [
           <p class="text-xs font-bold uppercase tracking-widest text-teal-600">TOEIC Dictation</p>
           <h1 class="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Chọn chủ đề luyện nghe</h1>
           <p class="mt-3 text-base leading-relaxed text-slate-600">
-            Mỗi chủ đề gồm 10 câu. Hệ thống sẽ phát âm thanh, nhiệm vụ của bạn là gõ lại chính xác từng từ.
+            Hệ thống tự động đồng bộ từ Google Sheets. Ưu tiên phát Audio thật với Timestamps cắt sẵn, hỗ trợ TTS.
           </p>
         </div>
 
         <div class="mt-6 flex flex-col gap-4">
           {topics.map((topic) => (
             <button
-              class="topic-card group text-left rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:-translate-y-1 hover:border-teal-300 hover:shadow-md"
+              class="topic-card group text-left rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:-translate-y-1 hover:border-teal-300 hover:shadow-md cursor-pointer"
               data-topic={topic.id}
             >
               <div class="flex items-center justify-between">
                 <div>
                   <p class={`text-xs font-bold uppercase tracking-widest ${
                     topic.color === 'teal' ? 'text-teal-600' :
-                    topic.color === 'sky' ? 'text-sky-600' : 'text-emerald-600'
+                    topic.color === 'sky' ? 'text-sky-600' : 
+                    topic.color === 'emerald' ? 'text-emerald-600' :
+                    topic.color === 'indigo' ? 'text-indigo-600' : 'text-rose-600'
                   }`}>{topic.title}</p>
                   <p class="mt-1.5 text-lg font-bold text-slate-900">{topic.description}</p>
                 </div>
@@ -92,7 +104,7 @@ const topics = [
                   </svg>
                 </div>
               </div>
-              <p class="mt-2 text-sm font-medium text-slate-500">{topic.sentences.length} câu hỏi</p>
+              <p class="mt-2 text-sm font-medium text-slate-500">{topic.items.length} câu hỏi</p>
             </button>
           ))}
         </div>
@@ -221,6 +233,9 @@ const topics = [
   let currentSpeed  = 1.0;
   let streak        = 0;
   let bestStreak    = 0;
+  
+  let currentAudioPlayer = null; 
+  let audioInterval = null; // Bộ hẹn giờ để tự động ngắt MP3
 
   const topicPicker   = document.getElementById('topic-picker');
   const practiceView  = document.getElementById('practice-view');
@@ -251,6 +266,59 @@ const topics = [
   const speedText     = document.getElementById('current-speed-text');
   const speedOptions  = document.querySelectorAll('.speed-option');
 
+  function stopAllAudio() {
+    if (audioInterval) clearInterval(audioInterval);
+    if (currentAudioPlayer) {
+      currentAudioPlayer.pause();
+      currentAudioPlayer = null;
+    }
+    window.speechSynthesis.cancel();
+  }
+
+  // BỘ PHÁT AUDIO THÔNG MINH (CÓ CHẾ ĐỘ TIMESTAMPS)
+  function playAudio(item, onEnd) {
+    stopAllAudio(); // Dọn dẹp cái cũ
+
+    if (item.audio && item.audio.trim() !== '') {
+      currentAudioPlayer = new Audio(item.audio);
+      currentAudioPlayer.playbackRate = currentSpeed; 
+      
+      // Nếu sếp có cấu hình Start Time, tua luôn đến khúc đó
+      if (item.start > 0) {
+        currentAudioPlayer.currentTime = item.start;
+      }
+
+      currentAudioPlayer.play().then(() => {
+        // Nếu sếp có cấu hình End Time, thiết lập bộ canh me
+        if (item.end > 0 && item.end > item.start) {
+          audioInterval = setInterval(() => {
+            if (currentAudioPlayer && currentAudioPlayer.currentTime >= item.end) {
+              currentAudioPlayer.pause();
+              clearInterval(audioInterval);
+              if (onEnd) onEnd();
+            }
+          }, 50); // Cứ 50ms (0.05s) check thời gian 1 lần
+        } else {
+          // Nếu không có End Time thì kệ nó hát đến hết file
+          currentAudioPlayer.onended = () => { if(onEnd) onEnd(); };
+        }
+      }).catch(e => {
+        console.warn("Lỗi tải file MP3, tự động chuyển sang đọc TTS:", e);
+        fallbackTTS(item.text, onEnd);
+      });
+    } else {
+      fallbackTTS(item.text, onEnd);
+    }
+  }
+
+  function fallbackTTS(text, onEnd) {
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang  = 'en-US';
+    utter.rate  = currentSpeed;
+    if (onEnd) utter.onend = onEnd;
+    window.speechSynthesis.speak(utter);
+  }
+
   function playNextSound() {
     try {
       const ctx = new window.AudioContext();
@@ -258,28 +326,14 @@ const topics = [
       const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
-      
       osc.type = 'sine';
       osc.frequency.setValueAtTime(440, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
-      
       gain.gain.setValueAtTime(0.3, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-      
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.15);
-    } catch (e) {
-      console.warn("Audio Context failed to start", e);
-    }
-  }
-
-  function speak(text, onEnd) {
-    window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang  = 'en-US';
-    utter.rate  = currentSpeed;
-    if (onEnd) utter.onend = onEnd;
-    window.speechSynthesis.speak(utter);
+    } catch (e) {}
   }
 
   speedToggle?.addEventListener('click', (e) => {
@@ -327,7 +381,7 @@ const topics = [
   }
 
   function buildWordSlots(text) {
-    const words = text.replace(/[^a-zA-Z0-9\s]/g, '').split(/\s+/);
+    const words = text.replace(/[^a-zA-Z0-9\s']/g, '').split(/\s+/);
     wordSlots.innerHTML = '';
 
     words.forEach((word) => {
@@ -364,7 +418,7 @@ const topics = [
       const display = slot.querySelector('.word-display');
       const bars    = slot.querySelectorAll('.letter-bar');
       const target  = slot.dataset.word ?? '';
-      const typed   = (typedWords[i] ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const typed   = (typedWords[i] ?? '').toLowerCase().replace(/[^a-z0-9']/g, '');
 
       display.textContent = typedWords[i] ?? '';
       const wordDone = i < typedWords.length - 1;
@@ -394,7 +448,7 @@ const topics = [
       const display   = slot.querySelector('.word-display');
       const bars      = slot.querySelectorAll('.letter-bar');
       const target    = slot.dataset.word ?? '';
-      const typed     = (typedWords[i] ?? '').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const typed     = (typedWords[i] ?? '').toLowerCase().replace(/[^a-z0-9']/g, '');
       const isCorrect = typed === target;
 
       display.className = `word-display absolute bottom-[6px] left-0 w-full text-center text-xl tracking-widest font-bold pointer-events-none ${isCorrect ? 'text-emerald-600' : 'text-rose-500'}`;
@@ -406,7 +460,7 @@ const topics = [
     });
   }
 
-  function normalise(str) { return str.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim(); }
+  function normalise(str) { return str.toLowerCase().replace(/[^a-z0-9\s']/g, '').trim(); }
 
   function checkAnswer(original, userInput) {
     const origWords  = normalise(original).split(/\s+/);
@@ -426,7 +480,7 @@ const topics = [
   }
 
   function loadSentence() {
-    const total = currentTopic.sentences.length;
+    const total = currentTopic.items.length;
     progressLabel.textContent = `Câu ${currentIndex + 1} / ${total}`;
     progressBar.style.width   = `${((currentIndex) / total) * 100}%`;
     topicLabel.textContent    = currentTopic.title;
@@ -441,7 +495,7 @@ const topics = [
     playBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd" /></svg> Phát âm thanh`;
     playBtn.disabled  = false;
 
-    buildWordSlots(currentTopic.sentences[currentIndex]);
+    buildWordSlots(currentTopic.items[currentIndex].text);
     setTimeout(() => { playBtn.click(); }, 300);
   }
 
@@ -468,7 +522,7 @@ const topics = [
     }
     if (e.key === 'Control') {
       e.preventDefault();
-      speak(currentTopic.sentences[currentIndex]);
+      playAudio(currentTopic.items[currentIndex]); 
       return;
     }
     if (e.key === 'Enter') {
@@ -493,10 +547,10 @@ const topics = [
   });
 
   playBtn.addEventListener('click', () => {
-    const text = currentTopic.sentences[currentIndex];
+    const item = currentTopic.items[currentIndex];
     playBtn.innerHTML = `⏸ Đang phát...`;
     playBtn.disabled  = true;
-    speak(text, () => {
+    playAudio(item, () => {
       playBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path fill-rule="evenodd" d="M4.5 5.653c0-1.426 1.529-2.33 2.779-1.643l11.54 6.348c1.295.712 1.295 2.573 0 3.285L7.28 19.991c-1.25.687-2.779-.217-2.779-1.643V5.653z" clip-rule="evenodd" /></svg> Phát lại`;
       playBtn.disabled  = false;
     });
@@ -505,7 +559,7 @@ const topics = [
   checkBtn.addEventListener('click', () => {
     if (!typedValue.trim() || isChecked) return;
     isChecked = true;
-    const { html, correct, total } = checkAnswer(currentTopic.sentences[currentIndex], typedValue);
+    const { html, correct, total } = checkAnswer(currentTopic.items[currentIndex].text, typedValue);
     totalCorrect += correct;
     totalWords   += total;
     
@@ -523,7 +577,7 @@ const topics = [
   });
 
   showBtn.addEventListener('click', () => {
-    const text = currentTopic.sentences[currentIndex];
+    const text = currentTopic.items[currentIndex].text;
     resultBox.innerHTML = text.split(' ').map(w => `<span class="rounded bg-slate-200 px-1.5 py-0.5 text-slate-700 font-bold">${w}</span>`).join(' ');
     resultBox.classList.remove('hidden');
     nextWrap.classList.remove('hidden');
@@ -534,13 +588,13 @@ const topics = [
   resetBtn.addEventListener('click', () => {
     typedValue = ''; isChecked = false;
     resultBox.classList.add('hidden'); scoreBox.classList.add('hidden'); nextWrap.classList.add('hidden');
-    window.speechSynthesis.cancel(); updateDisplay(''); wordSlots.focus();
+    stopAllAudio(); updateDisplay(''); wordSlots.focus();
   });
 
   nextBtn.addEventListener('click', () => {
     playNextSound();
     currentIndex++;
-    if (currentIndex >= currentTopic.sentences.length) {
+    if (currentIndex >= currentTopic.items.length) {
       practiceView.classList.add('hidden');
       doneScreen.classList.remove('hidden');
       const pct = totalWords > 0 ? Math.round((totalCorrect / totalWords) * 100) : 0;
@@ -552,7 +606,7 @@ const topics = [
     }
   });
 
-  backBtn.addEventListener('click', () => { window.speechSynthesis.cancel(); practiceView.classList.add('hidden'); topicPicker.classList.remove('hidden'); });
+  backBtn.addEventListener('click', () => { stopAllAudio(); practiceView.classList.add('hidden'); topicPicker.classList.remove('hidden'); });
   retryBtn.addEventListener('click', () => startTopic(currentTopic.id));
   homeBtn.addEventListener('click', () => { doneScreen.classList.add('hidden'); topicPicker.classList.remove('hidden'); });
   wordSlots.addEventListener('keydown', (e) => { if(e.code === 'Space') e.preventDefault(); });

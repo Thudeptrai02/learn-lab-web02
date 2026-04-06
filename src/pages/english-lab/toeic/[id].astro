@@ -1,0 +1,480 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getExamCatalog, getFullExamData } from '../../../lib/loadExam.js';
+
+// TỰ ĐỘNG SINH ĐƯỜNG DẪN TỪ DANH SÁCH MASTER SHEET
+export async function getStaticPaths() {
+  const catalog = await getExamCatalog();
+  return Object.keys(catalog).map(id => ({ params: { id } }));
+}
+
+const { id } = Astro.params;
+const catalog = await getExamCatalog();
+const examData = catalog[id];
+let mockSets = await getFullExamData(examData.url);
+
+let totalQuestions = 0;
+mockSets.forEach(set => totalQuestions += set.questions.length);
+
+const toeicParts = [
+  { name: "Part 1: Photographs", num: 1 },
+  { name: "Part 2: Question-Response", num: 2 },
+  { name: "Part 3: Conversations", num: 3 },
+  { name: "Part 4: Talks", num: 4 },
+  { name: "Part 5: Incomplete Sentences", num: 5 },
+  { name: "Part 6: Text Completion", num: 6 },
+  { name: "Part 7: Reading Comprehension", num: 7 },
+];
+---
+
+<Layout title={`${examData.title} | Thi Thử TOEIC`}>
+  
+  <div id="intro-screen" class="fixed inset-0 bg-slate-50 z-[100] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="bg-white p-10 rounded-[3rem] shadow-2xl max-w-lg w-full text-center mx-4 border border-slate-100">
+      <div class="w-24 h-24 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+      </div>
+      <h1 class="text-3xl font-black text-slate-800 mb-2 uppercase">{examData.title}</h1>
+      <p class="text-slate-500 mb-8 font-medium text-lg">Tổng số câu: {totalQuestions} câu • Thời gian: {examData.duration} phút</p>
+      
+      <div class="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-xl text-base mb-8 text-left">
+        <strong>💡 Lưu ý:</strong> Vui lòng chuẩn bị tai nghe. Bài nghe sẽ tự động phát ngay khi bạn nhấn bắt đầu.
+      </div>
+
+      <button id="btn-start-exam" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-black text-xl py-4 rounded-2xl shadow-lg shadow-teal-500/30 transition-all transform hover:scale-[1.02] active:scale-95">
+        BẮT ĐẦU LÀM BÀI
+      </button>
+    </div>
+  </div>
+
+  <header class="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 shadow-sm z-50 flex items-center justify-between px-4 md:px-8">
+    <div class="flex items-center gap-4">
+      <a href="/english-lab/toeic" class="flex items-center text-slate-500 hover:text-teal-600 font-bold transition-colors">
+        <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+        <span class="hidden sm:inline text-lg">Quay lại</span>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <svg class="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      <span id="timer" class="font-black text-2xl text-slate-800 tabular-nums tracking-wider">{examData.duration}:00</span>
+    </div>
+
+    <div class="flex items-center gap-2 md:gap-4">
+      <button id="btn-toggle-menu" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold transition text-base">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        <span class="hidden md:inline">Câu hỏi</span>
+      </button>
+      <button id="btn-submit" class="bg-teal-500 hover:bg-teal-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-md shadow-teal-500/20 transition text-base">
+        Nộp bài
+      </button>
+    </div>
+  </header>
+
+  <div id="drawer-menu" class="fixed top-16 right-0 bottom-0 w-[22rem] bg-white border-l border-slate-200 shadow-2xl z-40 transform translate-x-full transition-transform duration-300 overflow-y-auto pb-10">
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-6 sticky top-0 bg-white py-2 border-b border-slate-100 z-10">
+        <h3 class="font-black text-xl text-slate-800">Bảng câu hỏi</h3>
+        <span class="text-base font-bold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-lg"><span id="answered-count">0</span>/{totalQuestions}</span>
+      </div>
+      
+      <div class="space-y-6">
+        {toeicParts.map(partInfo => {
+          const qsInPart = mockSets.filter(s => s.part === partInfo.num).flatMap(s => s.questions);
+          if (qsInPart.length === 0) return null;
+          return (
+            <div>
+              <h4 class="font-bold text-slate-600 text-base mb-3 bg-slate-50 py-1.5 px-3 rounded-md">{partInfo.name}</h4>
+              <div class="grid grid-cols-5 gap-2.5">
+                {qsInPart.map(q => (
+                  <button 
+                    id={`palette-btn-${q.qNum}`} 
+                    data-target={`q-container-${q.qNum}`}
+                    class="palette-btn w-full aspect-square flex items-center justify-center rounded-lg border-2 border-slate-200 text-slate-600 font-bold text-base hover:border-teal-400 hover:text-teal-600 transition-colors"
+                  >
+                    {q.qNum}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+
+  <main id="exam-main" data-duration={examData.duration} class="min-h-screen bg-slate-50 pt-24 pb-32 px-3 md:px-6">
+    <div class="w-[98%] max-w-[1800px] mx-auto space-y-12">
+      {mockSets.map((set, idx) => (
+        <div id={`group-${idx}`} class="questions-set bg-white rounded-[2rem] shadow-sm border border-slate-200 p-6 lg:p-10 overflow-hidden relative transition-all duration-500">
+          
+          <div class="flex flex-col lg:flex-row gap-8 lg:gap-14">
+            
+            {/* 🟢 CỘT TRÁI (PART 3, 4, 6, 7): ĐÓNG BĂNG VÀ CUỘN ĐỘC LẬP TẠI ĐÂY */}
+            {!(set.part === 2 || set.part === 5) && (
+              <div class="w-full lg:w-[48%] xl:w-[45%]">
+                <div class="sticky top-24 space-y-8 max-h-[calc(100vh-7rem)] overflow-y-auto custom-scrollbar pr-3 pb-8">
+                  
+                  {set.audio && (
+                    <div class="bg-slate-800 p-5 rounded-2xl shadow-inner">
+                      <audio controls class="w-full h-12 auto-scroll-audio main-audio" data-group-idx={idx} data-part={set.part}>
+                        <source src={set.audio}/>
+                      </audio>
+                    </div>
+                  )}
+
+                  {/* 🟢 TÁCH ẢNH THÀNH NHIỀU THẺ IMG CHO IMAGE_URL */}
+                  {set.image && (
+                    <div class="space-y-4">
+                      {set.image.split('\n').map((imgUrl) => (
+                        imgUrl.trim() !== '' && (
+                          <img 
+                            src={imgUrl.trim()} 
+                            alt="Reference" 
+                            class="w-full h-auto rounded-2xl border border-slate-200 shadow-sm" 
+                            loading="lazy" 
+                          />
+                        )
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* 🟢 LỌC VÀ TÁCH ẢNH CHO PASSAGE */}
+                  {set.passage && (
+                    <div class="passage-container bg-white p-6 lg:p-10 rounded-2xl border border-slate-200 shadow-sm">
+                      {set.passage.trim().startsWith('http') ? (
+                        <div class="space-y-6">
+                          {set.passage.split('\n').map((url) => (
+                            url.trim() !== '' && (
+                              <img 
+                                src={url.trim()} 
+                                alt="Passage Content" 
+                                class="w-full h-auto rounded-lg border border-slate-200 shadow-sm" 
+                                loading="lazy" 
+                              />
+                            )
+                          ))}
+                        </div>
+                      ) : (
+                        <div set:html={set.passage}></div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* 🟢 CỘT PHẢI (CÂU HỎI) */}
+            <div class={`w-full ${set.part === 2 || set.part === 5 ? 'lg:w-full max-w-5xl mx-auto' : 'lg:w-[52%] xl:w-[55%]'}`}>
+              
+              {set.part === 2 && set.audio && (
+                <div class="bg-slate-800 p-5 rounded-2xl shadow-inner mb-10">
+                  <audio controls class="w-full h-12 auto-scroll-audio main-audio" data-group-idx={idx} data-part={set.part}>
+                    <source src={set.audio}/>
+                  </audio>
+                </div>
+              )}
+
+              <div class="space-y-12 lg:space-y-14">
+                {set.questions.map((q) => (
+                  <div id={`q-container-${q.qNum}`} class="question-item relative scroll-mt-32">
+                    <div class="flex items-start gap-4 mb-6 lg:mb-8">
+                      <span class="bg-teal-100 text-teal-800 font-black px-5 py-2 rounded-full text-xl shrink-0 border border-teal-200 shadow-sm">
+                        Câu {q.qNum}
+                      </span>
+                      {q.questionText && (
+                        <div class="text-[1.15rem] text-slate-800 font-bold leading-relaxed mt-1" set:html={q.questionText}></div>
+                      )}
+                    </div>
+
+                    <div class="space-y-4 pl-2 lg:pl-20">
+                      {q.options.map((opt, oIdx) => {
+                        const letters = ['A', 'B', 'C', 'D'];
+                        const letter = letters[oIdx];
+                        return (
+                          <label class="flex items-center gap-5 p-5 rounded-xl border-2 border-slate-100 hover:border-teal-400 hover:bg-teal-50 cursor-pointer transition-all group">
+                            <input 
+                              type="radio" 
+                              name={`q-${q.qNum}`} 
+                              value={letter} 
+                              class="answer-radio w-6 h-6 text-teal-500 border-slate-300 focus:ring-teal-500 shrink-0 cursor-pointer" 
+                              data-qnum={q.qNum}
+                            />
+                            <span class="font-black text-slate-400 group-hover:text-teal-600 transition-colors w-8 text-xl">{letter}.</span>
+                            <span class="text-slate-700 leading-relaxed text-[1.15rem]" set:html={opt}></span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </main>
+
+  <script define:vars={{ mockSets, totalQuestions }}>
+    document.addEventListener('DOMContentLoaded', () => {
+      let timerInterval;
+      let timeLeft;
+
+      // ĐỒNG HỒ ĐẾM NGƯỢC
+      function startTimer() {
+        const durationMin = parseInt(document.getElementById('exam-main').dataset.duration) || 120;
+        timeLeft = durationMin * 60; 
+        
+        const timerEl = document.getElementById('timer');
+    
+        timerInterval = setInterval(() => {
+          if (timeLeft > 0) {
+            timeLeft--;
+            const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
+            const s = (timeLeft%60).toString().padStart(2,'0');
+            if(timerEl) timerEl.textContent = `${m}:${s}`;
+            if (timeLeft < 300) timerEl.classList.add('text-rose-500', 'animate-pulse'); 
+          } else {
+            clearInterval(timerInterval);
+            alert("⏰ Đã hết thời gian làm bài! Hệ thống đang tự động nộp bài.");
+            forceSubmit();
+          }
+        }, 1000);
+      }
+
+      // XỬ LÝ MÀN HÌNH CHỜ & AUTO-PLAY
+      const introScreen = document.getElementById('intro-screen');
+      const btnStart = document.getElementById('btn-start-exam');
+      
+      btnStart?.addEventListener('click', () => {
+        introScreen.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => introScreen.style.display = 'none', 500);
+        startTimer();
+        const firstAudio = document.querySelector('.main-audio');
+        if (firstAudio) {
+          firstAudio.play().catch(e => console.log("Autoplay blocked:", e));
+        }
+      });
+
+      // AUTO-SCROLL KHI NGHE XONG (Dành cho Part 1 -> 4)
+      const audios = document.querySelectorAll('.auto-scroll-audio');
+      audios.forEach((audio) => {
+        audio.addEventListener('ended', (e) => {
+          const currentGroupIdx = parseInt(e.target.dataset.groupIdx);
+          const currentPart = parseInt(e.target.dataset.part);
+          if (currentPart <= 4) {
+            const nextGroup = document.getElementById(`group-${currentGroupIdx + 1}`);
+            if (nextGroup) {
+              nextGroup.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              nextGroup.classList.add('bg-teal-50', 'border-teal-300');
+              setTimeout(() => nextGroup.classList.remove('bg-teal-50', 'border-teal-300'), 2000);
+              const nextAudio = nextGroup.querySelector('audio');
+              if (nextAudio) nextAudio.play();
+            }
+          }
+        });
+      });
+
+      // MENU CÂU HỎI VÀ TỰ ĐỘNG HIGHLIGHT CÂU ĐÃ TRẢ LỜI
+      const btnToggle = document.getElementById('btn-toggle-menu');
+      const drawer = document.getElementById('drawer-menu');
+      btnToggle?.addEventListener('click', () => drawer?.classList.toggle('translate-x-full'));
+
+      let answeredCount = 0;
+      document.querySelectorAll('.answer-radio').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          const qNum = e.target.dataset.qnum;
+          document.querySelectorAll(`input[name="q-${qNum}"]`).forEach(r => r.closest('label').classList.remove('border-teal-400', 'bg-teal-50'));
+          e.target.closest('label').classList.add('border-teal-400', 'bg-teal-50');
+
+          const btn = document.getElementById(`palette-btn-${qNum}`);
+          if (btn && !btn.classList.contains('bg-teal-500')) {
+            btn.classList.replace('border-slate-200', 'border-teal-500');
+            btn.classList.replace('text-slate-600', 'text-white');
+            btn.classList.add('bg-teal-500', 'shadow-md');
+            answeredCount++;
+            document.getElementById('answered-count').innerText = answeredCount;
+          }
+        });
+      });
+
+      document.querySelectorAll('.palette-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const targetId = e.target.dataset.target;
+          const targetEl = document.getElementById(targetId);
+          if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (window.innerWidth < 1024) drawer?.classList.add('translate-x-full');
+            targetEl.classList.add('bg-yellow-50', 'rounded-3xl', 'p-4', 'transition-all', 'duration-500');
+            setTimeout(() => targetEl.classList.remove('bg-yellow-50', 'p-4'), 1500);
+          }
+        });
+      });
+
+      // LOGIC NỘP BÀI (Chấm điểm & Lưu Explanation từ mockSets vào localStorage)
+      document.getElementById('btn-submit')?.addEventListener('click', () => {
+        const confirmMsg = (answeredCount < totalQuestions) 
+          ? `Sếp mới làm được ${answeredCount}/${totalQuestions} câu thôi. Nộp bây giờ là mất điểm đấy, chắc chắn nộp không sếp?`
+          : "Sếp đã hoàn thành bài thi. Chốt nộp bài để xem điểm nhé?";
+
+        if (confirm(confirmMsg)) {
+          forceSubmit();
+        }
+      });
+
+      function forceSubmit() {
+        clearInterval(timerInterval);
+        
+        const finalResults = {
+          score: 0,
+          details: []
+        };
+
+        // Làm phẳng mảng câu hỏi để dễ lấy dữ liệu
+        const flatQuestions = [];
+        mockSets.forEach((set, setIdx) => {
+          set.questions.forEach(q => {
+            flatQuestions.push({
+              ...q,
+              part: set.part,
+              group_id: set.group_id || setIdx,
+              audio: set.audio || "",
+              image: set.image || "",
+              passage: set.passage || ""
+            });
+          });
+        });
+
+        // Lắp ráp đáp án và thu thập Giải thích từ Google Sheets
+        flatQuestions.forEach(q => {
+          const selectedRadio = document.querySelector(`input[name="q-${q.qNum}"]:checked`);
+          const userChoiceIndex = selectedRadio ? ['A','B','C','D'].indexOf(selectedRadio.value) : -1;
+          
+          let correctIndex = -1;
+          if (q.correct !== undefined) {
+             if (typeof q.correct === 'string') correctIndex = ['A','B','C','D'].indexOf(q.correct.toUpperCase());
+             else correctIndex = parseInt(q.correct);
+          } else if (q.correctAnswer) {
+             correctIndex = ['A','B','C','D'].indexOf(q.correctAnswer.toUpperCase());
+          }
+
+          const isCorrect = userChoiceIndex !== -1 && userChoiceIndex === correctIndex;
+          if (isCorrect) finalResults.score++;
+
+          finalResults.details.push({
+            id: q.qNum || q.id,
+            part: q.part,
+            group_id: q.group_id,
+            audio: q.audio,
+            image: q.image,
+            passage: q.passage,
+            text: q.questionText || q.text || "",
+            options: q.options || [],
+            userChoice: userChoiceIndex,
+            correct: correctIndex,
+            isCorrect: isCorrect,
+            explanation: q.explanation || q.explain || "", 
+            transcript: q.transcript || ""
+          });
+        });
+
+        localStorage.setItem('toeic_latest_result', JSON.stringify(finalResults));
+        window.location.href = "/english-lab/toeic/result";
+      }
+
+      // 🟢 AI DOM NORMALIZER (FIX LỖI BẢNG GỐC CỦA ĐỀ THI)
+      document.querySelectorAll('.passage-container table').forEach(table => {
+        const firstCell = table.querySelector('td, th');
+        const cellText = firstCell ? firstCell.innerText.trim() : "";
+        
+        if (/^(To|From|Date|Subject|Sent)\s*:/i.test(cellText)) {
+          const box = document.createElement('div');
+          box.className = 'bg-slate-50 border-l-4 border-teal-500 p-6 mb-8 rounded-r-xl shadow-sm font-sans';
+          let content = '';
+          table.querySelectorAll('tr').forEach(tr => {
+            const cells = tr.querySelectorAll('td, th');
+            if (cells.length >= 2) {
+              const label = cells[0].innerText.trim().replace(/:$/, '');
+              const val = cells[1].innerHTML.trim();
+              content += `<div class="mb-3 flex flex-col sm:flex-row sm:items-start"><strong class="text-slate-500 uppercase tracking-widest text-sm sm:mr-4 sm:w-24 shrink-0 mt-1">${label}:</strong><span class="text-slate-800 font-medium text-[1.1rem]">${val}</span></div>`;
+            } else {
+              content += `<div class="mb-3 text-slate-800">${tr.innerHTML}</div>`;
+            }
+          });
+          box.innerHTML = content;
+          table.parentNode.replaceChild(box, table);
+        } else {
+          table.classList.add('min-w-full');
+          const wrapper = document.createElement('div');
+          wrapper.className = 'overflow-x-auto my-8 rounded-xl border border-slate-200 shadow-sm';
+          table.parentNode.insertBefore(wrapper, table);
+          wrapper.appendChild(table);
+        }
+      });
+    });
+  </script>
+
+  <style is:global>
+    /* Cấu hình Text Bài Đọc */
+    .passage-container {
+      font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+      font-size: 1.15rem; 
+    }
+    .passage-container p {
+      margin-bottom: 1rem;
+      line-height: 1.8;
+      color: #1e293b;
+    }
+    .passage-container h1, .passage-container h2, .passage-container h3, .passage-container h4 {
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      font-weight: 900;
+      color: #0f172a;
+      margin: 2rem 0 1.25rem 0;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    /* Giao diện Bảng dữ liệu */
+    .passage-container table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #ffffff;
+      font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+      font-size: 1.05rem;
+    }
+    .passage-container th, .passage-container td {
+      border: 1px solid #cbd5e1;
+      padding: 1rem 1.25rem; 
+      text-align: left;
+      color: #334155;
+      vertical-align: top;
+    }
+    .passage-container th {
+      background-color: #f1f5f9;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.95rem;
+      letter-spacing: 0.025em;
+    }
+    .passage-container tr:nth-child(even) {
+      background-color: #f8fafc;
+    }
+
+    /* 🟢 GIAO DIỆN THANH CUỘN ĐỘC LẬP TÍNH TẾ */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background-color: #cbd5e1; 
+      border-radius: 20px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background-color: #94a3b8; 
+    }
+  </style>
+</Layout>

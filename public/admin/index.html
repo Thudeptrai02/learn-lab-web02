@@ -3,14 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Content Manager</title>
+    <title>Quản Trị Hệ Thống</title>
+    <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url">
   </head>
   <body>
-    <script>
-      if (window.location.hash && !window.location.pathname.startsWith('/admin')) {
-        window.location.replace('/admin/' + window.location.hash);
-      }
-    </script>
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>

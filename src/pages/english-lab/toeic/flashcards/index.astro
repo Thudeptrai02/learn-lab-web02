@@ -1,0 +1,59 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import { getSheetData } from '../../../../lib/googleSheets.js';
+
+const SHEET_ID = '1J77QG5Fh63Kk0cYnK_eGy_RuMuQu0Nzs4qxetC3k0O8'; 
+const allCards = await getSheetData(SHEET_ID, 'Flashcards');
+
+// Thuật toán tự động gom nhóm chủ đề từ Cột F
+const topicsMap = {};
+allCards.forEach(card => {
+  const t = card.topic || 'chua-phan-loai';
+  if(!topicsMap[t]) topicsMap[t] = 0;
+  topicsMap[t]++;
+});
+
+const topics = Object.keys(topicsMap).map(key => ({
+  slug: key,
+  name: key.replace(/-/g, ' ').toUpperCase(), 
+  count: topicsMap[key]
+}));
+---
+
+<Layout title="Chủ đề Flashcards | Learn Lab">
+  <main class="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <section class="mx-auto max-w-4xl">
+      <div class="mb-10 text-center sm:text-left">
+        <p class="text-xs font-bold uppercase tracking-widest text-teal-600">Vocabulary Center</p>
+        <h1 class="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Chọn Chủ Đề Học</h1>
+        <p class="mt-2 text-sm text-slate-500">Hệ thống tự động cập nhật từ Google Sheets của Giám đốc</p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {topics.map(topic => (
+          <a href={`/english-lab/toeic/flashcards/${topic.slug}`} class="group relative flex flex-col justify-between rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:ring-teal-500 cursor-pointer">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700">
+                  {topic.count} từ vựng
+                </span>
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 group-hover:bg-teal-50 transition-colors">
+                  <svg class="h-4 w-4 text-slate-400 group-hover:text-teal-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+              <h3 class="mt-5 text-xl font-extrabold text-slate-900 group-hover:text-teal-600 transition-colors">{topic.name}</h3>
+            </div>
+            <div class="mt-6 border-t border-slate-100 pt-4">
+              <span class="text-sm font-semibold text-teal-600 flex items-center gap-1">
+                Bắt đầu học 
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </main>
+</Layout>

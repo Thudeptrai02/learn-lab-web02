@@ -1,0 +1,347 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getSheetData } from '../../../lib/googleSheets.js';
+
+// SẾP DÁN ID CỦA FILE GOOGLE SHEETS VÀO ĐÂY:
+const SHEET_ID = '1J77QG5Fh63Kk0cYnK_eGy_RuMuQu0Nzs4qxetC3k0O8'; 
+
+// Hút dữ liệu từ tab Flashcards
+let cards = await getSheetData(SHEET_ID, 'Flashcards');
+
+// Hệ thống chống sập: Nếu Sheets trống hoặc lỗi ID, tạo 1 thẻ mặc định
+if (!cards || cards.length === 0) {
+  cards = [
+    {
+      word: 'Loading/Error',
+      meaning: 'Chưa kết nối được Google Sheets',
+      partOfSpeech: 'Lỗi',
+      example: 'Vui lòng kiểm tra lại SHEET_ID hoặc quyền chia sẻ Bất kỳ ai có liên kết.',
+      synonyms: ['kiểm tra link', 'kiểm tra ID'],
+      audio: ''
+    }
+  ];
+}
+---
+
+<Layout title="TOEIC Flashcards | Learn Lab">
+  <main class="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <section class="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-sm sm:px-10 sm:py-10">
+      
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-teal-600">TOEIC Flashcards</p>
+          <h1 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">Học từ vựng Tự động</h1>
+        </div>
+        <div id="progress" class="inline-flex rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+          1 / {cards.length}
+        </div>
+      </div>
+
+      <div class="mt-8 flex rounded-xl bg-slate-100 p-1">
+        <button id="tab-flashcards" class="flex-1 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition-all">
+          Flashcards
+        </button>
+        <button id="tab-sheet" class="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-500 transition-all hover:text-slate-900">
+          Vocabulary Sheet
+        </button>
+      </div>
+
+      <div id="flashcards-view" class="mt-10">
+        <div id="card-stage" class="relative mx-auto max-w-xl transition-all duration-300 ease-out">
+          
+          <div class="absolute inset-x-6 top-4 h-[420px] rounded-2xl bg-slate-100 border border-slate-200"></div>
+          <div class="absolute inset-x-3 top-2 h-[420px] rounded-2xl bg-slate-50 border border-slate-200 shadow-sm"></div>
+
+          <div class="[perspective:1200px] relative z-10">
+            <button id="flashcard" class="group relative block h-[420px] w-full rounded-2xl text-left focus:outline-none cursor-pointer" aria-label="Flip flashcard">
+              <div id="flashcard-inner" class="relative h-full w-full rounded-2xl transition-transform duration-500 [transform-style:preserve-3d]">
+                
+                <div class="absolute inset-0 flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-md [backface-visibility:hidden]">
+                  <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Front</p>
+                  <div class="flex flex-1 flex-col items-center justify-center text-center">
+                    <p class="text-sm font-semibold text-teal-600 mb-2">Word</p>
+                    <h2 id="card-word" class="text-4xl font-extrabold text-slate-900 sm:text-5xl tracking-tight">{cards[0].word}</h2>
+                    <p class="mt-4 inline-flex rounded bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-slate-500">
+                      <span id="card-pos-front">{cards[0].partOfSpeech}</span>
+                    </p>
+                    <p id="card-example" class="mt-6 text-base text-slate-600 italic">
+                      "{cards[0].example}"
+                    </p>
+                  </div>
+                  <p class="text-center text-sm font-medium text-slate-400">Nhấp để lật thẻ</p>
+                </div>
+
+                <div class="absolute inset-0 flex flex-col rounded-2xl border border-teal-600 bg-teal-600 p-8 shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)] text-white">
+                  <p class="text-xs font-semibold uppercase tracking-widest text-teal-200">Back</p>
+                  <div class="flex flex-1 flex-col items-center justify-center text-center">
+                    <p class="text-sm font-semibold text-teal-200 mb-2">Meaning</p>
+                    <h3 id="card-meaning" class="text-4xl font-extrabold sm:text-5xl tracking-tight">{cards[0].meaning}</h3>
+                    <p class="mt-3 inline-flex rounded bg-teal-700 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-teal-100">
+                      <span id="card-pos-back">{cards[0].partOfSpeech}</span>
+                    </p>
+                    
+                    <div class="mt-6 w-full rounded-xl bg-teal-800/40 p-4 backdrop-blur-sm border border-teal-500/50">
+                      <p class="text-xs font-bold uppercase tracking-widest text-teal-300 mb-3">Synonyms / Paraphrase</p>
+                      <div id="card-synonyms" class="flex flex-wrap gap-2 justify-center">
+                      </div>
+                    </div>
+
+                  </div>
+                  <p class="text-center text-sm font-medium text-teal-200">Nhấp để lật lại</p>
+                </div>
+
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div id="study-actions" class="mt-10 mx-auto grid max-w-xl gap-4 sm:grid-cols-2">
+          <button id="not-known" class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+            Chưa thuộc
+          </button>
+          <button id="known" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-teal-700">
+            Đã thuộc
+          </button>
+        </div>
+
+        <div id="done-box" class="mt-10 hidden mx-auto max-w-xl rounded-2xl border border-teal-100 bg-teal-50 p-8 text-center">
+          <p class="text-xs font-semibold uppercase tracking-widest text-teal-700">Completed</p>
+          <h3 class="mt-3 text-2xl font-bold text-slate-900">Hoàn thành bộ từ vựng</h3>
+          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <a href="/english-lab/toeic" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700">
+              Quay lại
+            </a>
+            <button id="go-to-sheet" class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+              Xem Sheet
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="sheet-view" class="mt-10 hidden">
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-left">
+              <thead class="bg-slate-50">
+                <tr>
+                  <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Word</th>
+                  <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Meaning</th>
+                  <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Synonyms</th>
+                  <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Example</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                {cards.map((card) => (
+                  <tr class="align-top hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4">
+                      <p class="text-sm font-bold text-slate-900">{card.word}</p>
+                      <p class="mt-1 text-xs text-slate-500">{card.partOfSpeech}</p>
+                    </td>
+                    <td class="px-6 py-4 text-sm font-medium text-slate-700">{card.meaning}</td>
+                    <td class="px-6 py-4">
+                      <div class="flex flex-wrap gap-1">
+                        {card.synonyms.map((syn) => (
+                          <span class="inline-flex items-center rounded-md bg-teal-50 px-2 py-1 text-[11px] font-bold text-teal-700 ring-1 ring-inset ring-teal-600/20">
+                            {syn}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-slate-600 italic">"{card.example}"</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<script define:vars={{ cards }}>
+  let currentIndex = 0;
+  let isFlipped = false;
+  let isAnimating = false;
+
+  const progress = document.getElementById('progress');
+  const tabFlashcards = document.getElementById('tab-flashcards');
+  const tabSheet = document.getElementById('tab-sheet');
+  const flashcardsView = document.getElementById('flashcards-view');
+  const sheetView = document.getElementById('sheet-view');
+  const goToSheet = document.getElementById('go-to-sheet');
+
+  const flashcard = document.getElementById('flashcard');
+  const flashcardInner = document.getElementById('flashcard-inner');
+  const cardStage = document.getElementById('card-stage');
+
+  const word = document.getElementById('card-word');
+  const example = document.getElementById('card-example');
+  const meaning = document.getElementById('card-meaning');
+  const posFront = document.getElementById('card-pos-front');
+  const posBack = document.getElementById('card-pos-back');
+  const synonymsContainer = document.getElementById('card-synonyms');
+
+  const knownBtn = document.getElementById('known');
+  const notKnownBtn = document.getElementById('not-known');
+  const doneBox = document.getElementById('done-box');
+  const studyActions = document.getElementById('study-actions');
+
+  function showFlashcardsTab() {
+    flashcardsView?.classList.remove('hidden');
+    sheetView?.classList.add('hidden');
+    tabFlashcards?.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+    tabFlashcards?.classList.remove('text-slate-500');
+    tabSheet?.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+    tabSheet?.classList.add('text-slate-500');
+  }
+
+  function showSheetTab() {
+    flashcardsView?.classList.add('hidden');
+    sheetView?.classList.remove('hidden');
+    tabSheet?.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
+    tabSheet?.classList.remove('text-slate-500');
+    tabFlashcards?.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
+    tabFlashcards?.classList.add('text-slate-500');
+  }
+
+  function playFlipSound() {
+    try {
+      const ctx = new window.AudioContext();
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(1046, ctx.currentTime);
+      gain1.gain.setValueAtTime(0.6, ctx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      osc1.start(ctx.currentTime);
+      osc1.stop(ctx.currentTime + 0.6);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(784, ctx.currentTime + 0.15);
+      gain2.gain.setValueAtTime(0.0, ctx.currentTime);
+      gain2.gain.setValueAtTime(0.5, ctx.currentTime + 0.15);
+      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+      osc2.start(ctx.currentTime + 0.15);
+      osc2.stop(ctx.currentTime + 0.7);
+    } catch (e) {
+      console.warn("Audio Context failed to start", e);
+    }
+  }
+
+  function resetCardFace() {
+    isFlipped = false;
+    flashcardInner?.style.setProperty('transform', 'rotateY(0deg)');
+  }
+
+  function renderCard() {
+    const card = cards[currentIndex];
+    if (!card) return;
+
+    if (progress) progress.textContent = `${currentIndex + 1} / ${cards.length}`;
+    if (word) word.textContent = card.word;
+    if (example) example.textContent = `"${card.example}"`;
+    if (meaning) meaning.textContent = card.meaning;
+    if (posFront) posFront.textContent = card.partOfSpeech;
+    if (posBack) posBack.textContent = card.partOfSpeech;
+    
+    if (synonymsContainer) {
+      synonymsContainer.innerHTML = ''; 
+      if (card.synonyms && card.synonyms.length > 0) {
+        card.synonyms.forEach(syn => {
+          const span = document.createElement('span');
+          span.className = 'px-3 py-1 bg-white/20 rounded-full text-sm font-bold border border-white/30 backdrop-blur-md shadow-sm cursor-default';
+          span.textContent = syn;
+          synonymsContainer.appendChild(span);
+        });
+      } else {
+        synonymsContainer.innerHTML = '<span class="text-teal-300 text-sm">Không có</span>';
+      }
+    }
+
+    resetCardFace();
+  }
+
+  function flipCard() {
+    if (isAnimating) return;
+
+    if (!isFlipped) {
+      isFlipped = true;
+      flashcardInner?.style.setProperty('transform', 'rotateY(180deg)');
+      playFlipSound();
+    } else {
+      isFlipped = false;
+      flashcardInner?.style.setProperty('transform', 'rotateY(0deg)');
+    }
+  }
+
+  function animateNextCard() {
+    if (!cardStage) return Promise.resolve();
+
+    return new Promise((resolve) => {
+      cardStage.style.opacity = '0';
+      cardStage.style.transform = 'translateX(70px) rotate(4deg) scale(0.96)';
+      setTimeout(() => resolve(), 260);
+    });
+  }
+
+  function animateCardIn() {
+    if (!cardStage) return;
+
+    cardStage.style.opacity = '0';
+    cardStage.style.transform = 'translateX(-70px) rotate(-4deg) scale(0.96)';
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        cardStage.style.opacity = '1';
+        cardStage.style.transform = 'translateX(0) rotate(0deg) scale(1)';
+      });
+    });
+  }
+
+  async function nextCard() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    await animateNextCard();
+    currentIndex += 1;
+
+    if (currentIndex >= cards.length) {
+      flashcard?.classList.add('hidden');
+      cardStage?.classList.add('hidden');
+      studyActions?.classList.add('hidden');
+      doneBox?.classList.remove('hidden');
+      if (progress) progress.textContent = `${cards.length} / ${cards.length}`;
+      isAnimating = false;
+      return;
+    }
+
+    renderCard();
+    animateCardIn();
+
+    setTimeout(() => {
+      isAnimating = false;
+    }, 280);
+  }
+
+  flashcard?.addEventListener('click', flipCard);
+  knownBtn?.addEventListener('click', nextCard);
+  notKnownBtn?.addEventListener('click', nextCard);
+  tabFlashcards?.addEventListener('click', showFlashcardsTab);
+  tabSheet?.addEventListener('click', showSheetTab);
+  goToSheet?.addEventListener('click', showSheetTab);
+
+  if (cardStage) {
+    cardStage.style.opacity = '1';
+    cardStage.style.transform = 'translateX(0) rotate(0deg) scale(1)';
+  }
+
+  renderCard();
+  showFlashcardsTab();
+</script>

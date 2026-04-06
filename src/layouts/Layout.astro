@@ -1,4 +1,5 @@
 ---
+import SmartPopup from '../components/SmartPopup.astro';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -12,43 +13,40 @@ const { title = 'Learn Lab Web' } = Astro.props;
 
 <!doctype html>
 <html lang="vi">
-<script>
-  if (window.location.hash.includes('invite_token') || 
-      window.location.hash.includes('confirmation_token') ||
-      window.location.hash.includes('recovery_token')) {
-    window.location.href = '/admin/#' + window.location.hash.split('#')[1];
-  }
-</script>
-
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
-    <script is:inline>
-  if (window.location.hash.includes('recovery_token') || 
-      window.location.hash.includes('invite_token') ||
-      window.location.hash.includes('confirmation_token')) {
-    window.location.replace('/admin/' + window.location.hash);
-  }
-</script>
 
+    <script is:inline>
+      if (window.location.hash.includes('recovery_token') || 
+          window.location.hash.includes('invite_token') ||
+          window.location.hash.includes('confirmation_token')) {
+        window.location.replace('/admin/' + window.location.hash);
+      }
+    </script>
   </head>
-  <script>
-  if (window.netlifyIdentity) {
-    window.netlifyIdentity.on("init", user => {
-      if (!user) {
-        window.netlifyIdentity.on("login", () => {
-          document.location.href = "/admin/";
+
+  <body class="bg-white text-slate-900 relative min-h-screen flex flex-col">
+    <Header />
+    
+    <main class="flex-grow">
+      <slot /> 
+    </main>
+
+    <Footer />
+    <SmartPopup />
+
+    <script is:inline>
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", user => {
+          if (!user) {
+            window.netlifyIdentity.on("login", () => {
+              document.location.href = "/admin/";
+            });
+          }
         });
       }
-    });
-  }
-</script>
-<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-
-  <body class="bg-white text-slate-900">
-    <Header />
-    <slot />
-    <Footer />
+    </script>
   </body>
 </html>

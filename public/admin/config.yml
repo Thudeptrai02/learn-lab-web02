@@ -18,7 +18,8 @@ collections:
     fields:
       - {label: "Tiêu đề bài viết", name: "title", widget: "string"}
       - {label: "Tóm tắt", name: "description", widget: "text"}
-      - {label: "Ngày đăng", name: "pubDate", widget: "datetime"}
+      - {label: "Ngày đăng", name: "date", widget: "datetime"}
+      - {label: "Danh mục", name: "category", widget: "select", options: ["Tiếng Anh", "Nhật Ký", "Trải Nghiệm", "Tài Liệu"]}
       - {label: "Ảnh bìa", name: "image", widget: "image", required: false}
       - {label: "Nội dung bài viết", name: "body", widget: "markdown"}
 

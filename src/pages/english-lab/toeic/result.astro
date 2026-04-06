@@ -1,102 +1,198 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
-
-// ==========================================
-// 1. XỬ LÝ LẤY NGÀY THÁNG TỰ ĐỘNG (LIVE DATE)
-// ==========================================
-const today = new Date();
-
-// Format hàm để ra chuẩn yyyy/mm/dd
-const formatDate = (dateObj) => {
-  const yyyy = dateObj.getFullYear();
-  const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const dd = String(dateObj.getDate()).padStart(2, '0');
-  return `${yyyy}/${mm}/${dd}`;
-};
-
-const liveTestDate = formatDate(today);
-
-// Tính ngày hết hạn (Cộng thêm exactly 2 năm)
-const expiryDate = new Date(today);
-expiryDate.setFullYear(expiryDate.getFullYear() + 2);
-const liveValidUntil = formatDate(expiryDate);
-
-
-// ==========================================
-// 2. MÔ PHỎNG DỮ LIỆU TỪ DATABASE
-// ==========================================
-const student = {
-  // Sau này bạn thay chuỗi này bằng biến lấy từ Session/DB (VD: user.fullName)
-  name: "Tên Tài Khoản (Đang chờ DB)", 
-  idNumber: "TOEIC-2026-LIVE",
-  dob: "2000/01/01", // Mốc cố định năm 2000
-  testDate: liveTestDate,
-  validUntil: liveValidUntil,
-  listening: 430, // Thử đổi số này để xem thanh chạy (5 - 495)
-  reading: 410,   // Thử đổi số này để xem thanh chạy (5 - 495)
-};
-
-const totalScore = student.listening + student.reading;
-
-
-// ==========================================
-// 3. THUẬT TOÁN TÍNH TỶ LỆ THANH ĐIỂM
-// ==========================================
-// Điểm TOEIC tối thiểu là 5, tối đa là 495.
-// Công thức: ((Điểm - 5) / (495 - 5)) * 100
-const getPosition = (score) => {
-  const safeScore = Math.min(Math.max(score, 5), 495); // Ép điểm luôn nằm trong khoảng 5-495
-  return ((safeScore - 5) / 490) * 100;
-};
-
-const posL = getPosition(student.listening);
-const posR = getPosition(student.reading);
 ---
 
-<Layout title="Chứng chỉ TOEIC | Learn Lab">
-  <main class="min-h-screen bg-slate-50 py-16 px-4">
-    <div class="mx-auto max-w-5xl">
+<Layout title="Kết quả bài thi TOEIC">
+  <main class="min-h-screen bg-[#f8fafc] font-sans pb-20">
+    
+    <div id="quick-stats" class="max-w-[1100px] mx-auto p-4 md:p-8 pt-16">
       
-      <div class="mb-12 flex justify-between items-center">
-        <a href="/english-lab/toeic" class="flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-teal-600 transition-colors">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-          Quay lại phòng luyện thi
-        </a>
+      <div class="relative mt-8 mb-16">
         
-        <a href="/english-lab/toeic/review" class="bg-teal-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-md hover:bg-teal-700 transition-all inline-block">
-          Xem lại chi tiết đáp án
-        </a>
-      </div>
-
-      <div class="relative mt-10">
-        
-        <div class="absolute -top-[52px] left-1/2 -translate-x-1/2 bg-[#f6a000] text-slate-900 text-center py-2 px-8 sm:px-16 rounded-t-2xl z-10 w-[90%] sm:w-auto shadow-sm">
-          <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-800">Listening and Reading</p>
-          <p class="text-lg sm:text-xl font-black uppercase tracking-wide">Official Score Certificate</p>
+        <div class="absolute -top-[3.2rem] left-1/2 -translate-x-1/2 bg-[#fbbf24] text-slate-900 px-8 py-2 md:px-16 md:py-3 rounded-t-3xl text-center z-10 min-w-[280px] md:min-w-[450px]">
+            <p class="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] text-slate-800">Listening and Reading</p>
+            <h2 class="text-sm md:text-xl font-black uppercase tracking-wide mt-0.5">Official Score Certificate</h2>
         </div>
 
-        <div class="border-[3px] border-[#f6a000] bg-white pt-12 pb-8 px-4 sm:px-8 relative shadow-xl overflow-hidden">
-          
-          <div class="flex flex-col lg:flex-row gap-8">
-            
-            <div class="w-full lg:w-[45%] flex gap-4 lg:pr-8 lg:border-r border-slate-300">
-              
-              <div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 mt-2 rounded-full overflow-hidden border border-slate-200 bg-slate-50 flex items-center justify-center">
-                <svg class="w-12 h-12 text-slate-300 mt-2" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-              </div>
+        <div class="border-[3px] border-[#fbbf24] bg-white p-6 md:p-8 pt-8 md:pt-10 flex flex-col lg:flex-row gap-8 lg:gap-6 relative shadow-lg">
 
-              <div class="flex-1 space-y-4">
+            <div class="flex flex-col sm:flex-row gap-6 lg:w-5/12 lg:border-r border-slate-400 lg:pr-6 relative">
+                <div class="flex flex-col items-center justify-center shrink-0 w-24 mx-auto sm:mx-0">
+                    <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=f1f5f9&color=64748b&bold=true&size=128" alt="Avatar" class="w-20 h-20 rounded-full border-2 border-slate-200 object-cover shadow-inner" />
+                </div>
+                <div class="flex-1 text-sm text-slate-500 font-medium">
+                    <div class="border-b-[3px] border-slate-700 pb-1 mb-3">
+                        <div class="font-bold text-slate-800 text-lg uppercase" id="cert-name">Học Viên Ẩn Danh</div>
+                        <div class="text-[10px] text-slate-400">Name</div>
+                    </div>
+                    <div class="flex border-b border-slate-400 pb-2 mb-3 gap-2">
+                        <div class="flex-1 pr-2 border-r border-slate-400">
+                            <div class="font-bold text-slate-800">TOEIC-LAB-1102</div>
+                            <div class="text-[10px] text-slate-400 leading-tight mt-0.5">Identification<br/>Number</div>
+                        </div>
+                        <div class="flex-1 pl-2">
+                            <div class="font-bold text-slate-800">01/01/2000</div>
+                            <div class="text-[10px] text-slate-400 leading-tight mt-0.5">Date of Birth<br/>(yyyy/mm/dd)</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="flex-1 pr-2 border-r border-slate-400">
+                            <div class="font-bold text-slate-800" id="cert-date-test">...</div>
+                            <div class="text-[10px] text-slate-400 leading-tight mt-0.5">Test Date<br/>(yyyy/mm/dd)</div>
+                        </div>
+                        <div class="flex-1 pl-2">
+                            <div class="font-bold text-slate-800" id="cert-date-valid">...</div>
+                            <div class="text-[10px] text-slate-400 leading-tight mt-0.5">Valid Until<br/>(yyyy/mm/dd)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex-1 lg:border-r border-slate-400 lg:pr-6 flex flex-col justify-center gap-12 lg:gap-8 pt-4 lg:pt-0">
                 
-                <div>
-                  <div class="border-b-[1.5px] border-slate-800 pb-1 w-full">
-                    <p class="font-bold text-base sm:text-lg text-slate-900">{student.name}</p>
-                  </div>
-                  <p class="text-[11px] text-slate-400 mt-0.5">Name</p>
+                <div class="relative">
+                    <div class="flex justify-end mb-2">
+                        <span class="bg-[#fbbf24] text-slate-900 font-black px-4 py-1 text-xs md:text-sm uppercase tracking-wide">Listening</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-bold text-slate-600">5</span>
+                        <div class="flex-1 h-6 bg-gradient-to-r from-slate-400 to-slate-700 relative shadow-inner">
+                            <div id="lc-pointer" class="absolute top-[-28px] -translate-x-1/2 flex flex-col items-center transition-all duration-1000 ease-out" style="left: 0%;">
+                                <div class="w-8 h-8 bg-white border-2 border-slate-700 rounded-full flex items-center justify-center font-bold text-xs shadow-sm z-10 text-slate-800" id="lc-score-val">0</div>
+                                <div class="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-slate-700 -mt-0.5"></div>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-slate-600">495</span>
+                    </div>
                 </div>
 
-                <div class="flex gap-4">
-                  <div class="flex-[1.5]">
-                    <div class="border-b-[1.5px] border-slate-800 pb-1">
-                      <p class="font-bold text-sm sm:text-base text-slate-900">{student.idNumber}</p>
+                <div class="relative">
+                    <div class="flex justify-end mb-2">
+                        <span class="bg-[#fbbf24] text-slate-900 font-black px-4 py-1 text-xs md:text-sm uppercase tracking-wide">Reading</span>
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-0.5 leading-tight">Identification<br
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-bold text-slate-600">5</span>
+                        <div class="flex-1 h-6 bg-gradient-to-r from-slate-400 to-slate-700 relative shadow-inner">
+                            <div id="rc-pointer" class="absolute top-[-28px] -translate-x-1/2 flex flex-col items-center transition-all duration-1000 ease-out" style="left: 0%;">
+                                <div class="w-8 h-8 bg-white border-2 border-slate-700 rounded-full flex items-center justify-center font-bold text-xs shadow-sm z-10 text-slate-800" id="rc-score-val">0</div>
+                                <div class="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-slate-700 -mt-0.5"></div>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-slate-600">495</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="w-full lg:w-32 flex flex-col items-center justify-center gap-4 shrink-0 mt-4 lg:mt-0">
+                <div class="bg-[#fbbf24] text-slate-900 text-center w-32 lg:w-full py-2 font-black leading-tight text-sm uppercase tracking-wider">
+                    Total<br/>Score
+                </div>
+                <div class="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-slate-800 flex items-center justify-center text-4xl md:text-5xl font-black text-slate-800 shadow-sm bg-white" id="total-score-val">
+                    0
+                </div>
+            </div>
+
+        </div>
+      </div>
+      <div class="bg-white rounded-[2rem] p-6 md:p-12 shadow-sm border border-slate-100 relative">
+         <div class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+             <h2 class="text-2xl font-black text-slate-800 uppercase italic">Tra cứu đáp án chi tiết</h2>
+             <div class="flex gap-4 text-xs font-bold text-slate-500 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                 <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-teal-500 shadow-sm"></span> Đúng</div>
+                 <div class="flex items-center gap-2"><span class="w-4 h-4 rounded bg-rose-500 shadow-sm"></span> Sai</div>
+             </div>
+         </div>
+         <div id="grid-content" class="space-y-12"></div>
+      </div>
+
+    </div>
+  </main>
+</Layout>
+
+<script is:inline>
+  const data = JSON.parse(localStorage.getItem('toeic_latest_result'));
+  if (!data) window.location.href = "/english-lab/toeic";
+
+  // Hàm fomat ngày tháng
+  function formatDate(date) {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}/${mm}/${dd}`;
+  }
+
+  const partConfigs = [
+    { id: 1, name: "Part 1: Photographs", start: 1, end: 6 },
+    { id: 2, name: "Part 2: Question-Response", start: 7, end: 31 },
+    { id: 3, name: "Part 3: Conversations", start: 32, end: 70 },
+    { id: 4, name: "Part 4: Talks", start: 71, end: 100 },
+    { id: 5, name: "Part 5: Incomplete Sentences", start: 101, end: 130 },
+    { id: 6, name: "Part 6: Text Completion", start: 131, end: 146 },
+    { id: 7, name: "Part 7: Reading Comprehension", start: 147, end: 200 }
+  ];
+
+  function initQuickStats() {
+    // 1. Điền ngày tháng
+    const today = new Date();
+    document.getElementById('cert-date-test').textContent = formatDate(today);
+    
+    const validUntil = new Date();
+    validUntil.setFullYear(validUntil.getFullYear() + 2); // TOEIC có hạn 2 năm
+    document.getElementById('cert-date-valid').textContent = formatDate(validUntil);
+
+    // 2. Chấm điểm xấp xỉ thang 990
+    let lcCorrect = data.details.filter(q => q.id <= 100 && q.isCorrect).length;
+    let rcCorrect = data.details.filter(q => q.id > 100 && q.isCorrect).length;
+    
+    let lcScore = lcCorrect === 0 ? 5 : Math.min(495, lcCorrect * 5);
+    let rcScore = rcCorrect === 0 ? 5 : Math.min(495, rcCorrect * 5);
+    
+    // Gán text
+    document.getElementById('lc-score-val').textContent = lcScore;
+    document.getElementById('rc-score-val').textContent = rcScore;
+    document.getElementById('total-score-val').textContent = lcScore + rcScore;
+
+    // 3. Hiệu ứng chạy thanh trượt (Pointer)
+    setTimeout(() => {
+        // Tính % vị trí của con trỏ (Điểm từ 5 -> 495)
+        const lcPercent = ((lcScore - 5) / 490) * 100;
+        const rcPercent = ((rcScore - 5) / 490) * 100;
+        
+        document.getElementById('lc-pointer').style.left = `${lcPercent}%`;
+        document.getElementById('rc-pointer').style.left = `${rcPercent}%`;
+    }, 300); // Đợi xíu để thấy hiệu ứng trượt
+
+    renderGrid();
+  }
+
+  function renderGrid() {
+    const container = document.getElementById('grid-content');
+    container.innerHTML = "";
+
+    partConfigs.forEach(part => {
+      const questions = data.details.filter(q => q.id >= part.start && q.id <= part.end);
+      if (questions.length === 0) return;
+
+      let sectionHtml = `
+        <div>
+          <h3 class="text-slate-800 font-black text-sm mb-5 uppercase italic border-l-[4px] border-[#fbbf24] pl-3 leading-tight">${part.name}</h3>
+          <div class="grid grid-cols-5 sm:grid-cols-10 gap-3">
+      `;
+      
+      questions.forEach(q => {
+        const bgColor = q.isCorrect ? 'bg-teal-500 border-teal-600' : 'bg-rose-500 border-rose-600';
+        sectionHtml += `
+          <button onclick="window.location.href='/english-lab/toeic/review?q=${q.id}'" 
+                  class="h-12 w-full ${bgColor} text-white rounded-xl border-b-[4px] font-black text-sm shadow-sm hover:-translate-y-1 hover:shadow-md transition-all cursor-pointer">
+            ${q.id}
+          </button>
+        `;
+      });
+      sectionHtml += `</div></div>`;
+      container.innerHTML += sectionHtml;
+    });
+  }
+
+  initQuickStats();
+</script>

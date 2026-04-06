@@ -1,0 +1,124 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Lego Grammar | Learn Lab">
+  <main class="min-h-screen bg-slate-50 py-12 px-4">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="inline-block px-4 py-1 bg-teal-100 text-teal-700 rounded-full text-xs font-black uppercase tracking-widest mb-4">
+        Level 01: S-V-O Structure
+      </div>
+      <h1 class="text-4xl font-black text-slate-900 mb-4">Xây dựng cấu trúc câu 🧱</h1>
+      <p class="text-slate-500 font-medium mb-12">Kéo các khối Lego vào vùng trắng để tạo thành câu hoàn chỉnh.</p>
+
+      <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-8 inline-block">
+        <p class="text-xl font-bold text-slate-700">"Người quản lý đang kiểm tra các báo cáo."</p>
+      </div>
+
+      <div id="drop-zone" class="flex flex-wrap justify-center gap-4 p-10 bg-white border-4 border-dashed border-slate-200 rounded-[3rem] min-h-[140px] mb-12 shadow-inner transition-all duration-300">
+        </div>
+
+      <div class="relative p-8 bg-slate-200/40 rounded-[2.5rem] border border-slate-200/50">
+        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-400 text-white text-[10px] px-3 py-1 rounded-full font-black uppercase">Kho khối hình</div>
+        <div id="lego-store" class="flex flex-wrap justify-center gap-4">
+          
+          <div class="lego-block px-8 py-4 text-white text-lg font-black rounded-2xl cursor-grab select-none transition-all active:cursor-grabbing hover:-translate-y-1 active:translate-y-[2px] active:shadow-none bg-blue-500 shadow-[0_6px_0_0_#1d4ed8]" data-id="S">
+            The manager
+          </div>
+          
+          <div class="lego-block px-8 py-4 text-white text-lg font-black rounded-2xl cursor-grab select-none transition-all active:cursor-grabbing hover:-translate-y-1 active:translate-y-[2px] active:shadow-none bg-rose-500 shadow-[0_6px_0_0_#be123c]" data-id="V">
+            is checking
+          </div>
+          
+          <div class="lego-block px-8 py-4 text-white text-lg font-black rounded-2xl cursor-grab select-none transition-all active:cursor-grabbing hover:-translate-y-1 active:translate-y-[2px] active:shadow-none bg-emerald-500 shadow-[0_6px_0_0_#047857]" data-id="O">
+            the reports
+          </div>
+          
+        </div>
+      </div>
+
+      <button id="check-btn" class="mt-12 px-12 py-5 bg-slate-900 text-white font-black rounded-2xl shadow-2xl hover:bg-teal-600 transition-all active:scale-95 group">
+        XÁC NHẬN LẮP RÁP <span class="group-hover:ml-2 transition-all">🚀</span>
+      </button>
+    </div>
+  </main>
+</Layout>
+
+<style is:global>
+  /* Hiệu ứng khi đang cầm khối Lego kéo đi */
+  .sortable-ghost {
+    opacity: 0.2 !important;
+    transform: scale(0.9) rotate(3deg) !important;
+  }
+
+  /* Khi xếp đúng (Đổ viền và nền xanh) */
+  .zone-success {
+    border-color: #34d399 !important; /* emerald-400 */
+    background-color: #ecfdf5 !important; /* emerald-50 */
+    box-shadow: 0 0 0 8px #d1fae5 !important; /* ring-8 */
+  }
+
+  /* Hiệu ứng rung bần bật khi xếp sai */
+  .animate-shake {
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+  }
+  @keyframes shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(4px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-8px, 0, 0); }
+    40%, 60% { transform: translate3d(8px, 0, 0); }
+  }
+</style>
+
+<script>
+  import Sortable from 'sortablejs';
+  import confetti from 'canvas-confetti';
+
+  const store = document.getElementById('lego-store');
+  const dropZone = document.getElementById('drop-zone');
+  const checkBtn = document.getElementById('check-btn');
+
+  // Kích hoạt kéo thả "ngàm" kép
+  new Sortable(store, {
+    group: 'shared',
+    animation: 200,
+    ghostClass: 'sortable-ghost'
+  });
+
+  new Sortable(dropZone, {
+    group: 'shared',
+    animation: 200,
+    ghostClass: 'sortable-ghost'
+  });
+
+  checkBtn.addEventListener('click', () => {
+    // Thứ tự đúng: S (Chủ ngữ) -> V (Động từ) -> O (Tân ngữ)
+    const currentOrder = Array.from(dropZone.children).map(el => el.getAttribute('data-id'));
+    const correctOrder = ['S', 'V', 'O'];
+
+    if (JSON.stringify(currentOrder) === JSON.stringify(correctOrder)) {
+      // THÀNH CÔNG!
+      dropZone.classList.remove('animate-shake');
+      dropZone.classList.add('zone-success');
+      
+      // Bắn pháo hoa 2 bên
+      const duration = 2 * 1000;
+      const end = Date.now() + duration;
+
+      (function frame() {
+        confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
+        confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1 } });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      }());
+
+    } else {
+      // THẤT BẠI
+      dropZone.classList.remove('zone-success');
+      
+      // Xóa class shake cũ và thêm lại để nó rung lại từ đầu
+      dropZone.classList.remove('animate-shake');
+      void dropZone.offsetWidth; // Mẹo ép trình duyệt load lại hiệu ứng
+      dropZone.classList.add('animate-shake');
+    }
+  });
+</script>

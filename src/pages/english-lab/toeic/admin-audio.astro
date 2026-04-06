@@ -1,0 +1,193 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+---
+
+<Layout title="Công cụ Cắt Audio | Admin Learn Lab">
+  <main class="min-h-screen bg-slate-900 px-4 py-10 sm:px-6 lg:px-8 text-slate-200">
+    <section class="mx-auto max-w-4xl">
+      
+      <div class="mb-8 border-b border-slate-700 pb-6 text-center">
+        <p class="text-xs font-bold uppercase tracking-widest text-emerald-500">Admin Tool</p>
+        <h1 class="mt-2 text-3xl font-extrabold text-white">Audio Timestamp Catcher</h1>
+        <p class="mt-3 text-slate-400">Công cụ bóc băng thời gian siêu tốc dành riêng cho Giám đốc.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="space-y-6">
+          <div class="rounded-xl border border-slate-700 bg-slate-800 p-6 shadow-lg">
+            <label class="block text-sm font-bold text-slate-300 mb-2">1. Chọn file MP3 từ máy tính</label>
+            <input type="file" id="audio-upload" accept="audio/*" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-emerald-500 file:text-white hover:file:bg-emerald-600 cursor-pointer" />
+            
+            <div class="mt-6">
+              <audio id="audio-player" controls class="w-full h-10 rounded-lg outline-none"></audio>
+            </div>
+            
+            <div class="mt-4 flex items-center justify-between text-xs text-slate-400 font-mono">
+              <p>Phím tắt <kbd class="bg-slate-700 px-1.5 py-0.5 rounded text-white">Space</kbd> : Phát/Dừng</p>
+              <p>Phím tắt <kbd class="bg-slate-700 px-1.5 py-0.5 rounded text-white">Enter</kbd> : Cắt mốc</p>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-slate-700 bg-slate-800 p-6 shadow-lg text-center flex flex-col items-center justify-center min-h-[160px]">
+            <p id="status-text" class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-wider">Đang chờ lệnh...</p>
+            <button id="mark-btn" disabled class="w-full max-w-xs rounded-xl bg-indigo-600 px-6 py-4 font-bold text-white shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-indigo-500 active:scale-95">
+              Chọn mốc BẮT ĐẦU (Enter)
+            </button>
+            <p id="current-time-display" class="mt-4 text-3xl font-mono text-emerald-400">0.00</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-slate-700 bg-slate-800 p-6 shadow-lg flex flex-col h-full">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold text-white">2. Bảng Thời Gian</h2>
+            <button id="copy-btn" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded transition">
+              📋 Copy cả cột để dán
+            </button>
+          </div>
+          
+          <div class="flex-1 overflow-auto rounded-lg border border-slate-700 bg-slate-900">
+            <table class="w-full text-left text-sm text-slate-300 font-mono">
+              <thead class="bg-slate-800 text-xs uppercase text-slate-400 sticky top-0">
+                <tr>
+                  <th class="px-4 py-3">Câu</th>
+                  <th class="px-4 py-3 text-emerald-400">Bắt đầu (Cột F)</th>
+                  <th class="px-4 py-3 text-rose-400">Kết thúc (Cột G)</th>
+                </tr>
+              </thead>
+              <tbody id="table-body" class="divide-y divide-slate-800">
+                </tbody>
+            </table>
+          </div>
+          
+          <textarea id="copy-area" class="opacity-0 h-0 w-0 p-0 absolute -z-10"></textarea>
+        </div>
+      </div>
+
+    </section>
+  </main>
+</Layout>
+
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('audio-upload');
+    const audioEl = document.getElementById('audio-player');
+    const markBtn = document.getElementById('mark-btn');
+    const statusText = document.getElementById('status-text');
+    const timeDisplay = document.getElementById('current-time-display');
+    const tableBody = document.getElementById('table-body');
+    const copyBtn = document.getElementById('copy-btn');
+    const copyArea = document.getElementById('copy-area');
+
+    let isRecording = false;
+    let currentStart = 0;
+    let segments = [];
+    let sentenceCount = 1;
+
+    // Load file từ máy tính
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        audioEl.src = URL.createObjectURL(file);
+        markBtn.disabled = false;
+        statusText.textContent = "Sẵn sàng cắt audio";
+        audioEl.focus();
+      }
+    });
+
+    // Cập nhật đồng hồ thời gian thực
+    audioEl.addEventListener('timeupdate', () => {
+      timeDisplay.textContent = audioEl.currentTime.toFixed(2);
+    });
+
+    // Hàm chốt mốc thời gian
+    const handleMark = () => {
+      if (!audioEl.src) return;
+      
+      const currentTime = audioEl.currentTime.toFixed(2);
+
+      if (!isRecording) {
+        // Hành động: Chốt BẮT ĐẦU
+        currentStart = currentTime;
+        isRecording = true;
+        
+        statusText.textContent = `Đang thu mốc câu ${sentenceCount}...`;
+        statusText.classList.replace('text-slate-400', 'text-rose-400');
+        
+        markBtn.textContent = "Chốt KẾT THÚC (Enter)";
+        markBtn.classList.replace('bg-indigo-600', 'bg-rose-600');
+        markBtn.classList.replace('hover:bg-indigo-500', 'hover:bg-rose-500');
+      } else {
+        // Hành động: Chốt KẾT THÚC
+        const currentEnd = currentTime;
+        isRecording = false;
+        
+        segments.push({
+          id: sentenceCount,
+          start: currentStart,
+          end: currentEnd
+        });
+
+        sentenceCount++;
+        
+        statusText.textContent = "Chờ câu tiếp theo...";
+        statusText.classList.replace('text-rose-400', 'text-slate-400');
+        
+        markBtn.textContent = `Bắt đầu câu ${sentenceCount} (Enter)`;
+        markBtn.classList.replace('bg-rose-600', 'bg-indigo-600');
+        markBtn.classList.replace('hover:bg-rose-500', 'hover:bg-indigo-500');
+        
+        renderTable();
+      }
+    };
+
+    markBtn.addEventListener('click', handleMark);
+
+    // Bắt phím tắt (Hotkeys)
+    document.addEventListener('keydown', (e) => {
+      if (!audioEl.src) return;
+
+      // Phím Space -> Phát/Dừng nhạc
+      if (e.code === 'Space' && e.target !== markBtn) {
+        e.preventDefault();
+        if (audioEl.paused) audioEl.play();
+        else audioEl.pause();
+      }
+
+      // Phím Enter -> Cắt mốc
+      if (e.code === 'Enter') {
+        e.preventDefault();
+        handleMark();
+      }
+    });
+
+    // Vẽ bảng
+    const renderTable = () => {
+      tableBody.innerHTML = segments.map(seg => `
+        <tr class="hover:bg-slate-800/50 transition">
+          <td class="px-4 py-2 font-bold text-slate-500">${seg.id}</td>
+          <td class="px-4 py-2 text-emerald-400">${seg.start}</td>
+          <td class="px-4 py-2 text-rose-400">${seg.end}</td>
+        </tr>
+      `).join('');
+    };
+
+    // Nút Copy (Chuẩn format dán Google Sheets)
+    copyBtn.addEventListener('click', () => {
+      if (segments.length === 0) return;
+      // Gom 2 cột Start và End cách nhau bởi phím Tab để dán 1 phát ăn 2 ô trên Sheets
+      const tsvData = segments.map(seg => `${seg.start}\t${seg.end}`).join('\n');
+      copyArea.value = tsvData;
+      copyArea.select();
+      document.execCommand('copy');
+      
+      const originalText = copyBtn.textContent;
+      copyBtn.textContent = "✅ Đã Copy!";
+      copyBtn.classList.replace('bg-slate-700', 'bg-emerald-600');
+      
+      setTimeout(() => {
+        copyBtn.textContent = originalText;
+        copyBtn.classList.replace('bg-emerald-600', 'bg-slate-700');
+      }, 2000);
+    });
+  });
+</script>

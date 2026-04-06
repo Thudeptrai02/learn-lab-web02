@@ -1,91 +1,270 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 
-// Dữ liệu giả lập 1 câu sai để xem lại
-const reviewData = {
-  title: "Xem lại đáp án: ETS 2024 - Test 01",
-  questionId: 153,
-  question: "Mục đích chính của thông báo là gì?",
-  options: [
-    { text: "Bảo trì hệ thống", isCorrect: true, userSelected: false },
-    { text: "Tuyển dụng nhân sự", isCorrect: false, userSelected: true }, // Giả sử user chọn sai câu này
-    { text: "Thông báo nghỉ lễ", isCorrect: false, userSelected: false },
-    { text: "Tăng lương định kỳ", isCorrect: false, userSelected: false }
-  ],
-  explanation: "Trong đoạn đầu của bản ghi nhớ (Memorandum) có ghi rõ: 'Hệ thống mạng sẽ được bảo trì vào lúc 20:00 thứ 7 tuần này'. Do đó đáp án đúng là Bảo trì hệ thống."
-};
+const toeicParts = [
+  { name: "Part 1: Photographs", range: [1, 6] },
+  { name: "Part 2: Question-Response", range: [7, 31] },
+  { name: "Part 3: Conversations", range: [32, 70] },
+  { name: "Part 4: Talks", range: [71, 100] },
+  { name: "Part 5: Incomplete Sentences", range: [101, 130] },
+  { name: "Part 6: Text Completion", range: [131, 146] },
+  { name: "Part 7: Reading Comprehension", range: [147, 200] },
+];
 ---
 
-<Layout title="Xem lại đáp án | Learn Lab">
-  <main class="min-h-screen bg-slate-50 py-12 px-4">
-    <div class="mx-auto max-w-3xl">
-      
-      <div class="mb-8 flex items-center justify-between">
-        <div>
-          <h1 class="text-2xl font-black text-slate-900">{reviewData.title}</h1>
-          <p class="text-sm font-medium text-slate-500 mt-1">Chế độ xem lại (Review Mode)</p>
-        </div>
-        <a href="/english-lab/toeic/result" class="rounded-xl bg-white border-2 border-slate-200 px-5 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-100 transition-all">
-          ← Quay lại bảng điểm
+<Layout title="Review Chi Tiết | Learn Lab">
+  <div class="relative flex flex-col w-full bg-slate-100 font-sans overflow-hidden" style="height: calc(100vh - 72px);">
+    
+    <header class="h-16 bg-white border-b flex items-center justify-between px-4 md:px-6 shrink-0 shadow-sm z-50">
+      <div class="flex items-center gap-4">
+        <a href="/english-lab/toeic" class="flex items-center text-slate-500 hover:text-teal-600 font-bold transition-colors">
+          <svg class="w-6 h-6 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+          <span class="hidden sm:inline text-lg">Quay lại</span>
         </a>
+        <div class="h-6 w-[1px] bg-slate-200"></div>
+        <button onclick="window.backToGrid()" class="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs uppercase shadow-md transition-colors cursor-pointer">
+          Bảng đáp án
+        </button>
       </div>
 
-      <div class="rounded-[2rem] bg-white p-8 sm:p-10 shadow-sm border border-slate-100">
-        <div class="flex items-start gap-4 mb-8">
-          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-800 text-sm font-black text-white">{reviewData.questionId}</span>
-          <h2 class="text-xl font-bold text-slate-800 pt-1">{reviewData.question}</h2>
+      <div class="flex items-center gap-3 md:gap-4">
+        <div class="hidden md:flex bg-slate-50 px-4 py-1.5 rounded-xl border border-slate-200 items-center gap-2">
+           <span class="text-xs font-bold text-slate-500 uppercase">Đúng:</span>
+           <span class="text-sm font-black text-teal-600"><span id="correct-count">0</span>/200</span>
         </div>
-
-        <div class="space-y-3 mb-10">
-          {reviewData.options.map((opt, i) => {
-            // Xác định class CSS dựa trên trạng thái Đúng/Sai/Đã chọn
-            let boxClass = "border-2 border-slate-100 bg-slate-50 opacity-60"; // Mặc định (Câu không chọn & sai)
-            let iconClass = "border-2 border-slate-200 text-slate-400 bg-white";
-            let resultIcon = "";
-
-            if (opt.isCorrect) {
-              // Đáp án đúng thực sự (Màu xanh lá)
-              boxClass = "border-2 border-emerald-400 bg-emerald-50";
-              iconClass = "bg-emerald-500 text-white border-emerald-500";
-              resultIcon = "✓ Đáp án đúng";
-            } else if (opt.userSelected && !opt.isCorrect) {
-              // User chọn sai (Màu đỏ)
-              boxClass = "border-2 border-rose-400 bg-rose-50";
-              iconClass = "bg-rose-500 text-white border-rose-500";
-              resultIcon = "✗ Bạn đã chọn";
-            }
-
-            return (
-              <div class={`flex items-center justify-between p-4 rounded-2xl transition-all ${boxClass}`}>
-                <div class="flex items-center gap-4">
-                  <div class={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold ${iconClass}`}>
-                    {String.fromCharCode(65 + i)}
-                  </div>
-                  <span class={`font-medium ${opt.isCorrect ? 'text-emerald-800' : (opt.userSelected ? 'text-rose-800' : 'text-slate-500')}`}>
-                    {opt.text}
-                  </span>
-                </div>
-                {resultIcon && (
-                  <span class={`text-xs font-black uppercase tracking-widest ${opt.isCorrect ? 'text-emerald-600' : 'text-rose-600'}`}>
-                    {resultIcon}
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        <div class="rounded-2xl bg-amber-50 border border-amber-100 p-6 relative">
-          <div class="absolute -top-3 left-6 bg-amber-400 text-amber-900 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
-            Giải thích chi tiết
-          </div>
-          <p class="text-amber-900/80 font-medium leading-relaxed mt-2 text-sm">
-            {reviewData.explanation}
-          </p>
-        </div>
-
+        <button onclick="window.toggleMenu()" class="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold transition text-base cursor-pointer">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          <span class="hidden md:inline">Câu hỏi</span>
+        </button>
       </div>
+    </header>
 
+    <div class="flex-1 flex overflow-hidden w-full relative z-[10]" id="review-container">
+       <div class="m-auto text-slate-400 font-bold italic animate-pulse">Đang nạp dữ liệu...</div>
     </div>
-  </main>
+
+    <footer class="h-20 bg-white border-t flex justify-center items-center gap-4 md:gap-12 shrink-0 z-40 shadow-lg">
+        <button id="btn-prev-q" onclick="window.navQuestion(-1)" class="px-8 md:px-12 py-3 border-2 border-slate-100 rounded-2xl font-bold text-slate-400 uppercase text-[10px] tracking-widest flex items-center gap-2 hover:bg-slate-50 cursor-pointer disabled:opacity-20 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M15 19l-7-7 7-7"/></svg> Trước
+        </button>
+        <button id="btn-next-q" onclick="window.navQuestion(1)" class="px-8 md:px-12 py-3 bg-slate-900 text-white rounded-2xl font-bold shadow-2xl hover:bg-teal-600 transition-all uppercase text-[10px] tracking-widest flex items-center gap-2 cursor-pointer disabled:opacity-20">
+            Tiếp theo <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+    </footer>
+
+    <div id="question-palette" class="fixed top-16 right-0 bottom-0 w-[22rem] bg-white border-l border-slate-200 shadow-2xl z-[101] transform translate-x-full transition-transform duration-300 overflow-y-auto pb-10">
+      <div class="p-6">
+        <div class="flex items-center justify-between mb-6 sticky top-0 bg-white py-2 border-b border-slate-100 z-10">
+          <h3 class="font-black text-xl text-slate-800">Tra cứu câu hỏi</h3>
+          <button onclick="window.toggleMenu()" class="text-2xl text-slate-400 hover:text-rose-500 cursor-pointer w-8 h-8 flex items-center justify-center rounded-full hover:bg-rose-50 transition-colors">✕</button>
+        </div>
+        <div id="nav-grid-container" class="space-y-6"></div>
+      </div>
+    </div>
+
+    <div id="overlay" onclick="window.toggleMenu()" class="fixed inset-0 top-16 bg-slate-900/20 backdrop-blur-sm z-[90] hidden opacity-0 transition-all duration-300 cursor-pointer"></div>
+  </div>
 </Layout>
+
+<script is:inline define:vars={{ toeicParts }}>
+  // 🟢 Dùng JS Khóa cuộn trang lớp ngoài một cách an toàn nhất!
+  document.body.style.overflow = 'hidden';
+
+  const rawData = localStorage.getItem('toeic_latest_result');
+  window.currentQuestionId = 1;
+
+  window.backToGrid = () => {
+    // Trả lại trạng thái cuộn khi rời khỏi trang
+    document.body.style.overflow = 'auto'; 
+    window.location.href = "/english-lab/toeic/result?view=detail";
+  };
+
+  // Hàm định dạng Text an toàn
+  function formatContent(text) {
+    if (!text) return "";
+    return String(text)
+      .replace(/([MW]-[A-Za-z]+:)/g, '<br/><b class="text-indigo-600 block mt-4">$1</b>') 
+      .replace(/(Man:|Woman:|Speaker\s*\d*:)/gi, '<br/><b class="text-indigo-600 block mt-4">$1</b>')
+      .replace(/([A-D]\.)/g, '<br/><b class="text-teal-600 mt-2 inline-block">$1</b>') 
+      .replace(/(\([A-D]\))/g, '<br/><b class="text-teal-600 mt-2 inline-block">$1</b>')
+      .replace(/\n/g, '<br/>')
+      .replace(/^(<br\/>)+/, '')
+      .replace(/^(<br\b[^>]*>)+/i, '');
+  }
+
+  // Hàm render Ảnh an toàn
+  function renderImages(imageField) {
+    if (!imageField) return "";
+    const urls = String(imageField).split(/\n|,/).map(u => u.trim()).filter(u => u !== "");
+    return `<div class="space-y-4 w-full">${urls.map(url => `<img src="https://wsrv.nl/?url=${encodeURIComponent(url)}&noprocess" class="w-full rounded-2xl border shadow-sm mx-auto" loading="lazy" />`).join('')}</div>`;
+  }
+
+  function renderPassage(passageStr) {
+    if (!passageStr) return "";
+    const str = String(passageStr).trim();
+    if (str.startsWith('http')) return renderImages(str);
+    return str;
+  }
+
+  if (!rawData) {
+    document.getElementById('review-container').innerHTML = `<div class="m-auto text-center font-bold text-slate-400">Không có dữ liệu! Vui lòng nộp bài trước.</div>`;
+  } else {
+    const data = JSON.parse(rawData);
+    document.getElementById('correct-count').textContent = data.score || 0;
+    
+    const groupedDetails = [];
+    let currentGroupId = null;
+    let currentSet = null;
+
+    (data.details || []).forEach(q => {
+       const gId = q.group_id || `single-${q.id}`;
+       if (gId !== currentGroupId) {
+          currentGroupId = gId;
+          currentSet = { part: q.part, audio: q.audio || "", image: q.image || "", passage: q.passage || "", questions: [] };
+          groupedDetails.push(currentSet);
+       }
+       currentSet.questions.push(q);
+    });
+    window.groupedDetails = groupedDetails;
+
+    const container = document.getElementById('review-container');
+    container.innerHTML = `
+      <div id="left-p" class="w-full lg:w-1/2 h-full overflow-y-auto bg-white p-6 md:p-10 border-r scrollbar-custom hidden lg:block transition-all duration-300">
+         ${groupedDetails.map((set, idx) => `
+            <div id="p-set-${idx}" class="review-set-p hidden flex-col space-y-6">
+               <span class="inline-block bg-slate-900 text-white px-4 py-1.5 rounded-lg text-[10px] font-black uppercase w-max tracking-widest">PART ${set.part}</span>
+               ${set.audio ? `<div class="bg-slate-800 p-4 rounded-2xl shadow-xl"><audio controls class="w-full h-10"><source src="${set.audio}"/></audio></div>` : ''}
+               ${renderImages(set.image)}
+               ${set.passage ? `<div class="rounded-3xl bg-slate-50 p-6 md:p-8 text-slate-800 text-lg leading-relaxed shadow-inner border border-slate-200 passage-content">${renderPassage(set.passage)}</div>` : ''}
+            </div>
+         `).join('')}
+      </div>
+      
+      <div id="right-p" class="w-full lg:w-1/2 h-full overflow-y-auto bg-slate-50/50 scrollbar-custom transition-all duration-300">
+         <div class="inner-right-container p-6 md:p-10 space-y-12 transition-all duration-300">
+            ${groupedDetails.map((set, idx) => `
+               <div id="q-set-${idx}" class="review-set-q hidden flex-col space-y-12 w-full">
+                  <div class="lg:hidden mb-4 space-y-4">
+                     ${set.audio ? `<div class="bg-slate-800 p-4 rounded-2xl"><audio controls class="w-full h-10"><source src="${set.audio}"/></audio></div>` : ''}
+                     ${renderImages(set.image)}
+                     ${set.passage ? `<div class="bg-white p-4 rounded-2xl border shadow-sm passage-content text-sm">${renderPassage(set.passage)}</div>` : ''}
+                  </div>
+                  ${set.questions.map(q => {
+                     const isCorrect = q.isCorrect;
+                     const combinedExplanation = (q.explanation || "") + (q.transcript ? "<br/><br/>---<br/><b>Bản dịch & Phụ đề:</b><br/>" + q.transcript : "");
+                     return `
+                        <div id="target-q-${q.id}" class="bg-white p-8 md:p-10 rounded-[3rem] shadow-sm border ${isCorrect ? 'border-teal-100' : 'border-rose-100'} scroll-mt-6 w-full mb-10">
+                           <h3 class="text-xl font-bold text-slate-900 flex gap-4 mb-8">
+                              <span class="${isCorrect ? 'bg-teal-500' : 'bg-rose-500'} text-white w-10 h-10 rounded-full flex items-center justify-center shadow-lg text-base font-black shrink-0">${q.id}</span>
+                              <span class="mt-1 leading-snug">${q.text || "Câu hỏi:"}</span>
+                           </h3>
+                           <div class="flex flex-col gap-3">
+                              ${[0,1,2,3].map(i => {
+                                 let style = "border-slate-100 bg-white text-slate-400";
+                                 if (i === q.correct) style = "border-teal-500 bg-teal-50 text-teal-700 ring-2 ring-teal-100";
+                                 else if (i === q.userChoice && !isCorrect) style = "border-rose-500 bg-rose-50 text-rose-700 ring-2 ring-rose-100";
+                                 return `<div class="flex items-center gap-5 p-4 border-2 rounded-2xl ${style}"><div class="w-10 h-10 rounded-full border-2 flex items-center justify-center font-black text-sm shrink-0">${String.fromCharCode(65+i)}</div><span class="text-base font-bold">${(q.options && q.options[i]) || ''}</span></div>`;
+                              }).join('')}
+                           </div>
+                           <div class="mt-10 pt-10 border-t border-slate-100">
+                              <div class="bg-white border-2 border-teal-500 rounded-[2.5rem] p-6 md:p-8 shadow-xl relative">
+                                 <div class="absolute -top-4 left-8 bg-teal-500 text-white px-5 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-md flex items-center gap-2">💡 Giải thích chi tiết</div>
+                                 <div class="text-slate-700 leading-relaxed text-base pt-2 dialogue-box">${formatContent(combinedExplanation) || '<i class="text-slate-400 text-sm">Câu này chưa có giải thích.</i>'}</div>
+                              </div>
+                           </div>
+                        </div>
+                     `;
+                  }).join('')}
+               </div>
+            `).join('')}
+         </div>
+      </div>
+    `;
+
+    // Render Menu Drawer
+    const navContainer = document.getElementById('nav-grid-container');
+    toeicParts.forEach(part => {
+      const qsInPart = data.details.filter(q => q.id >= part.range[0] && q.id <= part.range[1]);
+      if (qsInPart.length === 0) return;
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = `<h4 class="font-bold text-slate-600 text-base mb-3 bg-slate-50 py-1.5 px-3 rounded-md">${part.name}</h4><div class="grid grid-cols-5 gap-2.5" id="nav-grid-${part.range[0]}"></div>`;
+      navContainer.appendChild(wrapper);
+    });
+
+    data.details.forEach(q => {
+      const start = [1, 7, 32, 71, 101, 131, 147].reverse().find(s => q.id >= s);
+      const parent = document.getElementById(`nav-grid-${start}`);
+      if (parent) {
+        const btn = document.createElement('button');
+        btn.className = `w-full aspect-square flex items-center justify-center rounded-lg border-2 font-bold text-base cursor-pointer hover:opacity-80 transition-all shadow-sm ${q.isCorrect ? 'bg-teal-500 border-teal-600 text-white' : 'bg-rose-500 border-rose-600 text-white'}`;
+        btn.textContent = q.id;
+        btn.onclick = () => jumpToQuestion(q.id);
+        parent.appendChild(btn);
+      }
+    });
+
+    window.jumpToQuestion = (qId) => {
+      const idx = window.groupedDetails.findIndex(set => set.questions.some(q => q.id === qId));
+      if (idx !== -1) {
+         const currentSet = window.groupedDetails[idx];
+         window.currentQuestionId = qId;
+         
+         const leftP = document.getElementById('left-p');
+         const rightP = document.getElementById('right-p');
+         const innerRight = document.querySelector('.inner-right-container');
+
+         // Xử lý Part 5 ra giữa
+         if (currentSet.part === 5) {
+            leftP?.classList.add('lg:hidden'); 
+            rightP?.classList.replace('lg:w-1/2', 'lg:w-full');
+            innerRight?.classList.add('max-w-4xl', 'mx-auto');
+         } else {
+            leftP?.classList.remove('lg:hidden');
+            rightP?.classList.replace('lg:w-full', 'lg:w-1/2');
+            innerRight?.classList.remove('max-w-4xl', 'mx-auto');
+         }
+
+         document.querySelectorAll('.review-set-p, .review-set-q').forEach(el => el.classList.add('hidden'));
+         document.getElementById(`p-set-${idx}`)?.classList.replace('hidden', 'flex');
+         document.getElementById(`q-set-${idx}`)?.classList.replace('hidden', 'flex');
+         
+         if (!document.getElementById('question-palette').classList.contains('translate-x-full')) window.toggleMenu();
+         
+         requestAnimationFrame(() => {
+            const el = document.getElementById(`target-q-${qId}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+         });
+         
+         document.getElementById('btn-prev-q').disabled = qId === 1;
+         document.getElementById('btn-next-q').disabled = qId === 200;
+      }
+    };
+
+    window.navQuestion = (dir) => window.jumpToQuestion(window.currentQuestionId + dir);
+    const urlParams = new URLSearchParams(window.location.search);
+    window.jumpToQuestion(parseInt(urlParams.get('q')) || 1);
+  }
+
+  window.toggleMenu = () => { 
+    const palette = document.getElementById('question-palette');
+    const overlay = document.getElementById('overlay');
+    const isClosed = palette.classList.contains('translate-x-full');
+    if (isClosed) {
+        palette.classList.remove('translate-x-full');
+        overlay.classList.remove('hidden');
+        setTimeout(() => overlay.classList.add('opacity-100'), 10);
+    } else {
+        palette.classList.add('translate-x-full');
+        overlay.classList.remove('opacity-100');
+        setTimeout(() => overlay.classList.add('hidden'), 300);
+    }
+  };
+</script>
+
+<style is:global>
+  .scrollbar-custom::-webkit-scrollbar { width: 6px; }
+  .scrollbar-custom::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  .passage-content p { margin-bottom: 0.5rem !important; line-height: 1.6 !important; }
+  .dialogue-box b.block { line-height: 1.2; margin-bottom: 4px; }
+  button:disabled { opacity: 0.2; cursor: not-allowed; }
+</style>

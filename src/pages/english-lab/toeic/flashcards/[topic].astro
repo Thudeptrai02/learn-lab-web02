@@ -1,53 +1,42 @@
 ---
-import Layout from '../../../layouts/Layout.astro';
+import Layout from '../../../../layouts/Layout.astro';
+import { getSheetData } from '../../../../lib/googleSheets.js';
 
-// 1. CẬP NHẬT DỮ LIỆU: Thêm trường "synonyms" (Từ đồng nghĩa)
-const cards = [
-  {
-    word: 'meeting',
-    meaning: 'cuộc họp',
-    partOfSpeech: 'noun',
-    example: 'The meeting starts at 9 a.m.',
-    synonyms: ['conference', 'gathering', 'session'],
-    audio: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3'
-  },
-  {
-    word: 'schedule',
-    meaning: 'lịch trình',
-    partOfSpeech: 'noun',
-    example: 'Please check the meeting schedule.',
-    synonyms: ['timetable', 'itinerary', 'agenda'],
-    audio: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3'
-  },
-  {
-    word: 'employee',
-    meaning: 'nhân viên',
-    partOfSpeech: 'noun',
-    example: 'Every employee must wear an ID card.',
-    synonyms: ['staff', 'worker', 'personnel'],
-    audio: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3'
-  },
-  {
-    word: 'invoice',
-    meaning: 'hóa đơn',
-    partOfSpeech: 'noun',
-    example: 'The invoice will be sent by email.',
-    synonyms: ['bill', 'receipt', 'statement'],
-    audio: 'https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3'
-  }
-];
+export async function getStaticPaths() {
+  const SHEET_ID = '1J77QG5Fh63Kk0cYnK_eGy_RuMuQu0Nzs4qxetC3k0O8';
+  const allCards = await getSheetData(SHEET_ID, 'Flashcards');
+  
+  const uniqueTopics = [...new Set(allCards.map(c => c.topic || 'chua-phan-loai'))];
+  
+  return uniqueTopics.map(topic => {
+    const filteredCards = allCards.filter(c => (c.topic || 'chua-phan-loai') === topic);
+    return {
+      params: { topic: topic },
+      props: { 
+        cards: filteredCards, 
+        topicName: topic.replace(/-/g, ' ').toUpperCase() 
+      },
+    };
+  });
+}
+
+let { cards, topicName } = Astro.props;
+
+if (!cards || cards.length === 0) {
+  cards = [{ word: 'Trống', meaning: 'Chưa có từ vựng', partOfSpeech: '-', example: '', synonyms: [] }];
+}
 ---
 
-<Layout title="TOEIC Flashcards | Learn Lab">
+<Layout title={`${topicName} - Flashcards | Learn Lab`}>
   <main class="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
     <section class="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-sm sm:px-10 sm:py-10">
       
       <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p class="text-xs font-bold uppercase tracking-widest text-teal-600">TOEIC Flashcards</p>
-          <h1 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">Học từ vựng Unit 1</h1>
+          <a href="/english-lab/toeic/flashcards" class="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-teal-600 transition-colors">&larr; Về Menu Chủ Đề</a>
+          <h1 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">Học từ vựng: <span class="text-teal-600">{topicName}</span></h1>
         </div>
-        <div id="progress" class="inline-flex rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
+        <div id="progress" class="inline-flex rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-inner">
           1 / {cards.length}
         </div>
       </div>
@@ -95,11 +84,10 @@ const cards = [
                       <span id="card-pos-back">{cards[0].partOfSpeech}</span>
                     </p>
                     
-                    <div class="mt-6 w-full rounded-xl bg-teal-800/40 p-3 backdrop-blur-sm">
-                      <p class="text-xs font-semibold uppercase tracking-widest text-teal-300 mb-1">Synonyms / Paraphrase</p>
-                      <p id="card-synonyms" class="text-base font-medium text-white">
-                        {cards[0].synonyms.join(', ')}
-                      </p>
+                    <div class="mt-6 w-full rounded-xl bg-teal-800/40 p-4 backdrop-blur-sm border border-teal-500/50">
+                      <p class="text-xs font-bold uppercase tracking-widest text-teal-300 mb-3">Synonyms / Paraphrase</p>
+                      <div id="card-synonyms" class="flex flex-wrap gap-2 justify-center">
+                      </div>
                     </div>
 
                   </div>
@@ -115,30 +103,28 @@ const cards = [
           <button id="not-known" class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
             Chưa thuộc
           </button>
-          <button id="known" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-teal-700">
+          <button id="known" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-teal-700 shadow-md">
             Đã thuộc
           </button>
         </div>
 
         <div id="done-box" class="mt-10 hidden mx-auto max-w-xl rounded-2xl border border-teal-100 bg-teal-50 p-8 text-center">
           <p class="text-xs font-semibold uppercase tracking-widest text-teal-700">Completed</p>
-          <h3 class="mt-3 text-2xl font-bold text-slate-900">Hoàn thành bộ từ vựng</h3>
-          <p class="mt-2 text-sm text-slate-600">
-            Bạn có thể ôn lại toàn bộ từ vựng bằng cách xem Vocabulary Sheet.
-          </p>
+          <h3 class="mt-3 text-2xl font-bold text-slate-900">Hoàn thành chủ đề!</h3>
+          <p class="mt-2 text-sm text-slate-600">Bạn đã ôn xong toàn bộ từ vựng của <strong class="text-teal-700">{topicName}</strong>.</p>
           <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <a href="/english-lab/toeic" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700">
-              Quay lại TOEIC
+            <a href="/english-lab/toeic/flashcards" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700 shadow-md">
+              Học chủ đề khác
             </a>
             <button id="go-to-sheet" class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-              Xem Sheet
+              Xem lại danh sách
             </button>
           </div>
         </div>
       </div>
 
       <div id="sheet-view" class="mt-10 hidden">
-        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200 text-left">
               <thead class="bg-slate-50">
@@ -157,7 +143,15 @@ const cards = [
                       <p class="mt-1 text-xs text-slate-500">{card.partOfSpeech}</p>
                     </td>
                     <td class="px-6 py-4 text-sm font-medium text-slate-700">{card.meaning}</td>
-                    <td class="px-6 py-4 text-sm text-teal-700 font-medium">{card.synonyms.join(', ')}</td>
+                    <td class="px-6 py-4">
+                      <div class="flex flex-wrap gap-1">
+                        {card.synonyms.map((syn) => (
+                          <span class="inline-flex items-center rounded-md bg-teal-50 px-2 py-1 text-[11px] font-bold text-teal-700 ring-1 ring-inset ring-teal-600/20">
+                            {syn}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
                     <td class="px-6 py-4 text-sm text-slate-600 italic">"{card.example}"</td>
                   </tr>
                 ))}
@@ -191,8 +185,7 @@ const cards = [
   const meaning = document.getElementById('card-meaning');
   const posFront = document.getElementById('card-pos-front');
   const posBack = document.getElementById('card-pos-back');
-  // 3. Khai báo biến DOM cho phần Synonyms
-  const synonyms = document.getElementById('card-synonyms');
+  const synonymsContainer = document.getElementById('card-synonyms');
 
   const knownBtn = document.getElementById('known');
   const notKnownBtn = document.getElementById('not-known');
@@ -220,7 +213,6 @@ const cards = [
   function playFlipSound() {
     try {
       const ctx = new window.AudioContext();
-
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
       osc1.connect(gain1);
@@ -231,22 +223,7 @@ const cards = [
       gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
       osc1.start(ctx.currentTime);
       osc1.stop(ctx.currentTime + 0.6);
-
-      const osc2 = ctx.createOscillator();
-      const gain2 = ctx.createGain();
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(784, ctx.currentTime + 0.15);
-      gain2.gain.setValueAtTime(0.0, ctx.currentTime);
-      gain2.gain.setValueAtTime(0.5, ctx.currentTime + 0.15);
-      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
-      osc2.start(ctx.currentTime + 0.15);
-      osc2.stop(ctx.currentTime + 0.7);
-
-    } catch (e) {
-      console.warn("Audio Context failed to start", e);
-    }
+    } catch (e) {}
   }
 
   function resetCardFace() {
@@ -265,19 +242,24 @@ const cards = [
     if (posFront) posFront.textContent = card.partOfSpeech;
     if (posBack) posBack.textContent = card.partOfSpeech;
     
-    // 4. Bơm dữ liệu Synonyms vào thẻ khi render
-    if (synonyms) {
-      synonyms.textContent = card.synonyms && card.synonyms.length > 0 
-        ? card.synonyms.join(', ') 
-        : 'Không có';
+    if (synonymsContainer) {
+      synonymsContainer.innerHTML = ''; 
+      if (card.synonyms && card.synonyms.length > 0) {
+        card.synonyms.forEach(syn => {
+          const span = document.createElement('span');
+          span.className = 'px-3 py-1 bg-white/20 rounded-full text-sm font-bold border border-white/30 backdrop-blur-md shadow-sm cursor-default';
+          span.textContent = syn;
+          synonymsContainer.appendChild(span);
+        });
+      } else {
+        synonymsContainer.innerHTML = '<span class="text-teal-300 text-sm">Không có</span>';
+      }
     }
-
     resetCardFace();
   }
 
   function flipCard() {
     if (isAnimating) return;
-
     if (!isFlipped) {
       isFlipped = true;
       flashcardInner?.style.setProperty('transform', 'rotateY(180deg)');
@@ -290,7 +272,6 @@ const cards = [
 
   function animateNextCard() {
     if (!cardStage) return Promise.resolve();
-
     return new Promise((resolve) => {
       cardStage.style.opacity = '0';
       cardStage.style.transform = 'translateX(70px) rotate(4deg) scale(0.96)';
@@ -300,10 +281,8 @@ const cards = [
 
   function animateCardIn() {
     if (!cardStage) return;
-
     cardStage.style.opacity = '0';
     cardStage.style.transform = 'translateX(-70px) rotate(-4deg) scale(0.96)';
-
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         cardStage.style.opacity = '1';
@@ -315,7 +294,6 @@ const cards = [
   async function nextCard() {
     if (isAnimating) return;
     isAnimating = true;
-
     await animateNextCard();
     currentIndex += 1;
 
@@ -328,13 +306,9 @@ const cards = [
       isAnimating = false;
       return;
     }
-
     renderCard();
     animateCardIn();
-
-    setTimeout(() => {
-      isAnimating = false;
-    }, 280);
+    setTimeout(() => { isAnimating = false; }, 280);
   }
 
   flashcard?.addEventListener('click', flipCard);
