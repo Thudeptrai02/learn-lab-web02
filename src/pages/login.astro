@@ -13,20 +13,16 @@ import Layout from '../layouts/Layout.astro';
         <p class="mt-2 text-sm font-medium text-slate-500">Đăng nhập để tiếp tục lộ trình học thuật.</p>
       </div>
 
-      <div class="relative flex flex-col gap-3 mb-8">
-        <button id="btn-google" class="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98]">
+      <div class="relative mb-8">
+        <button id="btn-google" class="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98]">
           <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google" />
-          Tiếp tục với Google
-        </button>
-        <button id="btn-facebook" class="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#1877F2] px-4 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-[#166FE5] active:scale-[0.98]">
-          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg>
-          Tiếp tục với Facebook
+          Tiếp tục siêu tốc với Google
         </button>
       </div>
 
       <div class="relative mb-6">
         <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
-        <div class="relative flex justify-center text-xs font-bold uppercase tracking-wider text-slate-400 bg-white px-4 mx-auto w-fit">Hoặc Email</div>
+        <div class="relative flex justify-center text-xs font-bold uppercase tracking-wider text-slate-400 bg-white px-4 mx-auto w-fit">Hoặc dùng Email</div>
       </div>
 
       <div id="auth-message" class="hidden mb-5 p-3.5 rounded-xl text-sm font-bold text-center transition-all"></div>
@@ -58,7 +54,6 @@ import Layout from '../layouts/Layout.astro';
 <script>
   import { supabase } from '../lib/supabase.js';
 
-  // Chặn user nếu đã login
   supabase.auth.getSession().then(({ data: { session } }) => {
     if (session) window.location.href = "/";
   });
@@ -73,19 +68,11 @@ import Layout from '../layouts/Layout.astro';
     msgBox.className = `mb-5 p-3.5 rounded-xl text-sm font-bold text-center ${isErr ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`;
   }
 
-  // Lắng nghe Google
   document.getElementById('btn-google')?.addEventListener('click', async (e) => {
     e.preventDefault();
     await supabase.auth.signInWithOAuth({ provider: 'google' });
   });
 
-  // Lắng nghe Facebook (Đã sửa lỗi câm điếc)
-  document.getElementById('btn-facebook')?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    await supabase.auth.signInWithOAuth({ provider: 'facebook' });
-  });
-
-  // Xử lý Form Email
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = new FormData(form).get('email');
