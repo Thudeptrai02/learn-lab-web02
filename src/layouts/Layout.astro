@@ -12,41 +12,22 @@ const { title = 'Learn Lab Web' } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="vi">
+<html lang="vi" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
-
-    <script is:inline>
-      if (window.location.hash.includes('recovery_token') || 
-          window.location.hash.includes('invite_token') ||
-          window.location.hash.includes('confirmation_token')) {
-        window.location.replace('/admin/' + window.location.hash);
-      }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   </head>
 
-  <body class="bg-white text-slate-900 relative min-h-screen flex flex-col">
+  <body class="bg-slate-50 text-slate-900 relative min-h-screen flex flex-col font-['Inter'] antialiased selection:bg-teal-200 selection:text-teal-900">
     <Header />
     
-    <main class="flex-grow">
+    <main class="flex-grow flex flex-col">
       <slot /> 
     </main>
 
     <Footer />
     <SmartPopup />
-
-    <script is:inline>
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", user => {
-          if (!user) {
-            window.netlifyIdentity.on("login", () => {
-              document.location.href = "/admin/";
-            });
-          }
-        });
-      }
-    </script>
   </body>
 </html>

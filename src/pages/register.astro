@@ -3,201 +3,112 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Đăng ký | Learn Lab">
-  <main class="flex min-h-[calc(100vh-80px)] w-full bg-white">
+  <main class="flex min-h-[calc(100vh-76px)] w-full bg-slate-50 justify-center items-center p-6">
     
-    <div class="flex w-full flex-col justify-center px-6 py-10 lg:w-1/2 lg:px-20 xl:px-32">
-      <div class="mx-auto w-full max-w-sm">
+    <div class="w-full max-w-[480px] bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10 relative overflow-hidden">
+      <div class="absolute -top-20 -left-20 w-40 h-40 bg-emerald-50 rounded-full blur-3xl"></div>
+
+      <div class="relative text-center mb-8">
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">Tạo tài khoản 🚀</h1>
+        <p class="mt-2 text-sm font-medium text-slate-500">Tham gia hệ thống học tập thông minh ngay hôm nay.</p>
+      </div>
+
+      <div class="relative flex flex-col gap-3 mb-8">
+        <button id="btn-google" class="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-[0.98]">
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5" alt="Google" />
+          Đăng ký siêu tốc với Google
+        </button>
+      </div>
+
+      <div class="relative mb-6">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-100"></div></div>
+        <div class="relative flex justify-center text-xs font-bold uppercase tracking-wider text-slate-400 bg-white px-4 mx-auto w-fit">Hoặc điền thông tin</div>
+      </div>
+
+      <div id="auth-message" class="hidden mb-5 p-3.5 rounded-xl text-sm font-bold text-center"></div>
+
+      <form id="register-form" class="relative space-y-4">
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Họ và tên</label>
+          <input name="fullname" type="text" required placeholder="Ví dụ: Nguyễn Văn A" class="block w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-50 transition-all font-medium bg-slate-50/50 focus:bg-white outline-none" />
+        </div>
         
-        <div class="mb-8 text-center lg:text-left">
-          <h1 class="text-3xl font-black text-slate-900 tracking-tight">Bắt đầu hành trình! 🚀</h1>
-          <p class="mt-2 text-sm font-medium text-slate-500">
-            Tạo tài khoản để nhận lộ trình học "đo ni đóng giày" riêng cho bạn.
-          </p>
+        <div>
+          <label class="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Email của bạn</label>
+          <input name="email" type="email" required placeholder="name@example.com" class="block w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-50 transition-all font-medium bg-slate-50/50 focus:bg-white outline-none" />
         </div>
 
-        <div class="mt-6 flex flex-col gap-3">
-          <button id="btn-google" type="button" class="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-slate-200 bg-white px-4 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 hover:border-slate-300 active:scale-[0.98]">
-            <svg class="h-5 w-5" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            Đăng ký bằng Google
-          </button>
-        </div>
-
-        <div class="relative mt-7 mb-7">
-          <div class="absolute inset-0 flex items-center" aria-hidden="true">
-            <div class="w-full border-t border-slate-200"></div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Mật khẩu</label>
+            <input name="password" type="password" required minlength="6" placeholder="••••••••" class="block w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-50 transition-all font-medium bg-slate-50/50 focus:bg-white outline-none" />
           </div>
-          <div class="relative flex justify-center text-sm font-medium leading-6">
-            <span class="bg-white px-4 text-slate-400">Hoặc điền thông tin chi tiết</span>
+          <div>
+            <label class="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Nhập lại</label>
+            <input name="confirm-password" type="password" required minlength="6" placeholder="••••••••" class="block w-full rounded-2xl border border-slate-200 px-4 py-3.5 text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-50 transition-all font-medium bg-slate-50/50 focus:bg-white outline-none" />
           </div>
         </div>
 
-        <div id="auth-message" class="hidden mb-4 p-4 rounded-xl text-sm font-bold text-center"></div>
+        <button id="submit-btn" type="submit" class="mt-4 w-full rounded-2xl bg-slate-900 px-4 py-4 text-sm font-bold text-white shadow-lg transition-all hover:bg-teal-600 hover:shadow-teal-200 hover:-translate-y-0.5 active:scale-[0.98] flex justify-center items-center">
+          Hoàn tất đăng ký
+        </button>
+      </form>
 
-        <form id="register-form" action="#" method="POST" class="space-y-4">
-          <div>
-            <label for="fullname" class="block text-sm font-bold text-slate-700">Họ và tên</label>
-            <div class="mt-1.5">
-              <input id="fullname" name="fullname" type="text" required placeholder="Nguyễn Văn A" class="block w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-50 transition-all sm:text-sm font-medium" />
-            </div>
-          </div>
-
-          <div>
-            <label for="job-title" class="block text-sm font-bold text-slate-700">Công việc hiện tại</label>
-            <div class="mt-1.5">
-              <select id="job-title" name="job-title" required class="block w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-50 transition-all sm:text-sm font-medium bg-white">
-                <option value="" disabled selected>Bạn đang làm nghề gì?</option>
-                <option value="Developer">Lập trình viên (Developer)</option>
-                <option value="Doctor">Y tế / Bác sĩ (Medical)</option>
-                <option value="Accountant">Kế toán / Tài chính (Finance)</option>
-                <option value="Student">Học sinh / Sinh viên</option>
-                <option value="Marketing">Marketing / Sales</option>
-                <option value="Other">Khác...</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label for="career-goal" class="block text-sm font-bold text-slate-700">Mục tiêu học tiếng Anh</label>
-            <div class="mt-1.5">
-              <select id="career-goal" name="career-goal" required class="block w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-50 transition-all sm:text-sm font-medium bg-white">
-                <option value="" disabled selected>Mục tiêu lớn nhất là gì?</option>
-                <option value="Promotion">Thăng tiến sự nghiệp</option>
-                <option value="Interview">Phỏng vấn xin việc (Interview)</option>
-                <option value="Communication">Giao tiếp với sếp/đồng nghiệp Tây</option>
-                <option value="Exam">Thi lấy bằng (TOEIC/IELTS)</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label for="interests" class="block text-sm font-bold text-slate-700">Chủ đề bạn quan tâm</label>
-            <div class="mt-1.5">
-              <input id="interests" name="interests" type="text" placeholder="Ví dụ: AI, Code, Du lịch, Nấu ăn..." class="block w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-50 transition-all sm:text-sm font-medium" />
-            </div>
-          </div>
-
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label for="email" class="block text-sm font-bold text-slate-700">Email</label>
-              <input id="email" name="email" type="email" required placeholder="Email của bạn" class="mt-1.5 block w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-50 transition-all sm:text-sm font-medium" />
-            </div>
-            <div>
-              <label for="password" class="block text-sm font-bold text-slate-700">Mật khẩu (7+ ký tự)</label>
-              <input id="password" name="password" type="password" required minlength="7" placeholder="••••••••" class="mt-1.5 block w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-50 transition-all sm:text-sm font-medium" />
-            </div>
-          </div>
-
-          <div>
-            <label for="confirm-password" class="block text-sm font-bold text-slate-700">Xác nhận mật khẩu</label>
-            <input id="confirm-password" name="confirm-password" type="password" required minlength="7" placeholder="Nhập lại mật khẩu" class="mt-1.5 block w-full rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-900 focus:border-teal-500 focus:outline-none focus:ring-4 focus:ring-teal-50 transition-all sm:text-sm font-medium" />
-          </div>
-
-          <div class="pt-3">
-            <button id="submit-btn" type="submit" class="flex w-full justify-center rounded-xl bg-teal-600 px-4 py-4 text-sm font-bold text-white shadow-lg shadow-teal-200 transition-all hover:bg-teal-700 hover:-translate-y-0.5 active:scale-[0.98]">
-              Tạo tài khoản Learn Lab
-            </button>
-          </div>
-        </form>
-
-        <p class="mt-8 text-center text-sm font-medium text-slate-600">
-          Đã có tài khoản? <a href="/login" class="font-bold text-teal-600 hover:text-teal-500">Đăng nhập ngay</a>
-        </p>
-
-      </div>
+      <p class="mt-8 text-center text-sm font-medium text-slate-500">
+        Đã có tài khoản? <a href="/login" class="font-bold text-teal-600 hover:text-teal-700">Đăng nhập ngay</a>
+      </p>
     </div>
-
-    <div class="relative hidden w-1/2 lg:block overflow-hidden">
-      <img class="absolute inset-0 h-full w-full object-cover" src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=2070&auto=format&fit=crop" alt="Góc học tập" />
-      <div class="absolute inset-0 bg-teal-900/75 mix-blend-multiply"></div>
-      <div class="absolute inset-0 flex flex-col justify-end p-16 text-white">
-          <blockquote class="text-3xl font-bold leading-snug">"Giáo dục là vũ khí mạnh nhất mà bạn có thể dùng để thay đổi thế giới."</blockquote>
-          <p class="mt-4 text-lg font-medium text-teal-100">— Nelson Mandela</p>
-      </div>
-    </div>
-
   </main>
 </Layout>
 
 <script>
   import { supabase } from '../lib/supabase.js';
 
-  const form = document.getElementById('register-form');
-  const messageBox = document.getElementById('auth-message');
-  const submitBtn = document.getElementById('submit-btn');
-  const btnGoogle = document.getElementById('btn-google');
-
-  function showMessage(text, isError) {
-    messageBox.textContent = text;
-    messageBox.classList.remove('hidden'); 
-    messageBox.className = `mb-4 p-4 rounded-xl text-sm font-bold text-center ${
-      isError ? 'bg-rose-100 text-rose-700 border border-rose-200' : 'bg-emerald-100 text-emerald-700 border border-emerald-200'
-    }`;
-  }
-
-  // Google OAuth
-  btnGoogle?.addEventListener('click', async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-    if (error) showMessage(error.message, true);
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) window.location.href = "/";
   });
 
-  // Xử lý Form Đăng ký (Đi cửa sau API)
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault(); 
-    const formData = new FormData(form);
-    
-    // Hốt trọn bộ dữ liệu khảo sát
-    const fullname = formData.get('fullname');
-    const email = formData.get('email');
-    const password = formData.get('password');
-    const confirmPassword = formData.get('confirm-password');
-    const jobTitle = formData.get('job-title');
-    const careerGoal = formData.get('career-goal');
-    const interests = formData.get('interests');
+  const form = document.getElementById('register-form');
+  const msgBox = document.getElementById('auth-message');
+  const submitBtn = document.getElementById('submit-btn');
 
-    if (password !== confirmPassword) {
-      showMessage('Mật khẩu không khớp!', true);
-      return;
-    }
+  function showMsg(text, isErr) {
+    msgBox.textContent = text;
+    msgBox.classList.remove('hidden');
+    msgBox.className = `mb-5 p-3.5 rounded-xl text-sm font-bold text-center ${isErr ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`;
+  }
+
+  document.getElementById('btn-google')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    await supabase.auth.signInWithOAuth({ provider: 'google' });
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const fullname = data.get('fullname');
+    const email = data.get('email');
+    const pass = data.get('password');
+    const confirm = data.get('confirm-password');
+
+    if (pass !== confirm) return showMsg('Mật khẩu xác nhận không khớp.', true);
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `Đang tạo thẻ VIP...`;
+    submitBtn.innerHTML = `<svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
 
-    try {
-      // 1. Gửi dữ liệu lên Trạm API VIP của mình
-      const response = await fetch('/api/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullname, email, password, jobTitle, careerGoal, interests
-        })
-      });
-
-      const result = await response.json();
-
-      if (result.error) {
-        showMessage(result.error, true); 
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Tạo tài khoản Learn Lab';
-      } else {
-        // 2. Thành công! Tự động đăng nhập luôn cho khách khỏi bắt họ gõ lại
-        await supabase.auth.signInWithPassword({ email, password });
-        
-        showMessage('🎉 Đăng ký thành công! Đang đưa sếp vào phòng học...', false);
-        
-        // Trễ 1.5 giây cho đẹp rồi văng thẳng vào trang chủ
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1500);
-      }
-    } catch (err) {
-      showMessage("Lỗi kết nối Server! Sếp kiểm tra lại file /api/signup.js nhé.", true);
+    // Gửi thẳng qua Supabase (bỏ qua API trung gian rườm rà)
+    const { error } = await supabase.auth.signUp({
+      email, password: pass,
+      options: { data: { fullname } }
+    });
+    
+    if (error) {
+      showMsg(error.message, true);
       submitBtn.disabled = false;
-      submitBtn.innerHTML = 'Tạo tài khoản Learn Lab';
+      submitBtn.innerHTML = 'Hoàn tất đăng ký';
+    } else {
+      showMsg("Đăng ký thành công! Đang đưa sếp vào hệ thống...", false);
+      setTimeout(() => window.location.href = "/", 1000);
     }
   });
 </script>

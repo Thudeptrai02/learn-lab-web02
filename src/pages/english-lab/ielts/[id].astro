@@ -1,93 +1,126 @@
 ---
-// [id].astro - Giữ nguyên phần Import và getStaticPaths của sếp
 import Layout from '../../../layouts/Layout.astro';
-import { getExamCatalog, getFullExamData } from '../../../lib/loadExam.js';
+import { getIeltsDataFromSheet } from '../../../lib/loadIelts.js';
 
 export async function getStaticPaths() {
-  const catalog = await getExamCatalog();
-  return Object.keys(catalog).map(id => ({ params: { id } }));
+  return [{ params: { id: 'Test_1' } }, { params: { id: 'Test_2' } }];
 }
 
 const { id } = Astro.params;
-const catalog = await getExamCatalog();
-const examData = catalog[id];
-let mockSets = await getFullExamData(examData.url);
-
-let totalQuestions = 0;
-mockSets.forEach(set => totalQuestions += set.questions.length);
-const toeicParts = [
-  { name: "Part 1: Photographs", num: 1 },
-  { name: "Part 2: Question-Response", num: 2 },
-  { name: "Part 3: Conversations", num: 3 },
-  { name: "Part 4: Talks", num: 4 },
-  { name: "Part 5: Incomplete Sentences", num: 5 },
-  { name: "Part 6: Text Completion", num: 6 },
-  { name: "Part 7: Reading Comprehension", num: 7 },
-];
+const passages = await getIeltsDataFromSheet(id);
 ---
 
-<Layout title={`${examData.title} | Thi Thử TOEIC`}>
-  <main id="exam-main" data-duration={examData.duration} class="min-h-screen bg-slate-50 pt-24 pb-32 px-3 md:px-6">
-    </main>
+<Layout title="IELTS Practice">
+  <main class="h-screen pt-16 bg-slate-50 flex flex-col overflow-hidden relative">
+    
+    {/* 🟢 THANH CHUYỂN PASSAGE - ĐẢM BẢO HIỆN ĐỦ 3 PASSAGE */}
+    <div class="absolute top-16 left-0 w-1/2 bg-white border-b border-slate-200 z-50 px-8 py-3 flex gap-4 shadow-sm">
+      {passages.map((p, i) => (
+        <button class="passage-tab-btn flex-1 py-2.5 rounded-xl font-black text-sm transition-all bg-slate-100 text-slate-500 hover:bg-emerald-50" data-idx={i}>
+          {p.title}
+        </button>
+      ))}
+    </div>
+
+    <div class="flex h-full w-full pt-16 pb-16">
+      {/* 🟢 CỘT TRÁI: BÀI ĐỌC */}
+      <div class="w-1/2 h-full overflow-y-auto bg-white border-r p-10 lg:p-16">
+        {passages.map((p, i) => (
+          <article class="passage-render-box hidden space-y-6" id={`p-text-${i}`}>
+            <h2 class="text-4xl font-black text-slate-900 text-center mb-12">{p.title}</h2>
+            <div class="ielts-article text-justify leading-[1.8] text-slate-700 text-lg" set:html={p.passageText}></div>
+          </article>
+        ))}
+      </div>
+
+      {/* 🟢 CỘT PHẢI: CÂU HỎI */}
+      <div class="w-1/2 h-full overflow-y-auto bg-sky-50/30 p-8 lg:p-12">
+        {passages.map((p, i) => (
+          <div class="qs-render-box hidden space-y-10" id={`p-qs-${i}`}>
+            {p.questionGroups.map(g => (
+              <section class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden p-8">
+                
+                {/* 💎 KHUNG HƯỚNG DẪN CLONE CHUẨN ĐÉT 💎 */}
+                <div class="bg-blue-50/50 border-l-[6px] border-blue-500 p-6 rounded-r-2xl mb-8">
+                   <div class="ielts-instruction-render text-slate-800 font-medium leading-relaxed" set:html={g.instruction}></div>
+                </div>
+
+                {/* Đoạn Summary/Notes (nếu có) */}
+                {g.groupContent && (
+                  <div class="mb-10 p-8 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 text-slate-600 leading-[2]" set:html={g.groupContent}></div>
+                )}
+
+                {/* Danh sách câu hỏi */}
+                <div class="space-y-8">
+                   {g.questions.map(q => (
+                     <div id={`q-${q.qNum}`} class="q-card scroll-mt-24 border-b border-slate-100 pb-6 last:border-0">
+                        <div class="flex gap-4 mb-4">
+                           <span class="bg-emerald-100 text-emerald-700 font-black px-3 py-1 rounded-lg text-sm h-fit shrink-0">Câu {q.qNum}</span>
+                           <div class="font-bold text-slate-800 text-lg leading-snug" set:html={q.questionText}></div>
+                        </div>
+                        
+                        {q.options.length > 0 ? (
+                          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pl-12">
+                            {q.options.map((opt, oi) => (
+                              <label class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl cursor-pointer hover:bg-emerald-50 transition-colors group">
+                                <input type="radio" name={`q-${q.qNum}`} value={String.fromCharCode(65+oi)} class="w-4 h-4 accent-emerald-500" />
+                                <span class="font-black text-emerald-600 text-sm">{String.fromCharCode(65+oi)}.</span>
+                                <span class="text-slate-600 group-hover:text-slate-900" set:html={opt}></span>
+                              </label>
+                            ))}
+                          </div>
+                        ) : (
+                          <input type="text" placeholder="Nhập đáp án của bạn..." class="ml-12 w-3/4 bg-transparent border-b-2 border-slate-200 focus:border-emerald-500 outline-none py-2 font-black text-emerald-700 text-xl transition-all" />
+                        )}
+                     </div>
+                   ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* MENU ĐÁY */}
+    <div class="absolute bottom-0 left-0 w-full h-16 bg-white border-t border-slate-200 z-50 flex items-center px-8 shadow-2xl">
+        <div class="flex-1 overflow-x-auto flex gap-2 no-scrollbar">
+            {passages.map((p, i) => (
+                <div class="palette-group hidden flex-nowrap gap-2" id={`palette-${i}`}>
+                    {p.questionGroups.flatMap(g => g.questions).map(q => (
+                        <button class="w-10 h-10 shrink-0 rounded-xl border-2 border-slate-200 font-black text-slate-400 hover:border-emerald-500 hover:text-emerald-500 transition-all text-sm">{q.qNum}</button>
+                    ))}
+                </div>
+            ))}
+        </div>
+    </div>
+  </main>
+
+  <style is:global>
+    .ielts-article { font-family: 'Inter', system-ui, sans-serif; }
+    .ielts-instruction-render b, .ielts-instruction-render strong { color: #000; font-weight: 900; }
+    .ielts-instruction-render br { content: ""; display: block; margin: 10px 0; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+  </style>
 
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      let timerInterval;
-      let timeLeft;
+    const tabBtns = document.querySelectorAll('.passage-tab-btn');
+    const pBoxes = document.querySelectorAll('.passage-render-box');
+    const qBoxes = document.querySelectorAll('.qs-render-box');
+    const palettes = document.querySelectorAll('.palette-group');
 
-      function startTimer() {
-        const durationMin = parseInt(document.getElementById('exam-main').dataset.duration) || 120;
-        timeLeft = durationMin * 60; 
-        const timerEl = document.getElementById('timer');
-    
-        timerInterval = setInterval(() => {
-          if (timeLeft > 0) {
-            timeLeft--;
-            const m = Math.floor(timeLeft/60).toString().padStart(2,'0');
-            const s = (timeLeft%60).toString().padStart(2,'0');
-            if(timerEl) timerEl.textContent = `${m}:${s}`;
-            if (timeLeft < 300) timerEl.classList.add('text-rose-500', 'animate-pulse'); 
-          } else {
-            clearInterval(timerInterval);
-            alert("Hết giờ làm bài! Hệ thống đang tự động nộp bài.");
-            handleForceSubmit(); // Tự động nộp bài 
-          }
-        }, 1000);
-      }
-
-      // Logic nộp bài xác nhận
-      document.getElementById('btn-submit')?.addEventListener('click', () => {
-        const answered = document.getElementById('answered-count').innerText;
-        const total = {totalQuestions}; // Từ biến Astro
-        if (confirm(`Sếp mới làm được ${answered}/${total} câu. Sếp có chắc muốn nộp bài không?`)) {
-          handleForceSubmit();
-        }
-      });
-
-      function handleForceSubmit() {
-        const results = {
-          score: 0,
-          details: []
-        };
-
-        document.querySelectorAll('.answer-radio:checked').forEach(radio => {
-          results.details.push({
-            id: parseInt(radio.dataset.qnum),
-            userChoice: ['A','B','C','D'].indexOf(radio.value),
-            // Các thông tin khác sếp cần mapping từ dữ liệu gốc
-          });
+    function switchPassage(idx) {
+        tabBtns.forEach((btn, i) => {
+            btn.className = (i === idx) 
+                ? "passage-tab-btn flex-1 py-2.5 rounded-xl font-black text-sm bg-emerald-500 text-white shadow-lg scale-105"
+                : "passage-tab-btn flex-1 py-2.5 rounded-xl font-black text-sm bg-slate-100 text-slate-500 hover:bg-emerald-50";
         });
+        pBoxes.forEach((el, i) => el.classList.toggle('hidden', i !== idx));
+        qBoxes.forEach((el, i) => el.classList.toggle('hidden', i !== idx));
+        palettes.forEach((el, i) => el.classList.toggle('hidden', i !== idx));
+    }
 
-        // Lưu kết quả và chuyển trang
-        localStorage.setItem('toeic_latest_result', JSON.stringify(results));
-        window.location.href = "/english-lab/toeic/result";
-      }
-
-      // Start Button [cite: 47]
-      document.getElementById('btn-start-exam')?.addEventListener('click', () => {
-        document.getElementById('intro-screen').style.display = 'none';
-        startTimer();
-      });
-    });
+    tabBtns.forEach(btn => btn.addEventListener('click', (e) => switchPassage(parseInt(e.target.dataset.idx))));
+    if(tabBtns.length > 0) switchPassage(0);
   </script>
 </Layout>

@@ -2,120 +2,105 @@
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Bảng điều khiển | Learn Lab">
-  <main class="min-h-screen bg-slate-50">
-    
-    <div id="loading-screen" class="flex flex-col items-center justify-center min-h-screen">
-       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
-       <p class="mt-4 text-slate-500 font-medium">Đang chuẩn bị phòng học...</p>
+<Layout title="Learn Lab | Nền tảng tiếng Anh thông minh">
+  
+  <div id="page-loader" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-teal-600"></div>
+  </div>
+
+  <div id="landing-view" class="hidden opacity-0 transition-opacity duration-700 relative pt-24 pb-32 overflow-hidden">
+    <div class="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-teal-50/50 to-transparent -z-10"></div>
+    <div class="max-w-5xl mx-auto px-6 text-center">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-50 text-teal-700 font-bold text-sm mb-8 border border-teal-100 shadow-sm">
+        <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-teal-500"></span></span>
+        Learn Lab 2026 chính thức ra mắt
+      </div>
+      <h1 class="text-5xl md:text-7xl font-black text-slate-900 tracking-tight leading-[1.15]">
+        Chinh phục tiếng Anh <br/>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">nhanh gấp 3 lần.</span>
+      </h1>
+      <p class="mt-6 text-lg text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
+        Hệ thống học tập cá nhân hóa với Flashcard Spaced Repetition và công nghệ check lỗi chính tả AI. Trải nghiệm ngay không cần tài khoản!
+      </p>
+      <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+        <a href="/english-lab/toeic" class="px-8 py-4 bg-slate-900 text-white font-bold rounded-full shadow-xl shadow-slate-200 hover:-translate-y-1 hover:bg-slate-800 transition-all">Làm bài Test ngay</a>
+        <a href="/register" class="px-8 py-4 bg-white text-slate-700 font-bold rounded-full border border-slate-200 hover:bg-slate-50 transition-all">Tạo tài khoản miễn phí</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboard-view" class="hidden opacity-0 transition-opacity duration-700 flex-grow bg-slate-50">
+    <div class="bg-white border-b border-slate-200">
+      <div class="max-w-7xl mx-auto px-6 py-10">
+        <h1 class="text-3xl font-black text-slate-900">
+          Sẵn sàng học tập, <span id="dash-username" class="text-teal-600">Học viên</span>! 🚀
+        </h1>
+        <p class="mt-2 text-slate-500 font-medium text-sm">Tiếp tục duy trì chuỗi ngày học tiếng Anh chăm chỉ của bạn nhé.</p>
+      </div>
     </div>
 
-    <div id="dashboard-content" class="hidden">
-      <header class="bg-white border-b border-slate-200 px-6 py-8">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 class="text-2xl font-black text-slate-900 tracking-tight">
-              Chào mừng trở lại, <span id="user-name" class="text-teal-600">Học viên</span>! 👋
-            </h1>
-            <p class="text-slate-500 text-sm mt-1">Hôm nay sếp định chinh phục bài Test nào?</p>
+    <div class="max-w-7xl mx-auto px-6 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <a href="/english-lab/toeic/flashcards" class="group bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-teal-100 hover:border-teal-300 transition-all hover:-translate-y-1 relative overflow-hidden">
+          <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center mb-6 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
           </div>
-          <button id="logout-btn" class="text-xs font-bold text-slate-400 hover:text-rose-500 transition-colors uppercase tracking-widest border border-slate-200 px-4 py-2 rounded-xl">
-            Đăng xuất
-          </button>
-        </div>
-      </header>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">Smart Flashcards</h3>
+          <p class="text-slate-500 text-sm font-medium leading-relaxed mb-6">Ôn tập từ vựng ngắt quãng giúp nhớ lâu, quên chậm.</p>
+          <span class="text-teal-600 font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Học ngay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></span>
+        </a>
 
-      <section class="max-w-6xl mx-auto px-6 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          
-          <a href="/english-lab/toeic/flashcards" class="group relative overflow-hidden rounded-3xl bg-white p-8 shadow-sm border-2 border-slate-100 transition-all hover:border-teal-500 hover:shadow-xl hover:-translate-y-2">
-            <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold text-slate-900">Từ Vựng (Flashcards)</h3>
-            <p class="mt-2 text-slate-500 text-sm leading-relaxed">Ghi nhớ từ vựng TOEIC bằng phương pháp Spaced Repetition cực kỳ hiệu quả.</p>
-            <div class="mt-6 flex items-center text-sm font-bold text-teal-600">
-              Vào học ngay <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </div>
-          </a>
+        <a href="/english-lab/toeic/dictation" class="group bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-sky-100 hover:border-sky-300 transition-all hover:-translate-y-1 relative overflow-hidden">
+          <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-6 group-hover:bg-sky-600 group-hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">Pro Dictation</h3>
+          <p class="text-slate-500 text-sm font-medium leading-relaxed mb-6">Luyện nghe chép chính tả với Audio cắt sẵn từng câu.</p>
+          <span class="text-sky-600 font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Luyện nghe <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></span>
+        </a>
 
-          <a href="/lego" class="group relative overflow-hidden rounded-3xl bg-white p-8 shadow-sm border-2 border-slate-100 transition-all hover:border-amber-500 hover:shadow-xl hover:-translate-y-2">
-            <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold text-slate-900">Lego Grammar 🧱</h3>
-            <p class="mt-2 text-slate-500 text-sm leading-relaxed">Học ngữ pháp theo phong cách xếp hình. Lắp ghép các khối để tạo thành câu chuẩn.</p>
-            <div class="mt-6 flex items-center text-sm font-bold text-amber-600">
-              Thử thách ngay <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </div>
-          </a>
+        <a href="/lego" class="group bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-amber-100 hover:border-amber-300 transition-all hover:-translate-y-1 relative overflow-hidden">
+          <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
+          </div>
+          <h3 class="text-xl font-bold text-slate-900 mb-2">Lego Grammar</h3>
+          <p class="text-slate-500 text-sm font-medium leading-relaxed mb-6">Nắm chắc ngữ pháp qua việc lắp ghép các khối từ.</p>
+          <span class="text-amber-600 font-bold text-sm flex items-center gap-1 group-hover:gap-2 transition-all">Chơi ngay <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg></span>
+        </a>
 
-          <a href="/english-lab/toeic/dictation" class="group relative overflow-hidden rounded-3xl bg-white p-8 shadow-sm border-2 border-slate-100 transition-all hover:border-indigo-500 hover:shadow-xl hover:-translate-y-2">
-            <div class="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-              </svg>
-            </div>
-            <h3 class="text-xl font-bold text-slate-900">Chép Chính Tả (Dictation)</h3>
-            <p class="mt-2 text-slate-500 text-sm leading-relaxed">Tăng khả năng nghe sâu bằng cách gõ lại từng câu. Có Audio cắt sẵn từng giây.</p>
-            <div class="mt-6 flex items-center text-sm font-bold text-indigo-600">
-              Bắt đầu nghe <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
-            </div>
-          </a>
-
-        </div>
-      </section>
+      </div>
     </div>
-  </main>
+  </div>
 </Layout>
 
 <script>
   import { supabase } from '../lib/supabase.js';
 
-  const loadingScreen = document.getElementById('loading-screen');
-  const dashboardContent = document.getElementById('dashboard-content');
-  const userNameEl = document.getElementById('user-name');
-  const logoutBtn = document.getElementById('logout-btn');
+  const loader = document.getElementById('page-loader');
+  const landingView = document.getElementById('landing-view');
+  const dashboardView = document.getElementById('dashboard-view');
+  const dashUsername = document.getElementById('dash-username');
 
-  async function checkUser() {
-    try {
-      // 1. Kiểm tra session từ Supabase
-      const { data: { session }, error } = await supabase.auth.getSession();
+  async function initPage() {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // Tắt loading
+    loader.classList.add('opacity-0');
+    setTimeout(() => loader.classList.add('hidden'), 500);
 
-      // 2. Nếu chưa đăng nhập hoặc lỗi kết nối -> Đá ra trang login ngay lập tức
-      if (error || !session) {
-        console.warn("Chưa đăng nhập, chuyển hướng...");
-        window.location.href = "/login";
-        return; 
-      }
-
-      // 3. Nếu đã đăng nhập thành công -> Lấy tên user
-      const meta = session.user.user_metadata;
-      const fullName = meta?.full_name || session.user.email?.split('@')[0] || "Học viên";
-      
-      if (userNameEl) userNameEl.textContent = fullName;
-
-      // 4. CHỐT HẠ: Tắt vòng xoay và hiện dashboard
-      loadingScreen?.classList.add('hidden');
-      dashboardContent?.classList.remove('hidden');
-
-    } catch (err) {
-      // Nếu có lỗi hệ thống (ví dụ Supabase URL sai) -> Vẫn cho ra login để web không bị treo
-      console.error("Lỗi script:", err);
-      window.location.href = "/login";
+    if (session) {
+      // Đã login -> Mở Dashboard
+      const name = session.user.user_metadata?.fullname || session.user.email.split('@')[0];
+      if (dashUsername) dashUsername.textContent = name;
+      dashboardView.classList.remove('hidden');
+      setTimeout(() => dashboardView.classList.remove('opacity-0'), 50);
+    } else {
+      // Chưa login -> Mở Landing
+      landingView.classList.remove('hidden');
+      setTimeout(() => landingView.classList.remove('opacity-0'), 50);
     }
   }
 
-  // Chạy ngay khi tải trang
-  checkUser();
-
-  // Xử lý nút đăng xuất
-  logoutBtn?.addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    window.location.href = "/login";
-  });
+  initPage();
 </script>
