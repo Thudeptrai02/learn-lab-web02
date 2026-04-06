@@ -73,12 +73,19 @@ import Layout from '../layouts/Layout.astro';
     msgBox.className = `mb-5 p-3.5 rounded-xl text-sm font-bold text-center ${isErr ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`;
   }
 
-  // Xử lý nút Social (Sếp gắn ID tương tự vào nút Facebook nếu muốn)
+  // Lắng nghe Google
   document.getElementById('btn-google')?.addEventListener('click', async (e) => {
     e.preventDefault();
     await supabase.auth.signInWithOAuth({ provider: 'google' });
   });
 
+  // Lắng nghe Facebook (Đã sửa lỗi câm điếc)
+  document.getElementById('btn-facebook')?.addEventListener('click', async (e) => {
+    e.preventDefault();
+    await supabase.auth.signInWithOAuth({ provider: 'facebook' });
+  });
+
+  // Xử lý Form Email
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = new FormData(form).get('email');
