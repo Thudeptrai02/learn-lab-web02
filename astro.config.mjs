@@ -1,21 +1,14 @@
-// @ts-check
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
+import vercel from '@astrojs/vercel/serverless'; // <--- Kiểm tra dòng này
 
-import vercel from '@astrojs/vercel';
-
-// https://astro.build/config
 export default defineConfig({
-  // <--- SẾP THÊM ĐÚNG DÒNG NÀY VÀO ĐÂY NHÉ
   site: 'https://learnlab.vn',
-
-  output: 'static',
-
+  output: 'server', // <--- ĐỔI TỪ 'static' THÀNH 'server' (Hoặc 'hybrid')
+  adapter: vercel(), // <--- Đảm bảo có dòng này
   vite: {
     plugins: [tailwindcss()]
   },
-
-  integrations: [sitemap()],
-  adapter: vercel()
+  integrations: [sitemap()]
 });
