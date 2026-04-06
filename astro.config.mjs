@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
-import vercel from '@astrojs/vercel/serverless'; // <--- Kiểm tra dòng này
+import vercel from '@astrojs/vercel'; // <--- Kiểm tra dòng này
 
 export default defineConfig({
   site: 'https://learnlab.vn',
