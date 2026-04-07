@@ -1,159 +1,70 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import { getCollection, render } from 'astro:content';
+import { getEntry, render } from 'astro:content';
+// Lưu ý: Đảm bảo đường dẫn tới file Layout.astro này là chính xác với cấu trúc thư mục của sếp
+import Layout from '../../layouts/Layout.astro'; 
 
-// 1. Astro tự động tạo đường dẫn (URL) cho tất cả bài viết có trong kho
-export async function getStaticPaths() {
-  const blogEntries = await getCollection('blog');
-  return blogEntries.map(entry => ({
-    params: { slug: entry.id }, 
-    props: { entry },
-  }));
+// 1. Lấy cái đường dẫn (slug) hiện tại trên thanh địa chỉ
+const { slug } = Astro.params;
+
+// 2. Chốt chặn 1: Nếu không có slug, đá về trang chủ
+if (!slug) {
+  return Astro.redirect('/');
 }
 
-// 2. Lấy dữ liệu của bài viết hiện tại
-const { entry } = Astro.props;
-const { Content } = await render(entry);
+// 3. Chui vào kho 'blog' và tóm đích danh cái bài viết đó ra
+const post = await getEntry('blog', slug);
 
-// 3. Xử lý màu sắc Badge giống ngoài trang chủ
-const catName = entry.data.category || 'Góc nhỏ';
-const getCategoryColor = (cat) => {
-  const lowerCat = cat.toLowerCase();
-  if (lowerCat.includes('tiếng anh') || lowerCat.includes('english')) return 'teal';
-  if (lowerCat.includes('nhật ký') || lowerCat.includes('diary')) return 'rose';
-  if (lowerCat.includes('trải nghiệm') || lowerCat.includes('kinh nghiệm')) return 'amber';
-  return 'indigo';
-};
-const color = getCategoryColor(catName);
+// 4. Chốt chặn 2: Nếu link sai hoặc bài đã bị xóa -> Đá về trang chủ (Không cho sập Web)
+if (!post) {
+  return Astro.redirect('/');
+}
+
+// 5. Bắt đầu render nội dung Markdown
+const { Content } = await render(post);
 ---
 
-<Layout title={`${entry.data.title} | Learn Lab Blog`}>
-  <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 h-16 flex items-center px-4 md:px-8 shadow-sm">
-    <div class="max-w-4xl mx-auto w-full flex items-center justify-between">
-      <button onclick="history.back()" class="flex items-center gap-2 text-slate-500 hover:text-teal-600 font-bold transition-colors group cursor-pointer">
-        <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
-        <span>Quay lại</span>
-      </button>
+<Layout title={`${post.data.title} | Learn Lab`}>
+  <main class="max-w-[800px] mx-auto px-6 py-16 min-h-screen">
+    <a href="/blog" class="inline-flex items-center gap-2 text-sm font-bold text-teal-600 hover:text-teal-700 transition-colors mb-8">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      Quay lại danh sách bài viết
+    </a>
+
+    <header class="mb-10 text-center">
+      <h1 class="text-4xl sm:text-5xl font-black text-slate-900 leading-tight tracking-tight mb-6">{post.data.title}</h1>
       
-      <div class="flex items-center gap-3">
-        <span class={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-sm
-          ${color === 'teal' ? 'bg-teal-500' : color === 'rose' ? 'bg-rose-500' : color === 'amber' ? 'bg-amber-500' : 'bg-indigo-500'}
-        `}>
-          {catName}
-        </span>
-      </div>
-    </div>
-  </header>
-
-  <main class="min-h-screen bg-slate-50 pb-24">
-    <article class="max-w-4xl mx-auto px-4 md:px-8 pt-10 md:pt-16">
-      
-      <header class="text-center mb-12">
-        <div class="flex items-center justify-center gap-2 text-sm font-bold text-slate-400 mb-6">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-          <time datetime={entry.data.date?.toISOString()}>
-            {entry.data.date ? new Date(entry.data.date).toLocaleDateString('vi-VN', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Vừa xong'}
-          </time>
-        </div>
-        
-        <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.2] tracking-tight mb-8">
-          {entry.data.title}
-        </h1>
-
-        {entry.data.description && (
-          <p class="text-lg md:text-xl text-slate-500 font-medium max-w-3xl mx-auto leading-relaxed italic">
-            "{entry.data.description}"
-          </p>
-        )}
-      </header>
-
-      {entry.data.image && (
-        <div class="w-full aspect-video md:aspect-[21/9] rounded-[2rem] overflow-hidden shadow-xl mb-16 border-4 border-white bg-slate-200">
-          <img src={entry.data.image} alt={entry.data.title} class="w-full h-full object-cover" />
-        </div>
+      {post.data.description && (
+        <p class="text-lg text-slate-500 font-medium max-w-2xl mx-auto">
+          {post.data.description}
+        </p>
       )}
-
-      <div class="markdown-body bg-white p-8 md:p-14 rounded-[2rem] shadow-sm border border-slate-200 max-w-3xl mx-auto">
-        <Content />
+      
+      <div class="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm font-bold text-slate-400 uppercase tracking-wider">
+        <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full">Learn Lab Edu</span>
+        <span>•</span>
+        
+        <time 
+          datetime={new Date(post.data.pubDate || post.data.date || new Date()).toISOString()} 
+          class="flex items-center gap-1.5"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          {new Date(post.data.pubDate || post.data.date || new Date()).toLocaleDateString('vi-VN')}
+        </time>
       </div>
+    </header>
 
+    {post.data.image && (
+      <div class="mb-12 overflow-hidden rounded-3xl shadow-xl shadow-slate-200/50">
+        <img src={post.data.image} alt={post.data.title} class="w-full h-auto object-cover aspect-video" />
+      </div>
+    )}
+
+    <article class="prose prose-slate prose-lg max-w-none prose-headings:font-black prose-h2:text-3xl prose-h3:text-2xl prose-a:text-teal-600 prose-a:no-underline hover:prose-a:underline prose-img:rounded-2xl prose-img:shadow-lg prose-pre:bg-slate-900 prose-pre:shadow-xl">
+      <Content />
     </article>
+    
+    <div class="mt-16 border-t border-slate-100 pt-8 text-center text-slate-500 font-medium">
+      <p>Hết bài viết. Chúc bạn học tập hiệu quả trên hệ thống Learn Lab!</p>
+    </div>
   </main>
 </Layout>
-
-<style is:global>
-  /* 🟢 ĐỊNH DẠNG TỰ ĐỘNG CHO NỘI DUNG MARKDOWN (Typography) */
-  .markdown-body {
-    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-    font-size: 1.15rem;
-    color: #334155;
-    line-height: 1.8;
-  }
-  
-  .markdown-body h2 {
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-    font-size: 1.875rem;
-    font-weight: 900;
-    color: #0f172a;
-    margin-top: 3rem;
-    margin-bottom: 1.25rem;
-    letter-spacing: -0.025em;
-  }
-  
-  .markdown-body h3 {
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #1e293b;
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-  }
-  
-  .markdown-body p {
-    margin-bottom: 1.5rem;
-  }
-  
-  .markdown-body img {
-    width: 100%;
-    border-radius: 1rem;
-    margin: 2.5rem 0;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  }
-  
-  .markdown-body a {
-    color: #0d9488;
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 4px;
-    font-weight: 600;
-  }
-  
-  .markdown-body a:hover {
-    color: #0f766e;
-  }
-  
-  .markdown-body blockquote {
-    border-left: 4px solid #14b8a6;
-    background-color: #f0fdfa;
-    padding: 1.5rem;
-    border-radius: 0 1rem 1rem 0;
-    margin: 2rem 0;
-    font-style: italic;
-    color: #0f766e;
-    font-weight: 500;
-  }
-  
-  .markdown-body ul, .markdown-body ol {
-    margin-bottom: 1.5rem;
-    padding-left: 1.5rem;
-  }
-  
-  .markdown-body ul { list-style-type: disc; }
-  .markdown-body ol { list-style-type: decimal; }
-  .markdown-body li { margin-bottom: 0.5rem; }
-  
-  .markdown-body strong {
-    font-weight: 700;
-    color: #0f172a;
-  }
-</style>
