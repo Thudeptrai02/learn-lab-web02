@@ -1,164 +1,84 @@
 ---
-// LƯU Ý: Sếp nhớ kiểm tra lại đường dẫn import Layout cho đúng với cấu trúc dự án của sếp nhé!
 import Layout from '../../../layouts/Layout.astro';
+import { getCambridgeData } from '../../../lib/cambridge.js';
 
-// 1. HÀM GETSTATICPATHS: Phép thuật tự động tạo trang từ Sheets
 export async function getStaticPaths() {
-  // Dán link TSV tổng của sếp vào đây
-  const tsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTdQHavh6IvNa_ZTKm8brzGMY28wcdsWjJBkzJafDxXY7yxHlwZg4sOW-nROFduuDYO-KBp59yx-_2a/pub?gid=0&single=true&output=tsv"; 
+  // Lấy dữ liệu đã nhóm từ lib
+  const data = await getCambridgeData();
   
-  const response = await fetch(tsvUrl);
-  const data = await response.text();
-  const rows = data.split('\n').slice(1); // Bỏ dòng tiêu đề
-
-  // Gom các Part lại theo từng Mã Đề
-  const danhSachDeThi = {};
-  
-  rows.forEach(row => {
-    // Cắt theo Tab. Cấu trúc Sheets: Ma_De | Part | Noi_Dung_HTML | Dap_An
-    const [Ma_De, Part, Noi_Dung_HTML, Dap_An] = row.split('\t');
-    
-    if (!Ma_De || !Part) return; // Bỏ qua nếu dòng trống
-    
-    const cleanMaDe = Ma_De.trim();
-
-    if (!danhSachDeThi[cleanMaDe]) {
-      danhSachDeThi[cleanMaDe] = [];
-    }
-    // Nhét Part vào đúng mã đề của nó
-    danhSachDeThi[cleanMaDe].push({ 
-      Part: Part.trim(), 
-      Noi_Dung: Noi_Dung_HTML ? Noi_Dung_HTML.trim() : "", 
-      Dap_An: Dap_An ? Dap_An.trim() : "" 
-    });
-  });
-
-  // Khai báo cho Astro biết cần đúc ra những trang (link) nào
-  return Object.keys(danhSachDeThi).map((maDe) => {
+  // Tạo ra các đường link dựa trên Mã Đề
+  return Object.keys(data).map((maDe) => {
     return {
-      params: { ma_de: maDe }, // Tạo ra link, VD: /english-lab/cambridge/ket-reading-01
-      props: { parts: danhSachDeThi[maDe] }, // Trả dữ liệu ruột của đề đó cho giao diện
+      params: { ma_de: maDe }, 
+      props: { parts: data[maDe] }, 
     };
   });
 }
 
-// 2. LẤY DỮ LIỆU HIỂN THỊ CHO ĐỀ HIỆN TẠI
 const { ma_de } = Astro.params;
 const { parts } = Astro.props;
 
-// Biến đổi tên hiển thị cho đẹp (VD: ket-reading-01 -> KET READING 01)
-const tenHienThi = ma_de.replace(/-/g, ' ').toUpperCase();
+const tenHienThi = ma_de ? ma_de.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
 ---
 
 <Layout title={`${tenHienThi} | Learn Lab Cambridge`}>
-  <main class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen">
+  <main class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen pt-24">
     
-    <div class="text-center mb-16 pt-8">
-      <span class="bg-teal-100 text-teal-800 font-bold px-4 py-1.5 rounded-full text-sm tracking-widest uppercase mb-4 inline-block">
-        Cambridge Assessment
-      </span>
-      <h1 class="text-4xl md:text-5xl font-black text-slate-900 mt-4 mb-4">{tenHienThi}</h1>
-      <p class="text-lg text-slate-500 font-medium">Hệ thống luyện thi tự động</p>
-    </div>
-
-    {/* Duyệt qua từng Part của Đề thi */}
-    {parts.map((p) => (
-      <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-12">
-        {/* Tiêu đề Part */}
-        <div class="bg-slate-800 px-8 py-5 flex items-center justify-between">
-          <h2 class="text-xl font-bold text-white">{p.Part}</h2>
+    {!parts || parts.length === 0 ? (
+      <div class="text-center py-20 bg-white rounded-3xl border border-red-200 shadow-sm">
+        <div class="text-6xl mb-4">🚨</div>
+        <h1 class="text-3xl font-bold text-red-500 mb-4">LỖI DỮ LIỆU!</h1>
+        <p class="text-lg text-slate-600">Không tìm thấy nội dung cho mã đề: {ma_de}</p>
+      </div>
+    ) : (
+      <>
+        <div class="text-center mb-16">
+          <span class="bg-teal-100 text-teal-800 font-bold px-4 py-1.5 rounded-full text-sm tracking-widest uppercase mb-4 inline-block">
+            Cambridge Assessment
+          </span>
+          <h1 class="text-4xl md:text-5xl font-black text-slate-900 mt-4 mb-4">{tenHienThi}</h1>
         </div>
-        
-        {/* Vùng hiển thị Nội dung đề (Tự động render HTML của Divi) */}
-        <div class="p-8 cambridge-content" set:html={p.Noi_Dung} />
 
-        {/* Vùng hiển thị Đáp án (Tạm thời là hộp Toggle, sau này sếp gắn script tự chấm vào đây) */}
-        <div class="bg-teal-50/50 p-6 border-t border-slate-100">
-          <details class="group cursor-pointer">
-            <summary class="font-bold text-teal-700 flex items-center select-none bg-white border border-teal-100 px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all w-max">
-              <span class="mr-2">💡</span> Xem Đáp Án / Bài Mẫu
-              <span class="ml-4 group-open:rotate-180 transition-transform">▼</span>
-            </summary>
-            <div class="mt-6 p-6 bg-white border border-teal-100 rounded-2xl text-slate-800 font-medium whitespace-pre-line leading-relaxed shadow-inner">
-              {p.Dap_An}
+        {parts.map((p) => (
+          <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-12">
+            <div class="bg-slate-800 px-8 py-5">
+              <h2 class="text-xl font-bold text-white">{p.Part}</h2>
             </div>
-          </details>
-        </div>
-      </section>
-    ))}
+            
+            <div class="p-8 cambridge-content" set:html={p.Noi_Dung} />
+
+            <div class="bg-teal-50/50 p-6 border-t border-slate-100">
+              <details class="group cursor-pointer">
+                <summary class="font-bold text-teal-700 flex items-center select-none bg-white border border-teal-100 px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all w-max">
+                  <span class="mr-2">💡</span> Xem Đáp Án / Bài Mẫu
+                  <span class="ml-4 group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+                <div class="mt-6 p-6 bg-white border border-teal-100 rounded-2xl text-slate-800 font-medium whitespace-pre-line leading-relaxed shadow-inner">
+                  {p.Dap_An}
+                </div>
+              </details>
+            </div>
+          </section>
+        ))}
+      </>
+    )}
   </main>
 </Layout>
 
 <style is:global>
   /* --- BỘ CSS THUẦN HÓA DIVI BUILDER --- */
-  .cambridge-content {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-  
-  /* Ép các hàng của Divi hiển thị linh hoạt (Thường dùng cho trắc nghiệm) */
-  .cambridge-content .et_pb_row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-  
-  /* Căn chỉnh các cột của Divi */
-  .cambridge-content .et_pb_column {
-    flex: 1;
-    min-width: 0;
-  }
-
-  /* Cột số câu hỏi (1, 2, 3...) */
-  .cambridge-content .et_pb_column_2_5 {
-    flex: 0 0 50px;
-    font-size: 1.25rem;
-    color: #0f766e; /* Màu teal-700 */
-  }
-
-  /* Cột chứa đáp án (A, B, C) */
-  .cambridge-content .et_pb_column_3_5 {
-    flex: 1;
-  }
-
-  /* Làm đẹp bảng (Table) trong Part 2 KET */
-  .cambridge-content table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    border-radius: 0.75rem;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
-    margin: 2rem 0;
-  }
-  .cambridge-content td {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
-    border-right: 1px solid #e2e8f0;
-    vertical-align: middle;
-  }
+  .cambridge-content { font-family: 'Inter', system-ui, sans-serif; }
+  .cambridge-content .et_pb_row { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 2rem; }
+  .cambridge-content .et_pb_column { flex: 1; min-width: 0; }
+  .cambridge-content .et_pb_column_2_5 { flex: 0 0 50px; font-size: 1.25rem; color: #0f766e; }
+  .cambridge-content .et_pb_column_3_5 { flex: 1; }
+  .cambridge-content table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 0.75rem; overflow: hidden; border: 1px solid #e2e8f0; margin: 2rem 0; }
+  .cambridge-content td { padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: middle; }
   .cambridge-content tr:last-child td { border-bottom: none; }
   .cambridge-content td:last-child { border-right: none; }
   .cambridge-content tr:nth-child(even) { background-color: #f8fafc; }
-
-  /* Text và Ảnh */
-  .cambridge-content p {
-    margin-bottom: 1.25rem;
-    line-height: 1.8;
-    color: #334155;
-    font-size: 1.05rem;
-  }
-  .cambridge-content strong {
-    color: #0f172a;
-    font-weight: 700;
-  }
-  .cambridge-content img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 1rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    margin: 2rem auto;
-    display: block;
-  }
+  .cambridge-content p { margin-bottom: 1.25rem; line-height: 1.8; color: #334155; font-size: 1.05rem; }
+  .cambridge-content strong { color: #0f172a; font-weight: 700; }
+  .cambridge-content img { max-width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); margin: 2rem auto; display: block; }
   .cambridge-content .et_pb_text_align_center { text-align: center; }
 </style>
