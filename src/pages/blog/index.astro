@@ -6,25 +6,23 @@ import { getCollection } from 'astro:content';
 const posts = await getCollection('blog');
 
 // 2. Sắp xếp bài mới nhất lên đầu
-const sortedPosts = posts.sort((a, b) => new Date(b.data.date || new Date()).getTime() - new Date(a.data.date || new Date()).getTime());
+const sortedPosts = posts.sort((a, b) => new Date(b.data.date || b.data.pubDate || new Date()).getTime() - new Date(a.data.date || a.data.pubDate || new Date()).getTime());
 
-// 3. Tự động tạo danh sách bộ lọc (Filter) dựa trên các category có trong Markdown
-const rawCategories = [...new Set(sortedPosts.map(post => post.data.category || 'Góc nhỏ'))];
+// 3. CỐ ĐỊNH DANH SÁCH BỘ LỌC CHUẨN (Thay vì tự quét bài cũ)
 const categories = [
   { name: "Tất cả", slug: "all" },
-  ...rawCategories.map(cat => ({
-    name: cat,
-    slug: cat.toLowerCase().replace(/\\s+/g, '-')
-  }))
+  { name: "Kiến thức", slug: "kiến-thức" },
+  { name: "Niềm tin", slug: "niềm-tin" },
+  { name: "Dòng thời gian", slug: "dòng-thời-gian" }
 ];
 
-// 4. Hàm tự động cấp màu sắc theo chủ đề
+// 4. Hàm tự động cấp màu sắc theo chủ đề mới
 const getCategoryColor = (cat) => {
   if (!cat) return 'slate';
   const lowerCat = cat.toLowerCase();
-  if (lowerCat.includes('tiếng anh') || lowerCat.includes('english')) return 'teal';
-  if (lowerCat.includes('nhật ký') || lowerCat.includes('diary')) return 'rose';
-  if (lowerCat.includes('trải nghiệm') || lowerCat.includes('kinh nghiệm')) return 'amber';
+  if (lowerCat.includes('kiến thức')) return 'teal';
+  if (lowerCat.includes('niềm tin')) return 'rose';
+  if (lowerCat.includes('thời gian')) return 'amber';
   return 'indigo'; // Màu mặc định cho các chủ đề khác
 };
 ---
@@ -64,8 +62,9 @@ const getCategoryColor = (cat) => {
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="blog-grid">
         
         {sortedPosts.map((post, index) => {
-          const catName = post.data.category || 'Góc nhỏ';
-          const catSlug = catName.toLowerCase().replace(/\\s+/g, '-');
+          // Xử lý lại tên chuyên mục mặc định và slug
+          const catName = post.data.category || 'Kiến thức';
+          const catSlug = catName.toLowerCase().replace(/\s+/g, '-');
           const color = getCategoryColor(catName);
           const isFeatured = index === 0; // Bài đầu tiên cho bự ra
 
@@ -74,7 +73,7 @@ const getCategoryColor = (cat) => {
               class={`blog-card group cursor-pointer bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 flex flex-col ${isFeatured ? 'md:col-span-2 lg:col-span-2 flex-col md:flex-row' : ''}`} 
               data-category={catSlug}
             >
-              <a href={`/blog/${post.id}`} class={`flex w-full h-full ${isFeatured ? 'flex-col md:flex-row' : 'flex-col'}`}>
+              <a href={`/blog/${post.id || post.slug}`} class={`flex w-full h-full ${isFeatured ? 'flex-col md:flex-row' : 'flex-col'}`}>
                 
                 <div class={`relative overflow-hidden ${isFeatured ? 'md:w-1/2 w-full h-64 md:h-auto' : 'w-full h-56 shrink-0'} bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center`}>
                   {post.data.image ? (
@@ -96,7 +95,7 @@ const getCategoryColor = (cat) => {
                   <div>
                     <p class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-2">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                      {post.data.date ? new Date(post.data.date).toLocaleDateString('vi-VN', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Vừa xong'}
+                      {new Date(post.data.date || post.data.pubDate || new Date()).toLocaleDateString('vi-VN', { day: '2-digit', month: 'long', year: 'numeric' })}
                     </p>
                     <h3 class={`font-black text-slate-800 leading-snug mb-4 transition-colors line-clamp-2 
                       ${color === 'teal' ? 'group-hover:text-teal-600' : color === 'rose' ? 'group-hover:text-rose-600' : color === 'amber' ? 'group-hover:text-amber-600' : 'group-hover:text-indigo-600'}
@@ -163,7 +162,6 @@ const getCategoryColor = (cat) => {
         let visibleCount = 0;
 
         cards.forEach(card => {
-          // Thêm hiệu ứng mờ dần
           card.style.opacity = '0';
           card.style.transform = 'scale(0.95)';
           
@@ -171,7 +169,6 @@ const getCategoryColor = (cat) => {
             if (filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
               card.style.display = 'flex';
               visibleCount++;
-              // Hiện lại mượt mà
               setTimeout(() => {
                 card.style.opacity = '1';
                 card.style.transform = 'scale(1)';
@@ -180,7 +177,6 @@ const getCategoryColor = (cat) => {
               card.style.display = 'none';
             }
             
-            // Xử lý báo trống bộ lọc
             if (visibleCount === 0 && emptyFilterState) {
               emptyFilterState.classList.remove('hidden');
             } else if (emptyFilterState) {
@@ -194,12 +190,10 @@ const getCategoryColor = (cat) => {
 </script>
 
 <style is:global>
-  /* Font chữ giống file gốc của sếp */
   h1, h2, h3, h4 {
     font-family: 'Inter', system-ui, sans-serif;
   }
   
-  /* Tắt thanh cuộn cho Menu Filter trên Mobile */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
@@ -208,7 +202,6 @@ const getCategoryColor = (cat) => {
     scrollbar-width: none;
   }
   
-  /* Cấu hình transition cho card */
   .blog-card {
     transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.5s ease;
   }

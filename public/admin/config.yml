@@ -2,14 +2,14 @@ backend:
   name: github
   repo: Thudeptrai02/learn-lab-web02
   branch: main
-  app_id: "Ov23lidr9PjEglH0yyUO" # <--- Chìa khóa thông hành để đăng nhập
+  app_id: "Ov23lidr9PjEglH0yyUO"
 
 media_folder: "public/images"
 public_folder: "/images"
 
 collections:
-# ----------------------------------------
-  # 1. QUẢN LÝ BLOG (Viết bài chia sẻ)
+  # ----------------------------------------
+  # 1. QUẢN LÝ BLOG
   # ----------------------------------------
   - name: "blog"
     label: "Bài viết Blog"
@@ -17,36 +17,24 @@ collections:
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
-      - {label: "Tiêu đề bài viết", name: "title", widget: "string", hint: "Nên viết hoa chữ cái đầu, khoảng 50-70 ký tự."}
-      - {label: "Tóm tắt (SEO)", name: "description", widget: "text", hint: "Đoạn giới thiệu ngắn để hiển thị trên Google và trang chủ."}
-      - {label: "Ngày đăng", name: "pubDate", widget: "datetime", format: "YYYY-MM-DD", hint: "Mặc định hệ thống sẽ lấy ngày hôm nay nếu sếp để trống."}
-      - {label: "Ảnh bìa", name: "image", widget: "image", required: false, hint: "Nên dùng ảnh tỷ lệ 16:9 (Ví dụ: 1200x675 px) cho đẹp."}
+      - {label: "Tiêu đề bài viết", name: "title", widget: "string"}
+      - {label: "Tóm tắt (SEO)", name: "description", widget: "string"}
+      - {label: "Chuyên mục", name: "category", widget: "select", options: ["Kiến thức", "Niềm tin", "Dòng thời gian"], default: "Kiến thức"}
+      - {label: "Ngày đăng", name: "pubDate", widget: "datetime", format: "YYYY-MM-DD"}
+      - {label: "Ảnh bìa", name: "image", widget: "image", required: false}
       - label: "Nội dung bài viết"
         name: "body"
         widget: "markdown"
-        hint: "Gõ vào đây. Bôi đen chữ để hiện menu in đậm, in nghiêng..."
         default: |
-          *(Viết 1-2 câu tóm tắt ý chính của bài học vào đây...)*
-
-          ## 1. Đặt vấn đề
-          Trong quá trình giảng dạy, thầy nhận thấy rất nhiều bạn sinh viên gặp khó khăn với...
-
-          ## 2. Kiến thức trọng tâm
-          Để giải quyết vấn đề này, các em cần nắm vững 3 quy tắc sau:
-          1. Quy tắc thứ nhất...
-          2. Quy tắc thứ hai...
-
-          > 💡 **Mẹo nhỏ:** Hãy sử dụng Flashcard trên hệ thống Learn Lab để ghi nhớ từ vựng nhanh hơn!
-
-          ## 3. Bài tập thực hành
-          - [ ] Hoàn thành bài Dictation Unit 1.
-          - [ ] Đọc thêm tài liệu đính kèm.
-
+          ## 1. Nội dung chính
+          
+          ## 2. Kết luận
+          
           ---
-          *Chúc các em học tốt và đạt điểm cao!*
+          *Chúc các em học tập tốt!*
 
   # ----------------------------------------
-  # 2. QUẢN LÝ FLASHCARDS (Từ vựng)
+  # 2. QUẢN LÝ FLASHCARDS
   # ----------------------------------------
   - name: "flashcards"
     label: "Bộ Từ Vựng (Flashcards)"
@@ -55,7 +43,7 @@ collections:
     extension: "json" 
     format: "json"
     fields:
-      - {label: "Tên chủ đề (VD: Từ vựng TOEIC Part 1)", name: "title", widget: "string"}
+      - {label: "Tên chủ đề", name: "title", widget: "string"}
       - {label: "Mô tả", name: "description", widget: "string", required: false}
       - label: "Danh sách từ vựng"
         name: "words"
@@ -68,7 +56,7 @@ collections:
           - {label: "File phát âm (Audio)", name: "audio", widget: "file", required: false}
 
   # ----------------------------------------
-  # 3. QUẢN LÝ DICTATION (Nghe chép chính tả)
+  # 3. QUẢN LÝ DICTATION
   # ----------------------------------------
   - name: "dictation"
     label: "Bài tập Dictation"
@@ -80,5 +68,5 @@ collections:
       - {label: "Tên bài nghe", name: "title", widget: "string"}
       - {label: "Độ khó", name: "level", widget: "select", options: ["Dễ", "Trung bình", "Khó"]}
       - {label: "File Audio toàn bài", name: "audio", widget: "file"}
-      - {label: "Đoạn văn gốc (Transcript)", name: "transcript", widget: "text", hint: "Văn bản chuẩn để đối chiếu kết quả"}
+      - {label: "Đoạn văn gốc (Transcript)", name: "transcript", widget: "text"}
       - {label: "Bản dịch tiếng Việt", name: "translation", widget: "text", required: false}
