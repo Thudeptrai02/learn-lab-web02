@@ -1,0 +1,61 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+// 1. Kéo dữ liệu từ Kho Tổng Google Sheets
+// ⚠️ SẾP NHỚ DÁN LINK TSV CỦA SẾP VÀO TRONG DẤU NGOẶC KÉP BÊN DƯỚI NHÉ:
+const tsvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTdQHavh6IvNa_ZTKm8brzGMY28wcdsWjJBkzJafDxXY7yxHlwZg4sOW-nROFduuDYO-KBp59yx-_2a/pub?gid=0&single=true&output=tsv"; 
+
+const response = await fetch(tsvUrl);
+const data = await response.text();
+const rows = data.split('\n').slice(1); // Bỏ dòng tiêu đề
+
+// 2. Lọc ra danh sách các Mã Đề (không bị trùng lặp)
+// Nó sẽ quét cột 1 của Google Sheets, nhặt ra các mã như KET-READING-01, PET-02...
+const danhSachMaDe = [...new Set(rows.map(row => row.split('\t')[0].trim()).filter(Boolean))];
+---
+
+<Layout title="Cambridge Tests | Learn Lab">
+  <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen">
+    
+    <div class="text-center mb-12 pt-8">
+      <span class="bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 rounded-full text-sm tracking-widest uppercase mb-4 inline-block">
+        Cambridge Assessment
+      </span>
+      <h1 class="text-4xl font-black text-slate-900 mt-4 mb-4">Danh sách Đề thi Cambridge</h1>
+      <p class="text-lg text-slate-500">Chọn một bài thi bên dưới để bắt đầu làm bài</p>
+    </div>
+
+    {/* Lưới hiển thị các thẻ Đề Thi */}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {danhSachMaDe.map((maDe) => (
+        <a href={`/english-lab/cambridge/${maDe}`} class="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-slate-200 transition-all hover:border-emerald-400 flex flex-col items-center text-center cursor-pointer relative overflow-hidden">
+          
+          <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-6 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          
+          <h3 class="font-bold text-slate-800 text-lg group-hover:text-emerald-600 transition-colors mb-4 line-clamp-2">
+            {/* Chỉnh lại tên mã đề cho đẹp (thay dấu gạch ngang thành dấu cách) */}
+            {maDe.replace(/-/g, ' ').toUpperCase()}
+          </h3>
+          
+          <span class="mt-auto text-sm font-bold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-full group-hover:bg-emerald-600 group-hover:text-white transition-colors w-full">
+            Bắt đầu làm bài →
+          </span>
+        </a>
+      ))}
+    </div>
+    
+    {/* Hiện thông báo nếu Sheet trống */}
+    {danhSachMaDe.length === 0 && (
+      <div class="text-center text-slate-500 py-16 bg-white rounded-3xl border-2 border-dashed border-slate-300 mt-8">
+        <div class="text-6xl mb-4">📭</div>
+        <h3 class="text-xl font-bold text-slate-700 mb-2">Hiện chưa có bài thi nào</h3>
+        <p>Vui lòng cào dữ liệu và cập nhật vào file Google Sheets của sếp.</p>
+      </div>
+    )}
+
+  </main>
+</Layout>
