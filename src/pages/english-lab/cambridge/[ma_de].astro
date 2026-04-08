@@ -12,191 +12,141 @@ const catalog = await getCambridgeData();
 const cleanUrl = ma_de ? ma_de.trim().toLowerCase() : "";
 const correctKey = Object.keys(catalog).find(key => key.trim().toLowerCase() === cleanUrl);
 
-let parts = correctKey ? catalog[correctKey] : [];
-const tenHienThi = correctKey ? correctKey.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
+const parts = correctKey ? catalog[correctKey] : [];
 
-// 🧠 PHÂN LOẠI CỨNG: 1-5 LÀ TRẮC NGHIỆM, 6-7 LÀ WRITING
-function parseDapAn(dapAnStr, partName) {
-  const partLower = (partName || "").toLowerCase();
-  const isWriting = partLower.includes("part 6") || partLower.includes("part 7");
-
-  if (isWriting) {
-    return { isWriting: true, sampleText: dapAnStr || "Nội dung bài mẫu." };
-  }
-
-  // Bóc đáp án trắc nghiệm (1 A 2 B...)
-  let questions = [];
-  const tokens = (dapAnStr || "").trim().split(/\s+/);
+// Trích xuất đáp án chuẩn để chấm điểm
+const allAnswers = {};
+parts.forEach(p => {
+  const tokens = p.Dap_An.trim().split(/\s+/);
   for (let i = 0; i < tokens.length - 1; i++) {
-    if (!isNaN(tokens[i])) {
-      questions.push({ num: tokens[i], ans: tokens[i+1].toUpperCase() });
-      i++;
-    }
+    if (!isNaN(tokens[i])) { allAnswers[tokens[i]] = tokens[i+1].toUpperCase(); i++; }
   }
-
-  // Nếu Sheets rỗng, tự tạo 5 câu ảo để hiện Form chọn
-  if (questions.length === 0) {
-    for(let i=1; i<=5; i++) questions.push({ num: i.toString(), ans: "A" });
-  }
-
-  return { isWriting: false, questions };
-}
-
-parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
+});
 ---
 
-<Layout title={`${tenHienThi} | Cambridge KET`}>
-  
+<Layout title="Cambridge Exam | Learn Lab">
   {/* THANH ĐIỂM DƯỚI CÙNG */}
-  <div class="fixed bottom-0 left-0 w-full z-50 bg-white border-t border-slate-200 shadow-2xl py-4 px-6 flex items-center justify-between">
+  <div class="fixed bottom-0 left-0 w-full z-50 bg-white border-t-2 border-slate-900 py-4 px-8 flex justify-between items-center shadow-2xl">
     <div class="flex items-center gap-4">
-      <div id="score-circle" class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center font-black text-xl text-slate-800 tracking-tighter">--</div>
-      <div><p class="font-bold text-slate-800">Kết quả</p><p id="score-label" class="text-xs text-slate-500 uppercase font-black">Chưa nộp bài</p></div>
+      <div id="score-val" class="w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center font-black text-2xl">--</div>
+      <div class="font-black text-slate-900 uppercase tracking-tighter">Kết quả chấm điểm</div>
     </div>
-    <button id="main-submit-btn" class="bg-teal-600 hover:bg-teal-700 text-white px-10 py-3 rounded-full font-black text-lg shadow-lg shadow-teal-500/20 transition-all">NỘP BÀI TRẮC NGHIỆM</button>
+    <button id="submit-all" class="bg-teal-600 text-white px-12 py-4 rounded-full font-black text-lg hover:scale-105 transition-transform">NỘP BÀI</button>
   </div>
 
-  <main class="max-w-6xl mx-auto py-12 px-4 pt-24 pb-40 min-h-screen bg-slate-50">
-    <div class="text-center mb-16">
-      <span class="bg-teal-100 text-teal-800 font-bold px-4 py-1.5 rounded-full text-xs uppercase tracking-[0.2em] mb-4 inline-block shadow-sm">Cambridge A2 Key</span>
-      <h1 class="text-4xl md:text-5xl font-black text-slate-900 mt-2 tracking-tighter">{tenHienThi}</h1>
-    </div>
+  <main class="max-w-4xl mx-auto py-20 px-6 pb-40">
+    <h1 class="text-5xl font-black mb-16 text-center tracking-tighter uppercase border-b-8 border-slate-900 pb-8">{ma_de.replace(/-/g, ' ')}</h1>
 
-    {parts.map((p) => (
-      <div class="mb-24 group">
-        <div class="bg-slate-900 text-white px-8 py-4 rounded-t-[2rem] font-black text-xl flex items-center gap-3">
-          <span class="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center text-sm">P</span> {p.Part}
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-[1.2fr,1fr] bg-white border-x border-b border-slate-200 rounded-b-[2rem] shadow-sm overflow-hidden">
-          
-          {/* CỘT TRÁI: NỘI DUNG ĐỀ */}
-          <div class="p-8 md:p-12 border-r border-slate-100 ket-content-scraped" data-part={p.Part} set:html={p.Noi_Dung} />
-          
-          {/* CỘT PHẢI: KHU VỰC CHỌN ĐÁP ÁN */}
-          <div class="p-8 md:p-12 bg-slate-50/50">
-            <h3 class="font-black text-slate-800 text-lg mb-8 uppercase tracking-widest border-b border-slate-200 pb-4">Phiếu Trả Lời</h3>
+    {parts.map((p) => {
+      const isWriting = p.Part.toLowerCase().includes("part 6") || p.Part.toLowerCase().includes("part 7");
+      return (
+        <section class="mb-32 exam-section" data-part={p.Part}>
+          <div class="bg-slate-900 text-white inline-block px-8 py-3 rounded-t-3xl font-black text-xl mb-0">{p.Part}</div>
+          <div class="bg-white border-4 border-slate-900 p-8 md:p-12 rounded-b-3xl rounded-tr-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
             
-            {p.parsedAnswers.isWriting ? (
-              <div class="writing-box">
-                <textarea class="w-full h-64 p-6 rounded-3xl border-2 border-slate-200 focus:border-teal-500 text-slate-700 text-lg mb-4 shadow-inner outline-none" placeholder="Nhập bài viết của bạn..."></textarea>
-                <button class="btn-ai-grade w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-teal-600 transition-all">✨ CHẤM ĐIỂM WRITING AI</button>
-                <div class="ai-result hidden mt-6 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm animate-in fade-in slide-in-from-bottom-4"></div>
-              </div>
-            ) : (
-              <div class="space-y-6">
-                {p.parsedAnswers.questions.map(q => (
-                  <div class="q-row bg-white p-5 rounded-2xl border border-slate-200 shadow-sm transition-all hover:border-teal-300" data-ans={q.ans}>
-                    <div class="flex items-center justify-between mb-4">
-                      <span class="font-black text-slate-800">CÂU {q.num}</span>
-                      <span class="status-chip hidden px-3 py-1 rounded-full text-[10px] font-black text-white"></span>
-                    </div>
-                    <div class="flex gap-2">
-                      {['A', 'B', 'C'].map(opt => (
-                        <label class="flex-1 cursor-pointer">
-                          <input type="radio" name={`q-${p.Part}-${q.num}`} value={opt} class="hidden peer" />
-                          <div class="py-3 text-center rounded-xl border-2 border-slate-100 font-black text-slate-400 peer-checked:bg-teal-600 peer-checked:text-white peer-checked:border-teal-600 transition-all shadow-sm">{opt}</div>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+            {/* NỘI DUNG ĐỀ: SẼ ĐƯỢC JS BIẾN ĐỔI THÀNH CÁC NÚT BẤM */}
+            <div class="content-body" set:html={p.Noi_Dung} />
+
+            {isWriting && (
+              <div class="mt-12 pt-12 border-t-4 border-slate-100">
+                <p class="font-black text-slate-400 mb-4 uppercase tracking-widest">Your Writing Answer:</p>
+                <textarea class="w-full h-64 p-8 bg-slate-50 border-4 border-slate-200 rounded-3xl text-xl outline-none focus:border-teal-500 transition-colors" placeholder="Type your story/message..."></textarea>
+                <button class="ai-btn mt-6 w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-teal-600 transition-all">✨ AI CHẤM ĐIỂM WRITING</button>
+                <div class="ai-res hidden mt-8 p-8 bg-teal-50 border-4 border-teal-200 rounded-3xl"></div>
               </div>
             )}
           </div>
-        </div>
-      </div>
-    ))}
+        </section>
+      )
+    })}
   </main>
 </Layout>
 
-<script>
-  // --- 1. CHẤM TRẮC NGHIỆM ---
-  const submitBtn = document.getElementById('main-submit-btn');
-  if(submitBtn) {
-    submitBtn.addEventListener('click', () => {
-      const qRows = document.querySelectorAll('.q-row');
-      let correct = 0;
-      if(qRows.length === 0) return;
-
-      qRows.forEach(row => {
-        const trueAns = row.getAttribute('data-ans');
-        const checked = row.querySelector('input:checked');
-        const chip = row.querySelector('.status-chip');
-        
-        row.classList.remove('border-green-400', 'border-red-400', 'bg-green-50', 'bg-red-50');
-        chip.classList.add('hidden');
-
-        if(checked) {
-          if(checked.value === trueAns) {
-            correct++;
-            row.classList.add('border-green-400', 'bg-green-50');
-            chip.textContent = "ĐÚNG"; chip.classList.replace('bg-red-500', 'bg-green-500'); chip.classList.remove('hidden');
-          } else {
-            row.classList.add('border-red-400', 'bg-red-50');
-            chip.textContent = `SAI (Đ/A: ${trueAns})`; chip.classList.add('bg-red-500', 'hidden'); chip.classList.remove('hidden');
-          }
-        } else {
-           row.classList.add('border-red-400', 'bg-red-50');
-           chip.textContent = `BỎ TRỐNG (Đ/A: ${trueAns})`; chip.classList.add('bg-red-500'); chip.classList.remove('hidden');
-        }
-      });
-
-      document.getElementById('score-circle').textContent = correct;
-      document.getElementById('score-circle').className = "w-12 h-12 rounded-full bg-teal-600 flex items-center justify-center font-black text-xl text-white shadow-lg";
-      document.getElementById('score-label').innerHTML = `Đúng <strong>${correct}/${qRows.length}</strong> câu`;
-      submitBtn.textContent = "LÀM LẠI";
-    });
-  }
-
-  // --- 2. CHẤM WRITING AI ---
-  const aiBtns = document.querySelectorAll('.btn-ai-grade');
-  aiBtns.forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      const box = e.target.closest('.writing-box');
-      const text = box.querySelector('textarea').value.trim();
-      const result = box.querySelector('.ai-result');
+<script define:vars={{ allAnswers }}>
+  // 🎯 MAGIC: BIẾN CHỮ THÀNH NÚT BẤM TRỰC TIẾP TRÊN ĐỀ
+  document.querySelectorAll('.content-body').forEach(body => {
+    let lastQ = null;
+    body.querySelectorAll('p').forEach(p => {
+      const txt = p.innerText.trim();
       
-      if(text.split(/\s+/).length < 15) return alert("Sếp viết dài hơn 15 từ AI mới chấm được!");
-      
-      btn.innerHTML = "🌀 GIÁM KHẢO ĐANG CHẤM..."; btn.disabled = true;
+      // 1. Nhận diện số câu (VD: "1", "2")
+      if (/^\d+$/.test(txt)) {
+        lastQ = txt;
+        p.className = "q-num-marker font-black text-4xl mt-12 mb-6 text-slate-900 border-l-8 border-slate-900 pl-6";
+        return;
+      }
 
-      try {
-        const res = await fetch('/api/grade-writing', { method: 'POST', body: JSON.stringify({ userText: text, partName: "A2 Writing" }) });
-        const data = await res.json();
-        result.innerHTML = `<div class="font-black text-teal-600 mb-4">ĐIỂM: ${data.content+data.organisation+data.language}/15</div><p class="text-sm text-slate-600 leading-relaxed">${data.feedback}</p>`;
-        result.classList.remove('hidden'); btn.classList.add('hidden');
-      } catch (err) { alert("Lỗi kết nối AI"); btn.innerHTML = "THỬ LẠI"; btn.disabled = false; }
+      // 2. Nhận diện dòng đáp án (VD: "A notice", "B ...")
+      if (lastQ && /^[A-C][\s\.]/.test(txt)) {
+        const char = txt[0].toUpperCase();
+        p.className = "choice-btn cursor-pointer p-5 mb-3 rounded-2xl border-2 border-slate-100 bg-slate-50 font-bold transition-all hover:bg-white hover:border-teal-400";
+        p.setAttribute('data-q', lastQ);
+        p.setAttribute('data-opt', char);
+
+        p.onclick = () => {
+          body.querySelectorAll(`.choice-btn[data-q="${lastQ}"]`).forEach(el => el.classList.remove('active-choice'));
+          p.classList.add('active-choice');
+        };
+      }
     });
+  });
+
+  // 📝 CHẤM ĐIỂM
+  document.getElementById('submit-all').onclick = () => {
+    let score = 0;
+    const choices = document.querySelectorAll('.choice-btn.active-choice');
+    
+    // Reset màu
+    document.querySelectorAll('.choice-btn').forEach(el => el.classList.remove('is-correct', 'is-wrong', 'show-right'));
+
+    choices.forEach(c => {
+      const q = c.getAttribute('data-q');
+      const opt = c.getAttribute('data-opt');
+      if (opt === allAnswers[q]) { score++; c.classList.add('is-correct'); }
+      else { c.classList.add('is-wrong'); }
+    });
+
+    // Hiện đáp án đúng cho các câu chưa làm hoặc làm sai
+    document.querySelectorAll('.choice-btn').forEach(c => {
+      if (c.getAttribute('data-opt') === allAnswers[c.getAttribute('data-q')]) c.classList.add('show-right');
+    });
+
+    document.getElementById('score-val').innerText = score;
+    document.getElementById('submit-all').innerText = "LÀM LẠI";
+  };
+
+  // 🤖 AI WRITING
+  document.querySelectorAll('.ai-btn').forEach(btn => {
+    btn.onclick = async () => {
+      const container = btn.parentElement;
+      const text = container.querySelector('textarea').value;
+      const resBox = container.querySelector('.ai-res');
+      if (text.split(' ').length < 15) return alert("Viết dài tí sếp ơi!");
+
+      btn.innerText = "ĐANG CHẤM...";
+      const res = await fetch('/api/grade-writing', { method: 'POST', body: JSON.stringify({ userText: text, partName: "A2 Writing" }) });
+      const data = await res.json();
+      resBox.innerHTML = `<h4 class="font-black text-teal-700 text-2xl mb-4">SCORE: ${data.content+data.organisation+data.language}/15</h4><p class="font-bold text-teal-900">${data.feedback}</p>`;
+      resBox.classList.remove('hidden'); btn.classList.add('hidden');
+    }
   });
 </script>
 
 <style is:global>
-  /* --- THANH TẨY RÁC DIVI BUILDER - GIẢI PHÓNG NỘI DUNG --- */
-  .ket-content-scraped { font-family: 'Inter', sans-serif; }
-  
-  /* Ẩn rác */
-  .ket-content-scraped .et_pb_section { display: none !important; }
-  .ket-content-scraped .et_pb_section:first-child, .ket-content-scraped .et_pb_section:nth-child(2) { display: block !important; }
-
-  /* Ép mọi thứ chiếm 100% bề ngang, không cho chia cột lắt nhắt */
-  .ket-content-scraped .et_pb_row, .ket-content-scraped [class*="et_pb_column"] { 
+  /* CHỐNG ÉP CHỮ - DÀN TRANG TỰ DO */
+  .content-body .et_pb_row, .content-body [class*="et_pb_column"] { 
     display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 0 1.5rem 0 !important; float: none !important;
   }
+  .content-body p { margin-bottom: 1rem !important; font-size: 1.2rem; line-height: 1.8; color: #334155; }
 
-  /* KHUNG BIỂN BÁO PART 1 (STYLE CHUẨN) */
+  /* STYLE BIỂN BÁO PART 1 */
   [data-part*="Part 1"] p[style*="center"], [data-part*="Part 1"] .et_pb_text_align_center {
-    border: 3px solid #000 !important; padding: 2rem !important; border-radius: 4px !important; text-align: center !important; font-weight: 800 !important; background: #fff !important; margin: 2rem auto !important; max-width: 400px !important; color: #000 !important; font-size: 1.2rem !important;
+    border: 6px solid #000 !important; padding: 3rem !important; border-radius: 4px !important; background: #fff !important; font-weight: 900 !important; text-align: center !important; font-size: 1.5rem !important; color: #000 !important; margin: 3rem auto !important; max-width: 500px !important; text-transform: uppercase;
   }
 
-  /* Ẩn đáp án rác bên trái */
-  [data-part*="Part 1"] p:contains('A '), [data-part*="Part 1"] p:contains('B '), [data-part*="Part 1"] p:contains('C ') { display: none !important; }
-
-  /* Text cơ bản */
-  .ket-content-scraped p { margin-bottom: 1rem !important; font-size: 1.1rem; line-height: 1.7; color: #1e293b; }
-  .ket-content-scraped h3 { font-size: 1.5rem; font-weight: 900; margin-bottom: 1.5rem; color: #000; }
-  .ket-content-scraped img { max-width: 100%; height: auto; border-radius: 1rem; margin: 2rem 0; }
-  
-  /* Khung email Part 7 */
-  .ket-content-scraped [style*="font-family: Arial"] { background: #f8fafc !important; padding: 2.5rem !important; border-radius: 2rem !important; border: 2px border-slate-200 !important; display: block !important; }
+  /* NÚT CHỌN */
+  .active-choice { background: #111827 !important; color: #fff !important; border-color: #111827 !important; transform: translateX(10px); }
+  .is-correct.active-choice { background: #15803d !important; border-color: #15803d !important; }
+  .is-wrong.active-choice { background: #b91c1c !important; border-color: #b91c1c !important; }
+  .show-right:not(.active-choice) { border: 4px dashed #15803d !important; color: #15803d !important; }
 </style>

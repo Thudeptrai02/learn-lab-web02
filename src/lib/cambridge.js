@@ -6,8 +6,6 @@ export async function getCambridgeData() {
   try {
     const res = await fetch(CAMBRIDGE_CSV_URL);
     let csvString = await res.text();
-    
-    // Diệt ký tự tàng hình (BOM) từ Google Sheets
     csvString = csvString.replace(/^\uFEFF/, '').trim();
 
     const parsed = Papa.parse(csvString, { header: true, skipEmptyLines: true });
@@ -20,22 +18,29 @@ export async function getCambridgeData() {
         cleanRow[safeKey] = row[key] ? row[key].toString().trim() : '';
       }
 
-      const maDe = cleanRow['ma_de'];
-      const part = cleanRow['part'];
-      const noiDung = cleanRow['noi_dung_html'] || cleanRow['nội dung đề (html)'];
-      const dapAn = cleanRow['dap_an'] || cleanRow['đáp án lõi'];
+      let html = cleanRow['noi_dung_html'] || '';
+      
+      // ✂️ CHIÊU CUỐI: CẮT BỎ FOOTER VÀ SECTION RÁC CỦA DIVI
+      // Thường nội dung chính kết thúc trước khi các section footer xuất hiện
+      if (html.includes('et_pb_section')) {
+        const sections = html.split('et_pb_section');
+        // Chỉ lấy 2-3 section đầu tiên (thường chứa đề bài)
+        html = sections.slice(0, 3).join('et_pb_section');
+      }
 
-      if (maDe && part) {
-        if (!groupedData[maDe]) {
-          groupedData[maDe] = [];
-        }
-        groupedData[maDe].push({ Part: part, Noi_Dung: noiDung, Dap_An: dapAn });
+      const maDe = cleanRow['ma_de'];
+      if (maDe && cleanRow['part']) {
+        if (!groupedData[maDe]) groupedData[maDe] = [];
+        groupedData[maDe].push({ 
+          Part: cleanRow['part'], 
+          Noi_Dung: html, 
+          Dap_An: cleanRow['dap_an'] || '' 
+        });
       }
     });
 
     return groupedData;
   } catch (err) {
-    console.error("❌ Lỗi Server khi fetch dữ liệu Cambridge:", err);
     return {};
   }
 }
