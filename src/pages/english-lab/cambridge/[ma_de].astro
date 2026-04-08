@@ -2,68 +2,151 @@
 import Layout from '../../../layouts/Layout.astro';
 import { getCambridgeData } from '../../../lib/cambridge.js';
 
-// 1. TỰ ĐỘNG SINH ĐƯỜNG DẪN BẰNG ID (Copy y hệt triết lý TOEIC của sếp)
 export async function getStaticPaths() {
   const catalog = await getCambridgeData();
   return Object.keys(catalog).map(id => ({ params: { ma_de: id.trim() } }));
 }
 
-// 2. NHẬN ID TỪ THANH ĐỊA CHỈ
 const { ma_de } = Astro.params;
-
-// 3. KÉO DATA LẠI TỪ SHEET (Khắc phục lỗi SSR của Astro)
 const catalog = await getCambridgeData();
-
-// Thuật toán quét và dò tìm ID không phân biệt hoa thường/dấu cách
 const cleanUrl = ma_de ? ma_de.trim().toLowerCase() : "";
-const correctKey = Object.keys(catalog).find(
-  key => key.trim().toLowerCase() === cleanUrl
-);
+const correctKey = Object.keys(catalog).find(key => key.trim().toLowerCase() === cleanUrl);
 
-// Móc nội dung của đề thi tương ứng ra
-const parts = correctKey ? catalog[correctKey] : [];
-
+let parts = correctKey ? catalog[correctKey] : [];
 const tenHienThi = correctKey ? correctKey.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
+
+function parseDapAn(dapAnStr, partName) {
+  if (!dapAnStr) return { isWriting: true, sampleText: "Không có dữ liệu đáp án." };
+  
+  const partLower = partName.toLowerCase();
+  if (partLower.includes("part 6") || partLower.includes("part 7") || partLower.includes("writing")) {
+    return { isWriting: true, sampleText: dapAnStr };
+  }
+
+  const regex = /(\d+)\s+(.+?)(?=\s+\d+\s|$)/g;
+  const questions = [];
+  let match;
+  while ((match = regex.exec(dapAnStr)) !== null) {
+    const ans = match[2].trim();
+    questions.push({ num: match[1], ans: ans, isSingleChar: ans.length === 1 && /^[a-zA-Z]$/.test(ans) });
+  }
+
+  if (questions.length === 0) return { isWriting: true, sampleText: dapAnStr };
+  return { isWriting: false, questions };
+}
+
+parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
 ---
 
-<Layout title={`${tenHienThi} | Learn Lab Cambridge`}>
-  <main class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen pt-24">
-    
+<Layout title={`${tenHienThi} | Learn Lab`}>
+  
+  <div class="fixed bottom-0 left-0 w-full z-[49] bg-white border-t border-slate-200 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] py-4 px-6">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center text-xl font-black text-slate-800 transition-colors" id="score-display">--</div>
+        <div>
+          <h4 class="font-bold text-slate-800">Kết quả làm bài</h4>
+          <p class="text-sm text-slate-500" id="score-text">Chưa nộp bài</p>
+        </div>
+      </div>
+      <button id="submit-test-btn" class="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3 rounded-full font-black text-lg transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2">
+        NỘP BÀI TRẮC NGHIỆM
+      </button>
+    </div>
+  </div>
+
+  <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen pt-24 pb-40">
     {(!parts || parts.length === 0) ? (
       <div class="text-center py-20 bg-white rounded-3xl border border-red-200 shadow-sm">
-        <div class="text-6xl mb-4">🚨</div>
-        <h1 class="text-3xl font-bold text-red-500 mb-4">LỖI DỮ LIỆU!</h1>
-        <p class="text-lg text-slate-600">Không tìm thấy nội dung cho mã đề: <strong class="text-slate-900">{ma_de}</strong></p>
-        <p class="mt-4 text-sm text-slate-500">Mã đề này không tồn tại trong Google Sheets hoặc file CSV bị lỗi tải.</p>
-        <a href="/english-lab/cambridge/tests" class="inline-block mt-8 px-6 py-3 bg-teal-600 text-white rounded-full font-bold shadow-md hover:bg-teal-700">← Quay lại danh sách</a>
+        <div class="text-6xl mb-4">🚨</div><h1 class="text-3xl font-bold text-red-500 mb-4">LỖI DỮ LIỆU!</h1>
+        <p class="text-lg text-slate-600">Không tìm thấy mã đề: <strong class="text-slate-900">{ma_de}</strong></p>
       </div>
     ) : (
       <div>
         <div class="text-center mb-16">
-          <span class="bg-teal-100 text-teal-800 font-bold px-4 py-1.5 rounded-full text-sm tracking-widest uppercase mb-4 inline-block">
-            Cambridge Assessment
-          </span>
           <h1 class="text-4xl md:text-5xl font-black text-slate-900 mt-4 mb-4">{tenHienThi}</h1>
         </div>
 
         {parts.map((p) => (
-          <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-12 transition-shadow hover:shadow-md">
-            <div class="bg-slate-800 px-8 py-5">
-              <h2 class="text-xl font-bold text-white">{p.Part}</h2>
+          <section class="mb-20">
+            <div class="bg-slate-800 px-8 py-5 rounded-t-3xl border-b-4 border-teal-500 shadow-lg">
+              <h2 class="text-2xl font-bold text-white">{p.Part}</h2>
             </div>
-            
-            <div class="p-8 cambridge-content" set:html={p.Noi_Dung} />
 
-            <div class="bg-teal-50/50 p-6 border-t border-slate-100">
-              <details class="group cursor-pointer">
-                <summary class="font-bold text-teal-700 flex items-center select-none bg-white border border-teal-100 px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all w-max">
-                  <span class="mr-2">💡</span> Xem Đáp Án / Bài Mẫu
-                  <span class="ml-4 group-open:rotate-180 transition-transform">▼</span>
-                </summary>
-                <div class="mt-6 p-6 bg-white border border-teal-100 rounded-2xl text-slate-800 font-medium whitespace-pre-line leading-relaxed shadow-inner">
-                  {p.Dap_An}
-                </div>
-              </details>
+            <div class="grid grid-cols-1 md:grid-cols-[1.5fr,1fr] gap-0 border-x border-b border-slate-200 rounded-b-3xl bg-white overflow-hidden">
+              <div class="p-8 border-r border-slate-100 cambridge-scraped-content" data-part={p.Part} set:html={p.Noi_Dung} />
+              
+              <div class="p-8 bg-slate-50/50">
+                <h3 class="font-extrabold text-xl text-slate-800 mb-6 pb-4 border-b border-slate-200">Phiếu Trả Lời</h3>
+                
+                {p.parsedAnswers.isWriting ? (
+                  <div class="writing-section">
+                    <textarea class="w-full h-64 p-5 rounded-2xl border-2 border-slate-200 focus:border-teal-500 text-slate-700 text-lg mb-4" placeholder="Nhập bài viết của bạn vào đây (Tối thiểu 15 từ)..."></textarea>
+                    <button class="ai-grade-btn w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl transition-all shadow-md">
+                      ✨ CHẤM ĐIỂM WRITING BẰNG AI
+                    </button>
+                    
+                    <div class="ai-result-box hidden mt-6 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                      <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-xl">🤖</div>
+                        <div>
+                          <h4 class="font-black text-slate-800">Learn Lab AI Evaluator</h4>
+                          <p class="text-xs font-bold text-teal-600 uppercase">Chuẩn Cambridge A2 Key</p>
+                        </div>
+                      </div>
+                      
+                      <div class="space-y-3">
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                          <div><span class="font-bold text-sm">🎯 Content (Nội dung)</span></div>
+                          <span class="font-black text-teal-600 text-lg score-content">--/5</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                          <div><span class="font-bold text-sm">🔗 Organisation (Bố cục)</span></div>
+                          <span class="font-black text-teal-600 text-lg score-org">--/5</span>
+                        </div>
+                        <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                          <div><span class="font-bold text-sm">🗣️ Language (Ngôn từ)</span></div>
+                          <span class="font-black text-teal-600 text-lg score-lang">--/5</span>
+                        </div>
+                      </div>
+
+                      <div class="mt-4 p-4 bg-teal-50/50 rounded-xl border border-teal-100">
+                        <p class="text-sm font-bold text-teal-800 mb-2">Nhận xét chi tiết:</p>
+                        <p class="text-sm text-teal-900 leading-relaxed ai-feedback"></p>
+                      </div>
+                      <div class="mt-6">
+                        <p class="text-sm font-bold text-slate-400 mb-2">Bài mẫu (Core Answer):</p>
+                        <div class="p-4 bg-slate-100 rounded-xl text-slate-600 font-mono text-sm">{p.parsedAnswers.sampleText}</div>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {p.parsedAnswers.questions.map(q => (
+                      <div class="question-item relative bg-white p-4 rounded-2xl border border-slate-200 flex flex-col gap-3" data-ans={q.ans.toUpperCase()}>
+                        <div class="flex justify-between items-center">
+                          <span class="font-black text-slate-800 text-lg">Câu {q.num}</span>
+                          <span class="correct-badge hidden text-xs font-bold px-2 py-1 rounded-md text-white"></span>
+                        </div>
+                        {q.isSingleChar ? (
+                          <div class="flex gap-3">
+                            {['A', 'B', 'C'].map(opt => (
+                              <label class="cursor-pointer flex-1">
+                                <input type="radio" name={`q-${p.Part}-${q.num}`} value={opt} class="hidden peer" />
+                                <div class="w-full py-3 flex items-center justify-center rounded-xl border-2 border-slate-200 peer-checked:border-teal-500 peer-checked:bg-teal-50 peer-checked:text-teal-700 font-black text-slate-400 transition-all option-box">
+                                  {opt}
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                        ) : (
+                          <input type="text" class="user-answer-text w-full h-12 px-4 font-bold rounded-xl border-2 border-slate-200 focus:border-teal-500 bg-slate-50" placeholder="..." />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </section>
         ))}
@@ -72,19 +155,139 @@ const tenHienThi = correctKey ? correctKey.replace(/-/g, ' ').toUpperCase() : "B
   </main>
 </Layout>
 
+<script>
+  // Chấm Trắc Nghiệm
+  const submitBtn = document.getElementById('submit-test-btn');
+  const scoreDisplay = document.getElementById('score-display');
+  const scoreText = document.getElementById('score-text');
+  
+  if(submitBtn) {
+    submitBtn.addEventListener('click', () => {
+      const questionItems = document.querySelectorAll('.question-item');
+      let totalQuestions = questionItems.length;
+      let correctCount = 0;
+
+      if(totalQuestions === 0) return;
+
+      questionItems.forEach(item => {
+        const correctAns = item.getAttribute('data-ans').trim();
+        const badge = item.querySelector('.correct-badge');
+        let userAns = '';
+        let isCorrect = false;
+
+        item.classList.remove('border-green-400', 'border-red-400', 'bg-green-50', 'bg-red-50');
+        item.querySelectorAll('.option-box').forEach(box => box.classList.remove('bg-green-100', 'border-green-500', 'text-green-700', 'bg-red-100', 'border-red-500', 'text-red-700'));
+
+        const radioInput = item.querySelector('input[type="radio"]:checked');
+        const textInput = item.querySelector('.user-answer-text');
+
+        if (radioInput) {
+          userAns = radioInput.value.toUpperCase();
+          const selectedBox = radioInput.nextElementSibling;
+          if (userAns === correctAns) {
+            isCorrect = true;
+            selectedBox.classList.add('bg-green-100', 'border-green-500', 'text-green-700');
+          } else {
+            selectedBox.classList.add('bg-red-100', 'border-red-500', 'text-red-700');
+          }
+        } else if (textInput) {
+          userAns = textInput.value.trim().toUpperCase();
+          textInput.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50');
+          if (userAns === correctAns) {
+            isCorrect = true;
+            textInput.classList.add('border-green-500', 'bg-green-50');
+          } else {
+            textInput.classList.add('border-red-500', 'bg-red-50');
+          }
+        }
+
+        if (isCorrect) {
+          correctCount++;
+          item.classList.add('border-green-400', 'bg-green-50/50');
+          badge.textContent = "ĐÚNG";
+          badge.classList.remove('hidden', 'bg-red-500');
+          badge.classList.add('bg-green-500');
+        } else {
+          item.classList.add('border-red-400', 'bg-red-50/50');
+          badge.textContent = `SAI (Đ/Án: ${correctAns})`;
+          badge.classList.remove('hidden', 'bg-green-500');
+          badge.classList.add('bg-red-500');
+        }
+      });
+
+      scoreDisplay.textContent = correctCount;
+      scoreDisplay.classList.add('bg-teal-500', 'text-white');
+      scoreDisplay.classList.remove('bg-slate-100', 'text-slate-800');
+      scoreText.innerHTML = `Đã đúng <strong>${correctCount}/${totalQuestions}</strong> câu trắc nghiệm.`;
+      submitBtn.textContent = "LÀM LẠI BÀI";
+      submitBtn.classList.replace('bg-teal-600', 'bg-slate-800');
+    });
+  }
+
+  // Chấm AI
+  const aiBtns = document.querySelectorAll('.ai-grade-btn');
+  aiBtns.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const container = e.target.closest('.writing-section');
+      const textarea = container.querySelector('textarea');
+      const resultBox = container.querySelector('.ai-result-box');
+      const originalText = btn.innerHTML;
+      const userText = textarea.value.trim();
+      const wordCount = userText.split(/\s+/).filter(w => w.length > 0).length;
+
+      if(wordCount < 15) {
+        alert(`Sếp viết mới có ${wordCount} từ. Đề yêu cầu tối thiểu 25-35 từ. Hãy viết dài hơn để AI phân tích chuẩn xác nhé!`);
+        return;
+      }
+
+      btn.innerHTML = `ĐANG PHÂN TÍCH THEO CHUẨN A2...`;
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/api/grade-writing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userText: userText, partName: "Cambridge Writing" })
+        });
+        const data = await response.json();
+
+        resultBox.querySelector('.score-content').textContent = `${data.content}/5`;
+        resultBox.querySelector('.score-org').textContent = `${data.organisation}/5`;
+        resultBox.querySelector('.score-lang').textContent = `${data.language}/5`;
+        resultBox.querySelector('.ai-feedback').innerHTML = data.feedback.replace(/\n/g, '<br/>');
+
+        resultBox.classList.remove('hidden');
+        btn.classList.add('hidden'); 
+      } catch (err) {
+        alert("Lỗi AI: " + err.message);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    });
+  });
+</script>
+
 <style is:global>
-  .cambridge-content { font-family: 'Inter', system-ui, sans-serif; }
-  .cambridge-content .et_pb_row { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 2rem; }
-  .cambridge-content .et_pb_column { flex: 1; min-width: 0; }
-  .cambridge-content .et_pb_column_2_5 { flex: 0 0 50px; font-size: 1.25rem; color: #0f766e; }
-  .cambridge-content .et_pb_column_3_5 { flex: 1; }
-  .cambridge-content table { width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 0.75rem; overflow: hidden; border: 1px solid #e2e8f0; margin: 2rem 0; }
-  .cambridge-content td { padding: 1.25rem 1.5rem; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: middle; }
-  .cambridge-content tr:last-child td { border-bottom: none; }
-  .cambridge-content td:last-child { border-right: none; }
-  .cambridge-content tr:nth-child(even) { background-color: #f8fafc; }
-  .cambridge-content p { margin-bottom: 1.25rem; line-height: 1.8; color: #334155; font-size: 1.05rem; }
-  .cambridge-content strong { color: #0f172a; font-weight: 700; }
-  .cambridge-content img { max-width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); margin: 2rem auto; display: block; }
-  .cambridge-content .et_pb_text_align_center { text-align: center; }
+  /* --- ĐẬP BỎ CẤU TRÚC RÁC CỦA DIVI - GIẢI PHÓNG KHÔNG GIAN --- */
+  .cambridge-scraped-content { font-family: 'Inter', system-ui, sans-serif; color: #334155; font-size: 1.1rem; line-height: 1.8; }
+  .cambridge-scraped-content .et_pb_section { display: none !important; padding: 0 !important; margin: 0 !important; }
+  .cambridge-scraped-content .et_pb_section:first-child, .cambridge-scraped-content .et_pb_section:nth-child(2) { display: block !important; border: none !important; box-shadow: none !important; }
+  
+  .cambridge-scraped-content .et_pb_row { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 0 1.5rem 0 !important; }
+  .cambridge-scraped-content [class*="et_pb_column"] { display: block !important; width: 100% !important; max-width: 100% !important; float: none !important; padding: 0 !important; margin: 0 0 1rem 0 !important; }
+
+  /* --- CĂN CHỈNH PART 1 --- */
+  [data-part*="Part 1"] p[style*="center"], [data-part*="Part 1"] .et_pb_text_align_center {
+    border: 2px solid #1e293b !important; padding: 1.5rem !important; border-radius: 8px !important; font-weight: bold !important; margin: 1.5rem 0 !important; background: #fff !important;
+  }
+  [data-part*="Part 1"] p:contains('A '), [data-part*="Part 1"] p:contains('B '), [data-part*="Part 1"] p:contains('C ') {
+    background: #f8fafc !important; padding: 1rem !important; border-radius: 8px !important; border: 1px solid #e2e8f0 !important; display: none !important; /* Ẩn đáp án rác bên trái vì bên phải đã có nút bấm */
+  }
+
+  /* --- STYLE CƠ BẢN --- */
+  .cambridge-scraped-content h3 { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem; }
+  .cambridge-scraped-content p { margin-bottom: 1rem !important; width: 100% !important; max-width: 100% !important; white-space: normal !important; word-wrap: break-word !important; }
+  .cambridge-scraped-content strong { color: #0f172a; font-weight: 700; }
+  .cambridge-scraped-content img { max-width: 100%; height: auto; border-radius: 12px; margin: 1.5rem auto; display: block; }
+  .cambridge-scraped-content [style*="font-family: Arial"] { font-family: 'Georgia', serif !important; background-color: #f1f5f9 !important; padding: 2.5rem !important; border-radius: 16px !important; border: 1px solid #e2e8f0 !important; display: block !important; width: 100% !important; }
 </style>
