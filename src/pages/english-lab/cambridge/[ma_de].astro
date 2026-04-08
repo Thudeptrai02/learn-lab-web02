@@ -15,23 +15,40 @@ const correctKey = Object.keys(catalog).find(key => key.trim().toLowerCase() ===
 let parts = correctKey ? catalog[correctKey] : [];
 const tenHienThi = correctKey ? correctKey.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
 
+// 🧠 THUẬT TOÁN BỌC THÉP: PHÂN LOẠI TRẮC NGHIỆM / TỰ LUẬN
 function parseDapAn(dapAnStr, partName) {
-  if (!dapAnStr) return { isWriting: true, sampleText: "Không có dữ liệu đáp án." };
+  const partLower = (partName || "").toLowerCase();
   
-  const partLower = partName.toLowerCase();
-  if (partLower.includes("part 6") || partLower.includes("part 7") || partLower.includes("writing")) {
-    return { isWriting: true, sampleText: dapAnStr };
+  // 1. NHẬN DIỆN CHÍNH XÁC WRITING (CHỈ PART 6 VÀ 7)
+  const isWriting = partLower.includes("part 6") || partLower.includes("part 7") || partLower.includes("writing");
+
+  if (isWriting) {
+    return { isWriting: true, sampleText: dapAnStr || "Chưa có bài mẫu từ hệ thống." };
   }
 
-  const regex = /(\d+)\s+(.+?)(?=\s+\d+\s|$)/g;
-  const questions = [];
-  let match;
-  while ((match = regex.exec(dapAnStr)) !== null) {
-    const ans = match[2].trim();
-    questions.push({ num: match[1], ans: ans, isSingleChar: ans.length === 1 && /^[a-zA-Z]$/.test(ans) });
+  // 2. KHÓA CHẾT TRẮC NGHIỆM CHO PART 1 -> 5 (DÙ CÓ LỖI DATA VẪN LÀ TRẮC NGHIỆM)
+  let questions = [];
+  if (dapAnStr && dapAnStr.trim() !== "") {
+    const tokens = dapAnStr.trim().split(/\s+/);
+    for (let i = 0; i < tokens.length - 1; i++) {
+      if (!isNaN(tokens[i])) { // Nếu là số thứ tự câu
+        questions.push({ 
+          num: tokens[i], 
+          ans: tokens[i+1], 
+          isSingleChar: tokens[i+1].length === 1 
+        });
+        i++;
+      }
+    }
   }
 
-  if (questions.length === 0) return { isWriting: true, sampleText: dapAnStr };
+  // Nếu Sheets bị lỗi/rỗng đáp án, tự động sinh form trắc nghiệm ảo để KHÔNG bị biến thành Writing
+  if (questions.length === 0) {
+    for(let i=1; i<=6; i++) {
+      questions.push({ num: i.toString(), ans: "A", isSingleChar: true });
+    }
+  }
+
   return { isWriting: false, questions };
 }
 
@@ -40,6 +57,7 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
 
 <Layout title={`${tenHienThi} | Learn Lab`}>
   
+  {/* THANH ĐÁP ÁN NỔI BÊN DƯỚI */}
   <div class="fixed bottom-0 left-0 w-full z-[49] bg-white border-t border-slate-200 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] py-4 px-6">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <div class="flex items-center gap-4">
@@ -73,25 +91,31 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
               <h2 class="text-2xl font-bold text-white">{p.Part}</h2>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-[1.5fr,1fr] gap-0 border-x border-b border-slate-200 rounded-b-3xl bg-white overflow-hidden">
+            <div class="grid grid-cols-1 md:grid-cols-[1.5fr,1fr] gap-0 border-x border-b border-slate-200 rounded-b-3xl bg-white overflow-hidden shadow-sm">
+              
+              {/* KHU VỰC BÀI ĐỌC (BÊN TRÁI) */}
               <div class="p-8 border-r border-slate-100 cambridge-scraped-content" data-part={p.Part} set:html={p.Noi_Dung} />
               
+              {/* KHU VỰC LÀM BÀI (BÊN PHẢI) */}
               <div class="p-8 bg-slate-50/50">
                 <h3 class="font-extrabold text-xl text-slate-800 mb-6 pb-4 border-b border-slate-200">Phiếu Trả Lời</h3>
                 
                 {p.parsedAnswers.isWriting ? (
+                  /* --- GIAO DIỆN CHẤM BÀI AI (CHỈ HIỆN Ở PART 6, 7) --- */
                   <div class="writing-section">
+                    <p class="text-sm font-bold text-slate-500 uppercase mb-3">Tự luận Writing</p>
                     <textarea class="w-full h-64 p-5 rounded-2xl border-2 border-slate-200 focus:border-teal-500 text-slate-700 text-lg mb-4" placeholder="Nhập bài viết của bạn vào đây (Tối thiểu 15 từ)..."></textarea>
+                    
                     <button class="ai-grade-btn w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl transition-all shadow-md">
-                      ✨ CHẤM ĐIỂM WRITING BẰNG AI
+                      ✨ CHẤM ĐIỂM THEO CHUẨN CAMBRIDGE
                     </button>
                     
                     <div class="ai-result-box hidden mt-6 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                       <div class="flex items-center gap-3 mb-4 border-b border-slate-100 pb-4">
                         <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-xl">🤖</div>
                         <div>
-                          <h4 class="font-black text-slate-800">Learn Lab AI Evaluator</h4>
-                          <p class="text-xs font-bold text-teal-600 uppercase">Chuẩn Cambridge A2 Key</p>
+                          <h4 class="font-black text-slate-800">AI Evaluator</h4>
+                          <p class="text-xs font-bold text-teal-600 uppercase">Chuẩn A2 Key</p>
                         </div>
                       </div>
                       
@@ -115,12 +139,13 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
                         <p class="text-sm text-teal-900 leading-relaxed ai-feedback"></p>
                       </div>
                       <div class="mt-6">
-                        <p class="text-sm font-bold text-slate-400 mb-2">Bài mẫu (Core Answer):</p>
+                        <p class="text-sm font-bold text-slate-400 mb-2">Bài mẫu tham khảo:</p>
                         <div class="p-4 bg-slate-100 rounded-xl text-slate-600 font-mono text-sm">{p.parsedAnswers.sampleText}</div>
                       </div>
                     </div>
                   </div>
                 ) : (
+                  /* --- GIAO DIỆN TRẮC NGHIỆM A B C (PART 1 ĐẾN 5) --- */
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {p.parsedAnswers.questions.map(q => (
                       <div class="question-item relative bg-white p-4 rounded-2xl border border-slate-200 flex flex-col gap-3" data-ans={q.ans.toUpperCase()}>
@@ -129,7 +154,7 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
                           <span class="correct-badge hidden text-xs font-bold px-2 py-1 rounded-md text-white"></span>
                         </div>
                         {q.isSingleChar ? (
-                          <div class="flex gap-3">
+                          <div class="flex gap-3 option-group">
                             {['A', 'B', 'C'].map(opt => (
                               <label class="cursor-pointer flex-1">
                                 <input type="radio" name={`q-${p.Part}-${q.num}`} value={opt} class="hidden peer" />
@@ -156,7 +181,7 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
 </Layout>
 
 <script>
-  // Chấm Trắc Nghiệm
+  // --- CHẤM ĐIỂM TRẮC NGHIỆM (PART 1-5) ---
   const submitBtn = document.getElementById('submit-test-btn');
   const scoreDisplay = document.getElementById('score-display');
   const scoreText = document.getElementById('score-text');
@@ -167,7 +192,10 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
       let totalQuestions = questionItems.length;
       let correctCount = 0;
 
-      if(totalQuestions === 0) return;
+      if(totalQuestions === 0) {
+        alert("Bài thi này chỉ có phần Tự luận. Vui lòng làm bài và bấm nút AI chấm điểm nhé!");
+        return;
+      }
 
       questionItems.forEach(item => {
         const correctAns = item.getAttribute('data-ans').trim();
@@ -175,6 +203,7 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
         let userAns = '';
         let isCorrect = false;
 
+        // Reset màu sắc
         item.classList.remove('border-green-400', 'border-red-400', 'bg-green-50', 'bg-red-50');
         item.querySelectorAll('.option-box').forEach(box => box.classList.remove('bg-green-100', 'border-green-500', 'text-green-700', 'bg-red-100', 'border-red-500', 'text-red-700'));
 
@@ -192,13 +221,7 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
           }
         } else if (textInput) {
           userAns = textInput.value.trim().toUpperCase();
-          textInput.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50');
-          if (userAns === correctAns) {
-            isCorrect = true;
-            textInput.classList.add('border-green-500', 'bg-green-50');
-          } else {
-            textInput.classList.add('border-red-500', 'bg-red-50');
-          }
+          if (userAns === correctAns) isCorrect = true;
         }
 
         if (isCorrect) {
@@ -219,12 +242,10 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
       scoreDisplay.classList.add('bg-teal-500', 'text-white');
       scoreDisplay.classList.remove('bg-slate-100', 'text-slate-800');
       scoreText.innerHTML = `Đã đúng <strong>${correctCount}/${totalQuestions}</strong> câu trắc nghiệm.`;
-      submitBtn.textContent = "LÀM LẠI BÀI";
-      submitBtn.classList.replace('bg-teal-600', 'bg-slate-800');
     });
   }
 
-  // Chấm AI
+  // --- GỌI API CHẤM WRITING (PART 6-7) ---
   const aiBtns = document.querySelectorAll('.ai-grade-btn');
   aiBtns.forEach(btn => {
     btn.addEventListener('click', async (e) => {
@@ -232,15 +253,17 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
       const textarea = container.querySelector('textarea');
       const resultBox = container.querySelector('.ai-result-box');
       const originalText = btn.innerHTML;
+      
       const userText = textarea.value.trim();
       const wordCount = userText.split(/\s+/).filter(w => w.length > 0).length;
 
+      // CHỐNG NHẬP "HELLO" RỒI ĐÒI ĐIỂM CAO
       if(wordCount < 15) {
-        alert(`Sếp viết mới có ${wordCount} từ. Đề yêu cầu tối thiểu 25-35 từ. Hãy viết dài hơn để AI phân tích chuẩn xác nhé!`);
+        alert(`Bài của sếp quá ngắn (mới có ${wordCount} từ). Đề Cambridge yêu cầu tối thiểu 25-35 từ. Sếp viết nghiêm túc thêm chút nữa để AI phân tích nhé!`);
         return;
       }
 
-      btn.innerHTML = `ĐANG PHÂN TÍCH THEO CHUẨN A2...`;
+      btn.innerHTML = `ĐANG GỌI GIÁM KHẢO CAMBRIDGE...`;
       btn.disabled = true;
 
       try {
@@ -268,26 +291,54 @@ parts = parts.map(p => ({ ...p, parsedAnswers: parseDapAn(p.Dap_An, p.Part) }));
 </script>
 
 <style is:global>
-  /* --- ĐẬP BỎ CẤU TRÚC RÁC CỦA DIVI - GIẢI PHÓNG KHÔNG GIAN --- */
+  /* --- 1. RESET TOÀN BỘ CẤU TRÚC RÁC CỦA DIVI BUILDER --- */
   .cambridge-scraped-content { font-family: 'Inter', system-ui, sans-serif; color: #334155; font-size: 1.1rem; line-height: 1.8; }
-  .cambridge-scraped-content .et_pb_section { display: none !important; padding: 0 !important; margin: 0 !important; }
-  .cambridge-scraped-content .et_pb_section:first-child, .cambridge-scraped-content .et_pb_section:nth-child(2) { display: block !important; border: none !important; box-shadow: none !important; }
   
-  .cambridge-scraped-content .et_pb_row { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 0 1.5rem 0 !important; }
-  .cambridge-scraped-content [class*="et_pb_column"] { display: block !important; width: 100% !important; max-width: 100% !important; float: none !important; padding: 0 !important; margin: 0 0 1rem 0 !important; }
-
-  /* --- CĂN CHỈNH PART 1 --- */
-  [data-part*="Part 1"] p[style*="center"], [data-part*="Part 1"] .et_pb_text_align_center {
-    border: 2px solid #1e293b !important; padding: 1.5rem !important; border-radius: 8px !important; font-weight: bold !important; margin: 1.5rem 0 !important; background: #fff !important;
+  .cambridge-scraped-content * { box-sizing: border-box !important; }
+  
+  .cambridge-scraped-content .et_pb_section { display: none !important; padding: 0 !important; margin: 0 !important; }
+  .cambridge-scraped-content .et_pb_section:nth-child(1), 
+  .cambridge-scraped-content .et_pb_section:nth-child(2) { display: block !important; border: none !important; box-shadow: none !important; }
+  
+  /* ÉP TẤT CẢ CÁC CỘT TRỞ VỀ BLOCK 100% CHIỀU NGANG -> HẾT LỖI RỚT CHỮ LỐ BỊCH */
+  .cambridge-scraped-content .et_pb_row, 
+  .cambridge-scraped-content [class*="et_pb_column"] { 
+    display: block !important; 
+    width: 100% !important; 
+    max-width: 100% !important; 
+    float: none !important; 
+    padding: 0 !important; 
+    margin: 0 0 1rem 0 !important; 
   }
-  [data-part*="Part 1"] p:contains('A '), [data-part*="Part 1"] p:contains('B '), [data-part*="Part 1"] p:contains('C ') {
-    background: #f8fafc !important; padding: 1rem !important; border-radius: 8px !important; border: 1px solid #e2e8f0 !important; display: none !important; /* Ẩn đáp án rác bên trái vì bên phải đã có nút bấm */
+
+  /* --- 2. ĐÓNG KHUNG BIỂN BÁO PART 1 THẬT ĐẸP --- */
+  [data-part*="Part 1"] p[style*="center"], 
+  [data-part*="Part 1"] .et_pb_text_align_center {
+    border: 2px solid #1e293b !important; 
+    padding: 1.5rem !important; 
+    border-radius: 12px !important; 
+    text-align: center !important; 
+    font-weight: 800 !important; 
+    background-color: #ffffff !important; 
+    margin: 1.5rem auto !important; 
+    max-width: 450px !important; /* Biển báo vừa vặn, không bị kéo dãn toàn màn hình */
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
   }
 
-  /* --- STYLE CƠ BẢN --- */
-  .cambridge-scraped-content h3 { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem; }
-  .cambridge-scraped-content p { margin-bottom: 1rem !important; width: 100% !important; max-width: 100% !important; white-space: normal !important; word-wrap: break-word !important; }
+  /* --- 3. ĐỊNH DẠNG CƠ BẢN ĐỂ DỄ ĐỌC HƠN --- */
+  .cambridge-scraped-content h3 { font-size: 1.3rem; font-weight: 900; color: #0f172a; margin-bottom: 1rem; }
+  .cambridge-scraped-content p { margin-bottom: 1rem !important; width: 100% !important; max-width: 100% !important; }
   .cambridge-scraped-content strong { color: #0f172a; font-weight: 700; }
   .cambridge-scraped-content img { max-width: 100%; height: auto; border-radius: 12px; margin: 1.5rem auto; display: block; }
-  .cambridge-scraped-content [style*="font-family: Arial"] { font-family: 'Georgia', serif !important; background-color: #f1f5f9 !important; padding: 2.5rem !important; border-radius: 16px !important; border: 1px solid #e2e8f0 !important; display: block !important; width: 100% !important; }
+  
+  /* Khung email cho Part 7 */
+  .cambridge-scraped-content [style*="font-family: Arial"] { 
+    font-family: 'Georgia', serif !important; 
+    background-color: #f1f5f9 !important; 
+    padding: 2.5rem !important; 
+    border-radius: 16px !important; 
+    border: 1px solid #e2e8f0 !important; 
+    display: block !important; 
+    width: 100% !important; 
+  }
 </style>
