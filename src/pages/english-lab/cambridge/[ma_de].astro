@@ -2,39 +2,43 @@
 import Layout from '../../../layouts/Layout.astro';
 import { getCambridgeData } from '../../../lib/cambridge.js';
 
-// 1. HÀM CỐT LÕI CỦA ASTRO: Tạo trang và truyền dữ liệu
+// 1. TỰ ĐỘNG SINH ĐƯỜNG DẪN BẰNG ID (Copy y hệt triết lý TOEIC của sếp)
 export async function getStaticPaths() {
-  // Gọi file lib để kéo trọn bộ đề từ Google Sheets
-  const allData = await getCambridgeData();
-  
-  // Astro sẽ dựa vào danh sách này để tạo ra các trang con
-  return Object.keys(allData).map((maDeKey) => {
-    return {
-      params: { ma_de: maDeKey.trim() }, // Tạo link (VD: /KET-A2...)
-      props: { parts: allData[maDeKey] } // 📦 QUAN TRỌNG: Gói nguyên bộ câu hỏi gửi thẳng vào trong trang!
-    };
-  });
+  const catalog = await getCambridgeData();
+  return Object.keys(catalog).map(id => ({ params: { ma_de: id.trim() } }));
 }
 
-// 2. NHẬN DỮ LIỆU
+// 2. NHẬN ID TỪ THANH ĐỊA CHỈ
 const { ma_de } = Astro.params;
-const { parts } = Astro.props; // Mở gói hành lý ra xài
 
-const tenHienThi = ma_de ? ma_de.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
+// 3. KÉO DATA LẠI TỪ SHEET (Khắc phục lỗi SSR của Astro)
+const catalog = await getCambridgeData();
+
+// Thuật toán quét và dò tìm ID không phân biệt hoa thường/dấu cách
+const cleanUrl = ma_de ? ma_de.trim().toLowerCase() : "";
+const correctKey = Object.keys(catalog).find(
+  key => key.trim().toLowerCase() === cleanUrl
+);
+
+// Móc nội dung của đề thi tương ứng ra
+const parts = correctKey ? catalog[correctKey] : [];
+
+const tenHienThi = correctKey ? correctKey.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
 ---
 
 <Layout title={`${tenHienThi} | Learn Lab Cambridge`}>
   <main class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen pt-24">
     
-    {!parts || parts.length === 0 ? (
+    {(!parts || parts.length === 0) ? (
       <div class="text-center py-20 bg-white rounded-3xl border border-red-200 shadow-sm">
         <div class="text-6xl mb-4">🚨</div>
         <h1 class="text-3xl font-bold text-red-500 mb-4">LỖI DỮ LIỆU!</h1>
         <p class="text-lg text-slate-600">Không tìm thấy nội dung cho mã đề: <strong class="text-slate-900">{ma_de}</strong></p>
-        <a href="/english-lab/cambridge" class="inline-block mt-8 px-6 py-3 bg-teal-600 text-white rounded-full font-bold">← Quay lại danh sách</a>
+        <p class="mt-4 text-sm text-slate-500">Mã đề này không tồn tại trong Google Sheets hoặc file CSV bị lỗi tải.</p>
+        <a href="/english-lab/cambridge/tests" class="inline-block mt-8 px-6 py-3 bg-teal-600 text-white rounded-full font-bold shadow-md hover:bg-teal-700">← Quay lại danh sách</a>
       </div>
     ) : (
-      <>
+      <div>
         <div class="text-center mb-16">
           <span class="bg-teal-100 text-teal-800 font-bold px-4 py-1.5 rounded-full text-sm tracking-widest uppercase mb-4 inline-block">
             Cambridge Assessment
@@ -63,13 +67,12 @@ const tenHienThi = ma_de ? ma_de.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
             </div>
           </section>
         ))}
-      </>
+      </div>
     )}
   </main>
 </Layout>
 
 <style is:global>
-  /* --- CSS --- */
   .cambridge-content { font-family: 'Inter', system-ui, sans-serif; }
   .cambridge-content .et_pb_row { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 2rem; }
   .cambridge-content .et_pb_column { flex: 1; min-width: 0; }
