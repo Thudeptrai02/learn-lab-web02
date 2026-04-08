@@ -1,0 +1,39 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import { getCambridgeData } from '../../../lib/cambridge.js';
+
+const data = await getCambridgeData();
+const danhSachMaDe = Object.keys(data);
+---
+
+<Layout title="Cambridge Tests | Learn Lab">
+  <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-slate-50 min-h-screen pt-24">
+    
+    <div class="text-center mb-12 pt-8">
+      <span class="bg-emerald-100 text-emerald-800 font-bold px-4 py-1.5 rounded-full text-sm tracking-widest uppercase mb-4 inline-block">
+        Cambridge Assessment
+      </span>
+      <h1 class="text-4xl font-black text-slate-900 mt-4 mb-4">Kho Đề Luyện Thi</h1>
+      <p class="text-lg text-slate-500">Chọn một bài thi bên dưới để bắt đầu làm bài</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {danhSachMaDe.map((maDe) => (
+        <a href={`/english-lab/cambridge/${maDe}`} class="group bg-white rounded-3xl p-6 shadow-sm hover:shadow-xl border border-slate-200 transition-all hover:border-emerald-400 flex flex-col items-center text-center cursor-pointer relative overflow-hidden">
+          <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-6 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <h3 class="font-bold text-slate-800 text-lg group-hover:text-emerald-600 transition-colors mb-4 line-clamp-2">
+            {maDe.replace(/-/g, ' ').toUpperCase()}
+          </h3>
+          <span class="mt-auto text-sm font-bold text-emerald-700 bg-emerald-50 px-4 py-2 rounded-full group-hover:bg-emerald-600 group-hover:text-white transition-colors w-full">
+            Bắt đầu làm bài →
+          </span>
+        </a>
+      ))}
+    </div>
+    
+  </main>
+</Layout>

@@ -2,21 +2,23 @@
 import Layout from '../../../layouts/Layout.astro';
 import { getCambridgeData } from '../../../lib/cambridge.js';
 
+// 1. HÀM CỐT LÕI CỦA ASTRO: Tạo trang và truyền dữ liệu
 export async function getStaticPaths() {
-  // Lấy dữ liệu đã nhóm từ lib
-  const data = await getCambridgeData();
+  // Gọi file lib để kéo trọn bộ đề từ Google Sheets
+  const allData = await getCambridgeData();
   
-  // Tạo ra các đường link dựa trên Mã Đề
-  return Object.keys(data).map((maDe) => {
+  // Astro sẽ dựa vào danh sách này để tạo ra các trang con
+  return Object.keys(allData).map((maDeKey) => {
     return {
-      params: { ma_de: maDe }, 
-      props: { parts: data[maDe] }, 
+      params: { ma_de: maDeKey.trim() }, // Tạo link (VD: /KET-A2...)
+      props: { parts: allData[maDeKey] } // 📦 QUAN TRỌNG: Gói nguyên bộ câu hỏi gửi thẳng vào trong trang!
     };
   });
 }
 
+// 2. NHẬN DỮ LIỆU
 const { ma_de } = Astro.params;
-const { parts } = Astro.props;
+const { parts } = Astro.props; // Mở gói hành lý ra xài
 
 const tenHienThi = ma_de ? ma_de.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
 ---
@@ -28,7 +30,8 @@ const tenHienThi = ma_de ? ma_de.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
       <div class="text-center py-20 bg-white rounded-3xl border border-red-200 shadow-sm">
         <div class="text-6xl mb-4">🚨</div>
         <h1 class="text-3xl font-bold text-red-500 mb-4">LỖI DỮ LIỆU!</h1>
-        <p class="text-lg text-slate-600">Không tìm thấy nội dung cho mã đề: {ma_de}</p>
+        <p class="text-lg text-slate-600">Không tìm thấy nội dung cho mã đề: <strong class="text-slate-900">{ma_de}</strong></p>
+        <a href="/english-lab/cambridge" class="inline-block mt-8 px-6 py-3 bg-teal-600 text-white rounded-full font-bold">← Quay lại danh sách</a>
       </div>
     ) : (
       <>
@@ -40,7 +43,7 @@ const tenHienThi = ma_de ? ma_de.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
         </div>
 
         {parts.map((p) => (
-          <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-12">
+          <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-12 transition-shadow hover:shadow-md">
             <div class="bg-slate-800 px-8 py-5">
               <h2 class="text-xl font-bold text-white">{p.Part}</h2>
             </div>
@@ -66,7 +69,7 @@ const tenHienThi = ma_de ? ma_de.replace(/-/g, ' ').toUpperCase() : "BÀI THI";
 </Layout>
 
 <style is:global>
-  /* --- BỘ CSS THUẦN HÓA DIVI BUILDER --- */
+  /* --- CSS --- */
   .cambridge-content { font-family: 'Inter', system-ui, sans-serif; }
   .cambridge-content .et_pb_row { display: flex; flex-wrap: wrap; gap: 2rem; margin-bottom: 2rem; }
   .cambridge-content .et_pb_column { flex: 1; min-width: 0; }
