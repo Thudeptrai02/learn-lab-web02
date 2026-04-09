@@ -12,141 +12,208 @@ const catalog = await getCambridgeData();
 const cleanUrl = ma_de ? ma_de.trim().toLowerCase() : "";
 const correctKey = Object.keys(catalog).find(key => key.trim().toLowerCase() === cleanUrl);
 
-const parts = correctKey ? catalog[correctKey] : [];
+// Lấy dữ liệu thô từ file CSV của sếp
+const rawRows = correctKey ? catalog[correctKey] : [];
 
-// Trích xuất đáp án chuẩn để chấm điểm
+// 1. CHUẨN BỊ DỮ LIỆU TỪ CSV CỦA SẾP
+const partsGroup = {};
 const allAnswers = {};
-parts.forEach(p => {
-  const tokens = p.Dap_An.trim().split(/\s+/);
-  for (let i = 0; i < tokens.length - 1; i++) {
-    if (!isNaN(tokens[i])) { allAnswers[tokens[i]] = tokens[i+1].toUpperCase(); i++; }
-  }
+
+rawRows.forEach(row => {
+   // Xử lý Part: Dựa vào logic thông thường của đề KET hoặc cột tự định nghĩa
+   // Giả định sếp có cột "Part" trong CSV. Nếu không có, ta gộp tất cả vào "PART 1" làm mặc định.
+   const pName = row.Part ? row.Part.toUpperCase().trim() : 'TEST PART'; 
+   
+   if(!partsGroup[pName]) {
+      partsGroup[pName] = { passage: '', questions: [] };
+   }
+   
+   // Xử lý câu hỏi và đáp án
+   const qNum = row.ID ? row.ID.toString().trim() : '';
+   
+   if (qNum) {
+      partsGroup[pName].questions.push(row);
+      
+      // Lấy đáp án đúng từ cột "Correct Answer"
+      if (row['Correct Answer']) {
+         allAnswers[qNum] = row['Correct Answer'].toString().trim().toUpperCase();
+      }
+   }
 });
 ---
 
-<Layout title="Cambridge Exam | Learn Lab">
-  {/* THANH ĐIỂM DƯỚI CÙNG */}
-  <div class="fixed bottom-0 left-0 w-full z-50 bg-white border-t-2 border-slate-900 py-4 px-8 flex justify-between items-center shadow-2xl">
-    <div class="flex items-center gap-4">
-      <div id="score-val" class="w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center font-black text-2xl">--</div>
-      <div class="font-black text-slate-900 uppercase tracking-tighter">Kết quả chấm điểm</div>
+<Layout title={ma_de.replace(/-/g, ' ') + ' | Learn Lab'}>
+  
+  {/* THANH ĐIỀU KHIỂN NỘP BÀI */}
+  <div class="fixed bottom-0 left-0 w-full z-50 bg-white border-t-[3px] border-slate-900 py-3 px-4 md:px-8 flex justify-between items-center shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+    <div class="flex items-center gap-3">
+      <div id="score-val" class="w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center font-black text-xl shadow-inner">--</div>
+      <div class="font-black text-slate-900 uppercase text-sm md:text-base hidden sm:block">KẾT QUẢ BÀI LÀM</div>
     </div>
-    <button id="submit-all" class="bg-teal-600 text-white px-12 py-4 rounded-full font-black text-lg hover:scale-105 transition-transform">NỘP BÀI</button>
+    <button type="button" id="submit-btn" class="bg-teal-600 text-white px-8 md:px-12 py-3 rounded-full font-black text-sm md:text-base hover:bg-teal-700 transition-transform hover:-translate-y-1 shadow-lg tracking-wide">NỘP BÀI CHẤM ĐIỂM</button>
   </div>
 
-  <main class="max-w-4xl mx-auto py-20 px-6 pb-40">
-    <h1 class="text-5xl font-black mb-16 text-center tracking-tighter uppercase border-b-8 border-slate-900 pb-8">{ma_de.replace(/-/g, ' ')}</h1>
+  <div id="ans-data" class="hidden">{JSON.stringify(allAnswers)}</div>
 
-    {parts.map((p) => {
-      const isWriting = p.Part.toLowerCase().includes("part 6") || p.Part.toLowerCase().includes("part 7");
+  <main class="max-w-4xl mx-auto py-10 md:py-16 px-4 sm:px-6 pb-32 min-h-screen bg-slate-50 md:bg-white">
+    <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-12 text-center uppercase tracking-tighter border-b-4 border-slate-900 pb-4">{ma_de.replace(/-/g, ' ')}</h1>
+
+    {/* VÒNG LẶP RENDER TỪ DỮ LIỆU CSV */}
+    {Object.keys(partsGroup).map((partName) => {
+      const partData = partsGroup[partName];
+      const questions = partData.questions;
+
       return (
-        <section class="mb-32 exam-section" data-part={p.Part}>
-          <div class="bg-slate-900 text-white inline-block px-8 py-3 rounded-t-3xl font-black text-xl mb-0">{p.Part}</div>
-          <div class="bg-white border-4 border-slate-900 p-8 md:p-12 rounded-b-3xl rounded-tr-3xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]">
+        <section class="mb-16 md:mb-20 part-container">
+          <div class="bg-slate-900 text-white inline-block px-5 md:px-6 py-2 rounded-t-xl font-black text-base md:text-lg tracking-wider">{partName}</div>
+          <div class="bg-white border-[3px] md:border-4 border-slate-900 p-5 md:p-10 rounded-b-xl rounded-tr-xl shadow-[6px_6px_0px_0px_rgba(15,23,42,1)]">
             
-            {/* NỘI DUNG ĐỀ: SẼ ĐƯỢC JS BIẾN ĐỔI THÀNH CÁC NÚT BẤM */}
-            <div class="content-body" set:html={p.Noi_Dung} />
+            <div class="space-y-10">
+              {questions.map((q) => {
+                const isPart5 = partName.indexOf("PART 5") > -1;
+                const isWriting = partName.indexOf("PART 6") > -1 || partName.indexOf("PART 7") > -1;
 
-            {isWriting && (
-              <div class="mt-12 pt-12 border-t-4 border-slate-100">
-                <p class="font-black text-slate-400 mb-4 uppercase tracking-widest">Your Writing Answer:</p>
-                <textarea class="w-full h-64 p-8 bg-slate-50 border-4 border-slate-200 rounded-3xl text-xl outline-none focus:border-teal-500 transition-colors" placeholder="Type your story/message..."></textarea>
-                <button class="ai-btn mt-6 w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-teal-600 transition-all">✨ AI CHẤM ĐIỂM WRITING</button>
-                <div class="ai-res hidden mt-8 p-8 bg-teal-50 border-4 border-teal-200 rounded-3xl"></div>
-              </div>
-            )}
+                return (
+                  <div class="q-block border-b-2 border-slate-100 pb-8 last:border-0 last:pb-0">
+                    
+                    {/* HỘP NỘI DUNG (BIỂN BÁO / ĐOẠN VĂN MỞ ĐẦU) */}
+                    {q.Question && (
+                      <div class="mb-6">
+                        {/* Nếu là Part 1 -> Hiển thị dạng hộp viền đen (biển báo) */}
+                        {partName.indexOf("PART 1") > -1 ? (
+                           <div class="border-[1.5px] border-slate-900 p-5 rounded-md text-slate-900 font-medium text-base leading-relaxed max-w-[400px]" set:html={q.Question}></div>
+                        ) : (
+                           /* Các Part khác -> Hiển thị text bình thường */
+                           <div class="text-slate-800 text-base md:text-lg leading-relaxed font-medium" set:html={q.Question}></div>
+                        )}
+                      </div>
+                    )}
+
+                    <div class="flex items-start gap-4">
+                      {/* SỐ CÂU */}
+                      <span class="bg-slate-900 text-white w-9 h-9 flex items-center justify-center font-black rounded-lg shrink-0 text-lg shadow-sm mt-1">{q.ID}</span>
+                      
+                      <div class="flex-1 w-full">
+                        {/* KHU VỰC TRẮC NGHIỆM (A, B, C) */}
+                        {(!isPart5 && !isWriting && q['Option A']) && (
+                          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-1 w-full">
+                            {['A', 'B', 'C'].map((char) => {
+                              const optKey = 'Option ' + char;
+                              const optText = q[optKey];
+                              if (!optText) return null;
+                              
+                              return (
+                                <label class="ans-label cursor-pointer flex items-start gap-3 p-3 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 hover:border-teal-400 transition-all group w-full">
+                                  <input type="radio" name={'q-' + q.ID} value={char} data-q={q.ID} class="mt-1 w-5 h-5 flex-shrink-0 accent-teal-600 choice-radio" />
+                                  <span class="ans-text flex-1 text-slate-700 leading-snug">
+                                    <strong class="text-slate-900 mr-1">{char}.</strong> <span set:html={optText}></span>
+                                  </span>
+                                </label>
+                              )
+                            })}
+                          </div>
+                        )}
+
+                        {/* KHU VỰC ĐIỀN TỪ (PART 5) */}
+                        {isPart5 && (
+                          <div class="mt-1">
+                             <input type="text" data-q={q.ID} class="p5-input p-3 border-2 border-slate-300 rounded-lg w-full sm:w-64 uppercase font-black text-center text-lg focus:border-teal-500 outline-none shadow-inner" placeholder="..." />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                  </div>
+                )
+              })}
+            </div>
+
           </div>
         </section>
-      )
+      );
     })}
   </main>
 </Layout>
 
-<script define:vars={{ allAnswers }}>
-  // 🎯 MAGIC: BIẾN CHỮ THÀNH NÚT BẤM TRỰC TIẾP TRÊN ĐỀ
-  document.querySelectorAll('.content-body').forEach(body => {
-    let lastQ = null;
-    body.querySelectorAll('p').forEach(p => {
-      const txt = p.innerText.trim();
-      
-      // 1. Nhận diện số câu (VD: "1", "2")
-      if (/^\d+$/.test(txt)) {
-        lastQ = txt;
-        p.className = "q-num-marker font-black text-4xl mt-12 mb-6 text-slate-900 border-l-8 border-slate-900 pl-6";
-        return;
-      }
+<script is:inline>
+  const allAnswers = JSON.parse(document.getElementById('ans-data').textContent);
 
-      // 2. Nhận diện dòng đáp án (VD: "A notice", "B ...")
-      if (lastQ && /^[A-C][\s\.]/.test(txt)) {
-        const char = txt[0].toUpperCase();
-        p.className = "choice-btn cursor-pointer p-5 mb-3 rounded-2xl border-2 border-slate-100 bg-slate-50 font-bold transition-all hover:bg-white hover:border-teal-400";
-        p.setAttribute('data-q', lastQ);
-        p.setAttribute('data-opt', char);
-
-        p.onclick = () => {
-          body.querySelectorAll(`.choice-btn[data-q="${lastQ}"]`).forEach(el => el.classList.remove('active-choice'));
-          p.classList.add('active-choice');
-        };
-      }
-    });
-  });
-
-  // 📝 CHẤM ĐIỂM
-  document.getElementById('submit-all').onclick = () => {
+  document.getElementById('submit-btn').onclick = function() {
     let score = 0;
-    const choices = document.querySelectorAll('.choice-btn.active-choice');
     
-    // Reset màu
-    document.querySelectorAll('.choice-btn').forEach(el => el.classList.remove('is-correct', 'is-wrong', 'show-right'));
+    // 1. Reset màu sắc
+    document.querySelectorAll('.ans-label').forEach(function(label) {
+        label.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50');
+        const textSpan = label.querySelector('.ans-text');
+        const boldSpan = label.querySelector('strong');
+        if(textSpan) textSpan.classList.remove('text-green-700', 'text-red-600', 'line-through', 'font-bold');
+        if(boldSpan) boldSpan.classList.remove('text-green-700', 'text-red-600');
+    });
+    
+    // 2. Chấm Trắc nghiệm
+    document.querySelectorAll('.choice-radio').forEach(function(input) {
+      const q = input.getAttribute('data-q');
+      const isChecked = input.checked;
+      const isCorrectValue = input.value === allAnswers[q];
+      
+      const label = input.closest('.ans-label');
+      const textSpan = label.querySelector('.ans-text');
+      const boldSpan = label.querySelector('strong');
 
-    choices.forEach(c => {
-      const q = c.getAttribute('data-q');
-      const opt = c.getAttribute('data-opt');
-      if (opt === allAnswers[q]) { score++; c.classList.add('is-correct'); }
-      else { c.classList.add('is-wrong'); }
+      if (isChecked) {
+          if (isCorrectValue) {
+              score++;
+              label.classList.add('border-green-500', 'bg-green-50');
+              textSpan.classList.add('text-green-700', 'font-bold');
+              boldSpan.classList.add('text-green-700');
+          } else {
+              label.classList.add('border-red-500', 'bg-red-50');
+              textSpan.classList.add('text-red-600', 'line-through');
+              boldSpan.classList.add('text-red-600');
+          }
+      }
+      
+      // Luôn highlight đáp án đúng (khung viền xanh)
+      if (isCorrectValue) {
+          label.classList.add('border-green-500');
+          textSpan.classList.add('text-green-700', 'font-bold');
+          boldSpan.classList.add('text-green-700');
+      }
     });
 
-    // Hiện đáp án đúng cho các câu chưa làm hoặc làm sai
-    document.querySelectorAll('.choice-btn').forEach(c => {
-      if (c.getAttribute('data-opt') === allAnswers[c.getAttribute('data-q')]) c.classList.add('show-right');
+    // 3. Chấm Điền từ Part 5
+    document.querySelectorAll('.p5-input').forEach(function(input) {
+      const q = input.getAttribute('data-q');
+      const val = input.value.trim().toUpperCase();
+      
+      input.classList.remove('border-green-500', 'bg-green-50', 'text-green-700', 'border-red-500', 'bg-red-50', 'text-red-700');
+
+      if (val === allAnswers[q]) {
+        score++;
+        input.classList.add('border-green-500', 'bg-green-50', 'text-green-700');
+      } else {
+        input.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
+        input.value = allAnswers[q] ? allAnswers[q] : ''; 
+      }
     });
 
     document.getElementById('score-val').innerText = score;
-    document.getElementById('submit-all').innerText = "LÀM LẠI";
+    document.getElementById('submit-btn').innerText = "LÀM LẠI BÀI";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  // 🤖 AI WRITING
-  document.querySelectorAll('.ai-btn').forEach(btn => {
-    btn.onclick = async () => {
-      const container = btn.parentElement;
-      const text = container.querySelector('textarea').value;
-      const resBox = container.querySelector('.ai-res');
-      if (text.split(' ').length < 15) return alert("Viết dài tí sếp ơi!");
-
-      btn.innerText = "ĐANG CHẤM...";
-      const res = await fetch('/api/grade-writing', { method: 'POST', body: JSON.stringify({ userText: text, partName: "A2 Writing" }) });
-      const data = await res.json();
-      resBox.innerHTML = `<h4 class="font-black text-teal-700 text-2xl mb-4">SCORE: ${data.content+data.organisation+data.language}/15</h4><p class="font-bold text-teal-900">${data.feedback}</p>`;
-      resBox.classList.remove('hidden'); btn.classList.add('hidden');
-    }
-  });
 </script>
 
 <style is:global>
-  /* CHỐNG ÉP CHỮ - DÀN TRANG TỰ DO */
-  .content-body .et_pb_row, .content-body [class*="et_pb_column"] { 
-    display: block !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; margin: 0 0 1.5rem 0 !important; float: none !important;
+  /* Fix lỗi tràn chữ cho mọi nội dung được render từ CSV */
+  .q-block { 
+      overflow-wrap: break-word; 
+      word-wrap: break-word; 
   }
-  .content-body p { margin-bottom: 1rem !important; font-size: 1.2rem; line-height: 1.8; color: #334155; }
-
-  /* STYLE BIỂN BÁO PART 1 */
-  [data-part*="Part 1"] p[style*="center"], [data-part*="Part 1"] .et_pb_text_align_center {
-    border: 6px solid #000 !important; padding: 3rem !important; border-radius: 4px !important; background: #fff !important; font-weight: 900 !important; text-align: center !important; font-size: 1.5rem !important; color: #000 !important; margin: 3rem auto !important; max-width: 500px !important; text-transform: uppercase;
+  .q-block img { 
+      max-width: 100%; 
+      height: auto; 
+      margin: 1rem auto; 
+      display: block; 
+      border-radius: 8px; 
   }
-
-  /* NÚT CHỌN */
-  .active-choice { background: #111827 !important; color: #fff !important; border-color: #111827 !important; transform: translateX(10px); }
-  .is-correct.active-choice { background: #15803d !important; border-color: #15803d !important; }
-  .is-wrong.active-choice { background: #b91c1c !important; border-color: #b91c1c !important; }
-  .show-right:not(.active-choice) { border: 4px dashed #15803d !important; color: #15803d !important; }
 </style>
