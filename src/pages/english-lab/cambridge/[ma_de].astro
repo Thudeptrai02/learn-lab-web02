@@ -3,138 +3,126 @@ import Layout from '../../../layouts/Layout.astro';
 import { getCambridgeData } from '../../../lib/cambridge.js';
 
 export async function getStaticPaths() {
-  // Sếp liệt kê các mã đề muốn tạo link ở đây
-  const danhSachMaDe = ['ket-01', 'ket-02']; 
-  return danhSachMaDe.map((ma) => ({ params: { ma_de: ma } }));
+  const catalog = await getCambridgeData();
+  // Tạo đường dẫn dựa trên các mã đề có trong Sheet
+  return Object.keys(catalog).map(id => ({ params: { ma_de: id } }));
 }
 
 const { ma_de } = Astro.params;
+const catalog = await getCambridgeData();
 
-// Lấy dữ liệu từ Google Sheets thông qua lib
-let rawRows = await getCambridgeData(ma_de);
-
-// Chuẩn hóa dữ liệu nếu lib trả về Object thay vì Array
-if (rawRows && !Array.isArray(rawRows)) {
-  const cleanUrl = ma_de ? ma_de.trim().toLowerCase() : "";
-  const correctKey = Object.keys(rawRows).find(key => key.trim().toLowerCase() === cleanUrl);
-  rawRows = correctKey ? rawRows[correctKey] : Object.values(rawRows)[0] || [];
-}
+// Tìm dữ liệu không phân biệt hoa thường
+const rawRows = catalog[ma_de.toLowerCase()] || [];
 
 const partsGroup = {};
 const allAnswers = {};
 
-// GOM NHÓM DỮ LIỆU CHUẨN THEO CSV CỦA SẾP
-if (rawRows && Array.isArray(rawRows)) {
-    rawRows.forEach(row => {
-        const pName = row.Part ? row.Part.toUpperCase().trim() : 'BÀI THI';
-        if (!partsGroup[pName]) {
-            partsGroup[pName] = { passage: '', questions: [] };
-        }
-        
-        // Cột Doan_Van chứa nội dung mô tả hoặc ảnh (HTML)
-        if (row.Doan_Van && !partsGroup[pName].passage) {
-            partsGroup[pName].passage = row.Doan_Van;
-        }
-
-        if (row.So_Cau) {
-            partsGroup[pName].questions.push(row);
-            // Lưu đáp án đúng để chấm bài
-            if (row.Dap_An) {
-                allAnswers[row.So_Cau.toString().trim()] = row.Dap_An.toString().trim().toUpperCase();
-            }
-        }
-    });
-}
+rawRows.forEach(row => {
+   // Lib đã lowercase nên ta gọi row.part
+   const pName = (row.part || 'BÀI THI').toUpperCase().trim();
+   
+   if(!partsGroup[pName]) {
+      partsGroup[pName] = { passage: '', questions: [] };
+   }
+   
+   // Lấy đoạn văn / Ảnh từ cột doan_van
+   if (row.doan_van && !partsGroup[pName].passage) {
+      partsGroup[pName].passage = row.doan_van;
+   }
+   
+   const qNum = (row.so_cau || '').toString().trim();
+   if (qNum) {
+      partsGroup[pName].questions.push(row);
+      // Lấy đáp án từ cột dap_an
+      if (row.dap_an) {
+         allAnswers[qNum] = row.dap_an.toUpperCase().trim();
+      }
+   }
+});
 ---
 
-<Layout title={ma_de.replace(/-/g, ' ').toUpperCase() + ' | Learn Lab'}>
+<Layout title={ma_de.toUpperCase() + ' | Learn Lab'}>
   
   <div class="fixed bottom-0 left-0 w-full z-50 bg-white border-t-[3px] border-slate-900 py-3 px-4 md:px-8 flex justify-between items-center shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
     <div class="flex items-center gap-3">
       <div id="score-val" class="w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center font-black text-xl shadow-inner">--</div>
-      <div class="font-black text-slate-900 uppercase text-sm md:text-base hidden sm:block">KẾT QUẢ BÀI LÀM</div>
+      <div class="font-black text-slate-900 uppercase text-sm hidden sm:block">KẾT QUẢ</div>
     </div>
-    <button type="button" id="submit-btn" class="bg-teal-600 text-white px-8 md:px-12 py-3 rounded-full font-black text-sm md:text-base hover:bg-teal-700 transition-transform hover:-translate-y-1 shadow-lg tracking-wide">NỘP BÀI CHẤM ĐIỂM</button>
+    <button type="button" id="submit-btn" class="bg-teal-600 text-white px-8 md:px-12 py-3 rounded-full font-black hover:bg-teal-700 transition-all shadow-lg">NỘP BÀI CHẤM ĐIỂM</button>
   </div>
 
   <div id="ans-data" class="hidden">{JSON.stringify(allAnswers)}</div>
 
-  <main class="max-w-4xl mx-auto py-10 md:py-16 px-4 sm:px-6 pb-32 min-h-screen bg-slate-50 md:bg-white">
-    <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-12 text-center uppercase tracking-tighter border-b-4 border-slate-900 pb-4">{ma_de.replace(/-/g, ' ').toUpperCase()}</h1>
+  <main class="max-w-4xl mx-auto py-10 md:py-16 px-4 pb-32 min-h-screen">
+    <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-10 text-center uppercase border-b-4 border-slate-900 pb-4">{ma_de}</h1>
+
+    {Object.keys(partsGroup).length === 0 && (
+       <div class="text-center p-20 border-4 border-dashed rounded-2xl text-slate-400 font-bold">
+         Không tìm thấy dữ liệu. Sếp kiểm tra cột Ma_De trong Sheet nhé!
+       </div>
+    )}
 
     {Object.keys(partsGroup).map((partName) => {
       const partData = partsGroup[partName];
-      const questions = partData.questions;
-      
-      // Xác định loại Part ngay tại đây để không bị lỗi ReferenceError
       const isPart5 = partName.includes("PART 5");
       const isWriting = partName.includes("PART 6") || partName.includes("PART 7");
 
       return (
-        <section class="mb-16 md:mb-20 part-container">
-          <div class="bg-slate-900 text-white inline-block px-5 md:px-6 py-2 rounded-t-xl font-black text-base md:text-lg tracking-wider">{partName}</div>
-          <div class="bg-white border-[3px] md:border-4 border-slate-900 p-5 md:p-10 rounded-b-xl rounded-tr-xl shadow-[6px_6px_0px_0px_rgba(15,23,42,1)]">
+        <section class="mb-14 md:mb-20">
+          <div class="bg-slate-900 text-white inline-block px-5 py-2 rounded-t-xl font-black">{partName}</div>
+          <div class="bg-white border-[3px] border-slate-900 p-5 md:p-10 rounded-b-xl rounded-tr-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
             
-            {/* HIỂN THỊ ĐOẠN VĂN / ẢNH TỪ CỘT Doan_Van */}
+            {/* ĐOẠN VĂN / ẢNH */}
             {partData.passage && (
-              <div class="mb-8 p-4 md:p-6 bg-slate-50 border-2 border-slate-200 rounded-xl text-slate-800 text-base md:text-lg leading-relaxed content-area" set:html={partData.passage}></div>
+              <div class="mb-8 p-6 bg-slate-50 border-2 border-slate-200 rounded-xl text-lg leading-relaxed content-html" set:html={partData.passage}></div>
             )}
 
             <div class="space-y-10">
-              {questions.map((q) => (
-                <div class="q-block border-b-2 border-slate-50 pb-8 last:border-0 last:pb-0">
-                  
-                  {/* PART 1: Ô VUÔNG BIỂN BÁO CĂN TRÁI (Lấy từ Cau_Hoi) */}
-                  {partName.includes("PART 1") && q.Cau_Hoi && (
-                    <div class="border border-black p-5 mb-5 max-w-[380px] text-black font-normal text-base leading-relaxed bg-transparent" set:html={q.Cau_Hoi}></div>
+              {partData.questions.map((q) => (
+                <div class="q-block">
+                  {/* Ô VUÔNG PART 1 CHUẨN ẢNH */}
+                  {partName.includes("PART 1") && q.cau_hoi && (
+                    <div class="border border-black p-5 mb-5 max-w-[380px] text-base leading-relaxed bg-white" set:html={q.cau_hoi}></div>
                   )}
 
-                  <div class="flex items-start gap-3 mb-3">
-                    <span class="font-bold text-lg md:text-xl text-slate-900 pt-0.5">{q.So_Cau}.</span>
-                    {/* Không hiện lại Cau_Hoi ở Part 1 vì đã hiện trong Box, hiện ở các Part khác */}
-                    {!partName.includes("PART 1") && q.Cau_Hoi && q.Cau_Hoi !== '...' && (
-                      <span class="font-bold text-lg md:text-xl text-slate-800 pt-0.5" set:html={q.Cau_Hoi}></span>
-                    )}
+                  <div class="flex items-start gap-4">
+                    <span class="bg-slate-900 text-white w-9 h-9 flex items-center justify-center font-black rounded-lg shrink-0 mt-1">{q.so_cau}</span>
+                    
+                    <div class="flex-1">
+                      {!partName.includes("PART 1") && q.cau_hoi && q.cau_hoi !== '...' && (
+                        <div class="font-bold text-lg mb-4 text-slate-800" set:html={q.cau_hoi}></div>
+                      )}
+
+                      {/* TRẮC NGHIỆM */}
+                      {!isPart5 && !isWriting && q.a && (
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          {['a', 'b', 'c'].map((char) => (
+                            <label class="ans-label cursor-pointer flex items-start gap-3 p-3 rounded-xl border-2 border-slate-200 hover:border-teal-400 transition-all">
+                              <input type="radio" name={'q-' + q.so_cau} value={char.toUpperCase()} data-q={q.so_cau} class="mt-1 w-5 h-5 accent-teal-600 choice-radio" />
+                              <span class="ans-text flex-1">
+                                <strong class="mr-1">{char.toUpperCase()}.</strong> <span set:html={q[char]}></span>
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* ĐIỀN TỪ (PART 5) */}
+                      {isPart5 && (
+                        <input type="text" data-q={q.so_cau} class="p5-input p-3 border-2 border-slate-300 rounded-lg w-full sm:w-64 uppercase font-black text-center focus:border-teal-500 outline-none" placeholder="..." />
+                      )}
+                    </div>
                   </div>
-
-                  {/* TRẮC NGHIỆM A, B, C */}
-                  {!isPart5 && !isWriting && q.A && (
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mt-2 mb-4 w-full">
-                      {['A', 'B', 'C'].map((char) => {
-                        const optText = q[char];
-                        if (!optText) return null;
-                        return (
-                          <label class="ans-label cursor-pointer flex items-start gap-2 w-full p-1 rounded-lg transition-colors">
-                            <input type="radio" name={'q-' + q.So_Cau} value={char} data-q={q.So_Cau} class="mt-1 w-5 h-5 flex-shrink-0 accent-teal-600 choice-radio" />
-                            <span class="ans-text flex-1">
-                              <span class="font-bold">{char}.</span> <span set:html={optText}></span>
-                            </span>
-                          </label>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* ĐIỀN TỪ (PART 5) */}
-                  {isPart5 && (
-                    <div class="ml-6 mt-2 mb-4">
-                       <input type="text" data-q={q.So_Cau} class="p5-input p-2 border-2 border-slate-300 rounded-md w-full sm:w-64 uppercase font-bold text-center focus:border-teal-500 outline-none" placeholder="..." />
-                    </div>
-                  )}
-
                 </div>
               ))}
             </div>
 
-            {/* TỰ LUẬN AI (PART 6, 7) */}
+            {/* TỰ LUẬN */}
             {isWriting && (
-              <div class="mt-10 pt-10 border-t-[3px] border-slate-100 writing-area">
-                <h3 class="font-black text-slate-800 mb-4 text-base md:text-lg">Khu vực làm bài Tự Luận:</h3>
-                <textarea class="w-full h-48 md:h-56 p-4 sm:p-5 bg-slate-50 border-2 border-slate-200 rounded-xl text-base outline-none focus:border-teal-500 transition-colors shadow-inner leading-relaxed" placeholder="Type your answer here..."></textarea>
-                <button type="button" class="ai-btn mt-5 w-full bg-slate-900 text-white font-black py-4 rounded-xl hover:bg-teal-600 transition-all flex justify-center items-center gap-2 shadow-sm">
-                  <span class="text-xl">✨</span> AI CHẤM ĐIỂM
-                </button>
-                <div class="ai-res hidden mt-6 p-4 sm:p-6 bg-teal-50 border-2 border-teal-200 rounded-xl"></div>
+              <div class="mt-10 pt-10 border-t-2 border-slate-100 writing-area">
+                <textarea class="w-full h-48 p-5 bg-slate-50 border-2 border-slate-200 rounded-xl outline-none" placeholder="Nhập bài làm của bạn..."></textarea>
+                <button type="button" class="ai-btn mt-4 w-full bg-slate-900 text-white font-black py-4 rounded-xl hover:bg-teal-600 transition-all">✨ AI CHẤM ĐIỂM</button>
+                <div class="ai-res hidden mt-6 p-6 bg-teal-50 border-2 border-teal-200 rounded-xl"></div>
               </div>
             )}
           </div>
@@ -150,105 +138,60 @@ if (rawRows && Array.isArray(rawRows)) {
   document.getElementById('submit-btn').onclick = function() {
     let score = 0;
     
-    // Reset màu sắc trước khi chấm
-    document.querySelectorAll('.ans-text').forEach(function(span) {
-        span.style.removeProperty('color');
-        span.style.removeProperty('font-weight');
-        span.style.removeProperty('text-decoration');
+    document.querySelectorAll('.ans-text').forEach(el => {
+        el.style.removeProperty('color');
+        el.style.removeProperty('font-weight');
+        el.style.removeProperty('text-decoration');
     });
     
-    // Chấm trắc nghiệm
-    document.querySelectorAll('.choice-radio').forEach(function(input) {
+    document.querySelectorAll('.choice-radio').forEach(input => {
       const q = input.getAttribute('data-q');
-      const isChecked = input.checked;
-      const isCorrectValue = (input.value === allAnswers[q]);
-      
+      const isCorrectValue = input.value === allAnswers[q];
       const label = input.closest('label');
       const textSpan = label ? label.querySelector('.ans-text') : null;
 
-      if (isChecked) {
+      if (input.checked) {
           if (isCorrectValue) {
               score++;
               if (textSpan) {
-                  textSpan.style.setProperty('color', '#16a34a', 'important');
-                  textSpan.style.setProperty('font-weight', 'bold', 'important');
+                textSpan.style.setProperty('color', '#16a34a', 'important');
+                textSpan.style.setProperty('font-weight', 'bold', 'important');
               }
           } else {
               if (textSpan) {
-                  textSpan.style.setProperty('color', '#dc2626', 'important');
-                  textSpan.style.setProperty('text-decoration', 'line-through', 'important');
+                textSpan.style.setProperty('color', '#dc2626', 'important');
+                textSpan.style.setProperty('text-decoration', 'line-through', 'important');
               }
           }
       }
-      
-      // Luôn hiện đáp án đúng
       if (isCorrectValue && textSpan) {
           textSpan.style.setProperty('color', '#16a34a', 'important');
           textSpan.style.setProperty('font-weight', 'bold', 'important');
       }
     });
 
-    // Chấm Part 5 (Điền từ)
-    document.querySelectorAll('.p5-input').forEach(function(input) {
+    document.querySelectorAll('.p5-input').forEach(input => {
       const q = input.getAttribute('data-q');
       const val = input.value.trim().toUpperCase();
-      
-      input.classList.remove('border-green-500', 'bg-green-50', 'text-green-700', 'border-red-500', 'bg-red-50', 'text-red-700');
+      input.classList.remove('border-green-500', 'bg-green-50', 'border-red-500', 'bg-red-50');
 
-      if (val && val === allAnswers[q]) {
+      if (val === allAnswers[q]) {
         score++;
-        input.classList.add('border-green-500', 'bg-green-50', 'text-green-700');
+        input.classList.add('border-green-500', 'bg-green-50');
       } else {
-        input.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
-        input.value = allAnswers[q] ? allAnswers[q] : ''; 
+        input.classList.add('border-red-500', 'bg-red-50');
+        input.value = allAnswers[q] || ''; 
       }
     });
 
     document.getElementById('score-val').innerText = score;
-    document.getElementById('submit-btn').innerText = "LÀM LẠI BÀI";
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  // Logic AI chấm bài
-  document.querySelectorAll('.ai-btn').forEach(function(btn) {
-    btn.onclick = async function(e) {
-      e.preventDefault();
-      const area = btn.closest('.writing-area');
-      const text = area.querySelector('textarea').value.trim();
-      const resBox = area.querySelector('.ai-res');
-      
-      if (text.split(/\s+/).length < 5) return alert("Please write more!");
-      btn.innerHTML = 'ANALYZING...'; 
-      btn.disabled = true;
-
-      try {
-        const res = await fetch('/api/grade-writing', { method: 'POST', body: JSON.stringify({ userText: text, partName: "A2 Writing" }) });
-        let data = await res.json();
-        if (Array.isArray(data)) data = data[0];
-
-        let resHtml = '<h4 class="font-black text-teal-800 text-xl mb-4 text-center border-b-2 border-teal-200 pb-2">SCORE: ' + (data.content+data.organisation+data.language) + '/15</h4>' +
-          '<div class="grid grid-cols-3 gap-2 mb-5">' +
-            '<div class="text-center bg-white p-2 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400">CONTENT</p><p class="text-xl font-black text-teal-600">' + data.content + '/5</p></div>' +
-            '<div class="text-center bg-white p-2 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400">ORG</p><p class="text-xl font-black text-teal-600">' + data.organisation + '/5</p></div>' +
-            '<div class="text-center bg-white p-2 rounded-xl shadow-sm"><p class="text-[10px] font-bold text-slate-400">LANG</p><p class="text-xl font-black text-teal-600">' + data.language + '/5</p></div>' +
-          '</div>' +
-          '<p class="font-medium text-slate-700 text-sm bg-white p-4 rounded-xl shadow-sm leading-relaxed">' + data.feedback.replace(/\n/g, '<br/>') + '</p>';
-        
-        resBox.innerHTML = resHtml;
-        resBox.classList.remove('hidden'); btn.classList.add('hidden');
-      } catch (err) { alert("AI Service Error!"); btn.innerHTML = "RETRY"; btn.disabled = false; }
-    }
-  });
 </script>
 
 <style is:global>
-  .content-area img { 
-      max-width: 100%; 
-      height: auto; 
-      margin: 1.5rem auto; 
-      display: block; 
-      border-radius: 8px; 
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  }
+  .content-html img { max-width: 100%; height: auto; display: block; margin: 1.5rem auto; border-radius: 8px; }
   .q-block { overflow-wrap: break-word; }
+  .content-html table { width: 100% !important; border-collapse: collapse; margin: 1rem 0; }
+  .content-html td { border: 1px solid #cbd5e1; padding: 0.5rem; }
 </style>

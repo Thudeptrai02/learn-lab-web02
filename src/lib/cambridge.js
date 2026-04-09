@@ -14,33 +14,22 @@ export async function getCambridgeData() {
     parsed.data.forEach((row) => {
       const cleanRow = {};
       for (let key in row) {
+        // Biến tất cả tên cột về chữ thường để Astro dễ gọi
         const safeKey = key.replace(/[\u200B-\u200D\uFEFF]/g, '').trim().toLowerCase();
         cleanRow[safeKey] = row[key] ? row[key].toString().trim() : '';
       }
 
-      let html = cleanRow['noi_dung_html'] || '';
-      
-      // ✂️ CHIÊU CUỐI: CẮT BỎ FOOTER VÀ SECTION RÁC CỦA DIVI
-      // Thường nội dung chính kết thúc trước khi các section footer xuất hiện
-      if (html.includes('et_pb_section')) {
-        const sections = html.split('et_pb_section');
-        // Chỉ lấy 2-3 section đầu tiên (thường chứa đề bài)
-        html = sections.slice(0, 3).join('et_pb_section');
-      }
-
-      const maDe = cleanRow['ma_de'];
-      if (maDe && cleanRow['part']) {
+      const maDe = cleanRow['ma_de'] ? cleanRow['ma_de'].toLowerCase() : '';
+      if (maDe) {
         if (!groupedData[maDe]) groupedData[maDe] = [];
-        groupedData[maDe].push({ 
-          Part: cleanRow['part'], 
-          Noi_Dung: html, 
-          Dap_An: cleanRow['dap_an'] || '' 
-        });
+        // GIỮ NGUYÊN TẤT CẢ CÁC CỘT (so_cau, cau_hoi, a, b, c, doan_van...)
+        groupedData[maDe].push(cleanRow);
       }
     });
 
     return groupedData;
   } catch (err) {
+    console.error("Lỗi fetch dữ liệu từ Sheet:", err);
     return {};
   }
 }
