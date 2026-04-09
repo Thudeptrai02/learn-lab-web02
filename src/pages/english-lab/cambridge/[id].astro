@@ -1,24 +1,25 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 
+// 1. Chỉ định đây là trang tĩnh (Bắt buộc cho Astro 5)
 export const prerender = true;
 
 export async function getStaticPaths() {
+  // Quét toàn bộ file JSON trong thư mục data
   const jsonFiles = import.meta.glob('../../../data/cambridge/*.json', { eager: true });
+  
   return Object.values(jsonFiles).map((test: any) => {
     const data = test.default;
     return {
-      params: { id: String(data.test_id).trim() },
+      params: { id: data.test_id || "error" },
       props: { testData: data }
     };
   });
 }
 
-const { id } = Astro.params;
 const { testData } = Astro.props;
 
-if (!testData) return new Response("404", { status: 404 });
-
+// Chuẩn bị kho đáp án để chấm điểm (Dành cho các câu hỏi có ID)
 const allAnswers = {};
 testData.parts.forEach(p => {
   p.questions?.forEach(q => {
@@ -28,150 +29,147 @@ testData.parts.forEach(p => {
 ---
 
 <Layout title={testData.title}>
-  <header class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
-    <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-teal-500 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-teal-200">K</div>
-        <div>
-          <h1 class="text-slate-900 font-extrabold text-sm md:text-base leading-tight uppercase tracking-tight">{testData.title}</h1>
-          <p class="text-slate-400 text-[10px] font-bold tracking-widest uppercase">Cambridge Practice Lab</p>
-        </div>
-      </div>
-      
-      <div class="flex items-center gap-4">
-        <div class="hidden md:flex flex-col items-end">
-          <span id="score-text" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Score</span>
-          <div id="score-circle" class="text-2xl font-black text-teal-600 leading-none">--</div>
-        </div>
-        <button id="finish-btn" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black text-sm hover:bg-teal-600 hover:-translate-y-1 active:translate-y-0 transition-all shadow-xl shadow-slate-200 uppercase">Submit</button>
-      </div>
-    </div>
-  </header>
-
-  <main class="max-w-3xl mx-auto pt-32 pb-40 px-6">
-    <div id="ans-store" class="hidden" data-ans={JSON.stringify(allAnswers)}></div>
-
-    {testData.parts.map((part, pIdx) => (
-      <div class="mb-24 animate-in fade-in slide-in-from-bottom-8 duration-700" style={`animation-delay: ${pIdx * 100}ms`}>
-        <div class="flex items-center gap-4 mb-8">
-           <span class="text-5xl font-black text-slate-100 italic select-none">0{pIdx + 1}</span>
-           <h2 class="text-2xl font-black text-slate-900 tracking-tight uppercase">{part.part_name}</h2>
-        </div>
-
-        <div class="bg-white rounded-[2.5rem] border border-slate-100 p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.02)] transition-hover hover:shadow-2xl hover:shadow-teal-500/5 duration-500">
-          {/* ĐOẠN VĂN / ẢNH */}
-          {part.passage && (
-            <div class="mb-12 p-8 bg-slate-50/50 rounded-3xl border border-slate-100 italic text-slate-600 leading-relaxed text-lg prose prose-slate max-w-none" set:html={part.passage} />
-          )}
-
-          <div class="space-y-16">
-            {part.questions && part.questions.map((q) => (
-              <div class="question-card group">
-                <div class="flex flex-col gap-6">
-                  <div class="flex items-start gap-5">
-                    <span class="w-10 h-10 bg-slate-50 text-slate-400 group-hover:bg-teal-500 group-hover:text-white transition-colors duration-300 flex items-center justify-center rounded-2xl font-black text-lg shrink-0">
-                      {q.id}
-                    </span>
-                    <p class="text-xl font-bold text-slate-800 leading-snug pt-1" set:html={q.text}></p>
-                  </div>
-
-                  {/* TRẮC NGHIỆM BOX STYLE */}
-                  {q.a && (
-                    <div class="grid grid-cols-1 gap-3 pl-14">
-                      {['a', 'b', 'c'].map((opt) => (
-                        <label class="ans-option relative cursor-pointer block">
-                          <input type="radio" name={`q-${q.id}`} value={opt.toUpperCase()} data-q={q.id} class="sr-only choice-radio" />
-                          <div class="flex items-center gap-4 p-5 border-2 border-slate-50 rounded-2xl bg-slate-50/30 hover:border-teal-200 hover:bg-white transition-all duration-300 group-checked:bg-teal-50 shadow-inner-sm">
-                            <div class="w-6 h-6 border-2 border-slate-200 rounded-lg flex items-center justify-center radio-box transition-all">
-                               <div class="w-2 h-2 bg-teal-500 rounded-sm opacity-0 dot"></div>
-                            </div>
-                            <span class="text-slate-600 font-bold uppercase w-4">{opt}.</span>
-                            <span class="text-slate-700 font-medium flex-1" set:html={q[opt]}></span>
-                          </div>
-                        </label>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* ĐIỀN TỪ STYLE */}
-                  {!q.a && (
-                    <div class="pl-14">
-                      <input type="text" data-q={q.id} class="fill-input w-full md:w-80 p-5 bg-slate-50 border-2 border-transparent rounded-2xl font-black text-center uppercase tracking-widest focus:bg-white focus:border-teal-500 focus:shadow-xl focus:shadow-teal-500/10 outline-none transition-all" placeholder="Type answer..." />
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+  <div class="min-h-screen bg-[#F9FAFB] pb-32 font-['Plus_Jakarta_Sans',sans-serif]">
+    
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200 py-4 px-6 md:px-12 shadow-sm">
+      <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-4">
+          <div class="w-10 h-10 bg-emerald-600 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-emerald-100">L</div>
+          <div>
+            <h1 class="font-black text-slate-900 uppercase text-xs md:text-sm tracking-tight">{testData.title}</h1>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cambridge A2 Practice</p>
           </div>
         </div>
+        
+        <div class="flex items-center gap-6">
+          <div class="hidden md:block text-right">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Your Score</p>
+            <p id="score-val" class="text-2xl font-black text-emerald-600">--</p>
+          </div>
+          <button id="submit-btn" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black text-xs hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all shadow-xl">SUBMIT TEST</button>
+        </div>
       </div>
-    ))}
-  </main>
+    </nav>
+
+    <div id="ans-store" class="hidden" data-ans={JSON.stringify(allAnswers)}></div>
+
+    <main class="max-w-4xl mx-auto mt-12 px-4 md:px-0">
+      {testData.parts.map((part, pIdx) => (
+        <section class="mb-20 group">
+          <div class="flex items-center gap-4 mb-8">
+            <span class="text-5xl font-black text-slate-100 italic group-hover:text-emerald-50 transition-colors">0{pIdx + 1}</span>
+            <div class="bg-slate-900 text-white px-4 py-1.5 rounded-xl font-black text-[10px] uppercase tracking-[0.2em]">
+              {part.part_name}
+            </div>
+            <div class="h-[1px] flex-1 bg-slate-200/60"></div>
+          </div>
+
+          <div class="bg-white rounded-[2.5rem] border border-slate-100 p-8 md:p-14 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.02)] transition-all hover:shadow-2xl hover:shadow-emerald-500/5">
+            
+            {/* NỘI DUNG CHÍNH (Văn bản + Câu hỏi trộn lẫn trong passage) */}
+            <div class="prose prose-slate max-w-none text-slate-700 leading-relaxed text-lg mb-12 passage-render" set:html={part.passage} />
+
+            {/* KHU VỰC NHẬP ĐÁP ÁN (DÀNH CHO DỮ LIỆU CÀO TRỘN LẪN) */}
+            <div class="mt-12 pt-12 border-t border-slate-50">
+              <div class="flex items-center gap-2 mb-8">
+                <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                <p class="text-xs font-black text-slate-400 uppercase tracking-widest italic">Input your answers below</p>
+              </div>
+
+              {/* Nếu JSON có mảng questions (Dữ liệu sạch) */}
+              {part.questions && part.questions.length > 0 ? (
+                <div class="space-y-12">
+                  {part.questions.map((q) => (
+                    <div class="flex flex-col md:flex-row gap-6">
+                      <span class="w-10 h-10 bg-slate-50 text-slate-400 flex items-center justify-center rounded-xl font-black text-lg shrink-0">{q.id}</span>
+                      <div class="flex-1">
+                        <p class="text-xl font-bold text-slate-800 mb-6" set:html={q.text}></p>
+                        {q.a && (
+                          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {['A', 'B', 'C'].map(opt => (
+                              <label class="ans-label cursor-pointer flex items-center gap-3 p-4 border-2 border-slate-50 rounded-2xl hover:border-emerald-500 hover:bg-emerald-50/50 transition-all group/opt">
+                                <input type="radio" name={`q-${q.id}`} value={opt} data-q={q.id} class="sr-only q-input" />
+                                <div class="w-5 h-5 border-2 border-slate-200 rounded-full flex items-center justify-center radio-ui transition-all group-hover/opt:border-emerald-500">
+                                  <div class="w-2 h-2 bg-white rounded-full opacity-0"></div>
+                                </div>
+                                <span class="text-slate-700 font-bold uppercase">{opt}. <span class="font-medium lowercase ml-1" set:html={q[opt.toLowerCase()]}></span></span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* Nếu JSON không có questions (Phòng hờ dữ liệu cào lỗi) - Hiện bảng trả lời nhanh */
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                   {[...Array(6)].map((_, i) => (
+                      <div class="flex flex-col gap-2">
+                        <span class="text-[10px] font-black text-slate-300 text-center uppercase tracking-tighter">Ans {i + 1}</span>
+                        <input type="text" placeholder="..." class="w-full p-4 bg-slate-50 border-2 border-transparent rounded-2xl font-black text-center uppercase focus:bg-white focus:border-emerald-500 outline-none transition-all shadow-inner" />
+                      </div>
+                   ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      ))}
+    </main>
+  </div>
 </Layout>
 
 <script is:inline>
   const ANSWERS = JSON.parse(document.getElementById('ans-store').getAttribute('data-ans'));
 
-  document.getElementById('finish-btn').onclick = function() {
+  document.getElementById('submit-btn').onclick = () => {
     let score = 0;
-    
-    // Chấm trắc nghiệm
-    document.querySelectorAll('.choice-radio').forEach(input => {
+    document.querySelectorAll('.q-input').forEach(input => {
       const qId = input.getAttribute('data-q');
-      const box = input.nextElementSibling;
       const correct = ANSWERS[qId]?.trim().toUpperCase();
+      const label = input.closest('.ans-label');
 
       if (input.checked) {
         if (input.value === correct) {
           score++;
-          box.style.borderColor = "#10b981";
-          box.style.backgroundColor = "#f0fdf4";
+          label.style.borderColor = "#10b981";
+          label.style.backgroundColor = "#f0fdf4";
         } else {
-          box.style.borderColor = "#ef4444";
-          box.style.backgroundColor = "#fef2f2";
+          label.style.borderColor = "#ef4444";
+          label.style.backgroundColor = "#fef2f2";
         }
       }
       
+      // Hiện đáp án đúng
       if (input.value === correct) {
-          box.style.borderColor = "#10b981";
-          box.querySelector('.dot').style.opacity = "1";
+        label.style.borderColor = "#10b981";
+        label.querySelector('.radio-ui').style.backgroundColor = "#10b981";
+        label.querySelector('.radio-ui').style.borderColor = "#10b981";
+        label.querySelector('.radio-ui div').style.opacity = "1";
       }
     });
 
-    // Chấm điền từ
-    document.querySelectorAll('.fill-input').forEach(input => {
-      const qId = input.getAttribute('data-q');
-      const val = input.value.trim().toUpperCase();
-      const correct = ANSWERS[qId]?.trim().toUpperCase();
-
-      if (val === correct && val !== "") {
-        score++;
-        input.style.borderColor = "#10b981";
-        input.style.backgroundColor = "#f0fdf4";
-      } else {
-        input.style.borderColor = "#ef4444";
-        input.style.backgroundColor = "#fef2f2";
-        input.value = `${val} (Correct: ${correct})`;
-      }
-    });
-
-    document.getElementById('score-circle').innerText = score;
+    document.getElementById('score-val').innerText = score;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 </script>
 
 <style is:global>
-  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-  
-  body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; color: #1e293b; -webkit-font-smoothing: antialiased; }
+  /* CÀI ĐẶT FONT & RESET */
+  body { background-color: #f9fafb; -webkit-font-smoothing: antialiased; }
 
-  .ans-option input:checked + div { border-color: #14b8a6 !important; background-color: #f0fdfa !important; box-shadow: 0 10px 20px -5px rgba(20, 184, 166, 0.1); }
-  .ans-option input:checked + div .radio-box { border-color: #14b8a6; background-color: #14b8a6; }
-  .ans-option input:checked + div .dot { opacity: 1 !important; background-color: white !important; }
-
-  .prose img { max-width: 100%; height: auto; border-radius: 2rem; margin: 3rem auto; display: block; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.1); }
-  .prose p { margin-bottom: 1.5rem; }
+  /* ĐỊNH DẠNG NỘI DUNG VĂN BẢN (Dành cho dữ liệu cào) */
+  .passage-render p { margin-bottom: 1.5rem; }
+  .passage-render img { max-width: 100%; border-radius: 2rem; margin: 3rem auto; display: block; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.08); }
+  .passage-render table { width: 100% !important; border-collapse: collapse; margin: 2rem 0; background: white; border-radius: 1.5rem; overflow: hidden; border: 1px solid #f1f5f9; }
+  .passage-render td { border: 1px solid #f1f5f9; padding: 1.25rem; font-size: 0.95rem; }
   
-  /* Loại bỏ khoảng trắng thừa từ dữ liệu cào */
+  /* HIỆU ỨNG CHỌN ĐÁP ÁN */
+  .ans-label:has(input:checked) { border-color: #10b981 !important; background-color: #f0fdf4 !important; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1); }
+  .ans-label:has(input:checked) .radio-ui { border-color: #10b981; background-color: #10b981; }
+  .ans-label:has(input:checked) .radio-ui div { opacity: 1; }
+
+  /* ẨN RÁC */
   p:empty { display: none; }
 </style>
