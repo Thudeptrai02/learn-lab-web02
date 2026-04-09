@@ -1,0 +1,177 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const jsonFiles = import.meta.glob('../../../data/cambridge/*.json', { eager: true });
+  return Object.values(jsonFiles).map((test: any) => {
+    const data = test.default;
+    return {
+      params: { id: String(data.test_id).trim() },
+      props: { testData: data }
+    };
+  });
+}
+
+const { id } = Astro.params;
+const { testData } = Astro.props;
+
+if (!testData) return new Response("404", { status: 404 });
+
+const allAnswers = {};
+testData.parts.forEach(p => {
+  p.questions?.forEach(q => {
+    allAnswers[q.id] = q.ans || q.answer || "";
+  });
+});
+---
+
+<Layout title={testData.title}>
+  <header class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-teal-500 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-teal-200">K</div>
+        <div>
+          <h1 class="text-slate-900 font-extrabold text-sm md:text-base leading-tight uppercase tracking-tight">{testData.title}</h1>
+          <p class="text-slate-400 text-[10px] font-bold tracking-widest uppercase">Cambridge Practice Lab</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <div class="hidden md:flex flex-col items-end">
+          <span id="score-text" class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Your Score</span>
+          <div id="score-circle" class="text-2xl font-black text-teal-600 leading-none">--</div>
+        </div>
+        <button id="finish-btn" class="bg-slate-900 text-white px-8 py-3 rounded-2xl font-black text-sm hover:bg-teal-600 hover:-translate-y-1 active:translate-y-0 transition-all shadow-xl shadow-slate-200 uppercase">Submit</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto pt-32 pb-40 px-6">
+    <div id="ans-store" class="hidden" data-ans={JSON.stringify(allAnswers)}></div>
+
+    {testData.parts.map((part, pIdx) => (
+      <div class="mb-24 animate-in fade-in slide-in-from-bottom-8 duration-700" style={`animation-delay: ${pIdx * 100}ms`}>
+        <div class="flex items-center gap-4 mb-8">
+           <span class="text-5xl font-black text-slate-100 italic select-none">0{pIdx + 1}</span>
+           <h2 class="text-2xl font-black text-slate-900 tracking-tight uppercase">{part.part_name}</h2>
+        </div>
+
+        <div class="bg-white rounded-[2.5rem] border border-slate-100 p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.02)] transition-hover hover:shadow-2xl hover:shadow-teal-500/5 duration-500">
+          {/* ĐOẠN VĂN / ẢNH */}
+          {part.passage && (
+            <div class="mb-12 p-8 bg-slate-50/50 rounded-3xl border border-slate-100 italic text-slate-600 leading-relaxed text-lg prose prose-slate max-w-none" set:html={part.passage} />
+          )}
+
+          <div class="space-y-16">
+            {part.questions && part.questions.map((q) => (
+              <div class="question-card group">
+                <div class="flex flex-col gap-6">
+                  <div class="flex items-start gap-5">
+                    <span class="w-10 h-10 bg-slate-50 text-slate-400 group-hover:bg-teal-500 group-hover:text-white transition-colors duration-300 flex items-center justify-center rounded-2xl font-black text-lg shrink-0">
+                      {q.id}
+                    </span>
+                    <p class="text-xl font-bold text-slate-800 leading-snug pt-1" set:html={q.text}></p>
+                  </div>
+
+                  {/* TRẮC NGHIỆM BOX STYLE */}
+                  {q.a && (
+                    <div class="grid grid-cols-1 gap-3 pl-14">
+                      {['a', 'b', 'c'].map((opt) => (
+                        <label class="ans-option relative cursor-pointer block">
+                          <input type="radio" name={`q-${q.id}`} value={opt.toUpperCase()} data-q={q.id} class="sr-only choice-radio" />
+                          <div class="flex items-center gap-4 p-5 border-2 border-slate-50 rounded-2xl bg-slate-50/30 hover:border-teal-200 hover:bg-white transition-all duration-300 group-checked:bg-teal-50 shadow-inner-sm">
+                            <div class="w-6 h-6 border-2 border-slate-200 rounded-lg flex items-center justify-center radio-box transition-all">
+                               <div class="w-2 h-2 bg-teal-500 rounded-sm opacity-0 dot"></div>
+                            </div>
+                            <span class="text-slate-600 font-bold uppercase w-4">{opt}.</span>
+                            <span class="text-slate-700 font-medium flex-1" set:html={q[opt]}></span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* ĐIỀN TỪ STYLE */}
+                  {!q.a && (
+                    <div class="pl-14">
+                      <input type="text" data-q={q.id} class="fill-input w-full md:w-80 p-5 bg-slate-50 border-2 border-transparent rounded-2xl font-black text-center uppercase tracking-widest focus:bg-white focus:border-teal-500 focus:shadow-xl focus:shadow-teal-500/10 outline-none transition-all" placeholder="Type answer..." />
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    ))}
+  </main>
+</Layout>
+
+<script is:inline>
+  const ANSWERS = JSON.parse(document.getElementById('ans-store').getAttribute('data-ans'));
+
+  document.getElementById('finish-btn').onclick = function() {
+    let score = 0;
+    
+    // Chấm trắc nghiệm
+    document.querySelectorAll('.choice-radio').forEach(input => {
+      const qId = input.getAttribute('data-q');
+      const box = input.nextElementSibling;
+      const correct = ANSWERS[qId]?.trim().toUpperCase();
+
+      if (input.checked) {
+        if (input.value === correct) {
+          score++;
+          box.style.borderColor = "#10b981";
+          box.style.backgroundColor = "#f0fdf4";
+        } else {
+          box.style.borderColor = "#ef4444";
+          box.style.backgroundColor = "#fef2f2";
+        }
+      }
+      
+      if (input.value === correct) {
+          box.style.borderColor = "#10b981";
+          box.querySelector('.dot').style.opacity = "1";
+      }
+    });
+
+    // Chấm điền từ
+    document.querySelectorAll('.fill-input').forEach(input => {
+      const qId = input.getAttribute('data-q');
+      const val = input.value.trim().toUpperCase();
+      const correct = ANSWERS[qId]?.trim().toUpperCase();
+
+      if (val === correct && val !== "") {
+        score++;
+        input.style.borderColor = "#10b981";
+        input.style.backgroundColor = "#f0fdf4";
+      } else {
+        input.style.borderColor = "#ef4444";
+        input.style.backgroundColor = "#fef2f2";
+        input.value = `${val} (Correct: ${correct})`;
+      }
+    });
+
+    document.getElementById('score-circle').innerText = score;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+</script>
+
+<style is:global>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+  
+  body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; color: #1e293b; -webkit-font-smoothing: antialiased; }
+
+  .ans-option input:checked + div { border-color: #14b8a6 !important; background-color: #f0fdfa !important; box-shadow: 0 10px 20px -5px rgba(20, 184, 166, 0.1); }
+  .ans-option input:checked + div .radio-box { border-color: #14b8a6; background-color: #14b8a6; }
+  .ans-option input:checked + div .dot { opacity: 1 !important; background-color: white !important; }
+
+  .prose img { max-width: 100%; height: auto; border-radius: 2rem; margin: 3rem auto; display: block; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.1); }
+  .prose p { margin-bottom: 1.5rem; }
+  
+  /* Loại bỏ khoảng trắng thừa từ dữ liệu cào */
+  p:empty { display: none; }
+</style>

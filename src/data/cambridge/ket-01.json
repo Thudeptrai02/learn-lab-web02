@@ -1,0 +1,76 @@
+{
+  "test_id": "ket-01",
+  "title": "KET READING & WRITING - TEST 01",
+  "parts": [
+    {
+      "part_name": "PART 1",
+      "instruction": "For each question, choose the correct answer.",
+      "questions": [
+        { "id": "1", "text": "Please note: this afternoon’s football class will be tomorrow instead, as Mr Hall is away today.", "a": "There is no football class today.", "b": "Mr Hall can’t come to the football class tomorrow.", "c": "You can choose to go to the football class today or tomorrow.", "ans": "A" },
+        { "id": "2", "text": "Hi Jane, Have you finished with that book I lent you? It’s just that my brother needs it for a school project.", "a": "Louise is offering to lend Jane a book.", "b": "Louise wants her book back from Jane.", "c": "Louise’s brother has borrowed a book from Jane.", "ans": "B" },
+        { "id": "3", "text": "Picnic area: No ball games here – please use the other side of the park.", "a": "You can buy food somewhere else in the park.", "b": "Please don’t eat while you are playing sport here.", "c": "This is a place for eating and you can’t play football here.", "ans": "C" },
+        { "id": "4", "text": "Museum open from 12. Children must be with an adult.", "a": "Adults can take children to the museum in the morning.", "b": "Adults with children over 12 will enjoy the museum.", "c": "Children can visit the museum if they are with an adult.", "ans": "C" },
+        { "id": "5", "text": "Mrs Monmouth: This week, please don’t use the car to get to school. Coming on foot is healthy.", "a": "to ask pupils to walk to school", "b": "to tell pupils to get to school on time", "c": "to explain about a health problem at school", "ans": "A" },
+        { "id": "6", "text": "Pedro’s Pizza Bar: Buy two pizzas, get a third one for free! Mon-Fri only.", "a": "Pedro’s Pizza Bar isn’t open at weekends", "b": "The third time you visit, you get a free pizza.", "c": "Three pizzas cost the same as two.", "ans": "C" }
+      ]
+    },
+    {
+      "part_name": "PART 2",
+      "passage": "<div class='grid grid-cols-1 md:grid-cols-3 gap-4 text-sm'><div class='p-3 bg-blue-50 rounded-lg'><strong>A. Eureka!</strong><br>Hands-on experience, visitors can pick up any object. Ticket valid for a year.</div><div class='p-3 bg-green-50 rounded-lg'><strong>B. Museum of Museums</strong><br>Things lent by other museums. Many vehicles (vans, motorbikes, public transport).</div><div class='p-3 bg-yellow-50 rounded-lg'><strong>C. Cinema Museum</strong><br>Bought from cinemas closing down (posters, seating, uniforms). Organised tours only.</div></div>",
+      "questions": [
+        { "id": "7", "text": "Which museum has an exhibition of clothes?", "a": "Eureka!", "b": "Museum of Museums", "c": "Cinema Museum", "ans": "C" },
+        { "id": "8", "text": "Which museum is full of things which visitors can touch?", "a": "Eureka!", "b": "Museum of Museums", "c": "Cinema Museum", "ans": "A" },
+        { "id": "9", "text": "Which museum is a good place to learn about how people travelled?", "a": "Eureka!", "b": "Museum of Museums", "c": "Cinema Museum", "ans": "B" },
+        { "id": "10", "text": "Which museum can you visit again for free after you pay once?", "a": "Eureka!", "b": "Museum of Museums", "c": "Cinema Museum", "ans": "A" },
+        { "id": "11", "text": "Which museum do you need to contact before you visit?", "a": "Eureka!", "b": "Museum of Museums", "c": "Cinema Museum", "ans": "C" },
+        { "id": "12", "text": "Which museum shows things that were borrowed from other places?", "a": "Eureka!", "b": "Museum of Museums", "c": "Cinema Museum", "ans": "B" },
+        { "id": "13", "text": "Which museum has some furniture which wasn’t needed any more?", "a": "Eureka!", "b": "Museum of Museums", "c": "Cinema Museum", "ans": "C" }
+      ]
+    },
+    {
+      "part_name": "PART 3",
+      "passage": "<div class='bg-slate-50 p-4 rounded-xl border-l-4 border-teal-500'><strong>Will’s Blog:</strong> My dad said, 'Why don't we have a street party?'... It was interesting to see photos from 1977... My mum was worried guests wouldn't talk to each other... but it was great!</div>",
+      "questions": [
+        { "id": "14", "text": "Why was Will surprised?", "a": "His father wanted to have a street party.", "b": "There hasn't been a street party for a long time.", "c": "Many people remembered the last street party.", "ans": "B" },
+        { "id": "15", "text": "What did the photos from 1977 show?", "a": "The street still looks the same now.", "b": "There are more children living in the street now.", "c": "The same people still live on the street now.", "ans": "A" },
+        { "id": "16", "text": "Why was Will’s mother worried?", "a": "She thought that the party was too expensive.", "b": "She thought that people might not come.", "c": "She thought that the guests might not talk to each other.", "ans": "C" },
+        { "id": "17", "text": "Will and his friends enjoyed", "a": "hearing Louisa’s stories.", "b": "meeting Louisa’s friends.", "c": "telling Louisa about their lives.", "ans": "A" },
+        { "id": "18", "text": "What is the best title for the article?", "a": "Why I love street parties", "b": "The street party we had", "c": "How to have a street party", "ans": "B" }
+      ]
+    },
+    {
+      "part_name": "PART 4",
+      "passage": "<p>Red pandas live in Nepal, Northern Myanmar, India and Bhutan, as (19) _____ as in China. They (20) _____ a lot of their time in trees and are (21) _____ at climbing...</p>",
+      "questions": [
+        { "id": "19", "text": "19. as ____ as in China", "a": "soon", "b": "much", "c": "well", "ans": "C" },
+        { "id": "20", "text": "20. They ____ a lot of their time", "a": "spend", "b": "live", "c": "take", "ans": "A" },
+        { "id": "21", "text": "21. and are very ____ at climbing", "a": "nice", "b": "great", "c": "good", "ans": "C" },
+        { "id": "22", "text": "22. they usually ____ for food", "a": "look", "b": "see", "c": "find", "ans": "A" },
+        { "id": "23", "text": "23. and ____ small birds", "a": "even", "b": "quite", "c": "still", "ans": "A" },
+        { "id": "24", "text": "24. number of red pandas is ____", "a": "little", "b": "low", "c": "short", "ans": "B" }
+      ]
+    },
+    {
+      "part_name": "PART 5",
+      "passage": "<div class='bg-yellow-50 p-5 border border-yellow-200 rounded-lg'>Dear Aunt Nel, Thank you very (0) MUCH for the book... kind (25) ____ you. Interested (27) ____ that kind of thing... go back (29) ____ school next week.</div>",
+      "questions": [
+        { "id": "25", "text": "25. kind ____ you", "ans": "OF" },
+        { "id": "26", "text": "26. sounds like ____ brilliant title", "ans": "A" },
+        { "id": "27", "text": "27. interested ____ that kind of thing", "ans": "IN" },
+        { "id": "28", "text": "28. one I'm reading now, ____ is about", "ans": "WHICH" },
+        { "id": "29", "text": "29. go back ____ school", "ans": "TO" },
+        { "id": "30", "text": "30. decide ____ to do next", "ans": "WHAT" }
+      ]
+    },
+    {
+      "part_name": "PART 6",
+      "passage": "<div class='p-4 bg-teal-50 rounded-xl'><strong>Francis:</strong> Hi, It's great to meet you this weekend. Where is the best place to meet? What would you like to do? Shall I bring anything?</div>",
+      "questions": []
+    },
+    {
+      "part_name": "PART 7",
+      "passage": "<p>Look at the three pictures. Write the story (35 words or more).</p><img src='https://englishpracticetest.net/wp-content/uploads/2022/01/ket-practice-reading-and-writing-test-01-part-7.jpg' />",
+      "questions": []
+    }
+  ]
+}
