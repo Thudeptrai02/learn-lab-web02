@@ -1,0 +1,111 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+// Hút trực tiếp file JSON sếp vừa cào được
+import examData from '../../../data/ket-01.json'; 
+---
+
+<Layout title={examData.title}>
+  <div class="min-h-screen bg-[#F3F4F6] font-['Plus_Jakarta_Sans',sans-serif]">
+    
+    <header class="h-16 bg-slate-900 text-white flex items-center justify-between px-8 sticky top-0 z-50 shadow-lg">
+      <div class="flex items-center gap-4">
+        <div class="bg-emerald-500 text-slate-900 w-9 h-9 flex items-center justify-center rounded-xl font-black shadow-lg">L</div>
+        <div>
+          <h1 class="text-[10px] font-black tracking-widest uppercase opacity-60">LearnLab Assessment</h1>
+          <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider leading-none">{examData.title}</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-10">
+        <div class="flex flex-col items-end">
+          <span class="text-[9px] font-black uppercase opacity-40">Current Score</span>
+          <span id="live-score" class="text-2xl font-black text-emerald-400 leading-none">--</span>
+        </div>
+        <button id="finish-btn" class="bg-emerald-500 hover:bg-emerald-400 text-slate-900 px-8 py-2.5 rounded-xl font-black text-xs transition-all active:scale-95 shadow-lg shadow-emerald-500/20">
+          SUBMIT TEST
+        </button>
+      </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto py-12 px-6">
+      <div class="space-y-10">
+        {examData.questions.map((q) => (
+          <div class="bg-white rounded-[2.5rem] p-10 shadow-sm border border-slate-200/60 hover:shadow-xl hover:border-emerald-500/30 transition-all duration-300 group">
+            
+            <div class="flex gap-5 mb-8">
+              <span class="w-12 h-12 bg-slate-100 text-slate-400 flex items-center justify-center rounded-2xl font-black text-xl group-hover:bg-slate-900 group-hover:text-white transition-all shadow-inner">
+                {q.id}
+              </span>
+              <div class="pt-2">
+                <p class="text-lg font-extrabold text-slate-800 leading-relaxed" set:html={q.text}></p>
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-2">Multiple Choice Question</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3 ml-16">
+              {Object.entries(q.options).map(([key, val]) => (
+                <label class="ans-box relative flex items-center gap-5 p-5 border-2 border-slate-50 rounded-[1.5rem] cursor-pointer hover:bg-emerald-50/50 hover:border-emerald-200 transition-all group/opt">
+                  <input type="radio" name={`q-${q.id}`} value={key} data-ans={q.ans} class="hidden peer" />
+                  
+                  <div class="w-6 h-6 border-2 border-slate-200 rounded-full flex items-center justify-center peer-checked:border-emerald-500 peer-checked:bg-emerald-500 transition-all shadow-sm">
+                    <div class="w-2 h-2 bg-white rounded-full scale-0 peer-checked:scale-100 transition-transform"></div>
+                  </div>
+
+                  <div class="flex items-baseline gap-3">
+                    <span class="font-black text-slate-300 group-hover/opt:text-emerald-500 transition-colors uppercase text-sm">{key}.</span>
+                    <span class="text-slate-600 font-bold text-sm">{val}</span>
+                  </div>
+
+                  <div class="result-marker absolute inset-0 rounded-[1.5rem] pointer-events-none transition-all border-2 border-transparent"></div>
+                </label>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script is:inline>
+  document.getElementById('finish-btn').onclick = () => {
+    let score = 0;
+    const allQuestions = document.querySelectorAll('input[type="radio"]:checked');
+    
+    // Logic chấm điểm
+    document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
+      const container = input.closest('.ans-box');
+      const marker = container.querySelector('.result-marker');
+      const correctAns = input.getAttribute('data-ans').trim().toUpperCase();
+      
+      if (input.value === correctAns) {
+        score++;
+        marker.style.borderColor = "#10b981";
+        container.style.backgroundColor = "#ecfdf5";
+      } else {
+        marker.style.borderColor = "#ef4444";
+        container.style.backgroundColor = "#fef2f2";
+      }
+    });
+
+    // Hiện điểm số
+    document.getElementById('live-score').innerText = score;
+    
+    // Cuộn lên đầu trang nhẹ nhàng
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Thông báo cho sếp vui
+    setTimeout(() => {
+      alert(`🎉 Chúc mừng sếp! Kết quả: ${score}/${document.querySelectorAll('.group').length} câu đúng.`);
+    }, 500);
+  };
+</script>
+
+<style is:global>
+  /* Hiệu ứng focus cho Radio chuẩn xịn */
+  .ans-box:has(input:checked) {
+    border-color: #10b981 !important;
+    background-color: #ecfdf5;
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1);
+  }
+</style>
