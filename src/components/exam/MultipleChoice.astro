@@ -1,44 +1,61 @@
 ---
-const { q } = Astro.props;
+const { q, part } = Astro.props;
+
+// Kiểm tra Part để render giao diện phù hợp
+const isPart1 = part === 1;
+const isPart4 = part === 4;
 ---
-<div class="mb-10 p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
-  {q.Passage && q.Style === 'notice' && (
-    <div class="max-w-sm mx-auto border-4 border-slate-800 p-6 text-center font-black text-xl text-slate-800 uppercase tracking-widest bg-slate-50 mb-6">
-      {q.Passage}
-    </div>
-  )}
-  {q.Passage && q.Style !== 'notice' && (
-    <div class="mb-6 text-slate-700 leading-relaxed border-l-4 border-emerald-500 pl-4 bg-emerald-50 p-4 rounded-r-xl">
-      {q.Passage}
+<div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative">
+  
+  {isPart1 && q.Passage && (
+    <div class="mb-8 flex justify-center">
+      {q.Style === 'notice' ? (
+        <div class="w-full max-w-sm border-4 border-slate-800 rounded-2xl p-6 text-center font-black text-lg text-slate-800 tracking-wide bg-slate-50 uppercase shadow-inner">
+          {q.Passage}
+        </div>
+      ) : (
+        <div class="w-full max-w-sm border-t-8 border-t-emerald-500 border-x border-b border-slate-200 rounded-2xl p-6 bg-white shadow-sm">
+          <p class="text-slate-600 font-medium whitespace-pre-wrap">{q.Passage}</p>
+        </div>
+      )}
     </div>
   )}
 
-  <h3 class="font-bold text-lg text-slate-900 mb-4"><span class="text-emerald-600 mr-2">{q.Q_Num}.</span>{q.Question}</h3>
+  {!isPart4 && (
+    <h3 class="font-bold text-lg md:text-xl text-slate-800 mb-6 leading-snug">
+      <span class="text-emerald-600 mr-2 bg-emerald-50 px-2.5 py-1 rounded-xl">{q.Q_Num}.</span>
+      {q.Question}
+    </h3>
+  )}
+  {isPart4 && (
+    <div class="mb-5">
+      <span class="text-emerald-600 font-black text-xl bg-emerald-50 px-4 py-2 rounded-xl shadow-sm">{q.Q_Num}.</span>
+    </div>
+  )}
   
   <div class="grid gap-3">
     {['A', 'B', 'C'].map((opt) => (
       q[`Opt_${opt}`] && (
-        <label class="flex items-center gap-4 p-4 border-2 border-slate-100 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition-all group">
-          <input type="radio" name={q.ID} value={opt} class="w-5 h-5 accent-emerald-500" />
-          <span class="font-black text-slate-400 group-hover:text-emerald-500">{opt}.</span>
-          <span class="text-slate-700 font-medium">{q[`Opt_${opt}`]}</span>
+        <label class="flex items-center p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-sm">
+          <div class="relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-slate-300 group-hover:border-emerald-500 group-has-[:checked]:bg-emerald-500 group-has-[:checked]:border-emerald-500 transition-colors mr-4 shrink-0">
+            <span class="font-bold text-slate-500 text-sm group-hover:text-emerald-600 group-has-[:checked]:text-white transition-colors">{opt}</span>
+            <input type="radio" name={q.ID} value={opt} class="absolute opacity-0 w-full h-full cursor-pointer" />
+          </div>
+          <span class="text-slate-700 font-medium md:text-lg group-has-[:checked]:text-emerald-800">{q[`Opt_${opt}`]}</span>
         </label>
       )
     ))}
   </div>
 
   {q.Explanation && (
-    <details class="mt-6 group border border-emerald-200 rounded-xl bg-emerald-50/50 open:bg-emerald-50 transition-all">
-      <summary class="cursor-pointer font-bold text-emerald-600 p-4 hover:text-emerald-700 list-none flex justify-between items-center outline-none [&::-webkit-details-marker]:hidden">
-        <span>💡 Xem giải thích chi tiết</span>
-        <span class="group-open:rotate-180 transition-transform">▼</span>
-      </summary>
-      <div class="p-4 pt-0 text-slate-700 font-medium border-t border-emerald-100 mt-2">
-        <div class="mb-3">
-           <span class="inline-block bg-emerald-500 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">Đáp án đúng: {q.Answer}</span>
+    <div class="explanation-box mt-6 pt-6 border-t-2 border-dashed border-slate-100 hidden">
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-400"></div>
+        <div class="mb-3 flex items-center gap-2">
+           <span class="bg-amber-400 text-amber-900 text-xs font-black px-3 py-1.5 rounded-lg uppercase tracking-wide">Đáp án đúng: {q.Answer}</span>
         </div>
-        <p class="leading-relaxed">{q.Explanation}</p>
+        <p class="text-slate-700 font-medium leading-relaxed">{q.Explanation}</p>
       </div>
-    </details>
+    </div>
   )}
 </div>

@@ -1,26 +1,29 @@
 ---
-import { getCollection } from 'astro:content';
 import Layout from '../../../layouts/Layout.astro';
 
-// Lấy dữ liệu và bắt lỗi nếu không tìm thấy
-const allExams = await getCollection('exams');
+// Thay vì gọi getCollection tìm file trong ổ cứng,
+// Ta tạo danh sách "Mục lục" các đề đang có trên Google Sheets
+const availableExams = [
+  { id: 'KET-01', title: 'Practice Test 01', exam: 'KET A2', level: 'a2-ket' },
+  // Sau này sếp có đề KET-02, PET-01... thì cứ khai báo thêm vào đây
+];
 ---
 
 <Layout title="Exam Library">
   <main class="min-h-screen bg-slate-50 p-10 font-['Plus_Jakarta_Sans']">
     <div class="max-w-4xl mx-auto">
-      <h1 class="text-3xl font-black text-slate-900 mb-10 uppercase tracking-tighter">Practice Tests ({allExams.length})</h1>
+      <h1 class="text-3xl font-black text-slate-900 mb-10 uppercase tracking-tighter">Practice Tests ({availableExams.length})</h1>
       
       <div class="grid gap-6">
-        {allExams.map((exam) => (
-          <a href={`/english-lab/cambridge/${exam.id}`} class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-emerald-500 transition-all flex items-center justify-between group">
+        {availableExams.map((exam) => (
+          <a href={`/english-lab/cambridge/${exam.level}/${exam.id}`} class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:border-emerald-500 transition-all flex items-center justify-between group">
             <div class="flex items-center gap-6">
               <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center font-black">
                 {exam.id.split('-')[1] || "01"}
               </div>
               <div>
-                <h2 class="font-black text-slate-800 uppercase">{exam.data.title}</h2>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{exam.data.exam} Exam</p>
+                <h2 class="font-black text-slate-800 uppercase">{exam.title}</h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{exam.exam} Exam</p>
               </div>
             </div>
             <span class="text-emerald-500 font-black opacity-0 group-hover:opacity-100 transition-all">START →</span>
@@ -28,9 +31,9 @@ const allExams = await getCollection('exams');
         ))}
       </div>
 
-      {allExams.length === 0 && (
+      {availableExams.length === 0 && (
         <div class="p-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-100">
-           <p class="text-slate-400 font-bold italic">Sếp ơi, Astro vẫn bảo "Kho 0 Đề". Hãy xoá folder .astro rồi chạy lại!</p>
+           <p class="text-slate-400 font-bold italic">Sếp ơi, chưa có đề nào trong mục lục!</p>
         </div>
       )}
     </div>

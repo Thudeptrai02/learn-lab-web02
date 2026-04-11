@@ -1,15 +1,11 @@
 ---
 import Papa from 'papaparse'; 
-
-// LEO LÊN ĐÚNG 4 TẦNG LÀ TỚI THƯ MỤC SRC
 import Layout from '../../../../layouts/Layout.astro';
 import MultipleChoice from '../../../../components/exam/MultipleChoice.astro';
-import GapFill from '../../../../components/exam/GapFill.astro';
-import Writing from '../../../../components/exam/Writing.astro';
+import Part5Inline from '../../../../components/exam/Part5Inline.astro';
+// Sếp import thêm Writing.astro nếu sếp làm Part 6,7 nhé!
 
 export async function getStaticPaths() {
-  // Tạm thời khai báo cứng 1 đề để test. 
-  // Sau này làm hàng trăm đề, tôi sẽ chỉ sếp cách tạo 1 file "Mục lục" tự động sinh ra chỗ này.
   return [
     { params: { level: 'a2-ket', test_id: 'KET-01' } }
   ];
@@ -17,51 +13,146 @@ export async function getStaticPaths() {
 
 const { test_id } = Astro.params;
 
-// 1. DÁN ĐƯỜNG LINK GOOGLE SHEETS CSV CỦA SẾP VÀO ĐÂY
+// 1. LINK GOOGLE SHEETS
 const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTdQHavh6IvNa_ZTKm8brzGMY28wcdsWjJBkzJafDxXY7yxHlwZg4sOW-nROFduuDYO-KBp59yx-_2a/pub?gid=0&single=true&output=csv';
 
-// 2. HÚT DỮ LIỆU TỪ MẠNG (Không tốn 1 byte ổ cứng)
-const response = await fetch(csvUrl);
-const csvText = await response.text();
+// 2. BIẾN KIỂM TRA LỖI (Bắt lỗi triệt để)
+let questions = [];
+let fetchError = null;
+let parts = [];
 
-// 3. ĐƯA VÀO MÁY XAY PAPAPARSE
-const { data: questions } = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+try {
+  const response = await fetch(csvUrl);
+  if (!response.ok) throw new Error("Không thể kết nối đến Google Sheets. Hãy kiểm tra lại link đã Publish chưa!");
+  
+  const csvText = await response.text();
+  if (!csvText.includes('Test_ID')) throw new Error("File CSV sai cấu trúc! Không tìm thấy cột 'Test_ID'.");
 
-// 4. GOM NHÓM THEO PART
-const parts = [1, 2, 3, 4, 5, 6, 7].map(partNum => {
-  return {
-    part_number: partNum,
-    questions: questions.filter(q => parseInt(q.Part) === partNum)
-  };
-}).filter(p => p.questions.length > 0);
+  const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+  if (parsed.errors.length > 0) throw new Error("Dữ liệu CSV bị rách/lỗi format ở một dòng nào đó.");
+  
+  questions = parsed.data;
+
+  // Gom nhóm theo Part
+  parts = [1, 2, 3, 4, 5, 6, 7].map(partNum => {
+    return {
+      part_number: partNum,
+      questions: questions.filter(q => parseInt(q.Part) === partNum || q.Part === `Part ${partNum}`)
+    };
+  }).filter(p => p.questions.length > 0);
+
+  if (parts.length === 0) throw new Error("Link đúng nhưng không tìm thấy câu hỏi nào! Sếp kiểm tra lại cột 'Part' nhé.");
+
+} catch (error) {
+  fetchError = error.message;
+}
 ---
 
 <Layout title={`Cambridge Exam - ${test_id}`}>
-  <div class="bg-slate-50 min-h-screen pb-20 font-sans">
+  <div class="bg-slate-50 min-h-screen pb-32 font-['Plus_Jakarta_Sans'] selection:bg-emerald-200">
     
-    <header class="bg-emerald-600 text-white h-16 flex items-center justify-between px-8 sticky top-0 z-50 shadow-md">
-      <h1 class="font-black text-xl tracking-wide">LEARN LAB | {test_id}</h1>
-      <button class="bg-white text-emerald-600 px-6 py-2 rounded-full font-bold shadow-sm hover:bg-emerald-50 transition-all">
-        Nộp Bài
+    <header class="bg-slate-900 text-white h-20 flex items-center justify-between px-6 sm:px-10 sticky top-0 z-50 shadow-xl">
+      <h1 class="font-black text-xl tracking-wide flex items-center gap-3">
+        <span class="bg-emerald-500 text-slate-900 px-3 py-1 rounded-lg text-sm">LEARN LAB</span> 
+        <span class="hidden sm:inline">{test_id} | A2 KEY</span>
+      </h1>
+      <button id="submit-btn" class="bg-emerald-500 text-slate-900 px-8 py-3 rounded-full font-black shadow-lg hover:bg-emerald-400 hover:scale-105 transition-all">
+        NỘP BÀI
       </button>
     </header>
 
-    <main class="max-w-4xl mx-auto mt-10 px-4">
-      {parts.map((part) => (
-        <section class="mb-12">
-          <div class="border-b-2 border-emerald-200 pb-2 mb-6">
-            <h2 class="text-2xl font-black text-slate-800">Part {part.part_number}</h2>
+    <main class="max-w-7xl mx-auto mt-12 px-4 sm:px-8">
+      
+      {/* NẾU LỖI GOOGLE SHEETS -> HIỆN BẢNG CẢNH BÁO */}
+      {fetchError && (
+        <div class="bg-red-50 border-l-8 border-red-500 p-8 rounded-2xl shadow-sm mb-10">
+          <h2 class="text-red-800 font-black text-2xl mb-2">🚨 Cảnh báo từ Hệ thống!</h2>
+          <p class="text-red-700 text-lg font-medium">{fetchError}</p>
+          <p class="text-red-600 mt-4 text-sm">Sếp vui lòng kiểm tra lại file Google Sheets, đảm bảo đã "Publish to Web" định dạng CSV và cột dữ liệu không bị đổi tên.</p>
+        </div>
+      )}
+
+      {/* NẾU DỮ LIỆU NGON LÀNH -> HIỆN BÀI THI */}
+      {!fetchError && parts.map((part) => (
+        <section class="mb-20">
+          <div class="flex items-center gap-4 mb-8">
+            <div class="h-10 w-2.5 bg-emerald-500 rounded-full"></div>
+            <h2 class="text-3xl font-black text-slate-800 tracking-tight">Part {part.part_number}</h2>
           </div>
 
-          <div>
-            {part.questions.map((q) => {
-              if (q.Type === 'mcq') return <MultipleChoice q={q} />;
-              if (q.Type === 'gap') return <GapFill q={q} />;
-              if (q.Type === 'writing') return <Writing q={q} />;
-            })}
-          </div>
+          {/* PART 1 */}
+          {part.part_number === 1 && (
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {part.questions.map(q => <MultipleChoice q={q} part={1} />)}
+            </div>
+          )}
+
+          {/* PART 5 (Inline) */}
+          {part.part_number === 5 && (
+            <div class="max-w-4xl mx-auto">
+              <Part5Inline questions={part.questions} />
+            </div>
+          )}
+
+          {/* PART 2, 3, 4 (Chia đôi màn hình Split-Screen) */}
+          {[2, 3, 4].includes(part.part_number) && (
+            <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+              
+              <div class="lg:col-span-5 bg-white p-8 md:p-10 rounded-[2rem] border border-slate-200 shadow-sm sticky top-28 h-auto max-h-[80vh] overflow-y-auto custom-scrollbar">
+                {part.questions[0].Passage.split('\n').map((line, index) => {
+                  // Tự động phân tích: Dòng ngắn (<60 ký tự) làm Tiêu đề
+                  if (line.trim().length > 0 && line.trim().length < 60 && !line.includes('.')) {
+                    return <h4 class="font-black text-xl text-slate-800 mb-3 mt-8 first:mt-0 uppercase tracking-wide">{line}</h4>;
+                  } else if (line.trim().length > 0) {
+                    return <p class="text-slate-600 leading-relaxed mb-4 font-medium text-lg">{line}</p>;
+                  }
+                })}
+              </div>
+              
+              <div class="lg:col-span-7 space-y-6">
+                {part.questions.map(q => <MultipleChoice q={q} part={part.part_number} />)}
+              </div>
+
+            </div>
+          )}
         </section>
       ))}
     </main>
   </div>
 </Layout>
+
+<style is:global>
+  /* Logic Ẩn/Hiện giải thích */
+  .explanation-box { display: none; }
+  body.submitted .explanation-box { 
+    display: block; 
+    animation: fadeIn 0.5s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Làm đẹp thanh cuộn cho bài đọc bên trái */
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+</style>
+
+<script>
+  // Xử lý sự kiện bấm NỘP BÀI
+  const submitBtn = document.getElementById('submit-btn');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+      // Bật class 'submitted' cho body để hiện giải thích
+      document.body.classList.add('submitted');
+      
+      // Đổi trạng thái nút
+      submitBtn.innerHTML = '✅ ĐÃ NỘP BÀI';
+      submitBtn.classList.add('pointer-events-none', 'opacity-80');
+      
+      alert("Đã nộp bài! Kéo xuống để xem đáp án và giải thích chi tiết nhé sếp.");
+    });
+  }
+</script>
