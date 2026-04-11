@@ -1,0 +1,44 @@
+---
+const { q } = Astro.props;
+---
+<div class="mb-10 p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
+  {q.Passage && q.Style === 'notice' && (
+    <div class="max-w-sm mx-auto border-4 border-slate-800 p-6 text-center font-black text-xl text-slate-800 uppercase tracking-widest bg-slate-50 mb-6">
+      {q.Passage}
+    </div>
+  )}
+  {q.Passage && q.Style !== 'notice' && (
+    <div class="mb-6 text-slate-700 leading-relaxed border-l-4 border-emerald-500 pl-4 bg-emerald-50 p-4 rounded-r-xl">
+      {q.Passage}
+    </div>
+  )}
+
+  <h3 class="font-bold text-lg text-slate-900 mb-4"><span class="text-emerald-600 mr-2">{q.Q_Num}.</span>{q.Question}</h3>
+  
+  <div class="grid gap-3">
+    {['A', 'B', 'C'].map((opt) => (
+      q[`Opt_${opt}`] && (
+        <label class="flex items-center gap-4 p-4 border-2 border-slate-100 rounded-xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition-all group">
+          <input type="radio" name={q.ID} value={opt} class="w-5 h-5 accent-emerald-500" />
+          <span class="font-black text-slate-400 group-hover:text-emerald-500">{opt}.</span>
+          <span class="text-slate-700 font-medium">{q[`Opt_${opt}`]}</span>
+        </label>
+      )
+    ))}
+  </div>
+
+  {q.Explanation && (
+    <details class="mt-6 group border border-emerald-200 rounded-xl bg-emerald-50/50 open:bg-emerald-50 transition-all">
+      <summary class="cursor-pointer font-bold text-emerald-600 p-4 hover:text-emerald-700 list-none flex justify-between items-center outline-none [&::-webkit-details-marker]:hidden">
+        <span>💡 Xem giải thích chi tiết</span>
+        <span class="group-open:rotate-180 transition-transform">▼</span>
+      </summary>
+      <div class="p-4 pt-0 text-slate-700 font-medium border-t border-emerald-100 mt-2">
+        <div class="mb-3">
+           <span class="inline-block bg-emerald-500 text-white text-xs font-black px-3 py-1.5 rounded-lg shadow-sm">Đáp án đúng: {q.Answer}</span>
+        </div>
+        <p class="leading-relaxed">{q.Explanation}</p>
+      </div>
+    </details>
+  )}
+</div>

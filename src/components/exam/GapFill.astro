@@ -1,0 +1,14 @@
+---
+const { q } = Astro.props;
+---
+<div class="mb-6 flex items-center flex-wrap gap-2 text-lg text-slate-800 bg-white p-4 rounded-xl border border-slate-200">
+  <span class="font-bold text-emerald-600 mr-2">{q.Q_Num}.</span>
+  <span>{q.Question.split('________')[0]}</span>
+  <input 
+    type="text" 
+    name={q.ID} 
+    class="w-32 border-b-2 border-slate-300 focus:border-emerald-500 outline-none text-center font-bold text-emerald-600 bg-transparent px-2"
+    placeholder="..."
+  />
+  <span>{q.Question.split('________')[1]}</span>
+</div>

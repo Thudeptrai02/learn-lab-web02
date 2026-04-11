@@ -1,10 +1,11 @@
 ---
-import Papa from 'papaparse'; // Vẫn giữ bộ đọc CSV này
+import Papa from 'papaparse'; 
 
-import Layout from '../../../../../layouts/Layout.astro';
-import MultipleChoice from '../../../../../components/exam/MultipleChoice.astro';
-import GapFill from '../../../../../components/exam/GapFill.astro';
-import Writing from '../../../../../components/exam/Writing.astro';
+// LEO LÊN ĐÚNG 4 TẦNG LÀ TỚI THƯ MỤC SRC
+import Layout from '../../../../layouts/Layout.astro';
+import MultipleChoice from '../../../../components/exam/MultipleChoice.astro';
+import GapFill from '../../../../components/exam/GapFill.astro';
+import Writing from '../../../../components/exam/Writing.astro';
 
 export async function getStaticPaths() {
   // Tạm thời khai báo cứng 1 đề để test. 
@@ -17,7 +18,7 @@ export async function getStaticPaths() {
 const { test_id } = Astro.params;
 
 // 1. DÁN ĐƯỜNG LINK GOOGLE SHEETS CSV CỦA SẾP VÀO ĐÂY
-const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-...DÀI-NGOẰNG.../pub?output=csv';
+const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTdQHavh6IvNa_ZTKm8brzGMY28wcdsWjJBkzJafDxXY7yxHlwZg4sOW-nROFduuDYO-KBp59yx-_2a/pub?gid=0&single=true&output=csv';
 
 // 2. HÚT DỮ LIỆU TỪ MẠNG (Không tốn 1 byte ổ cứng)
 const response = await fetch(csvUrl);
