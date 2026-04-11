@@ -1,0 +1,66 @@
+---
+import Papa from 'papaparse'; // Vẫn giữ bộ đọc CSV này
+
+import Layout from '../../../../../layouts/Layout.astro';
+import MultipleChoice from '../../../../../components/exam/MultipleChoice.astro';
+import GapFill from '../../../../../components/exam/GapFill.astro';
+import Writing from '../../../../../components/exam/Writing.astro';
+
+export async function getStaticPaths() {
+  // Tạm thời khai báo cứng 1 đề để test. 
+  // Sau này làm hàng trăm đề, tôi sẽ chỉ sếp cách tạo 1 file "Mục lục" tự động sinh ra chỗ này.
+  return [
+    { params: { level: 'a2-ket', test_id: 'KET-01' } }
+  ];
+}
+
+const { test_id } = Astro.params;
+
+// 1. DÁN ĐƯỜNG LINK GOOGLE SHEETS CSV CỦA SẾP VÀO ĐÂY
+const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-...DÀI-NGOẰNG.../pub?output=csv';
+
+// 2. HÚT DỮ LIỆU TỪ MẠNG (Không tốn 1 byte ổ cứng)
+const response = await fetch(csvUrl);
+const csvText = await response.text();
+
+// 3. ĐƯA VÀO MÁY XAY PAPAPARSE
+const { data: questions } = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+
+// 4. GOM NHÓM THEO PART
+const parts = [1, 2, 3, 4, 5, 6, 7].map(partNum => {
+  return {
+    part_number: partNum,
+    questions: questions.filter(q => parseInt(q.Part) === partNum)
+  };
+}).filter(p => p.questions.length > 0);
+---
+
+<Layout title={`Cambridge Exam - ${test_id}`}>
+  <div class="bg-slate-50 min-h-screen pb-20 font-sans">
+    
+    <header class="bg-emerald-600 text-white h-16 flex items-center justify-between px-8 sticky top-0 z-50 shadow-md">
+      <h1 class="font-black text-xl tracking-wide">LEARN LAB | {test_id}</h1>
+      <button class="bg-white text-emerald-600 px-6 py-2 rounded-full font-bold shadow-sm hover:bg-emerald-50 transition-all">
+        Nộp Bài
+      </button>
+    </header>
+
+    <main class="max-w-4xl mx-auto mt-10 px-4">
+      {parts.map((part) => (
+        <section class="mb-12">
+          <div class="border-b-2 border-emerald-200 pb-2 mb-6">
+            <h2 class="text-2xl font-black text-slate-800">Part {part.part_number}</h2>
+          </div>
+
+          <div>
+            {part.questions.map((q) => {
+              if (q.Type === 'mcq') return <MultipleChoice q={q} />;
+              if (q.Type === 'gap') return <GapFill q={q} />;
+              if (q.Type === 'writing') return <Writing q={q} />;
+            })}
+          </div>
+        </section>
+      ))}
+    </main>
+  </div>
+</Layout>
