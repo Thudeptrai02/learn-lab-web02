@@ -1,18 +1,31 @@
 ---
 const { q } = Astro.props;
 ---
-<div class="mb-10 p-6 bg-white rounded-2xl border border-slate-200 shadow-sm">
-  <h3 class="font-bold text-lg text-slate-900 mb-4"><span class="text-emerald-600 mr-2">{q.Q_Num}.</span>{q.Question}</h3>
-  
-  {q.Image_URL && (
-    <div class="mb-6 border-2 border-dashed border-slate-300 rounded-xl p-4 text-center bg-slate-50">
-      <img src={q.Image_URL} alt="Writing Prompt" class="mx-auto max-w-full rounded-lg" />
+<div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm mb-8 hover:shadow-md transition-shadow">
+  <h3 class="font-bold text-lg md:text-xl text-slate-800 mb-6 leading-snug">
+    <span class="text-emerald-600 mr-2 bg-emerald-50 px-3 py-1.5 rounded-xl">{q.Q_Num}.</span>{q.Question}
+  </h3>
+
+  {q.Passage && (
+    <div class="bg-slate-50 border-l-4 border-emerald-500 p-5 rounded-r-xl mb-6 text-slate-700 whitespace-pre-wrap font-medium leading-relaxed">
+      {q.Passage}
     </div>
   )}
 
-  <textarea 
-    rows="8" 
-    class="w-full border-2 border-slate-200 rounded-xl p-4 focus:border-emerald-500 outline-none resize-none text-slate-700"
-    placeholder="Start writing here..."
-  ></textarea>
+  {q.Image_URL && q.Image_URL !== '[CẦN_LINK_ẢNH]' && (
+    <div class="mb-6 border-2 border-dashed border-slate-300 rounded-2xl p-4 text-center bg-slate-50/50">
+      <img src={q.Image_URL} alt="Writing Prompt" class="mx-auto max-h-72 object-contain rounded-lg shadow-sm" />
+    </div>
+  )}
+
+  <textarea rows="10" class="w-full border-2 border-slate-200 rounded-2xl p-6 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 outline-none resize-y text-slate-700 font-medium text-lg leading-relaxed transition-all" placeholder="Bắt đầu viết câu trả lời..."></textarea>
+
+  {q.Explanation && (
+    <div class="explanation-box mt-6 pt-6 border-t-2 border-dashed border-slate-100 hidden">
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+        <h4 class="font-black text-amber-900 mb-2 uppercase tracking-wide text-sm">💡 Gợi ý:</h4>
+        <p class="text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">{q.Explanation}</p>
+      </div>
+    </div>
+  )}
 </div>

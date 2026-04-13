@@ -1,51 +1,83 @@
 ---
 const { q, part } = Astro.props;
-
-// Kiểm tra Part để render giao diện phù hợp
 const isPart1 = part === 1;
 const isPart4 = part === 4;
+
+// Lệnh Ăn Tạp: Chặt hết [BR], ||, và cả Enter
+const passageLines = q.Passage ? q.Passage.split(/\[BR\]|\|\||\r\n|\r|\n|<br\s*\/?>/).map(l => l.trim()).filter(l => l !== '') : [];
+const headerText = passageLines.length > 1 ? passageLines[0] : null;
+const bodyText = passageLines.length > 1 ? passageLines.slice(1).join('\n\n') : passageLines[0];
 ---
-<div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative">
+<div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative mb-6">
   
-  {isPart1 && q.Passage && (
-    <div class="mb-8 flex justify-center">
-      {q.Style === 'notice' ? (
-        <div class="w-full max-w-sm border-4 border-slate-800 rounded-2xl p-6 text-center font-black text-lg text-slate-800 tracking-wide bg-slate-50 uppercase shadow-inner">
-          {q.Passage}
+  {isPart1 ? (
+    <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+      
+      <div class="flex items-center justify-center bg-slate-50 w-full p-6 md:p-8 rounded-2xl border-2 border-dashed border-slate-200">
+        {q.Passage && (
+          <div class="w-full max-w-sm border-2 border-slate-300 rounded-2xl overflow-hidden shadow-sm bg-white">
+            {headerText && (
+              <div class="bg-slate-100 border-b-2 border-slate-300 p-3.5 text-center font-black text-slate-800 uppercase tracking-wider text-sm md:text-base">
+                {headerText}
+              </div>
+            )}
+            <div class="p-6 text-center font-bold text-slate-700 leading-relaxed whitespace-pre-wrap md:text-lg">
+              {bodyText}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div class="flex flex-col justify-center w-full">
+        <h3 class="font-bold text-lg md:text-xl text-slate-800 mb-6 leading-snug">
+          <span class="text-emerald-600 mr-2 bg-emerald-50 px-2.5 py-1 rounded-xl">{q.Q_Num}.</span>
+          {q.Question}
+        </h3>
+        <div class="grid gap-4">
+          {['A', 'B', 'C'].map((opt) => (
+            q[`Opt_${opt}`] && (
+              <label class="flex items-center p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-sm">
+                <div class="relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-slate-300 group-hover:border-emerald-500 group-has-[:checked]:bg-emerald-500 group-has-[:checked]:border-emerald-500 transition-colors mr-4 shrink-0">
+                  <span class="font-bold text-slate-500 text-sm group-hover:text-emerald-600 group-has-[:checked]:text-white transition-colors">{opt}</span>
+                  <input type="radio" name={q.ID} value={opt} class="absolute opacity-0 w-full h-full cursor-pointer" />
+                </div>
+                <span class="text-slate-700 font-medium md:text-lg group-has-[:checked]:text-emerald-800">{q[`Opt_${opt}`]}</span>
+              </label>
+            )
+          ))}
         </div>
-      ) : (
-        <div class="w-full max-w-sm border-t-8 border-t-emerald-500 border-x border-b border-slate-200 rounded-2xl p-6 bg-white shadow-sm">
-          <p class="text-slate-600 font-medium whitespace-pre-wrap">{q.Passage}</p>
+      </div>
+
+    </div>
+  ) : (
+    <div>
+      {!isPart4 && (
+        <h3 class="font-bold text-lg md:text-xl text-slate-800 mb-6 leading-snug">
+          <span class="text-emerald-600 mr-2 bg-emerald-50 px-2.5 py-1 rounded-xl">{q.Q_Num}.</span>
+          {q.Question}
+        </h3>
+      )}
+      {isPart4 && (
+        <div class="mb-5">
+          <span class="text-emerald-600 font-black text-xl bg-emerald-50 px-4 py-2 rounded-xl shadow-sm">{q.Q_Num}.</span>
         </div>
       )}
+      
+      <div class="grid gap-3">
+        {['A', 'B', 'C'].map((opt) => (
+          q[`Opt_${opt}`] && (
+            <label class="flex items-center p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-sm">
+              <div class="relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-slate-300 group-hover:border-emerald-500 group-has-[:checked]:bg-emerald-500 group-has-[:checked]:border-emerald-500 transition-colors mr-4 shrink-0">
+                <span class="font-bold text-slate-500 text-sm group-hover:text-emerald-600 group-has-[:checked]:text-white transition-colors">{opt}</span>
+                <input type="radio" name={q.ID} value={opt} class="absolute opacity-0 w-full h-full cursor-pointer" />
+              </div>
+              <span class="text-slate-700 font-medium md:text-lg group-has-[:checked]:text-emerald-800">{q[`Opt_${opt}`]}</span>
+            </label>
+          )
+        ))}
+      </div>
     </div>
   )}
-
-  {!isPart4 && (
-    <h3 class="font-bold text-lg md:text-xl text-slate-800 mb-6 leading-snug">
-      <span class="text-emerald-600 mr-2 bg-emerald-50 px-2.5 py-1 rounded-xl">{q.Q_Num}.</span>
-      {q.Question}
-    </h3>
-  )}
-  {isPart4 && (
-    <div class="mb-5">
-      <span class="text-emerald-600 font-black text-xl bg-emerald-50 px-4 py-2 rounded-xl shadow-sm">{q.Q_Num}.</span>
-    </div>
-  )}
-  
-  <div class="grid gap-3">
-    {['A', 'B', 'C'].map((opt) => (
-      q[`Opt_${opt}`] && (
-        <label class="flex items-center p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-sm">
-          <div class="relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-slate-300 group-hover:border-emerald-500 group-has-[:checked]:bg-emerald-500 group-has-[:checked]:border-emerald-500 transition-colors mr-4 shrink-0">
-            <span class="font-bold text-slate-500 text-sm group-hover:text-emerald-600 group-has-[:checked]:text-white transition-colors">{opt}</span>
-            <input type="radio" name={q.ID} value={opt} class="absolute opacity-0 w-full h-full cursor-pointer" />
-          </div>
-          <span class="text-slate-700 font-medium md:text-lg group-has-[:checked]:text-emerald-800">{q[`Opt_${opt}`]}</span>
-        </label>
-      )
-    ))}
-  </div>
 
   {q.Explanation && (
     <div class="explanation-box mt-6 pt-6 border-t-2 border-dashed border-slate-100 hidden">

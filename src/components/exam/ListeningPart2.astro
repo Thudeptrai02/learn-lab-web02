@@ -1,0 +1,97 @@
+---
+// ListeningPart2.astro
+// Listening Part 2 — Bảng form điền chỗ trống (gap fill dạng bảng 2 cột)
+// Props: { questions, title }
+// Mỗi q trong questions:
+//   q.Q_Num      — số câu (6-10)
+//   q.Question   — label của hàng (e.g. "Day club will meet:")
+//   q.ID         — name cho input
+//   q.Passage    — prefix/suffix hint (e.g. "from ________ to 5 p.m." — parse ra prefix/suffix)
+//   q.Answer     — đáp án đúng
+//   q.Explanation
+
+// Parse Passage thành prefix + suffix quanh ___
+// e.g. "from ________ to 5 p.m." → prefix="from", suffix="to 5 p.m."
+// e.g. "Mr ________"             → prefix="Mr", suffix=""
+function parsePrefixSuffix(passage: string | undefined) {
+  if (!passage) return { prefix: '', suffix: '' };
+  const parts = passage.split(/_{2,}|…{1,}|\.{4,}/);
+  return {
+    prefix: parts[0]?.trim() ?? '',
+    suffix: parts[1]?.trim() ?? '',
+  };
+}
+
+const { questions, title } = Astro.props;
+// Lấy title từ prop hoặc từ Passage dòng đầu của câu đầu (nếu có header)
+const tableTitle = title || questions[0]?.Passage?.split(/\[BR\]|\|\|/)[0]?.trim() || 'Notes';
+---
+
+<div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative mb-6 overflow-hidden">
+  
+  <!-- Accent bar top -->
+  <div class="h-1.5 w-full bg-emerald-500"></div>
+
+  <div class="p-6 md:p-8">
+    <!-- Tiêu đề bảng -->
+    <div class="mb-5 text-center">
+      <span class="inline-block bg-slate-800 text-white font-black px-6 py-2 rounded-xl text-base md:text-lg tracking-wide uppercase shadow-sm">
+        {tableTitle}
+      </span>
+    </div>
+
+    <!-- Bảng 2 cột -->
+    <div class="border-2 border-slate-200 rounded-2xl overflow-hidden divide-y divide-slate-100">
+      {questions.map((q: any) => {
+        const { prefix, suffix } = parsePrefixSuffix(q.Passage);
+        return (
+          <div class="grid grid-cols-[1fr_auto] md:grid-cols-2 items-center gap-0">
+            <!-- Cột trái: label -->
+            <div class="px-5 py-4 text-slate-700 font-semibold text-base border-r border-slate-100 bg-slate-50/50">
+              {q.Question}
+            </div>
+            <!-- Cột phải: ô điền -->
+            <div class="px-5 py-3 flex items-center gap-2 flex-wrap bg-white">
+              <span class="text-slate-400 text-sm font-bold bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-lg shrink-0">({q.Q_Num})</span>
+              {prefix && (
+                <span class="text-slate-700 font-medium shrink-0">{prefix}</span>
+              )}
+              <input
+                type="text"
+                name={q.ID}
+                autocomplete="off"
+                class="w-28 sm:w-36 border-b-2 border-slate-300 focus:border-emerald-500 outline-none text-center font-bold text-emerald-700 bg-emerald-50/40 px-2 py-0.5 rounded-t-md hover:bg-emerald-50 focus:bg-emerald-100 transition-all text-base"
+                placeholder="..."
+              />
+              {suffix && (
+                <span class="text-slate-700 font-medium shrink-0">{suffix}</span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+
+  <!-- Explanation grid (ẩn, hiện sau submit) -->
+  <div class="explanation-box px-6 pb-6 hidden">
+    <div class="pt-6 border-t-2 border-dashed border-slate-100">
+      <h4 class="font-black text-slate-700 text-sm uppercase tracking-wide mb-4">💡 Đáp án</h4>
+      <div class="grid sm:grid-cols-2 gap-3">
+        {questions.map((q: any) => (
+          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-400"></div>
+            <div class="mb-1.5">
+              <span class="bg-amber-400 text-amber-900 text-xs font-black px-2.5 py-1 rounded-lg uppercase tracking-wide">
+                ({q.Q_Num}) {q.Answer}
+              </span>
+            </div>
+            {q.Explanation && (
+              <p class="text-slate-600 text-sm font-medium leading-relaxed">{q.Explanation}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</div>

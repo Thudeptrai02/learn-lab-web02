@@ -1,0 +1,74 @@
+---
+// ListeningPart1.astro
+// Listening Part 1 — 1 ảnh gộp (chứa 3 sub-image A/B/C bên trong) + chọn đáp án
+// Props: { q, part }
+// q.Image_URL  — URL ảnh gộp
+// q.Q_Num      — số câu (1–5)
+// q.Question   — câu hỏi (thường là tên người/đối tượng)
+// q.ID         — dùng làm name radio group
+// q.Answer     — đáp án đúng (ẩn đến khi submit)
+// q.Explanation
+const { q } = Astro.props;
+---
+
+<div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative mb-6 overflow-hidden">
+  
+  <!-- số câu badge -->
+  <div class="flex items-center gap-3 px-6 pt-6 pb-4 border-b border-slate-100">
+    <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-500 text-white font-black text-base shadow-sm shrink-0">
+      {q.Q_Num}
+    </span>
+    {q.Question && (
+      <p class="text-slate-700 font-semibold text-base md:text-lg leading-snug">{q.Question}</p>
+    )}
+  </div>
+
+  <div class="p-6 md:p-8">
+    <!-- Ảnh gộp 3 sub-image -->
+    {q.Image_URL && q.Image_URL.startsWith('http') ? (
+      <div class="mb-6 rounded-2xl overflow-hidden border-2 border-slate-200 shadow-sm bg-slate-50">
+        <img
+          src={q.Image_URL}
+          alt={`Question ${q.Q_Num} options`}
+          class="w-full object-contain max-h-72 md:max-h-80"
+          loading="lazy"
+        />
+      </div>
+    ) : (
+      <div class="mb-6 h-48 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 flex items-center justify-center text-slate-400 font-medium">
+        Chưa có ảnh
+      </div>
+    )}
+
+    <!-- 3 nút chọn A / B / C — chỉ chữ cái, ảnh đã thể hiện nội dung -->
+    <div class="grid grid-cols-3 gap-3 md:gap-4">
+      {['A', 'B', 'C'].map((opt) => (
+        <label class="flex flex-col items-center justify-center gap-2 p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-sm">
+          <div class="relative flex items-center justify-center w-10 h-10 rounded-full border-2 border-slate-300 group-hover:border-emerald-500 group-has-[:checked]:bg-emerald-500 group-has-[:checked]:border-emerald-500 transition-colors shrink-0">
+            <span class="font-black text-slate-500 text-base group-hover:text-emerald-600 group-has-[:checked]:text-white transition-colors">{opt}</span>
+            <input type="radio" name={q.ID} value={opt} class="absolute opacity-0 w-full h-full cursor-pointer" />
+          </div>
+          {/* Nếu sheet có text opt thì hiện thêm, không có thì chỉ chữ cái */}
+          {q[`Opt_${opt}`] && (
+            <span class="text-xs text-slate-500 font-medium text-center group-has-[:checked]:text-emerald-700">{q[`Opt_${opt}`]}</span>
+          )}
+        </label>
+      ))}
+    </div>
+  </div>
+
+  <!-- Explanation (ẩn, hiện sau submit) -->
+  {q.Explanation && (
+    <div class="explanation-box mx-6 mb-6 pt-6 border-t-2 border-dashed border-slate-100 hidden">
+      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-400"></div>
+        <div class="mb-3">
+          <span class="bg-amber-400 text-amber-900 text-xs font-black px-3 py-1.5 rounded-lg uppercase tracking-wide">
+            Đáp án đúng: {q.Answer}
+          </span>
+        </div>
+        <p class="text-slate-700 font-medium leading-relaxed">{q.Explanation}</p>
+      </div>
+    </div>
+  )}
+</div>

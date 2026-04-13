@@ -1,158 +1,268 @@
 ---
-import Papa from 'papaparse'; 
+export const prerender = true;
+
+import Papa from 'papaparse';
 import Layout from '../../../../layouts/Layout.astro';
 import MultipleChoice from '../../../../components/exam/MultipleChoice.astro';
-import Part5Inline from '../../../../components/exam/Part5Inline.astro';
-// Sếp import thêm Writing.astro nếu sếp làm Part 6,7 nhé!
 
 export async function getStaticPaths() {
-  return [
-    { params: { level: 'a2-ket', test_id: 'KET-01' } }
-  ];
+  const SHEET_ID = '1KBlvcqTgURW1Z6EGUKL5xkEOE4MX5pIhAVNZ6eecH04';
+  const MASTER_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Master`;
+  try {
+    const response = await fetch(MASTER_URL);
+    const parsed = Papa.parse(await response.text(), { header: true, skipEmptyLines: true });
+    return parsed.data.filter(row => row.ID || row.Test_ID).map(row => ({
+      params: { level: String(row.Level || 'a2-ket').trim().toLowerCase(), test_id: String(row.ID || row.Test_ID).trim() },
+      props: { dataUrl: row.URL ? row.URL.trim().replace('/edit?usp=sharing', '/export?format=csv') : null, testTitle: row.Title }
+    }));
+  } catch (e) { return []; }
 }
 
-const { test_id } = Astro.params;
+const { test_id, level } = Astro.params;
+const { dataUrl, testTitle } = Astro.props; 
 
-// 1. LINK GOOGLE SHEETS
-const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTdQHavh6IvNa_ZTKm8brzGMY28wcdsWjJBkzJafDxXY7yxHlwZg4sOW-nROFduuDYO-KBp59yx-_2a/pub?gid=0&single=true&output=csv';
+const isListening = test_id.toUpperCase().includes('-L-');
+const isReading = test_id.toUpperCase().includes('-R-');
 
-// 2. BIẾN KIỂM TRA LỖI (Bắt lỗi triệt để)
 let questions = [];
-let fetchError = null;
 let parts = [];
+let fetchError = null;
 
 try {
-  const response = await fetch(csvUrl);
-  if (!response.ok) throw new Error("Không thể kết nối đến Google Sheets. Hãy kiểm tra lại link đã Publish chưa!");
-  
-  const csvText = await response.text();
-  if (!csvText.includes('Test_ID')) throw new Error("File CSV sai cấu trúc! Không tìm thấy cột 'Test_ID'.");
-
-  const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-  if (parsed.errors.length > 0) throw new Error("Dữ liệu CSV bị rách/lỗi format ở một dòng nào đó.");
-  
+  const response = await fetch(dataUrl);
+  const parsed = Papa.parse(await response.text(), { header: true, skipEmptyLines: true });
   questions = parsed.data;
 
-  // Gom nhóm theo Part
-  parts = [1, 2, 3, 4, 5, 6, 7].map(partNum => {
-    return {
-      part_number: partNum,
-      questions: questions.filter(q => parseInt(q.Part) === partNum || q.Part === `Part ${partNum}`)
-    };
-  }).filter(p => p.questions.length > 0);
+  parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
+    let partQuestions = questions.filter(q => parseInt(q.Part) === num);
+    if (partQuestions.length === 0) return null;
 
-  if (parts.length === 0) throw new Error("Link đúng nhưng không tìm thấy câu hỏi nào! Sếp kiểm tra lại cột 'Part' nhé.");
+    const firstRow = partQuestions[0];
+    
+    // TẤT CẢ CÁC PART LISTENING ĐỀU DÙNG CHUNG 1 AUDIO Ở ĐẦU PART
+    const partAudio = firstRow.Audio_URL || firstRow.Audio || null;
+    const partTranscript = firstRow.Transcript || null;
+    let passage = firstRow.Passage || firstRow.Content || null;
 
-} catch (error) {
-  fetchError = error.message;
-}
+    // Xử lý bài đọc cho Reading
+    if (isReading && num >= 2 && passage) {
+      passage = passage.split('\n').map(l => l.trim()).filter(l => l.length > 0)
+        .map(l => (l.length < 50 && !l.match(/[.?!]$/)) ? `<strong class="text-slate-900 text-xl font-black block mb-3 mt-8">${l}</strong>` : `<p class="mb-5 text-slate-700 leading-relaxed text-[1.1rem]">${l}</p>`).join('');
+      partQuestions = partQuestions.map(q => ({ ...q, Passage: '', Content: '' }));
+    }
+
+    return { part_number: num, partAudio, partTranscript, passage, questions: partQuestions };
+  }).filter(p => p !== null);
+} catch (error) { fetchError = error.message; }
 ---
 
-<Layout title={`Cambridge Exam - ${test_id}`}>
-  <div class="bg-slate-50 min-h-screen pb-32 font-['Plus_Jakarta_Sans'] selection:bg-emerald-200">
-    
-    <header class="bg-slate-900 text-white h-20 flex items-center justify-between px-6 sm:px-10 sticky top-0 z-50 shadow-xl">
-      <h1 class="font-black text-xl tracking-wide flex items-center gap-3">
-        <span class="bg-emerald-500 text-slate-900 px-3 py-1 rounded-lg text-sm">LEARN LAB</span> 
-        <span class="hidden sm:inline">{test_id} | A2 KEY</span>
-      </h1>
-      <button id="submit-btn" class="bg-emerald-500 text-slate-900 px-8 py-3 rounded-full font-black shadow-lg hover:bg-emerald-400 hover:scale-105 transition-all">
-        NỘP BÀI
-      </button>
-    </header>
-
-    <main class="max-w-7xl mx-auto mt-12 px-4 sm:px-8">
+<Layout title={testTitle || test_id}>
+  <main class="min-h-screen bg-[#F8FAFC] py-8 md:py-12 font-['Plus_Jakarta_Sans']">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
       
-      {/* NẾU LỖI GOOGLE SHEETS -> HIỆN BẢNG CẢNH BÁO */}
-      {fetchError && (
-        <div class="bg-red-50 border-l-8 border-red-500 p-8 rounded-2xl shadow-sm mb-10">
-          <h2 class="text-red-800 font-black text-2xl mb-2">🚨 Cảnh báo từ Hệ thống!</h2>
-          <p class="text-red-700 text-lg font-medium">{fetchError}</p>
-          <p class="text-red-600 mt-4 text-sm">Sếp vui lòng kiểm tra lại file Google Sheets, đảm bảo đã "Publish to Web" định dạng CSV và cột dữ liệu không bị đổi tên.</p>
+      <a href="/english-lab/cambridge" class="inline-flex items-center gap-2 text-slate-400 hover:text-blue-600 font-bold text-sm mb-6 transition-all group">
+        <span class="bg-white w-8 h-8 flex items-center justify-center rounded-full shadow-sm group-hover:shadow-md transition-all">←</span>
+        THƯ VIỆN ĐỀ
+      </a>
+
+      <div class="bg-white rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 mb-10 shadow-sm border border-slate-100 relative overflow-hidden max-w-5xl mx-auto">
+        <div class="relative z-10">
+            <div class="flex items-center gap-3 mb-4">
+                <span class={`px-4 py-1.5 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg ${isListening ? 'bg-blue-500 shadow-blue-200' : 'bg-emerald-500 shadow-emerald-200'}`}>
+                    {isListening ? 'Listening' : 'Reading'} • {level}
+                </span>
+                <span class="text-slate-400 font-bold text-sm ml-2">ID: {test_id}</span>
+            </div>
+            <h1 class="text-3xl md:text-5xl font-black text-slate-900 uppercase tracking-tight leading-tight">{testTitle || "Cambridge Exam"}</h1>
         </div>
-      )}
+      </div>
 
-      {/* NẾU DỮ LIỆU NGON LÀNH -> HIỆN BÀI THI */}
-      {!fetchError && parts.map((part) => (
-        <section class="mb-20">
-          <div class="flex items-center gap-4 mb-8">
-            <div class="h-10 w-2.5 bg-emerald-500 rounded-full"></div>
-            <h2 class="text-3xl font-black text-slate-800 tracking-tight">Part {part.part_number}</h2>
+      {fetchError ? (
+        <div class="bg-white p-12 rounded-[2.5rem] text-center border-2 border-dashed border-red-100 max-w-4xl mx-auto">
+          <p class="text-red-500 font-black italic">🚨 Lỗi dữ liệu: {fetchError}</p>
+        </div>
+      ) : (
+        parts.map(part => (
+          <div class="mb-24">
+            <div class="flex items-center gap-6 mb-8 max-w-4xl mx-auto">
+                <h2 class="text-2xl md:text-3xl font-black text-slate-900 shrink-0">PART {part.part_number}</h2>
+                <div class="h-[2px] flex-1 bg-slate-200 rounded-full"></div>
+            </div>
+
+            {/* ========================================================= */}
+            {/* GIAO DIỆN CHUYÊN BIỆT CHO MÔN NGHE (LISTENING)           */}
+            {/* ========================================================= */}
+            {isListening ? (
+              <div class="max-w-4xl mx-auto">
+                
+                {/* 1 LOA DUY NHẤT CHO TOÀN BỘ PART */}
+                {part.partAudio && (
+                  <div class="bg-white p-4 md:p-6 rounded-3xl shadow-sm border border-blue-100 mb-10 flex items-center gap-4 md:gap-6 sticky top-4 z-20">
+                    <div class="w-10 h-10 md:w-12 md:h-12 shrink-0 bg-blue-500 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                    </div>
+                    <div class="flex-1 w-full overflow-hidden">
+                      <audio controls class="w-full h-10 outline-none"><source src={part.partAudio} type="audio/mpeg" /></audio>
+                    </div>
+                  </div>
+                )}
+
+                <div class="flex flex-col gap-8">
+                    
+                    {/* ---------------------------------------------------- */}
+                    {/* PART 1: ẢNH VÀ 3 NÚT BẤM (Gọn gàng) */}
+                    {part.part_number === 1 && (
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {part.questions.map(q => {
+                                const imgUrl = (q.A && String(q.A).trim().startsWith('http')) ? q.A : null;
+                                return (
+                                    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col h-full hover:border-blue-300 transition-colors">
+                                        <p class="text-slate-800 font-bold text-lg mb-4">
+                                            <span class="text-blue-600 mr-2">{q.No}.</span>{q.Question.replace(/^\d+\.\s*/, '')}
+                                        </p>
+                                        <div class="flex-1 flex items-center justify-center mb-6">
+                                            {imgUrl ? <img src={imgUrl} class="max-h-48 object-contain rounded-xl" alt="Image" /> : <div class="h-32 bg-slate-50 rounded-xl w-full flex items-center justify-center text-slate-300">No Image</div>}
+                                        </div>
+                                        <div class="grid grid-cols-3 gap-3">
+                                            {['A', 'B', 'C'].map(opt => (
+                                                <button class="py-2 rounded-xl border-2 border-slate-100 font-black text-slate-500 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 transition-all">{opt}</button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
+
+                    {/* ---------------------------------------------------- */}
+                    {/* PART 2: QUYỂN SỔ ĐIỀN TỪ (Chuẩn như ảnh 1 sếp gửi) */}
+                    {part.part_number === 2 && (
+                        <div class="bg-white p-8 md:p-12 rounded-[2rem] border-2 border-slate-200 shadow-sm mx-auto w-full max-w-2xl relative overflow-hidden">
+                            {/* Dây gáy sổ trang trí */}
+                            <div class="absolute left-0 top-0 bottom-0 w-8 border-r-2 border-slate-100 flex flex-col justify-around py-4 opacity-50">
+                                {[1,2,3,4,5,6].map(() => <div class="w-3 h-3 rounded-full bg-slate-200 -ml-1.5"></div>)}
+                            </div>
+                            
+                            <div class="pl-6">
+                                <h3 class="font-black text-xl text-slate-800 mb-8 pb-4 border-b-2 border-slate-800 inline-block uppercase">Notes</h3>
+                                <div class="flex flex-col gap-5 text-lg">
+                                   {part.questions.map(q => (
+                                       <div class="flex flex-wrap sm:flex-nowrap items-end gap-3 text-slate-700 font-medium">
+                                          <span class="whitespace-nowrap">{q.Question.replace(/^\d+\.\s*/, '')}</span>
+                                          <div class="flex items-end gap-2 flex-1 min-w-[150px]">
+                                              <span class="font-bold text-blue-600 text-sm mb-1">{q.No}.</span>
+                                              <input type="text" class="flex-1 w-full bg-transparent border-b-2 border-slate-400 focus:border-blue-600 outline-none font-bold text-slate-900 pb-1 px-2 transition-colors" />
+                                          </div>
+                                       </div>
+                                   ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ---------------------------------------------------- */}
+                    {/* PART 3 & 4: TRẮC NGHIỆM LISTENING (Gọn gàng, tinh tế) */}
+                    {(part.part_number === 3 || part.part_number === 4) && (
+                        <div class="flex flex-col gap-6">
+                            {part.questions.map(q => (
+                                <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm hover:border-blue-300 transition-colors">
+                                    <p class="text-slate-800 font-bold text-lg mb-5">
+                                        <span class="text-blue-600 mr-2">{q.No}.</span>{q.Question.replace(/^\d+\.\s*/, '')}
+                                    </p>
+                                    <div class="flex flex-col gap-3 pl-2 md:pl-6">
+                                        {['A', 'B', 'C'].map(opt => (
+                                            q[opt] && (
+                                                <label class="flex items-center gap-4 cursor-pointer group">
+                                                    <span class="w-8 h-8 rounded-full border-2 border-slate-300 flex items-center justify-center font-bold text-slate-500 group-hover:border-blue-500 group-hover:text-blue-500 transition-colors shrink-0">
+                                                        {opt}
+                                                    </span>
+                                                    <span class="text-slate-700 font-medium text-lg group-hover:text-slate-900 transition-colors">{q[opt]}</span>
+                                                </label>
+                                            )
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* ---------------------------------------------------- */}
+                    {/* PART 5: NỐI TỪ A-H (Căn chỉnh cân đối như sách) */}
+                    {part.part_number === 5 && (
+                        <div class="bg-white p-6 md:p-10 rounded-[2.5rem] border border-slate-200 shadow-sm">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-start">
+                                {/* Cột trái: Options A-H */}
+                                <div class="md:col-span-5 bg-slate-50 p-6 md:p-8 rounded-3xl border border-slate-200">
+                                    <h4 class="font-black text-slate-800 mb-4 pb-2 border-b border-slate-200 text-center uppercase tracking-widest text-sm">Options</h4>
+                                    <div class="text-slate-700 font-bold whitespace-pre-line leading-loose text-lg" set:html={part.passage || "A...\nB...\nC..."}></div>
+                                </div>
+                                
+                                {/* Cột phải: Questions */}
+                                <div class="md:col-span-7 flex flex-col gap-4">
+                                   {part.questions.map(q => (
+                                       <div class="flex items-center justify-between bg-white p-3 md:p-4 rounded-2xl border border-slate-200 hover:border-blue-400 transition-colors shadow-sm">
+                                          <div class="flex items-center gap-4 pl-2">
+                                             <span class="font-black text-blue-600 text-lg w-6">{q.No}</span>
+                                             <span class="font-bold text-slate-800 text-lg">{q.Question.replace(/^\d+\.\s*/, '')}</span>
+                                          </div>
+                                          <input type="text" maxlength="1" placeholder="" class="w-12 h-12 text-center text-xl font-black uppercase border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:bg-blue-50 outline-none transition-all shadow-inner" />
+                                       </div>
+                                   ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* TRANSCRIPT (Bảo lưu ở cuối Part, có thể ẩn đi bằng JS sau này) */}
+                {part.partTranscript && (
+                  <details class="mt-8 group border-t border-slate-200 pt-6">
+                    <summary class="flex items-center gap-2 font-black text-slate-400 cursor-pointer hover:text-blue-600 transition-colors list-none uppercase text-xs tracking-widest outline-none">
+                      <span class="group-open:rotate-180 transition-transform duration-300">▼</span> VIEW TRANSCRIPT
+                    </summary>
+                    <div class="mt-4 p-6 md:p-8 bg-slate-50 rounded-3xl border border-slate-100 text-slate-600 leading-relaxed whitespace-pre-line shadow-inner text-sm md:text-base font-medium" set:html={part.partTranscript}></div>
+                  </details>
+                )}
+              </div>
+            ) : (
+              /* ========================================================= */
+              /* GIAO DIỆN READING (VẪN XÀI COMPONENT CŨ CỦA SẾP)          */
+              /* ========================================================= */
+              <div class={isReading && part.part_number >= 2 && part.passage ? "grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-start" : "max-w-4xl mx-auto flex flex-col gap-8"}>
+                {isReading && part.part_number >= 2 && part.passage && (
+                  <div class="lg:col-span-7 bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-slate-100 lg:sticky lg:top-8">
+                    <div class="passage-content" set:html={part.passage}></div>
+                  </div>
+                )}
+                <div class={isReading && part.part_number >= 2 && part.passage ? "lg:col-span-5 flex flex-col gap-6" : "flex flex-col gap-6"}>
+                    {part.questions.map(q => {
+                        if (part.part_number === 5) {
+                            return (
+                                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm transition-all hover:border-emerald-300">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-10 h-10 shrink-0 bg-emerald-50 text-emerald-600 font-black rounded-xl flex items-center justify-center">{q.No}</div>
+                                        <div class="flex-1 pt-1">
+                                            {q.Question && <p class="text-slate-600 font-medium mb-3 text-sm">{q.Question.replace(/^\d+\.\s*/, '')}</p>}
+                                            <input type="text" placeholder="Gõ từ cần điền..." class="w-full text-lg font-bold text-slate-900 border-b-2 border-slate-100 focus:border-emerald-500 outline-none pb-2 bg-transparent" />
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        } else {
+                            return <MultipleChoice q={q} part={part.part_number} />
+                        }
+                    })}
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* PART 1 */}
-          {part.part_number === 1 && (
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {part.questions.map(q => <MultipleChoice q={q} part={1} />)}
-            </div>
-          )}
-
-          {/* PART 5 (Inline) */}
-          {part.part_number === 5 && (
-            <div class="max-w-4xl mx-auto">
-              <Part5Inline questions={part.questions} />
-            </div>
-          )}
-
-          {/* PART 2, 3, 4 (Chia đôi màn hình Split-Screen) */}
-          {[2, 3, 4].includes(part.part_number) && (
-            <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-              
-              <div class="lg:col-span-5 bg-white p-8 md:p-10 rounded-[2rem] border border-slate-200 shadow-sm sticky top-28 h-auto max-h-[80vh] overflow-y-auto custom-scrollbar">
-                {part.questions[0].Passage.split('\n').map((line, index) => {
-                  // Tự động phân tích: Dòng ngắn (<60 ký tự) làm Tiêu đề
-                  if (line.trim().length > 0 && line.trim().length < 60 && !line.includes('.')) {
-                    return <h4 class="font-black text-xl text-slate-800 mb-3 mt-8 first:mt-0 uppercase tracking-wide">{line}</h4>;
-                  } else if (line.trim().length > 0) {
-                    return <p class="text-slate-600 leading-relaxed mb-4 font-medium text-lg">{line}</p>;
-                  }
-                })}
-              </div>
-              
-              <div class="lg:col-span-7 space-y-6">
-                {part.questions.map(q => <MultipleChoice q={q} part={part.part_number} />)}
-              </div>
-
-            </div>
-          )}
-        </section>
-      ))}
-    </main>
-  </div>
+        ))
+      )}
+    </div>
+  </main>
 </Layout>
 
 <style is:global>
-  /* Logic Ẩn/Hiện giải thích */
-  .explanation-box { display: none; }
-  body.submitted .explanation-box { 
-    display: block; 
-    animation: fadeIn 0.5s ease-out;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Làm đẹp thanh cuộn cho bài đọc bên trái */
-  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  .passage-content strong { color: #0f172a; font-weight: 800; }
+  .passage-content { color: #334155; text-align: justify; }
 </style>
-
-<script>
-  // Xử lý sự kiện bấm NỘP BÀI
-  const submitBtn = document.getElementById('submit-btn');
-  if (submitBtn) {
-    submitBtn.addEventListener('click', () => {
-      // Bật class 'submitted' cho body để hiện giải thích
-      document.body.classList.add('submitted');
-      
-      // Đổi trạng thái nút
-      submitBtn.innerHTML = '✅ ĐÃ NỘP BÀI';
-      submitBtn.classList.add('pointer-events-none', 'opacity-80');
-      
-      alert("Đã nộp bài! Kéo xuống để xem đáp án và giải thích chi tiết nhé sếp.");
-    });
-  }
-</script>
