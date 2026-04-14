@@ -1,0 +1,54 @@
+---
+// src/components/exam/ReadingPart4.astro
+import MultipleChoice from './MultipleChoice.astro';
+
+const { passage, questions } = Astro.props;
+const validQuestions = questions.filter((q: any) => q.No);
+
+// Hàm Đục Lỗ Siêu Chuẩn cho Part 4
+function formatPart4Passage(rawText: string, qs: any[]) {
+  if (!rawText) return "<p class='text-red-500 font-bold'>⚠️ Chưa có bài đọc. Sếp kiểm tra lại cột Passage hoặc Transcript trong Excel nhé!</p>";
+
+  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+  let html = lines.map((line, index) => {
+    const isTitle = (index === 0) || (line.length < 50 && !line.match(/[.?!]$/));
+    if (isTitle) {
+      return `<h3 class="text-2xl md:text-3xl font-black text-slate-900 mb-6 mt-8 first:mt-0 tracking-tight leading-tight uppercase">${line}</h3>`;
+    }
+    return `<p class="mb-5 text-slate-700 leading-relaxed text-lg text-justify font-medium">${line}</p>`;
+  }).join("");
+
+  qs.forEach(q => {
+    const gapRegex = new RegExp(`[_\\.…]*\\s*\\(?\\s*\\b${q.No}\\b\\s*\\)?\\s*[_\\.…]*`, 'g');
+    const badge = `<span class="inline-flex items-center justify-center min-w-[2.5rem] px-2 h-7 rounded-md bg-emerald-100 text-emerald-800 font-black mx-1 border border-emerald-300 shadow-sm align-baseline">${q.No}</span>`;
+    html = html.replace(gapRegex, badge);
+  });
+
+  return html;
+}
+
+const formattedPassage = formatPart4Passage(passage, validQuestions);
+---
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+  
+  {/* TRÁI: BÀI ĐỌC ĐÃ ĐỤC LỖ */}
+  <div class="lg:col-span-7 bg-white p-8 md:p-14 rounded-[3rem] shadow-sm border border-slate-100 lg:sticky lg:top-10 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
+      <div class="prose prose-slate max-w-none reading-content" set:html={formattedPassage} />
+  </div>
+
+  {/* PHẢI: CHỈ CÒN SỐ CÂU HỎI VÀ ĐÁP ÁN A, B, C */}
+  <div class="lg:col-span-5 flex flex-col gap-6">
+     {validQuestions.map((q: any) => {
+         // DỌN RÁC TRIỆT ĐỂ: Xóa sạch dữ liệu bài đọc để nó không in lặp lại bên nút bấm
+         const cleanQ = { ...q, Question: q.No + '.', Passage: '', Transcript: '', Content: '' };
+         return <MultipleChoice q={cleanQ} part={4} />
+     })}
+  </div>
+</div>
+
+<style is:global>
+  .reading-content p { text-indent: 0; }
+  .reading-content h3 { border-bottom: 4px solid #10b981; display: inline-block; padding-bottom: 4px; }
+</style>

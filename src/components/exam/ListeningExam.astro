@@ -1,0 +1,55 @@
+---
+// src/components/exam/ListeningExam.astro
+import ListeningPart1 from './ListeningPart1.astro';
+import ListeningPart2 from './ListeningPart2.astro';
+import MultipleChoice from './MultipleChoice.astro';
+import ListeningPart5 from './ListeningPart5.astro';
+
+const { parts } = Astro.props;
+---
+
+<div class="listening-container pb-32">
+  {parts.map(part => (
+    <div class="mb-20">
+      <div class="flex items-center gap-6 mb-8 max-w-5xl mx-auto px-4">
+        <h2 class="text-3xl font-black text-slate-900">PART {part.part_number}</h2>
+        <div class="h-[2px] flex-1 bg-slate-200"></div>
+      </div>
+
+      <div class="max-w-4xl mx-auto px-4">
+        {/* AUDIO CHUNG CHO PART */}
+        {part.audioUrl && (
+          <div class="sticky top-4 z-30 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg mb-8 border border-blue-100 flex items-center gap-4">
+             <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white shrink-0 shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+             </div>
+             <audio controls class="flex-1 h-10"><source src={part.audioUrl} type="audio/mpeg"/></audio>
+          </div>
+        )}
+
+        {/* ĐIỀU PHỐI COMPONENT RIÊNG CHO TỪNG PART */}
+        <div class="grid gap-6">
+          {part.part_number === 1 && part.questions.map(q => <ListeningPart1 q={q} />)}
+          
+          {part.part_number === 2 && <ListeningPart2 questions={part.questions} />}
+          
+          {(part.part_number === 3 || part.part_number === 4) && 
+            part.questions.map(q => <MultipleChoice q={q} part={part.part_number} />)
+          }
+          
+          {part.part_number === 5 && <ListeningPart5 questions={part.questions} />}
+        </div>
+
+        {/* TRANSCRIPT */}
+        {part.passage && (
+          <details class="mt-10 group">
+            <summary class="cursor-pointer text-slate-400 font-bold uppercase text-xs tracking-widest hover:text-blue-600 list-none outline-none">
+                <span class="group-open:rotate-180 inline-block transition-transform mr-1">▼</span> View Transcript
+            </summary>
+            <div class="mt-4 p-8 bg-slate-50 rounded-[2rem] text-slate-600 italic leading-relaxed shadow-inner border border-slate-100" set:html={part.passage}></div>
+          </details>
+        )}
+      </div>
+    </div>
+  ))}
+</div>

@@ -1,122 +1,54 @@
 ---
-// ListeningPart5.astro
-// Listening Part 5 — Matching: danh sách người/vật → chọn từ job/option bank (A–H hoặc nhiều hơn)
-// Props: { questions }
-// Mỗi q trong questions:
-//   q.Q_Num      — số câu (21–25)
-//   q.Question   — tên người/đối tượng cần match (e.g. "Tyler", "Ava")
-//   q.ID         — name cho select
-//   q.Opt_A..Opt_H — các lựa chọn trong bank (chỉ cần lấy từ q đầu tiên)
-//   q.Passage    — context / example (e.g. "Example: 0 Lucas F")
-//   q.Answer     — đáp án đúng
-//   q.Explanation
+// src/components/exam/Part5Inline.astro - Bản Final Đã Hiện Đáp Án
+import MultipleChoice from './MultipleChoice.astro';
 
 const { questions } = Astro.props;
 
-// Lấy bank từ câu đầu tiên (tất cả câu trong part dùng chung 1 bank)
-const firstQ = questions[0];
-const optionKeys = ['A','B','C','D','E','F','G','H'].filter(k => firstQ?.[`Opt_${k}`]);
+// 1. Lấy nội dung đoạn văn từ câu đầu tiên
+let passageHtml = questions[0]?.Passage || "";
 
-// Parse example từ Passage câu đầu: "Example: 0 Lucas F" hoặc "Example:[BR]0 Lucas F"
-const exampleRaw = firstQ?.Passage || '';
-const exampleMatch = exampleRaw.match(/Example[:\s]*[\[BR\]||\r\n]*(\d+)\s+(.+?)\s+([A-H])/i);
-const example = exampleMatch
-  ? { num: exampleMatch[1], name: exampleMatch[2], answer: exampleMatch[3] }
-  : null;
+// 2. CHUYỂN CÁC CHỖ TRỐNG THÀNH HUY HIỆU SỐ
+questions.forEach((q: any) => {
+  if (!q || !q.No) return;
+  
+  // Bắt chuẩn xác (25) ..... hoặc ____25____
+  const gapRegex = new RegExp(`(?:\\.{2,}|_+|…+)?\\s*\\(?\\s*${q.No}\\s*\\)?\\s*(?:\\.{2,}|_+|…+)?`, 'g');
+  
+  // Biến thành Badge màu xanh lá
+  const badge = `<span class="inline-flex items-center justify-center min-w-[2.5rem] px-2 h-7 rounded-md bg-emerald-100 text-emerald-800 font-black mx-1 border border-emerald-300 shadow-sm align-baseline">${q.No}</span>`;
+  
+  passageHtml = passageHtml.replace(gapRegex, badge);
+});
+
+// 3. TỰ ĐỘNG CHIA ĐOẠN ĐẸP MẮT (Bọc thẻ <p> thay vì để chữ dính liền)
+const formattedPassage = passageHtml
+  .split(/\r?\n/)
+  .filter((l: string) => l.trim() !== "")
+  .map((l: string) => `<p class="mb-4">${l}</p>`)
+  .join("");
 ---
 
-<div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative mb-6 overflow-hidden">
+<div class="bg-white p-8 md:p-12 rounded-[3rem] border border-slate-200 shadow-sm relative overflow-hidden">
+  <div class="absolute top-0 left-0 w-full h-2 bg-emerald-500"></div>
   
-  <!-- Accent bar -->
-  <div class="h-1.5 w-full bg-emerald-500"></div>
-
-  <div class="p-6 md:p-8">
-
-    <!-- Option bank: bảng chữ A-H -->
-    <div class="mb-7">
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 border-2 border-slate-200 rounded-2xl p-4 bg-slate-50/60">
-        <div class="col-span-full text-xs font-black text-slate-400 uppercase tracking-widest mb-1 px-1">
-          Lựa chọn
-        </div>
-        {optionKeys.map((k) => (
-          <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
-            <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500 text-white font-black text-sm shrink-0">
-              {k}
-            </span>
-            <span class="text-slate-700 font-medium text-sm">{firstQ[`Opt_${k}`]}</span>
-          </div>
-        ))}
+  {/* BÀI ĐỌC ĐÃ ĐỤC LỖ */}
+  <div class="prose prose-slate max-w-none text-lg leading-loose text-slate-700 font-medium text-justify mb-12" set:html={formattedPassage} />
+  
+  {/* KHU VỰC CHỌN ĐÁP ÁN A, B, C */}
+  <div class="bg-slate-50 p-6 md:p-10 rounded-[2.5rem] border border-slate-100">
+      <div class="flex justify-center mb-8">
+          <h4 class="text-xl font-black text-slate-800 uppercase tracking-widest border-b-2 border-slate-200 pb-2">
+             Chọn từ thích hợp
+          </h4>
       </div>
-    </div>
-
-    <!-- Example (nếu có) -->
-    {example && (
-      <div class="mb-5 flex items-center gap-3 bg-slate-100 px-5 py-3 rounded-xl border border-slate-200">
-        <span class="text-slate-500 font-bold text-sm uppercase tracking-wide shrink-0">Example</span>
-        <span class="text-slate-400 mx-1">·</span>
-        <span class="font-bold text-slate-500 text-sm shrink-0">{example.num}.</span>
-        <span class="font-semibold text-slate-600 text-sm flex-1">{example.name}</span>
-        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-slate-300 text-slate-600 font-black text-sm">
-          {example.answer}
-        </span>
+      
+      {/* Grid chia 2 cột để các câu hỏi đứng cạnh nhau cho tiết kiệm diện tích */}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
+         {questions.map((q: any) => {
+            // Dọn rác văn bản: Chỉ hiện số câu (VD: "25.") chứ không lặp lại câu hỏi
+            const cleanQ = { ...q, Question: q.No + '.' };
+            return <MultipleChoice q={cleanQ} part={5} />
+         })}
       </div>
-    )}
-
-    <!-- Bảng matching: tên → dropdown -->
-    <div class="border-2 border-slate-200 rounded-2xl overflow-hidden divide-y divide-slate-100">
-      <!-- Header -->
-      <div class="grid grid-cols-2 bg-slate-800 text-white">
-        <div class="px-5 py-3 font-black text-sm uppercase tracking-wider">Tên</div>
-        <div class="px-5 py-3 font-black text-sm uppercase tracking-wider border-l border-slate-600">Chọn đáp án</div>
-      </div>
-
-      {questions.map((q: any) => (
-        <div class="grid grid-cols-2 items-center hover:bg-emerald-50/30 transition-colors group">
-          <!-- Tên người -->
-          <div class="px-5 py-4 font-semibold text-slate-800 text-base border-r border-slate-100">
-            <span class="text-emerald-600 font-black mr-2 text-sm">{q.Q_Num}.</span>
-            {q.Question}
-          </div>
-          <!-- Select -->
-          <div class="px-4 py-3">
-            <select
-              name={q.ID}
-              class="w-full border-2 border-slate-200 rounded-xl px-3 py-2.5 bg-white text-slate-700 font-bold text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none cursor-pointer hover:border-emerald-300 transition-all appearance-none"
-              style="background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px;"
-            >
-              <option value="">— chọn —</option>
-              {optionKeys.map((k) => (
-                <option value={k}>{k} — {firstQ[`Opt_${k}`]}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-
-  <!-- Explanation (ẩn, hiện sau submit) -->
-  <div class="explanation-box px-6 pb-6 hidden">
-    <div class="pt-6 border-t-2 border-dashed border-slate-100">
-      <h4 class="font-black text-slate-700 text-sm uppercase tracking-wide mb-4">💡 Đáp án</h4>
-      <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
-        {questions.map((q: any) => (
-          <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-400"></div>
-            <div class="mb-1.5 flex items-center gap-2">
-              <span class="bg-amber-400 text-amber-900 text-xs font-black px-2.5 py-1 rounded-lg uppercase tracking-wide">
-                {q.Q_Num}. {q.Question}
-              </span>
-              <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500 text-white font-black text-sm">
-                {q.Answer}
-              </span>
-            </div>
-            {q.Explanation && (
-              <p class="text-slate-600 text-sm font-medium leading-relaxed">{q.Explanation}</p>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
   </div>
 </div>

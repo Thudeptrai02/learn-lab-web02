@@ -1,31 +1,64 @@
 ---
 const { q } = Astro.props;
 ---
-<div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm mb-8 hover:shadow-md transition-shadow">
-  <h3 class="font-bold text-lg md:text-xl text-slate-800 mb-6 leading-snug">
-    <span class="text-emerald-600 mr-2 bg-emerald-50 px-3 py-1.5 rounded-xl">{q.Q_Num}.</span>{q.Question}
+<div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm mb-12 writing-card" data-prompt={q.Question} data-part={q.Part_Number || 6}>
+  <h3 class="font-bold text-lg text-slate-800 mb-6 flex items-center gap-3">
+    <span class="bg-emerald-600 text-white w-10 h-10 flex items-center justify-center rounded-xl">{q.Q_Num}</span>
+    {q.Question}
   </h3>
 
-  {q.Passage && (
-    <div class="bg-slate-50 border-l-4 border-emerald-500 p-5 rounded-r-xl mb-6 text-slate-700 whitespace-pre-wrap font-medium leading-relaxed">
-      {q.Passage}
-    </div>
-  )}
+  <textarea class="student-input w-full border-2 border-slate-100 rounded-3xl p-6 min-h-[180px] focus:border-emerald-500 outline-none text-lg" placeholder="Type your answer here..."></textarea>
 
-  {q.Image_URL && q.Image_URL !== '[CẦN_LINK_ẢNH]' && (
-    <div class="mb-6 border-2 border-dashed border-slate-300 rounded-2xl p-4 text-center bg-slate-50/50">
-      <img src={q.Image_URL} alt="Writing Prompt" class="mx-auto max-h-72 object-contain rounded-lg shadow-sm" />
-    </div>
-  )}
+  <div class="flex justify-between mt-4">
+    <div class="text-sm font-bold text-slate-400">Word count: <span class="word-count">0</span></div>
+    <button class="ai-grade-btn bg-purple-600 text-white font-black px-6 py-2 rounded-xl">Chấm bằng AI</button>
+  </div>
 
-  <textarea rows="10" class="w-full border-2 border-slate-200 rounded-2xl p-6 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 outline-none resize-y text-slate-700 font-medium text-lg leading-relaxed transition-all" placeholder="Bắt đầu viết câu trả lời..."></textarea>
-
-  {q.Explanation && (
-    <div class="explanation-box mt-6 pt-6 border-t-2 border-dashed border-slate-100 hidden">
-      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-        <h4 class="font-black text-amber-900 mb-2 uppercase tracking-wide text-sm">💡 Gợi ý:</h4>
-        <p class="text-slate-700 font-medium leading-relaxed whitespace-pre-wrap">{q.Explanation}</p>
-      </div>
+  <div class="result-area mt-8 hidden border-t pt-6">
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-blue-50 p-4 rounded-xl text-center"><div class="text-3xl font-black text-blue-600 score-content">0</div><div class="text-xs uppercase">Content</div></div>
+      <div class="bg-purple-50 p-4 rounded-xl text-center"><div class="text-3xl font-black text-purple-600 score-org">0</div><div class="text-xs uppercase">Organisation</div></div>
+      <div class="bg-emerald-50 p-4 rounded-xl text-center"><div class="text-3xl font-black text-emerald-600 score-lang">0</div><div class="text-xs uppercase">Language</div></div>
     </div>
-  )}
+    <div class="bg-slate-900 text-white p-6 rounded-2xl mb-4"><h4 class="text-emerald-400 font-bold">💬 Nhận xét:</h4><p class="feedback-text"></p></div>
+    <div class="bg-amber-50 p-6 rounded-2xl border border-amber-100"><h4 class="text-amber-700 font-bold">✨ Bài mẫu:</h4><p class="sample-text italic"></p></div>
+  </div>
 </div>
+
+<script>
+  document.querySelectorAll('.writing-card').forEach(card => {
+    const textarea = card.querySelector('.student-input');
+    const wordCount = card.querySelector('.word-count');
+    const btn = card.querySelector('.ai-grade-btn');
+    const resArea = card.querySelector('.result-area');
+
+    textarea.addEventListener('input', (e) => {
+      wordCount.textContent = e.target.value.trim() ? e.target.value.trim().split(/\s+/).length : 0;
+    });
+
+    btn.addEventListener('click', async () => {
+      if (textarea.value.length < 5) return alert('Viết gì đó đã sếp!');
+      btn.disabled = true; btn.textContent = "⏳ Đang chấm...";
+      
+      try {
+        const res = await fetch('/api/grade-writing', {
+          method: 'POST',
+          body: JSON.stringify({ studentAnswer: textarea.value, taskPrompt: card.dataset.prompt, partNumber: card.dataset.part })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        card.querySelector('.score-content').textContent = data.content;
+        card.querySelector('.score-org').textContent = data.organisation;
+        card.querySelector('.score-lang').textContent = data.language;
+        card.querySelector('.feedback-text').textContent = data.feedback_vn;
+        card.querySelector('.sample-text').textContent = data.sample;
+        resArea.classList.remove('hidden');
+        btn.textContent = "✅ Đã chấm xong";
+      } catch (e) {
+        alert('Lỗi: ' + e.message);
+        btn.disabled = false; btn.textContent = "Thử lại";
+      }
+    });
+  });
+</script>
