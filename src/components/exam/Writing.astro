@@ -1,27 +1,117 @@
 ---
+// src/components/exam/Writing.astro - BẢN FIX CHÍNH XÁC "Image_URL"
 const { q } = Astro.props;
+
+// 1. NHẬN DIỆN PART 7 CHUẨN (Dựa trên số 7 hoặc câu chữ)
+const partNum = parseInt(q.Part_Number) || (q.Part === "Part 7" ? 7 : 6);
+const isPart7 = partNum === 7 || (q.Question && q.Question.toLowerCase().includes("three pictures"));
+
+// 2. BẮT ĐÚNG KEY "Image_URL" TỪ SHEETS CỦA SẾP
+// Tôi liệt kê đủ các kiểu để sếp cào kiểu gì cũng trúng
+const rawImage = q.Image_URL || q.Image_Url || q.Image || q.image;
+const images = rawImage ? rawImage.split(',').map(img => img.trim()) : [];
+
+// 3. KIỂM TRA HEADER EMAIL (Chỉ dùng cho Part 6)
+const hasHeader = q.Passage && (q.Passage.includes("From:") || q.Passage.includes("Subject:"));
 ---
-<div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm mb-12 writing-card" data-prompt={q.Question} data-part={q.Part_Number || 6}>
-  <h3 class="font-bold text-lg text-slate-800 mb-6 flex items-center gap-3">
-    <span class="bg-emerald-600 text-white w-10 h-10 flex items-center justify-center rounded-xl">{q.Q_Num}</span>
-    {q.Question}
-  </h3>
 
-  <textarea class="student-input w-full border-2 border-slate-100 rounded-3xl p-6 min-h-[180px] focus:border-emerald-500 outline-none text-lg" placeholder="Type your answer here..."></textarea>
-
-  <div class="flex justify-between mt-4">
-    <div class="text-sm font-bold text-slate-400">Word count: <span class="word-count">0</span></div>
-    <button class="ai-grade-btn bg-purple-600 text-white font-black px-6 py-2 rounded-xl">Chấm bằng AI</button>
+<div class="writing-card max-w-4xl mx-auto mb-10" data-prompt={q.Question} data-part={isPart7 ? 7 : 6}>
+  
+  {/* TIÊU ĐỀ */}
+  <div class="mb-4 px-1">
+    <div class="flex items-center gap-2 mb-1">
+      <span class="bg-slate-900 text-white font-black px-2 py-0.5 rounded text-[10px] uppercase">Question {q.Q_Num}</span>
+    </div>
+    <p class="text-slate-800 font-bold text-base md:text-lg leading-tight">{q.Question}</p>
   </div>
 
-  <div class="result-area mt-8 hidden border-t pt-6">
-    <div class="grid grid-cols-3 gap-4 mb-6">
-      <div class="bg-blue-50 p-4 rounded-xl text-center"><div class="text-3xl font-black text-blue-600 score-content">0</div><div class="text-xs uppercase">Content</div></div>
-      <div class="bg-purple-50 p-4 rounded-xl text-center"><div class="text-3xl font-black text-purple-600 score-org">0</div><div class="text-xs uppercase">Organisation</div></div>
-      <div class="bg-emerald-50 p-4 rounded-xl text-center"><div class="text-3xl font-black text-emerald-600 score-lang">0</div><div class="text-xs uppercase">Language</div></div>
+  <div class="mb-6">
+    {isPart7 ? (
+      /* --- GIAO DIỆN PART 7: HIỂN THỊ TRANH --- */
+      <div class="space-y-4">
+        <div class="bg-white border-2 border-slate-900 rounded-xl overflow-hidden shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] p-3">
+          {images.length > 0 ? (
+            /* Layout 3 cột nếu có 3 link, hoặc 1 cột nếu là 1 ảnh gộp */
+            <div class={`grid gap-3 ${images.length >= 3 ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1'}`}>
+              {images.map((img, index) => (
+                <div class="border-2 border-slate-50 rounded-lg overflow-hidden bg-slate-50 flex items-center justify-center">
+                  <img 
+                    src={img} 
+                    alt={`KET Story Picture ${index + 1}`} 
+                    class="w-full h-auto object-contain max-h-[450px]"
+                    loading="lazy"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div class="py-16 text-center border-2 border-dashed border-slate-200 rounded-lg italic text-slate-400">
+               📸 Chờ sếp nạp link vào cột Image_URL...
+            </div>
+          )}
+        </div>
+        <p class="text-slate-500 text-[11px] font-black text-center uppercase tracking-widest italic">Write the story on your answer sheet.</p>
+      </div>
+    ) : (
+      /* --- GIAO DIỆN PART 6: EMAIL --- */
+      <div class="bg-white border-2 border-slate-900 rounded-xl overflow-hidden shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+        {!hasHeader && (
+          <div class="border-b border-slate-100 p-3 bg-slate-50/50 text-xs space-y-0.5">
+            <div class="flex gap-2">
+              <span class="font-black text-slate-900 w-14 text-right">From:</span>
+              <span class="text-slate-700">{q.Sender || "Francis"}</span>
+            </div>
+            <div class="flex gap-2">
+              <span class="font-black text-slate-900 w-14 text-right">Subject:</span>
+              <span class="text-slate-700 font-bold">{q.Subject || "Email"}</span>
+            </div>
+          </div>
+        )}
+        <div class="p-6">
+          <div class="prose prose-slate max-w-none text-slate-800 text-lg leading-relaxed font-medium whitespace-pre-line" set:html={q.Passage} />
+        </div>
+      </div>
+    )}
+  </div>
+
+  {/* KHUNG VIẾT BÀI (Answer Sheet) */}
+  <div class="relative">
+    <textarea 
+      class="student-input w-full border-2 border-slate-900 rounded-2xl p-6 min-h-[200px] focus:ring-4 focus:ring-emerald-50 outline-none text-lg text-slate-700 transition-all shadow-inner" 
+      placeholder={isPart7 ? "Write your story here (35 words or more)..." : "Write your email here (25 words or more)..."}
+    ></textarea>
+    
+    <div class="flex items-center justify-between mt-4 px-1">
+        <div class="flex items-center gap-2 bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Words:</span>
+            <span class="word-count text-base font-black text-slate-900">0</span>
+        </div>
+        <button class="ai-grade-btn bg-slate-900 hover:bg-emerald-600 text-white font-black px-8 py-3 rounded-xl transition-all shadow-[0_4px_0_0_#1e293b] active:shadow-none active:translate-y-[4px] uppercase text-xs tracking-widest">
+            Chấm bằng AI
+        </button>
     </div>
-    <div class="bg-slate-900 text-white p-6 rounded-2xl mb-4"><h4 class="text-emerald-400 font-bold">💬 Nhận xét:</h4><p class="feedback-text"></p></div>
-    <div class="bg-amber-50 p-6 rounded-2xl border border-amber-100"><h4 class="text-amber-700 font-bold">✨ Bài mẫu:</h4><p class="sample-text italic"></p></div>
+  </div>
+
+  {/* KẾT QUẢ CHẤM ĐIỂM */}
+  <div class="result-area mt-10 hidden border-t-2 border-dashed border-slate-200 pt-8 animate-in fade-in slide-in-from-bottom-2">
+    <div class="grid grid-cols-3 gap-3 mb-6 text-center">
+      {['content', 'organisation', 'language'].map(id => (
+        <div class="bg-white border-2 border-slate-900 p-2 rounded-xl shadow-[3px_3px_0_0_#0f172a]">
+           <div class="text-[9px] font-black text-slate-400 uppercase mb-1">{id}</div>
+           <div class="text-2xl font-black text-slate-900"><span class={`score-${id}`}>0</span><span class="text-xs text-slate-300">/5</span></div>
+        </div>
+      ))}
+    </div>
+    <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl space-y-4">
+      <div>
+        <h4 class="text-emerald-400 font-bold text-xs uppercase mb-1">💬 Nhận xét:</h4>
+        <p class="feedback-text text-slate-300 text-sm leading-relaxed italic"></p>
+      </div>
+      <div class="border-t border-slate-800 pt-3">
+        <h4 class="text-amber-400 font-bold text-xs uppercase mb-1">✨ Bài mẫu 15/15:</h4>
+        <p class="sample-text text-slate-400 text-sm italic leading-relaxed"></p>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -33,31 +123,34 @@ const { q } = Astro.props;
     const resArea = card.querySelector('.result-area');
 
     textarea.addEventListener('input', (e) => {
-      wordCount.textContent = e.target.value.trim() ? e.target.value.trim().split(/\s+/).length : 0;
+      const text = e.target.value.trim();
+      wordCount.textContent = text ? text.split(/\s+/).length : 0;
     });
 
     btn.addEventListener('click', async () => {
-      if (textarea.value.length < 5) return alert('Viết gì đó đã sếp!');
-      btn.disabled = true; btn.textContent = "⏳ Đang chấm...";
-      
+      if (textarea.value.trim().length < 5) return alert('Sếp viết bài đã nhé!');
+      btn.disabled = true; btn.textContent = "⌛ ĐANG CHẤM...";
       try {
         const res = await fetch('/api/grade-writing', {
           method: 'POST',
-          body: JSON.stringify({ studentAnswer: textarea.value, taskPrompt: card.dataset.prompt, partNumber: card.dataset.part })
+          body: JSON.stringify({
+            studentAnswer: textarea.value,
+            taskPrompt: card.dataset.prompt,
+            partNumber: card.dataset.part
+          })
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
-
         card.querySelector('.score-content').textContent = data.content;
-        card.querySelector('.score-org').textContent = data.organisation;
-        card.querySelector('.score-lang').textContent = data.language;
+        card.querySelector('.score-organisation').textContent = data.organisation;
+        card.querySelector('.score-language').textContent = data.language;
         card.querySelector('.feedback-text').textContent = data.feedback_vn;
-        card.querySelector('.sample-text').textContent = data.sample;
+        card.querySelector('.sample-text').textContent = data.sample || "";
         resArea.classList.remove('hidden');
-        btn.textContent = "✅ Đã chấm xong";
+        btn.textContent = "✅ ĐÃ XONG";
       } catch (e) {
         alert('Lỗi: ' + e.message);
-        btn.disabled = false; btn.textContent = "Thử lại";
+        btn.disabled = false; btn.textContent = "THỬ LẠI";
       }
     });
   });

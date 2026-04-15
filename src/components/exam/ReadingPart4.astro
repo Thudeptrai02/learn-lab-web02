@@ -1,54 +1,132 @@
 ---
-// src/components/exam/ReadingPart4.astro
-import MultipleChoice from './MultipleChoice.astro';
+// src/components/exam/ReadingPart4.astro - BẢN FIX TRIỆT ĐỂ MŨI TÊN
+const { q, options = {} } = Astro.props; 
 
-const { passage, questions } = Astro.props;
-const validQuestions = questions.filter((q: any) => q.No);
-
-// Hàm Đục Lỗ Siêu Chuẩn cho Part 4
-function formatPart4Passage(rawText: string, qs: any[]) {
-  if (!rawText) return "<p class='text-red-500 font-bold'>⚠️ Chưa có bài đọc. Sếp kiểm tra lại cột Passage hoặc Transcript trong Excel nhé!</p>";
-
-  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
-  let html = lines.map((line, index) => {
-    const isTitle = (index === 0) || (line.length < 50 && !line.match(/[.?!]$/));
-    if (isTitle) {
-      return `<h3 class="text-2xl md:text-3xl font-black text-slate-900 mb-6 mt-8 first:mt-0 tracking-tight leading-tight uppercase">${line}</h3>`;
-    }
-    return `<p class="mb-5 text-slate-700 leading-relaxed text-lg text-justify font-medium">${line}</p>`;
-  }).join("");
-
-  qs.forEach(q => {
-    const gapRegex = new RegExp(`[_\\.…]*\\s*\\(?\\s*\\b${q.No}\\b\\s*\\)?\\s*[_\\.…]*`, 'g');
-    const badge = `<span class="inline-flex items-center justify-center min-w-[2.5rem] px-2 h-7 rounded-md bg-emerald-100 text-emerald-800 font-black mx-1 border border-emerald-300 shadow-sm align-baseline">${q.No}</span>`;
-    html = html.replace(gapRegex, badge);
-  });
-
-  return html;
-}
-
-const formattedPassage = formatPart4Passage(passage, validQuestions);
+const passage = q.Passage || "";
+// Tách đoạn văn dựa trên thẻ [[number]]
+const parts = passage.split(/(\[\[\d+\]\])/g);
 ---
 
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-  
-  {/* TRÁI: BÀI ĐỌC ĐÃ ĐỤC LỖ */}
-  <div class="lg:col-span-7 bg-white p-8 md:p-14 rounded-[3rem] shadow-sm border border-slate-100 lg:sticky lg:top-10 relative overflow-hidden">
-      <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
-      <div class="prose prose-slate max-w-none reading-content" set:html={formattedPassage} />
-  </div>
+<div class="reading-part-4 max-w-4xl mx-auto p-6 md:p-10 bg-white border-2 border-slate-900 rounded-[2.5rem] shadow-[8px_8px_0px_0px_#0f172a]">
+  {/* KHÔNG DÙNG PROSE Ở ĐÂY ĐỂ TRÁNH BỊ NUỐT ICON */}
+  <div class="reading-body text-slate-800 text-lg md:text-xl leading-[3] font-medium tracking-tight">
+    {parts.map((part) => {
+      const match = part.match(/\[\[(\d+)\]\]/);
+      if (match) {
+        const qNum = match[1];
+        const choices = options[qNum] || ["Option A", "Option B", "Option C"];
+        
+        return (
+          <div class="inline-block relative gap-wrapper mx-1" data-qnum={qNum} style="vertical-align: middle;">
+            {/* NÚT BẤM - ÉP CỨNG LAYOUT */}
+            <button class="gap-btn group flex items-center justify-between min-w-[120px] h-11 px-2 bg-emerald-50 border-2 border-emerald-200 rounded-xl transition-all hover:border-slate-900 hover:bg-white shadow-sm">
+              
+              {/* 1. Số thứ tự (Bên trái) */}
+              <span class="flex-shrink-0 w-7 h-7 flex items-center justify-center bg-white text-[11px] font-black text-emerald-600 rounded-lg shadow-sm border border-emerald-100">
+                {qNum}
+              </span>
+              
+              {/* 2. Chỗ hiện chữ (Ở giữa) */}
+              <span class="selected-val flex-1 text-center font-bold text-slate-900 text-sm md:text-base px-2 truncate">
+                ........
+              </span>
 
-  {/* PHẢI: CHỈ CÒN SỐ CÂU HỎI VÀ ĐÁP ÁN A, B, C */}
-  <div class="lg:col-span-5 flex flex-col gap-6">
-     {validQuestions.map((q: any) => {
-         // DỌN RÁC TRIỆT ĐỂ: Xóa sạch dữ liệu bài đọc để nó không in lặp lại bên nút bấm
-         const cleanQ = { ...q, Question: q.No + '.', Passage: '', Transcript: '', Content: '' };
-         return <MultipleChoice q={cleanQ} part={4} />
-     })}
+              {/* 3. MŨI TÊN - DÙNG SVG TRỰC TIẾP VỚI STYLE ÉP CỨNG */}
+              <div class="arrow-box flex-shrink-0 flex items-center justify-center w-4 h-4 ml-1">
+                <svg 
+                  viewBox="0 0 24 24" 
+                  style="width: 14px; height: 14px; display: block; fill: none; stroke: #10b981; stroke-width: 4px; stroke-linecap: round; stroke-linejoin: round;"
+                  class="arrow-svg transition-transform duration-300 group-hover:stroke-slate-900"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+            </button>
+            
+            {/* MENU SỔ XUỐNG */}
+            <div class="dropdown-menu absolute left-0 top-full mt-2 w-48 bg-white border-2 border-slate-900 rounded-2xl shadow-[6px_6px_0_0_#0f172a] z-[100] hidden overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              {choices.map((choice) => (
+                <button class="option-item w-full text-left px-5 py-3 hover:bg-emerald-50 hover:text-emerald-700 font-bold border-b border-slate-100 last:border-none transition-colors text-base text-slate-700">
+                  {choice}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      }
+      return <span>{part}</span>;
+    })}
   </div>
 </div>
 
-<style is:global>
-  .reading-content p { text-indent: 0; }
-  .reading-content h3 { border-bottom: 4px solid #10b981; display: inline-block; padding-bottom: 4px; }
+<style>
+  /* Hiệu ứng xoay mũi tên khi mở menu */
+  .gap-wrapper.open .arrow-svg {
+    transform: rotate(180deg);
+    stroke: #0f172a !important;
+  }
+
+  .gap-wrapper.open .gap-btn {
+    border-color: #0f172a;
+    background: white;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+
+  .gap-wrapper.open .dropdown-menu {
+    display: block;
+  }
+
+  /* Định nghĩa lại typography thủ công thay cho prose */
+  .reading-body {
+    word-break: break-word;
+  }
 </style>
+
+<script>
+  function setupReadingPart4() {
+    const wrappers = document.querySelectorAll('.gap-wrapper');
+
+    wrappers.forEach(wrapper => {
+      const btn = wrapper.querySelector('.gap-btn');
+      const options = wrapper.querySelectorAll('.option-item');
+      const selectedVal = wrapper.querySelector('.selected-val');
+
+      // Click để đóng/mở
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const wasOpen = wrapper.classList.contains('open');
+        
+        // Đóng các menu khác
+        document.querySelectorAll('.gap-wrapper').forEach(w => w.classList.remove('open'));
+        
+        if (!wasOpen) {
+          wrapper.classList.add('open');
+        }
+      });
+
+      // Click chọn đáp án
+      options.forEach(opt => {
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const val = opt.textContent.trim();
+          selectedVal.textContent = val;
+          wrapper.classList.remove('open');
+          
+          // Đổi màu nút khi đã hoàn thành
+          btn.classList.add('border-slate-900', 'bg-emerald-50');
+          btn.classList.remove('border-emerald-200');
+        });
+      });
+    });
+
+    // Click ra ngoài thì đóng hết
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.gap-wrapper').forEach(w => w.classList.remove('open'));
+    });
+  }
+
+  // Chạy khi trang load lần đầu
+  setupReadingPart4();
+  // Chạy khi Astro chuyển trang (nếu dùng ViewTransitions)
+  document.addEventListener('astro:page-load', setupReadingPart4);
+</script>

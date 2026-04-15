@@ -1,82 +1,68 @@
-// src/pages/api/grade-writing.js - Bản Siêu Bền (Fix lỗi 500 & Model Not Found)
+// src/pages/api/grade-writing.js - BẢN FIX 2026 (Dùng Groq Llama 3.3)
 
 export const POST = async ({ request }) => {
   try {
     const data = await request.json();
     const { studentAnswer, taskPrompt, partNumber } = data;
-    const API_KEY = import.meta.env.GEMINI_API_KEY;
+
+    // Lấy Key từ Groq (Đảm bảo sếp đã cấu hình biến GROQ_API_KEY trong .env)
+    const API_KEY = import.meta.env.GROQ_API_KEY || process.env.GROQ_API_KEY;
 
     if (!API_KEY) {
-      console.error("❌ THIẾU API KEY: Sếp kiểm tra lại file .env nhé!");
-      return new Response(JSON.stringify({ error: "Chưa cấu hình API Key!" }), { status: 500 });
+      return new Response(JSON.stringify({ error: "Sếp chưa nạp GROQ_API_KEY rồi!" }), { status: 500 });
     }
 
-    // Dùng v1 và gemini-pro để đảm bảo ĐỘ ỔN ĐỊNH CAO NHẤT
-    const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+    // DÙNG MODEL Llama 3.3 MỚI NHẤT (Thay cho bản 3.1 đã bị xóa)
+    const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+    const MODEL_NAME = "llama-3.3-70b-versatile"; 
 
     const systemPrompt = `
-      You are a Cambridge English Examiner for A2 Key (KET). 
-      Grade this Writing Part ${partNumber} out of 15 marks.
+      You are a Cambridge English Examiner for A2 Key (KET). Grade this Part ${partNumber} writing task out of 15 total marks.
       
-      CRITERIA (0-5 marks each):
-      1. Content: Did they answer all 3 prompts?
-      2. Organisation: Linking words (and, but, so, because)?
-      3. Language: Simple grammar accuracy?
+      SCORING CRITERIA (5 marks each):
+      1. Content: Did they answer all prompts/pictures? (P6 email ~25 words, P7 story ~35 words).
+      2. Organisation: Is it coherent? Used linking words (and, but, so, because)? Correct punctuation?
+      3. Language: Everyday vocabulary? Accurate simple grammar (basic tenses)?
       
       Task: "${taskPrompt}"
       Student Answer: "${studentAnswer}"
       
-      Respond ONLY in this JSON format:
+      Respond STRICTLY in JSON:
       {
         "content": number,
         "organisation": number,
         "language": number,
-        "feedback_vn": "Nhận xét chi tiết bằng tiếng Việt",
-        "sample": "Bản mẫu 15/15"
+        "feedback_vn": "Nhận xét tiếng Việt chi tiết dựa trên Checklist Cambridge.",
+        "sample": "Bản viết mẫu đạt 15/15."
       }
     `;
 
-    console.log("🚀 Đang gọi Google AI chấm bài...");
-
     const response = await fetch(API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: systemPrompt }] }]
+        model: MODEL_NAME,
+        messages: [{ role: "user", content: systemPrompt }],
+        temperature: 0.2,
+        response_format: { type: "json_object" } 
       })
     });
 
     const result = await response.json();
 
-    // 1. Kiểm tra nếu Google báo lỗi API
     if (result.error) {
-      console.error("❌ LỖI GOOGLE:", result.error.message);
       return new Response(JSON.stringify({ error: result.error.message }), { status: 500 });
     }
 
-    // 2. Kiểm tra nếu AI chặn nội dung (Safety Filters)
-    if (!result.candidates || result.candidates.length === 0) {
-      console.error("⚠️ AI chặn bài viết này vì lý do an toàn.");
-      return new Response(JSON.stringify({ error: "AI từ chối chấm bài này, sếp viết lại tử tế xem!" }), { status: 500 });
-    }
-
-    const aiText = result.candidates[0].content.parts[0].text;
-    
-    // 3. Trích xuất JSON (đề phòng AI trả về text thừa)
-    const jsonMatch = aiText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.error("❌ AI không trả về JSON chuẩn:", aiText);
-      throw new Error("Dữ liệu AI trả về bị lỗi format.");
-    }
-
-    console.log("✅ Chấm điểm thành công!");
-    return new Response(jsonMatch[0], { 
+    return new Response(result.choices[0].message.content, { 
       status: 200, 
       headers: { 'Content-Type': 'application/json' } 
     });
 
   } catch (error) {
-    console.error("❌ LỖI HỆ THỐNG:", error.message);
     return new Response(JSON.stringify({ error: "Lỗi hệ thống: " + error.message }), { status: 500 });
   }
 };
