@@ -1,31 +1,60 @@
 ---
+// MultipleChoice.astro — v2
+// Dùng cho: Listening Part 1 (nếu không có Image_URL), Part 3, Part 4
+//           Reading Part 1, 2, 3
+// Props: { q, part }
+//
+// LOGIC PHÂN LOẠI:
+//   isPart1     → part === 1: layout 2 cột (Passage card | MCQ)
+//                 Nếu q.Image_URL có → hiển thị ảnh thay Passage text card
+//   isPart4     → part === 4: chỉ hiển thị Q_Num (câu hỏi nằm trong Passage context bên ngoài)
+//   other       → MCQ thông thường
+
 const { q, part } = Astro.props;
 const isPart1 = part === 1;
 const isPart4 = part === 4;
+const hasImage = q.Image_URL && q.Image_URL.startsWith('http');
 
-// Lệnh Ăn Tạp: Chặt hết [BR], ||, và cả Enter
-const passageLines = q.Passage ? q.Passage.split(/\[BR\]|\|\||\r\n|\r|\n|<br\s*\/?>/).map(l => l.trim()).filter(l => l !== '') : [];
+// Parse Passage thành header + body (Giữ lại logic cũ phòng trường hợp cần dùng)
+const passageLines = q.Passage
+  ? q.Passage.split(/\[BR\]|\|\||\r\n|\r|\n|<br\s*\/?>/).map((l: string) => l.trim()).filter((l: string) => l !== '')
+  : [];
 const headerText = passageLines.length > 1 ? passageLines[0] : null;
-const bodyText = passageLines.length > 1 ? passageLines.slice(1).join('\n\n') : passageLines[0];
+const bodyText   = passageLines.length > 1 ? passageLines.slice(1).join('\n\n') : passageLines[0];
+
+// FIX: Biến dấu xuống dòng thành <br/> để giữ đúng định dạng văn bản cho Part 1
+const passagePart1HTML = q.Passage ? q.Passage.replace(/\r?\n/g, '<br/>') : "";
 ---
+
 <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative mb-6">
-  
+
   {isPart1 ? (
     <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
-      
+
       <div class="flex items-center justify-center bg-slate-50 w-full p-6 md:p-8 rounded-2xl border-2 border-dashed border-slate-200">
-        {q.Passage && (
-          <div class="w-full max-w-sm border-2 border-slate-300 rounded-2xl overflow-hidden shadow-sm bg-white">
-            {headerText && (
-              <div class="bg-slate-100 border-b-2 border-slate-300 p-3.5 text-center font-black text-slate-800 uppercase tracking-wider text-sm md:text-base">
-                {headerText}
-              </div>
-            )}
-            <div class="p-6 text-center font-bold text-slate-700 leading-relaxed whitespace-pre-wrap md:text-lg">
-              {bodyText}
-            </div>
+        {hasImage ? (
+          <div class="w-full rounded-2xl overflow-hidden shadow-sm border-2 border-slate-200">
+            <img
+              src={q.Image_URL}
+              alt={`Question ${q.Q_Num}`}
+              class="w-full object-contain"
+              loading="lazy"
+            />
           </div>
-        )}
+        ) : q.Passage ? (
+          <div class="w-full max-w-md bg-white p-6 md:p-8 rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border-t-4 border-emerald-500 relative transform transition hover:-translate-y-1">
+            
+            {/* Dấu ghim trang trí */}
+            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full bg-slate-200 border-2 border-slate-300 shadow-sm flex items-center justify-center">
+               <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+            </div>
+
+            {/* NỘI DUNG BIỂN BÁO (Xuống dòng mượt mà với set:html) */}
+            <div class="font-medium text-slate-700 text-lg md:text-xl leading-relaxed text-center" set:html={passagePart1HTML}>
+            </div>
+
+          </div>
+        ) : null}
       </div>
 
       <div class="flex flex-col justify-center w-full">
@@ -34,7 +63,7 @@ const bodyText = passageLines.length > 1 ? passageLines.slice(1).join('\n\n') : 
           {q.Question}
         </h3>
         <div class="grid gap-4">
-          {['A', 'B', 'C'].map((opt) => (
+          {['A', 'B', 'C'].map((opt: string) => (
             q[`Opt_${opt}`] && (
               <label class="flex items-center p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-sm">
                 <div class="relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-slate-300 group-hover:border-emerald-500 group-has-[:checked]:bg-emerald-500 group-has-[:checked]:border-emerald-500 transition-colors mr-4 shrink-0">
@@ -49,22 +78,24 @@ const bodyText = passageLines.length > 1 ? passageLines.slice(1).join('\n\n') : 
       </div>
 
     </div>
+
   ) : (
     <div>
-      {!isPart4 && (
+      {/* Part 4: chỉ hiện số câu, câu hỏi nằm trong Passage context */}
+      {isPart4 ? (
+        <div class="mb-5">
+          <span class="text-emerald-600 font-black text-xl bg-emerald-50 px-4 py-2 rounded-xl shadow-sm">{q.Q_Num}.</span>
+        </div>
+      ) : (
+        /* Các Part khác: hiện câu hỏi đầy đủ */
         <h3 class="font-bold text-lg md:text-xl text-slate-800 mb-6 leading-snug">
           <span class="text-emerald-600 mr-2 bg-emerald-50 px-2.5 py-1 rounded-xl">{q.Q_Num}.</span>
           {q.Question}
         </h3>
       )}
-      {isPart4 && (
-        <div class="mb-5">
-          <span class="text-emerald-600 font-black text-xl bg-emerald-50 px-4 py-2 rounded-xl shadow-sm">{q.Q_Num}.</span>
-        </div>
-      )}
-      
+
       <div class="grid gap-3">
-        {['A', 'B', 'C'].map((opt) => (
+        {['A', 'B', 'C'].map((opt: string) => (
           q[`Opt_${opt}`] && (
             <label class="flex items-center p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-sm">
               <div class="relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-slate-300 group-hover:border-emerald-500 group-has-[:checked]:bg-emerald-500 group-has-[:checked]:border-emerald-500 transition-colors mr-4 shrink-0">
@@ -84,7 +115,7 @@ const bodyText = passageLines.length > 1 ? passageLines.slice(1).join('\n\n') : 
       <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-400"></div>
         <div class="mb-3 flex items-center gap-2">
-           <span class="bg-amber-400 text-amber-900 text-xs font-black px-3 py-1.5 rounded-lg uppercase tracking-wide">Đáp án đúng: {q.Answer}</span>
+          <span class="bg-amber-400 text-amber-900 text-xs font-black px-3 py-1.5 rounded-lg uppercase tracking-wide">Đáp án đúng: {q.Answer}</span>
         </div>
         <p class="text-slate-700 font-medium leading-relaxed">{q.Explanation}</p>
       </div>

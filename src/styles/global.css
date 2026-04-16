@@ -1,23 +1,52 @@
 @import "tailwindcss";
-@import "tailwindcss";
 
 @theme {
-  /* Định nghĩa bảng màu thương hiệu Learn Lab */
+  /* Bảng màu thương hiệu Learn Lab */
   --color-learnlab-50: #f0f9f9;
   --color-learnlab-100: #d9f2f2;
-  --color-learnlab-600: #008080; /* Màu Teal chủ đạo của bạn */
+  --color-learnlab-500: #009999; /* Thêm màu 500 để làm hover */
+  --color-learnlab-600: #008080;
   --color-learnlab-700: #006666;
   --color-learnlab-900: #003333;
 
-  /* Định nghĩa màu nền và chữ mặc định */
-  --color-surface: #fcfdfd;
-  --color-text-main: #1e293b; /* Slate 800 */
-  --color-text-muted: #64748b; /* Slate 500 */
+  /* Màu nền và chữ */
+  --color-surface: #f8fafc; /* Đổi nhẹ sang tone Slate 50 để tôn các thẻ Card màu trắng */
+  --color-text-main: #1e293b; 
+  --color-text-muted: #64748b;
+
+  /* BÍ KÍP VIBE LOVABLE: Đổ bóng siêu mềm */
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+  --shadow-float: 0 10px 40px -4px rgba(0, 0, 0, 0.08);
+
+  /* Font chữ */
+  --font-sans: 'Inter', system-ui, sans-serif;
 }
 
-/* Các tùy chỉnh CSS bổ sung nếu cần */
-body {
-  background-color: var(--color-surface);
-  color: var(--color-text-main);
-  font-family: 'Inter', system-ui, sans-serif;
+@layer base {
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-text-main);
+    font-family: var(--font-sans);
+    /* Giúp font chữ hiển thị sắc nét hơn trên màn hình */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  /* Thanh cuộn (Scrollbar) tàng hình, mỏng mịn cho các bài đọc dài */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+  }
 }

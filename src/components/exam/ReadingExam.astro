@@ -1,42 +1,37 @@
 ---
-// src/components/exam/ReadingExam.astro - BẢN FINAL (TÍCH HỢP NỘP BÀI & CHẤM ĐIỂM)
+// src/components/exam/ReadingExam.astro - BẢN CLEAN (CHỐNG LẶP GIAO DIỆN)
 import MultipleChoice from './MultipleChoice.astro';
 import Part5Inline from './Part5Inline.astro';
 import GapFill from './GapFill.astro'; 
 import Writing from './Writing.astro'; 
 
-const { parts } = Astro.props;
+const { parts = [], testTitle = "Cambridge Exam" } = Astro.props;
 
-/**
- * PARSER 1: Dành cho Part 3
- */
+// --- CÁC HÀM XỬ LÝ TEXT ---
 function formatReadingText(rawText: string) {
   if (!rawText) return "";
-  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+  const lines = String(rawText).split(/\[BR\]|\|\||\r\n|\r|\n|\\n|<br\s*\/?>/).map(l => l.trim()).filter(l => l !== "");
   return lines.map((line, index) => {
-    const isTitle = (index === 0) || (line.length < 50 && !line.match(/[.?!]$/));
-    if (isTitle) {
-      return `<h3 class="text-2xl md:text-3xl font-black text-slate-900 mb-6 mt-8 first:mt-0 tracking-tight leading-tight uppercase">${line}</h3>`;
-    }
+    const isTitle = (index === 0) || (line.length < 60 && !line.match(/[.?!]$/));
+    if (isTitle) return `<h3 class="text-2xl md:text-3xl font-black text-slate-900 mb-6 mt-8 first:mt-0 tracking-tight leading-tight uppercase">${line}</h3>`;
     return `<p class="mb-5 text-slate-700 leading-relaxed text-lg text-justify font-medium">${line}</p>`;
   }).join("");
 }
 
-/**
- * PARSER 2: ĐẶC NHIỆM CHO PART 2
- */
 function parsePart2Passage(rawText: string) {
   if (!rawText) return null;
-  const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l !== "");
+  const lines = String(rawText).split(/\[BR\]|\|\||\r\n|\r|\n|\\n|<br\s*\/?>/).map(l => l.trim()).filter(l => l !== "");
   if (lines.length === 0) return null;
-
-  let mainTitle = lines[0]; 
+  let mainTitle = "Reading: Multiple Matching"; 
   const sections = [];
   let currentSection = null;
+  const isTitle = (text: string) => text.length < 60 && !text.match(/[.?!]$/);
+  let startIndex = (lines.length > 1 && isTitle(lines[0]) && isTitle(lines[1])) ? 1 : (isTitle(lines[0]) ? 0 : 1);
+  if(startIndex === 1) mainTitle = lines[0];
 
-  for (let i = 1; i < lines.length; i++) {
+  for (let i = startIndex; i < lines.length; i++) {
     let line = lines[i];
-    if (line.length < 40 && !line.endsWith('.')) {
+    if (isTitle(line)) {
       if (currentSection) sections.push(currentSection);
       currentSection = { title: line, content: [] };
     } else {
@@ -48,183 +43,370 @@ function parsePart2Passage(rawText: string) {
   return { mainTitle, sections };
 }
 
-/**
- * PARSER 3: CHUYÊN DỤNG CHO PART 4 (DROPDOWN TẠI CHỖ)
- */
-function formatPart4Passage(rawText: string, questions: any[]) {
+function formatPart4PassageSplit(rawText: string) {
   if (!rawText) return "";
   let html = formatReadingText(rawText);
-  questions.forEach(q => {
-    if (!q || !q.Q_Num) return; 
-    const gapPattern = `(?:\\.{2,}|_{2,}|…+)\\s*\\(?\\b${q.Q_Num}\\b\\?*\\s*(?:\\.{2,}|_{2,}|…+)?` + `|` + `\\(\\s*${q.Q_Num}\\s*\\)`;
-    const gapRegex = new RegExp(gapPattern, 'g');
-    html = html.replace(gapRegex, `|||GAP_${q.Q_Num}|||`);
-  });
-
-  questions.forEach(q => {
-    if (!q || !q.Q_Num) return; 
-    const optionsHtml = ['A', 'B', 'C'].filter(opt => q[`Opt_${opt}`]).map(opt => `<option value="${opt}">${opt}. ${q[`Opt_${opt}`]}</option>`).join('');
-    const selectHtml = `<select name="${q.ID}" class="exam-input inline-block appearance-none border-b-2 border-slate-300 bg-emerald-50 hover:bg-emerald-100 focus:border-emerald-500 outline-none text-center font-black text-emerald-700 px-3 py-1 mx-1 rounded-t-md cursor-pointer transition-all shadow-sm min-w-[80px]">
-        <option value="" disabled selected>${q.Q_Num}</option>
-        ${optionsHtml}
-    </select>`;
-    html = html.split(`|||GAP_${q.Q_Num}|||`).join(selectHtml);
-  });
+  html = html.replace(/\(\s*(\d+)\s*\)[\s\.]*/g, '<span class="inline-flex items-center justify-center bg-emerald-100 text-emerald-800 font-black px-3 py-1 rounded-xl border-2 border-emerald-200 mx-2 shadow-sm">$1</span> <span class="tracking-[0.2em] text-slate-300 font-bold mr-2">........</span>');
   return html;
 }
 ---
 
-<div class="reading-writing-container pb-32">
-  {parts.map(part => {
-    const parsedPart2 = part.part_number === 2 ? parsePart2Passage(part.passage) : null;
-
-    return (
-    <div class="mb-24 last:mb-0">
-      
-      {/* HEADER PART */}
-      <div class="flex items-center gap-6 mb-12 max-w-5xl mx-auto px-4">
-        <div class="flex flex-col">
-            <span class="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] mb-1">
-                {part.part_number <= 5 ? 'Reading Section' : 'Writing Section'}
-            </span>
-            <h2 class="text-3xl md:text-4xl font-black text-slate-900 uppercase italic">Part {part.part_number}</h2>
-        </div>
-        <div class="h-[2px] flex-1 bg-gradient-to-r from-slate-200 to-transparent"></div>
+<div class="relative min-h-screen bg-slate-50 pb-32 font-sans selection:bg-emerald-200">
+  
+  {/* 1. FLOATING TOPBAR */}
+  <div class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all duration-300" id="exam-topbar">
+    <div class="max-w-[1600px] mx-auto px-4 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600 font-black">A2</div>
+        <h1 class="font-bold text-slate-800 hidden md:block truncate max-w-sm">{testTitle}</h1>
       </div>
 
-      <div class="max-w-7xl mx-auto px-4 md:px-6">
-        
-        {/* PART 2 */}
-        {part.part_number === 2 && parsedPart2 && (
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            <div class="lg:col-span-7 bg-white p-8 md:p-12 rounded-[3rem] shadow-sm border border-slate-100 lg:sticky lg:top-10 relative overflow-hidden">
-               <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
-               <h3 class="text-2xl md:text-3xl font-black text-center text-slate-900 mb-8 uppercase">{parsedPart2.mainTitle}</h3>
-               <div class="flex flex-col gap-6">
-                  {parsedPart2.sections.map(sec => (
-                     <div class="bg-slate-50 p-6 md:p-8 rounded-3xl border border-slate-100">
-                        {sec.title && <h4 class="text-xl font-black text-emerald-600 mb-4 border-b-2 border-emerald-100 pb-3">{sec.title}</h4>}
-                        <div class="space-y-3">{sec.content.map(p => <p class="text-slate-700 leading-relaxed text-lg text-justify font-medium">{p}</p>)}</div>
-                     </div>
-                  ))}
-               </div>
-            </div>
-            <div class="lg:col-span-5 flex flex-col gap-6">{part.questions.map(q => <MultipleChoice q={q} part={2} />)}</div>
-          </div>
-        )}
-
-        {/* PART 3 */}
-        {part.part_number === 3 && part.passage && (
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            <div class="lg:col-span-7 bg-white p-8 md:p-14 rounded-[3rem] shadow-sm border border-slate-100 lg:sticky lg:top-10 relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
-                <div class="reading-content prose prose-slate max-w-none" set:html={formatReadingText(part.passage)} />
-            </div>
-            <div class="lg:col-span-5 flex flex-col gap-6">{part.questions.map(q => <MultipleChoice q={q} part={3} />)}</div>
-          </div>
-        )}
-
-        {/* PART 4 */}
-        {part.part_number === 4 && part.passage && (
-          <div class="max-w-4xl mx-auto">
-            <div class="bg-white p-8 md:p-12 rounded-[3rem] shadow-sm border border-slate-200 relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-2 bg-emerald-500"></div>
-                <div class="reading-content prose prose-slate max-w-none text-lg leading-loose mb-10" set:html={formatPart4Passage(part.passage, part.questions)} />
-                <div class="explanation-box space-y-4 pt-8 border-t-2 border-dashed border-slate-200 hidden">
-                   <h4 class="font-black text-slate-800 text-xl uppercase">💡 Answer Key Part 4</h4>
-                   <div class="grid sm:grid-cols-2 gap-4 mt-4">
-                     {part.questions.filter((q: any) => q.Q_Num).map((q: any) => (
-                       <div class="bg-amber-50 p-5 rounded-2xl border border-amber-200">
-                         <span class="bg-amber-400 text-amber-900 font-black px-3 py-1 rounded-lg text-sm mr-2 shadow-sm uppercase">Câu {q.Q_Num}: {q.Answer}</span>
-                         {q.Explanation && <p class="text-sm text-slate-700 font-medium leading-relaxed mt-2">{q.Explanation}</p>}
-                       </div>
-                     ))}
-                   </div>
-                </div>
-            </div>
-          </div>
-        )}
-
-        {/* PART 5, 6, 7, 1 ... (Giữ nguyên các logic cũ sếp đang chạy ngon) */}
-        {part.part_number === 5 && <div class="max-w-4xl mx-auto"><Part5Inline questions={part.questions} /></div>}
-        {(part.part_number === 6 || part.part_number === 7) && <div class="max-w-4xl mx-auto flex flex-col gap-8">{part.questions.map(q => <Writing q={q} />)}</div>}
-        {part.part_number === 1 && <div class="max-w-4xl mx-auto flex flex-col gap-8">{part.questions.map(q => <MultipleChoice q={q} part={1} />)}</div>}
-
+      <div class="flex items-center gap-6">
+        <div class="hidden md:flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+          <span class="text-xs font-bold text-slate-400 px-2 uppercase tracking-widest">Bôi màu:</span>
+          <button class="w-6 h-6 rounded-full bg-yellow-300 hover:scale-110 shadow-sm transition-transform color-btn" data-color="#fde047"></button>
+          <button class="w-6 h-6 rounded-full bg-emerald-300 hover:scale-110 shadow-sm transition-transform color-btn" data-color="#6ee7b7"></button>
+          <button class="w-6 h-6 rounded-full bg-rose-300 hover:scale-110 shadow-sm transition-transform color-btn" data-color="#fda4af"></button>
+          <button class="w-6 h-6 rounded-full bg-white border border-slate-300 hover:bg-slate-200 hover:scale-110 shadow-sm transition-colors color-btn flex items-center justify-center" data-color="transparent" title="Xóa màu"><span class="text-[10px]">❌</span></button>
+        </div>
+        <div class="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-xl shadow-md font-mono font-bold text-lg tracking-wider" id="timer-display">60:00</div>
+        <button id="top-submit-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2 rounded-xl transition-colors shadow-sm">Nộp bài</button>
       </div>
     </div>
-  )})}
-
-  {/* NÚT NỘP BÀI CHỐT ĐƠN */}
-  <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
-    <button id="submit-exam" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-12 py-5 rounded-full shadow-2xl transform transition-all hover:scale-105 active:scale-95 flex items-center gap-4 group">
-      <span class="text-xl uppercase tracking-tighter">Nộp bài & Chấm điểm</span>
-      <div class="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center group-hover:rotate-12 transition-transform">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      </div>
-    </button>
   </div>
+
+  {/* 2. KHU VỰC LÀM BÀI CHÍNH */}
+  <div class="pt-24 highlightable-area" id="exam-content">
+    <div class="max-w-[1600px] mx-auto px-4 lg:px-8 flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+      
+      {/* 2.1 CỘT TRÁI: SIDEBAR MENU */}
+      <aside class="hidden lg:block w-72 shrink-0 sticky top-24">
+        <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+          <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+             <h3 class="font-black text-slate-800 uppercase tracking-widest text-sm">Danh Mục Bài Thi</h3>
+             <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">{parts?.filter(p => p)?.length || 0} Parts</span>
+          </div>
+          
+          <nav class="space-y-1.5" id="toc-menu">
+            {parts?.map(part => {
+              if(!part) return null;
+              const pNum = part?.part_number || 1;
+              const title = pNum > 5 ? `Writing Part ${pNum}` : `Reading Part ${pNum}`;
+              const qCount = part?.questions?.length || 0;
+
+              return (
+                <a href={`#section-part-${pNum}`} class="toc-link flex items-center justify-between p-3.5 rounded-xl text-slate-600 font-bold hover:bg-emerald-50 hover:text-emerald-700 transition-all border border-transparent hover:border-emerald-100">
+                  <span>{title}</span>
+                  <span class="text-xs font-bold bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg">{qCount} câu</span>
+                </a>
+              )
+            })}
+          </nav>
+        </div>
+      </aside>
+
+      {/* 2.2 CỘT PHẢI: NỘI DUNG ĐỀ THI */}
+      <main class="flex-1 w-full min-w-0">
+        {parts?.map(part => {
+          if (!part) return null;
+          
+          const pNum = part?.part_number || 1;
+          const questions = Array.isArray(part?.questions) ? part.questions : []; 
+          const parsedPart2 = pNum === 2 ? parsePart2Passage(part?.passage) : null;
+
+          return (
+          <section id={`section-part-${pNum}`} class="exam-section mb-24 last:mb-0 scroll-mt-24">
+            
+            {/* TIÊU ĐỀ TỪNG PART */}
+            <div class="flex items-center gap-4 mb-10">
+              <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-md rotate-3">
+                 {pNum}
+              </div>
+              <h2 class="text-2xl md:text-3xl font-black text-slate-900 uppercase">
+                {pNum > 5 ? 'Writing Section' : 'Reading Section'}
+              </h2>
+              <div class="h-[2px] flex-1 bg-gradient-to-r from-slate-200 to-transparent ml-4"></div>
+            </div>
+
+            {/* PART 1 */}
+            {pNum === 1 && (
+              <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                {questions.map(q => <MultipleChoice q={q} part={1} />)}
+              </div>
+            )}
+
+            {/* PART 2 - ĐÃ SỬA LỖI LẶP */}
+            {pNum === 2 && parsedPart2 && (
+              <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+                
+                {/* BÀI ĐỌC (CỘT TRÁI) */}
+                <div class="xl:col-span-7 bg-white p-8 rounded-[2rem] shadow-sm border border-slate-200 xl:sticky xl:top-28">
+                   <h3 class="text-xl font-black text-slate-900 mb-6 uppercase">{parsedPart2.mainTitle}</h3>
+                   <div class="flex flex-col gap-6">
+                      {parsedPart2.sections?.map((sec, index) => (
+                         <div class="bg-slate-50 p-6 md:p-8 rounded-2xl border border-slate-200 relative group transition-colors hover:border-emerald-300">
+                            <div class="absolute top-0 right-0 bg-slate-200 text-slate-600 font-black px-4 py-1 rounded-bl-xl group-hover:bg-emerald-500 group-hover:text-white transition-colors">{String.fromCharCode(65 + index)}</div>
+                            {sec.title && <h4 class="text-lg font-black text-emerald-600 mb-4 border-b border-emerald-100 pb-2 pr-8">{sec.title}</h4>}
+                            <div class="space-y-3">{sec.content?.map(p => <p class="text-slate-700 leading-relaxed font-medium">{p}</p>)}</div>
+                         </div>
+                      ))}
+                   </div>
+                </div>
+
+                {/* CÂU HỎI (CỘT PHẢI) - CHỈ GỌI MULTIPLE CHOICE */}
+                <div class="xl:col-span-5 flex flex-col gap-6">
+                    <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 mb-2">
+                       <p class="text-blue-800 text-sm font-bold">💡 Mẹo: Đọc lướt các đoạn văn bên trái và chọn đáp án phù hợp.</p>
+                    </div>
+                    {questions.map(q => <MultipleChoice q={q} part={2} />)}
+                </div>
+
+              </div>
+            )}
+
+            {/* PART 3 */}
+            {pNum === 3 && part.passage && (
+              <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+                <div class="xl:col-span-7 bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-slate-200 xl:sticky xl:top-28">
+                    <div class="reading-content prose prose-slate max-w-none" set:html={formatReadingText(part.passage)} />
+                </div>
+                <div class="xl:col-span-5 flex flex-col gap-6">
+                   {questions.map(q => <MultipleChoice q={q} part={3} />)}
+                </div>
+              </div>
+            )}
+
+            {/* PART 4 */}
+            {pNum === 4 && part.passage && (
+              <div class="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+                <div class="xl:col-span-7 bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-slate-200 xl:sticky xl:top-28">
+                    <div class="reading-content prose prose-slate max-w-none text-lg leading-[2.8]" set:html={formatPart4PassageSplit(part.passage)} />
+                </div>
+                <div class="xl:col-span-5 flex flex-col gap-6">
+                    <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100 mb-2">
+                       <p class="text-blue-800 text-sm font-bold">💡 Mẹo: Đọc đoạn văn bên trái và chọn từ thích hợp điền vào chỗ trống tương ứng.</p>
+                    </div>
+                    {questions.map(q => <MultipleChoice q={q} part={4} />)}
+                </div>
+              </div>
+            )}
+
+            {/* PART 5 */}
+            {pNum === 5 && <div class="w-full"><Part5Inline questions={questions} /></div>}
+            
+            {/* PART 6 & 7 */}
+            {(pNum === 6 || pNum === 7) && <div class="w-full flex flex-col gap-8">{questions.map(q => <Writing q={q} />)}</div>}
+
+          </section>
+          )
+        })}
+      </main>
+
+    </div>
+  </div>
+
+  {/* 3. TRANG TỔNG QUAN KẾT QUẢ */}
+  <div id="result-dashboard" class="hidden max-w-5xl mx-auto pt-24 px-4 pb-20 animate-fade-in-up">
+    <div class="bg-white rounded-[3rem] p-10 md:p-16 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 text-center relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-4 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+      <h2 class="text-4xl md:text-5xl font-black text-slate-900 mb-4">Kết Quả Bài Thi</h2>
+      <p class="text-slate-500 font-medium text-lg mb-10">Bạn đã hoàn thành bài thi trong <span id="time-taken" class="font-bold text-slate-800">00:00</span></p>
+      <div class="flex flex-col md:flex-row items-center justify-center gap-10 mb-12">
+        <div class="relative w-48 h-48 flex items-center justify-center bg-slate-50 rounded-full border-8 border-slate-100 shadow-inner">
+          <div class="text-center">
+            <span class="text-5xl font-black text-emerald-600" id="final-score">0</span>
+            <span class="text-2xl font-bold text-slate-400" id="total-score">/32</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-4 text-left">
+          <div class="bg-emerald-50 text-emerald-800 px-6 py-4 rounded-2xl border border-emerald-100 flex items-center gap-4">
+            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-xl shadow-sm">🎯</div>
+            <div>
+              <p class="text-sm font-bold opacity-80 uppercase tracking-wider">Độ chính xác</p>
+              <p class="text-2xl font-black" id="accuracy-rate">0%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <button id="review-btn" class="bg-slate-900 hover:bg-slate-800 text-white font-bold px-10 py-4 rounded-2xl shadow-lg transition-transform hover:-translate-y-1">
+        Xem chi tiết đáp án
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <script define:vars={{ parts }}>
-  const submitBtn = document.getElementById('submit-exam');
-  
-  submitBtn.addEventListener('click', () => {
-    let score = 0;
-    let totalQuestions = 0;
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    // --- SCROLL TO HIGHLIGHT MENU TỰ ĐỘNG ---
+    const sections = document.querySelectorAll('.exam-section');
+    const navLinks = document.querySelectorAll('.toc-link');
 
-    parts.forEach(part => {
-      // Chỉ chấm các phần Reading (1-5)
-      if (part.part_number > 5) return;
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(section => {
+        if (pageYOffset >= (section.offsetTop - 150)) {
+          current = section.getAttribute('id');
+        }
+      });
 
-      part.questions.forEach(q => {
-        if (!q.ID || !q.Answer) return;
-        totalQuestions++;
+      navLinks.forEach(link => {
+        link.classList.remove('bg-emerald-500', 'text-white', 'shadow-md', 'border-emerald-500');
+        link.classList.add('text-slate-600');
+        link.querySelector('span:last-child').classList.remove('bg-emerald-400', 'text-white');
+        link.querySelector('span:last-child').classList.add('bg-slate-100', 'text-slate-500');
 
-        const id = q.ID;
-        const correctAnswer = String(q.Answer).trim().toLowerCase();
-        let userValue = '';
-
-        // 1. Kiểm tra Radio (MultipleChoice)
-        const radio = document.querySelector(`input[name="${id}"]:checked`);
-        if (radio) userValue = radio.value;
-
-        // 2. Kiểm tra Select (Part 4 Dropdown)
-        const select = document.querySelector(`select[name="${id}"]`);
-        if (select) userValue = select.value;
-
-        // 3. Kiểm tra Text Input (Part 5)
-        const textInput = document.querySelector(`input[name="${id}"][type="text"]`);
-        if (textInput) userValue = textInput.value;
-
-        const isCorrect = userValue.trim().toLowerCase() === correctAnswer;
-        if (isCorrect) score++;
-
-        // HIỆN THỊ KẾT QUẢ TRÊN GIAO DIỆN
-        const inputs = document.querySelectorAll(`[name="${id}"]`);
-        inputs.forEach(el => {
-           const parent = el.closest('.exam-card, .bg-slate-50, div');
-           if (isCorrect) {
-             el.classList.add('border-emerald-500', 'bg-emerald-50');
-           } else {
-             el.classList.add('border-red-500', 'bg-red-50');
-           }
-        });
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.remove('text-slate-600', 'hover:bg-emerald-50');
+          link.classList.add('bg-emerald-500', 'text-white', 'shadow-md', 'border-emerald-500');
+          link.querySelector('span:last-child').classList.remove('bg-slate-100', 'text-slate-500');
+          link.querySelector('span:last-child').classList.add('bg-emerald-400', 'text-white');
+        }
       });
     });
 
-    // Mở tất cả các hộp giải thích
-    document.querySelectorAll('.explanation-box').forEach(box => box.classList.remove('hidden'));
+    navLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetSection = document.getElementById(this.getAttribute('href').substring(1));
+        if (targetSection) window.scrollTo({ top: targetSection.offsetTop - 80, behavior: 'smooth' });
+      });
+    });
+
+    // --- TIMER ---
+    let timeRemaining = 60 * 60; 
+    const timerDisplay = document.getElementById('timer-display');
+    let timerInterval;
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+      const s = (seconds % 60).toString().padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        if (timerDisplay) timerDisplay.textContent = formatTime(timeRemaining);
+        if (timeRemaining < 300) {
+          timerDisplay.classList.replace('bg-slate-900', 'bg-rose-600');
+          timerDisplay.classList.add('animate-pulse');
+        }
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          alert("Hết giờ làm bài!");
+          submitExam();
+        }
+      }, 1000);
+    }
+    startTimer();
+
+    // --- HIGHLIGHTER ---
+    const colorBtns = document.querySelectorAll('.color-btn');
+    let currentColor = '#fde047'; 
+    function setActiveColorBtn(btn) {
+      colorBtns.forEach(b => b.classList.remove('ring-4', 'ring-slate-300'));
+      btn.classList.add('ring-4', 'ring-slate-300');
+    }
+    setActiveColorBtn(colorBtns[0]);
+    colorBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        currentColor = e.target.dataset.color;
+        setActiveColorBtn(e.target);
+      });
+    });
     
-    // Cuộn lên đầu và báo điểm
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    alert(`🎉 Chúc mừng! Sếp đạt được: ${score}/${totalQuestions} câu đúng.`);
-    submitBtn.innerHTML = "Xem lại kết quả";
-    submitBtn.classList.replace('bg-emerald-600', 'bg-slate-800');
+    document.addEventListener('mouseup', () => {
+      const selection = window.getSelection();
+      if (!selection.isCollapsed && selection.toString().trim().length > 0) {
+         const span = document.createElement('span');
+         span.style.backgroundColor = currentColor;
+         span.style.borderRadius = '4px';
+         span.style.padding = '0 2px';
+         span.style.transition = 'background-color 0.2s';
+         try { selection.getRangeAt(0).surroundContents(span); } catch (e) {}
+         selection.removeAllRanges();
+      }
+    });
+
+    // --- NỘP BÀI ---
+    const submitBtn = document.getElementById('top-submit-btn');
+    const examContent = document.getElementById('exam-content');
+    const resultDashboard = document.getElementById('result-dashboard');
+    const reviewBtn = document.getElementById('review-btn');
+    const sidebar = document.querySelector('aside');
+
+    function submitExam() {
+      clearInterval(timerInterval);
+      let score = 0;
+      let totalReadingQuestions = 0;
+      
+      const safeParts = parts || [];
+
+      safeParts.forEach(part => {
+        if (!part || part.part_number > 5) return; 
+        const safeQuestions = part.questions || [];
+
+        safeQuestions.forEach(q => {
+          if (!q.ID || !q.Answer) return;
+          totalReadingQuestions++;
+          const id = q.ID;
+          const correctAnswer = String(q.Answer).trim().toLowerCase();
+          let userValue = '';
+
+          const radio = document.querySelector(`input[name="${id}"]:checked`);
+          if (radio) userValue = radio.value;
+          const select = document.querySelector(`select[name="${id}"]`);
+          if (select) userValue = select.value;
+          const textInput = document.querySelector(`input[name="${id}"][type="text"]`);
+          if (textInput) userValue = textInput.value;
+
+          const isCorrect = userValue.trim().toLowerCase() === correctAnswer;
+          if (isCorrect) score++;
+
+          document.querySelectorAll(`[name="${id}"]`).forEach(el => {
+             const parent = el.closest('label') || el;
+             if (isCorrect) parent.classList.add('border-emerald-500', 'bg-emerald-50');
+             else parent.classList.add('border-rose-500', 'bg-rose-50');
+          });
+        });
+      });
+
+      const timeTakenSecs = (60 * 60) - timeRemaining;
+      document.getElementById('time-taken').textContent = formatTime(timeTakenSecs);
+      document.getElementById('final-score').textContent = score;
+      const accRate = totalReadingQuestions > 0 ? Math.round((score / totalReadingQuestions) * 100) : 0;
+      document.getElementById('total-score').textContent = `/${totalReadingQuestions}`;
+      document.getElementById('accuracy-rate').textContent = accRate + '%';
+
+      examContent.classList.add('hidden');
+      submitBtn.classList.add('hidden');
+      if(sidebar) sidebar.classList.add('hidden');
+      document.getElementById('exam-topbar').classList.add('hidden');
+      resultDashboard.classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    submitBtn?.addEventListener('click', () => {
+      if(confirm('Sếp chắc chắn muốn nộp bài chứ?')) submitExam();
+    });
+
+    reviewBtn?.addEventListener('click', () => {
+      resultDashboard.classList.add('hidden');
+      document.getElementById('exam-topbar').classList.remove('hidden');
+      if(sidebar) sidebar.classList.remove('hidden');
+      examContent.classList.remove('hidden');
+      document.querySelectorAll('.explanation-box').forEach(box => box.classList.remove('hidden'));
+    });
+
   });
 </script>
 
 <style is:global>
+  html { scroll-behavior: smooth; }
+  .animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
   .reading-content p { text-indent: 0; }
   .reading-content h3 { border-bottom: 4px solid #10b981; display: inline-block; padding-bottom: 4px; }
-  .reading-content { line-height: 2.2 !important; }
 </style>
