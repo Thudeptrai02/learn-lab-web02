@@ -1,124 +1,101 @@
 ---
-// MultipleChoice.astro — v2
-// Dùng cho: Listening Part 1 (nếu không có Image_URL), Part 3, Part 4
-//           Reading Part 1, 2, 3
-// Props: { q, part }
-//
-// LOGIC PHÂN LOẠI:
-//   isPart1     → part === 1: layout 2 cột (Passage card | MCQ)
-//                 Nếu q.Image_URL có → hiển thị ảnh thay Passage text card
-//   isPart4     → part === 4: chỉ hiển thị Q_Num (câu hỏi nằm trong Passage context bên ngoài)
-//   other       → MCQ thông thường
-
 const { q, part } = Astro.props;
-const isPart1 = part === 1;
-const isPart4 = part === 4;
-const hasImage = q.Image_URL && q.Image_URL.startsWith('http');
 
-// Parse Passage thành header + body (Giữ lại logic cũ phòng trường hợp cần dùng)
-const passageLines = q.Passage
-  ? q.Passage.split(/\[BR\]|\|\||\r\n|\r|\n|<br\s*\/?>/).map((l: string) => l.trim()).filter((l: string) => l !== '')
-  : [];
-const headerText = passageLines.length > 1 ? passageLines[0] : null;
-const bodyText   = passageLines.length > 1 ? passageLines.slice(1).join('\n\n') : passageLines[0];
+// THUẬT TOÁN TÁCH CÂU HƯỚNG DẪN VÀ CÂU HỎI CHÍNH (Siêu Cấp)
+function parseQuestionText(text: string) {
+    if (!text) return { context: '', mainQuestion: '' };
+    
+    // Đổi toàn bộ thẻ xuống dòng thành \n để dễ xử lý
+    let cleanText = text.replace(/\[BR\]|\|\||<br\s*\/?>/gi, '\n').trim();
 
-// FIX: Biến dấu xuống dòng thành <br/> để giữ đúng định dạng văn bản cho Part 1
-const passagePart1HTML = q.Passage ? q.Passage.replace(/\r?\n/g, '<br/>') : "";
+    // 1. Tách chuẩn theo thẻ xuống dòng (Nếu Data cào đẹp)
+    if (cleanText.includes('\n')) {
+        const parts = cleanText.split('\n');
+        if (parts[0].toLowerCase().includes('hear')) {
+            return { context: parts[0].trim(), mainQuestion: parts.slice(1).join(' ').trim() };
+        }
+    }
+
+    // 2. Tách theo dấu câu (Có dấu chấm/hai chấm sau chữ hear)
+    const match1 = cleanText.match(/^(.*?(?:will hear|hear).*?[\.\:\?])\s*(.*)$/i);
+    if (match1) {
+        return { context: match1[1].trim(), mainQuestion: match1[2].trim() };
+    }
+
+    // 3. TÁCH ÉP BUỘC (Dành cho Data lỗi thiếu dấu chấm)
+    // Cứ thấy chữ "hear" phía trước, và bắt đầu câu hỏi bằng W/H phía sau là chặt đôi!
+    const match2 = cleanText.match(/^(.*?(?:will hear|hear).*?)\s+(Which|What|Why|Where|Who|How|When|Do|Does|Did|Is|Are)(.*)/i);
+    if (match2) {
+        return {
+            context: match2[1].trim(),
+            mainQuestion: (match2[2] + match2[3]).trim()
+        };
+    }
+
+    // Mặc định (Cho Part 3 không có ngữ cảnh)
+    return { context: '', mainQuestion: cleanText };
+}
+
+const { context, mainQuestion } = parseQuestionText(q.Question || "");
+
+const options = [
+    { key: 'A', text: q.Opt_A },
+    { key: 'B', text: q.Opt_B },
+    { key: 'C', text: q.Opt_C }
+].filter(o => o.text);
 ---
 
-<div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative mb-6">
-
-  {isPart1 ? (
-    <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
-
-      <div class="flex items-center justify-center bg-slate-50 w-full p-6 md:p-8 rounded-2xl border-2 border-dashed border-slate-200">
-        {hasImage ? (
-          <div class="w-full rounded-2xl overflow-hidden shadow-sm border-2 border-slate-200">
-            <img
-              src={q.Image_URL}
-              alt={`Question ${q.Q_Num}`}
-              class="w-full object-contain"
-              loading="lazy"
-            />
-          </div>
-        ) : q.Passage ? (
-          <div class="w-full max-w-md bg-white p-6 md:p-8 rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] border-t-4 border-emerald-500 relative transform transition hover:-translate-y-1">
-            
-            {/* Dấu ghim trang trí */}
-            <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-6 h-6 rounded-full bg-slate-200 border-2 border-slate-300 shadow-sm flex items-center justify-center">
-               <div class="w-2 h-2 rounded-full bg-slate-400"></div>
-            </div>
-
-            {/* NỘI DUNG BIỂN BÁO (Xuống dòng mượt mà với set:html) */}
-            <div class="font-medium text-slate-700 text-lg md:text-xl leading-relaxed text-center" set:html={passagePart1HTML}>
-            </div>
-
-          </div>
-        ) : null}
-      </div>
-
-      <div class="flex flex-col justify-center w-full">
-        <h3 class="font-bold text-lg md:text-xl text-slate-800 mb-6 leading-snug">
-          <span class="text-emerald-600 mr-2 bg-emerald-50 px-2.5 py-1 rounded-xl">{q.Q_Num}.</span>
-          {q.Question}
-        </h3>
-        <div class="grid gap-4">
-          {['A', 'B', 'C'].map((opt: string) => (
-            q[`Opt_${opt}`] && (
-              <label class="flex items-center p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-sm">
-                <div class="relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-slate-300 group-hover:border-emerald-500 group-has-[:checked]:bg-emerald-500 group-has-[:checked]:border-emerald-500 transition-colors mr-4 shrink-0">
-                  <span class="font-bold text-slate-500 text-sm group-hover:text-emerald-600 group-has-[:checked]:text-white transition-colors">{opt}</span>
-                  <input type="radio" name={q.ID} value={opt} class="absolute opacity-0 w-full h-full cursor-pointer" />
+<div class="bg-white p-6 md:p-8 rounded-[2rem] border-2 border-slate-200 shadow-sm hover:shadow-md transition-shadow relative">
+    
+    {/* KHU VỰC CÂU HỎI */}
+    <div class="flex items-start gap-4 mb-6">
+        
+        {/* Số thứ tự: Khối vuông xanh sáng cực nổi bật */}
+        <span class="bg-sky-500 text-white font-black w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl shrink-0 text-lg md:text-xl shadow-md">
+            {q.Q_Num}
+        </span>
+        
+        {/* Ngữ cảnh & Câu hỏi */}
+        <div class="w-full pt-1">
+            {/* Dòng Ngữ cảnh (You will hear...): Chữ thường, màu xám */}
+            {context && (
+                <div class="text-slate-600 font-medium text-base md:text-lg mb-2 leading-relaxed">
+                    {context}
                 </div>
-                <span class="text-slate-700 font-medium md:text-lg group-has-[:checked]:text-emerald-800">{q[`Opt_${opt}`]}</span>
-              </label>
-            )
-          ))}
+            )}
+            {/* Dòng Câu hỏi chính: In đậm, to rõ */}
+            <div class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed" set:html={mainQuestion}></div>
         </div>
-      </div>
-
     </div>
 
-  ) : (
-    <div>
-      {/* Part 4: chỉ hiện số câu, câu hỏi nằm trong Passage context */}
-      {isPart4 ? (
-        <div class="mb-5">
-          <span class="text-emerald-600 font-black text-xl bg-emerald-50 px-4 py-2 rounded-xl shadow-sm">{q.Q_Num}.</span>
-        </div>
-      ) : (
-        /* Các Part khác: hiện câu hỏi đầy đủ */
-        <h3 class="font-bold text-lg md:text-xl text-slate-800 mb-6 leading-snug">
-          <span class="text-emerald-600 mr-2 bg-emerald-50 px-2.5 py-1 rounded-xl">{q.Q_Num}.</span>
-          {q.Question}
-        </h3>
-      )}
-
-      <div class="grid gap-3">
-        {['A', 'B', 'C'].map((opt: string) => (
-          q[`Opt_${opt}`] && (
-            <label class="flex items-center p-4 border-2 border-slate-100 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/50 transition-all group has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 has-[:checked]:shadow-sm">
-              <div class="relative flex items-center justify-center w-8 h-8 rounded-full border-2 border-slate-300 group-hover:border-emerald-500 group-has-[:checked]:bg-emerald-500 group-has-[:checked]:border-emerald-500 transition-colors mr-4 shrink-0">
-                <span class="font-bold text-slate-500 text-sm group-hover:text-emerald-600 group-has-[:checked]:text-white transition-colors">{opt}</span>
-                <input type="radio" name={q.ID} value={opt} class="absolute opacity-0 w-full h-full cursor-pointer" />
-              </div>
-              <span class="text-slate-700 font-medium md:text-lg group-has-[:checked]:text-emerald-800">{q[`Opt_${opt}`]}</span>
+    {/* KHU VỰC ĐÁP ÁN (A, B, C) - Được thụt lề vào trong cho thẳng hàng với câu hỏi */}
+    <div class="space-y-4 ml-14 md:ml-16">
+        {options.map((opt) => (
+            <label class="flex items-start gap-4 p-4 rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-sky-400 hover:bg-sky-50 transition-all group relative bg-slate-50/50">
+                <input type="radio" name={q.ID} value={opt.key} class="peer sr-only" />
+                
+                {/* Nút tròn A, B, C */}
+                <div class="w-8 h-8 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-sm font-black text-slate-400 peer-checked:border-sky-500 peer-checked:bg-sky-500 peer-checked:text-white transition-all shrink-0 mt-0.5 shadow-sm">
+                    {opt.key}
+                </div>
+                
+                {/* Chữ đáp án */}
+                <div class="text-base md:text-lg text-slate-700 font-medium peer-checked:text-sky-800 peer-checked:font-bold transition-all pt-0.5" set:html={opt.text}></div>
+                
+                <div class="submit-icon hidden absolute top-1/2 -translate-y-1/2 right-4 w-8 h-8 rounded-full bg-white shadow-sm text-base flex items-center justify-center font-bold border border-slate-100"></div>
             </label>
-          )
         ))}
-      </div>
     </div>
-  )}
 
-  {q.Explanation && (
-    <div class="explanation-box mt-6 pt-6 border-t-2 border-dashed border-slate-100 hidden">
-      <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-1.5 h-full bg-amber-400"></div>
-        <div class="mb-3 flex items-center gap-2">
-          <span class="bg-amber-400 text-amber-900 text-xs font-black px-3 py-1.5 rounded-lg uppercase tracking-wide">Đáp án đúng: {q.Answer}</span>
+    {/* GIẢI THÍCH LỜI THOẠI */}
+    {q.Explanation && (
+        <div class="explanation-box hidden mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-200 ml-14 md:ml-16">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Đáp án đúng:</span>
+                <span class="bg-emerald-500 text-white font-black px-3 py-1 rounded-lg">{q.Answer}</span>
+            </div>
+            <p class="text-slate-700 font-medium leading-relaxed" set:html={q.Explanation}></p>
         </div>
-        <p class="text-slate-700 font-medium leading-relaxed">{q.Explanation}</p>
-      </div>
-    </div>
-  )}
+    )}
+
 </div>

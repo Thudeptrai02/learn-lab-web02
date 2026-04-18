@@ -1,54 +1,136 @@
 ---
-// src/components/exam/Part5Inline.astro - Bản Final Đã Hiện Đáp Án
-import MultipleChoice from './MultipleChoice.astro';
+const { questions = [], passage = "", partNum } = Astro.props;
 
-const { questions } = Astro.props;
+let directionText = "For each question, choose the correct answer.";
+let contextText = ""; 
+let leftTitle = "Friends"; // Mặc định cột trái
+let rightTitle = "Options"; // Mặc định cột phải
+let optionsList: {letter: string, text: string}[] = [];
 
-// 1. Lấy nội dung đoạn văn từ câu đầu tiên
-let passageHtml = questions[0]?.Passage || "";
+// Thuật toán tách chính xác: Ngữ cảnh -> Tiêu đề Trái -> Tiêu đề Phải -> Danh sách A-H
+if (passage) {
+    const lines = passage.split(/\[BR\]|\|\||\r\n|\n|<br\s*\/?>/).map((l: string) => l.trim()).filter((l: string) => l);
+    let textLines: string[] = [];
+    
+    lines.forEach(line => {
+        const optMatch = line.match(/^([A-H])[\.\-\:]?\s+(.+)$/i);
+        if (optMatch) {
+            optionsList.push({ letter: optMatch[1].toUpperCase(), text: optMatch[2] });
+        } else {
+            textLines.push(line);
+        }
+    });
 
-// 2. CHUYỂN CÁC CHỖ TRỐNG THÀNH HUY HIỆU SỐ
-questions.forEach((q: any) => {
-  if (!q || !q.No) return;
-  
-  // Bắt chuẩn xác (25) ..... hoặc ____25____
-  const gapRegex = new RegExp(`(?:\\.{2,}|_+|…+)?\\s*\\(?\\s*${q.No}\\s*\\)?\\s*(?:\\.{2,}|_+|…+)?`, 'g');
-  
-  // Biến thành Badge màu xanh lá
-  const badge = `<span class="inline-flex items-center justify-center min-w-[2.5rem] px-2 h-7 rounded-md bg-emerald-100 text-emerald-800 font-black mx-1 border border-emerald-300 shadow-sm align-baseline">${q.No}</span>`;
-  
-  passageHtml = passageHtml.replace(gapRegex, badge);
-});
+    if (textLines.length > 0) {
+        contextText = textLines[0]; // Dòng 1 luôn là Ngữ cảnh
+        
+        if (textLines.length === 2) {
+            // Trường hợp file cào bị thiếu cột trái, chỉ có cột phải (VD: Jobs)
+            rightTitle = textLines[1];
+            // AI tự đoán cột trái dựa vào ngữ cảnh:
+            if (contextText.toLowerCase().includes('friend')) leftTitle = 'Friends';
+            else if (contextText.toLowerCase().includes('people')) leftTitle = 'People';
+            else if (contextText.toLowerCase().includes('day')) leftTitle = 'Days';
+            else leftTitle = 'Names';
+        } 
+        else if (textLines.length >= 3) {
+            // Trường hợp data xịn, có đủ cả Trái và Phải
+            leftTitle = textLines[1];
+            rightTitle = textLines[2];
+        }
+    }
+}
 
-// 3. TỰ ĐỘNG CHIA ĐOẠN ĐẸP MẮT (Bọc thẻ <p> thay vì để chữ dính liền)
-const formattedPassage = passageHtml
-  .split(/\r?\n/)
-  .filter((l: string) => l.trim() !== "")
-  .map((l: string) => `<p class="mb-4">${l}</p>`)
-  .join("");
+function getCleanQuestion(text: string) {
+    if (!text) return "";
+    return text.replace(/\.{3,}|_{3,}/g, '').replace(':', '').trim();
+}
 ---
 
-<div class="bg-white p-8 md:p-12 rounded-[3rem] border border-slate-200 shadow-sm relative overflow-hidden">
-  <div class="absolute top-0 left-0 w-full h-2 bg-emerald-500"></div>
-  
-  {/* BÀI ĐỌC ĐÃ ĐỤC LỖ */}
-  <div class="prose prose-slate max-w-none text-lg leading-loose text-slate-700 font-medium text-justify mb-12" set:html={formattedPassage} />
-  
-  {/* KHU VỰC CHỌN ĐÁP ÁN A, B, C */}
-  <div class="bg-slate-50 p-6 md:p-10 rounded-[2.5rem] border border-slate-100">
-      <div class="flex justify-center mb-8">
-          <h4 class="text-xl font-black text-slate-800 uppercase tracking-widest border-b-2 border-slate-200 pb-2">
-             Chọn từ thích hợp
-          </h4>
-      </div>
-      
-      {/* Grid chia 2 cột để các câu hỏi đứng cạnh nhau cho tiết kiệm diện tích */}
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-         {questions.map((q: any) => {
-            // Dọn rác văn bản: Chỉ hiện số câu (VD: "25.") chứ không lặp lại câu hỏi
-            const cleanQ = { ...q, Question: q.No + '.' };
-            return <MultipleChoice q={cleanQ} part={5} />
-         })}
-      </div>
-  </div>
+<div class="w-full max-w-5xl mx-auto scroll-mt-24 md:scroll-mt-40" id={`q-${questions[0]?.Q_Num || questions[0]?.ID}`}>
+    
+    {/* KHỐI YÊU CẦU ĐỀ BÀI */}
+    <div class="bg-sky-50/50 border border-sky-100 p-6 md:p-8 rounded-[2rem] mb-8 shadow-sm">
+       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+           <h4 class="text-sky-800 font-black uppercase text-sm tracking-widest flex items-center gap-2">
+              <span>📝</span> YÊU CẦU ĐỀ BÀI
+           </h4>
+           <div class="bg-sky-200/50 text-sky-800 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider inline-block w-max">
+               Part {partNum} • Questions {questions[0]?.Q_Num} - {questions[questions.length-1]?.Q_Num}
+           </div>
+       </div>
+       <p class="text-sky-900 font-medium text-base md:text-lg leading-relaxed">{directionText}</p>
+    </div>
+
+    {/* BỐ CỤC BÀI LÀM */}
+    <div class="bg-white rounded-[2rem] border-2 border-slate-200 p-8 md:p-12 shadow-sm relative overflow-hidden">
+        
+        {/* NGỮ CẢNH (You will hear...) */}
+        {contextText && (
+            <p class="text-lg md:text-xl font-bold text-slate-800 mb-10 pb-6 border-b-2 border-slate-100 leading-relaxed">
+                {contextText}
+            </p>
+        )}
+
+        <div class="flex flex-col md:flex-row gap-12 md:gap-24">
+            
+            {/* CỘT TRÁI: Câu hỏi (Friends + Box điền đáp án) */}
+            <div class="w-full md:w-1/2">
+                {/* IN TIÊU ĐỀ CỘT TRÁI (Friends) */}
+                <h4 class="font-black text-xl md:text-2xl text-slate-800 mb-6">{leftTitle}</h4>
+                
+                <div class="space-y-6">
+                    {questions.map((q: any) => (
+                        <div class="flex items-center justify-between group">
+                            <div class="flex items-center gap-4">
+                                <span class="font-black text-xl text-sky-500 w-8 shrink-0">
+                                    {q.Q_Num}
+                                </span>
+                                <span class="font-bold text-slate-800 text-lg md:text-xl">{getCleanQuestion(q.Question)}</span>
+                            </div>
+                            
+                            {/* Ô INPUT DẠNG BOX: Đẹp, vuông vắn, chữ xanh nổi bần bật */}
+                            <div class="relative shrink-0 ml-4">
+                                <input 
+                                    type="text" 
+                                    name={q.ID} 
+                                    class="exam-input w-12 h-12 md:w-14 md:h-14 text-center bg-slate-50 border-2 border-slate-300 rounded-xl outline-none font-black text-sky-600 text-2xl uppercase placeholder:text-slate-300 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100 transition-all shadow-sm" 
+                                    maxlength="1" 
+                                    autocomplete="off" 
+                                />
+                                <div class="submit-icon hidden absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white shadow-md text-xs flex items-center justify-center font-bold z-10 border border-slate-100"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* CỘT PHẢI: Danh sách Options (Jobs) */}
+            <div class="w-full md:w-1/2 relative">
+                {/* Đường phân cách */}
+                <div class="hidden md:block absolute -left-6 lg:-left-12 top-0 w-px h-full bg-slate-200"></div>
+                
+                {/* IN TIÊU ĐỀ CỘT PHẢI (Jobs) */}
+                <h4 class="font-black text-xl md:text-2xl text-slate-800 mb-6">{rightTitle}</h4>
+                
+                {optionsList.length > 0 ? (
+                    <div class="space-y-5">
+                        {optionsList.map(opt => (
+                            <div class="flex items-center gap-4">
+                                <span class="font-black text-slate-800 text-xl w-6 shrink-0">
+                                    {opt.letter}
+                                </span>
+                                <span class="font-medium text-slate-700 text-lg md:text-xl">{opt.text}</span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div class="text-slate-500 italic p-6 text-center border-2 border-dashed border-slate-300 rounded-xl font-medium">
+                        ⚠️ Dữ liệu đang thiếu danh sách đáp án (A-H).
+                    </div>
+                )}
+            </div>
+
+        </div>
+    </div>
 </div>

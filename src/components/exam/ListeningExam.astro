@@ -1,55 +1,439 @@
 ---
-// src/components/exam/ListeningExam.astro
+import MultipleChoice from './MultipleChoice.astro';
 import ListeningPart1 from './ListeningPart1.astro';
 import ListeningPart2 from './ListeningPart2.astro';
-import MultipleChoice from './MultipleChoice.astro';
 import ListeningPart5 from './ListeningPart5.astro';
 
-const { parts } = Astro.props;
+const { parts = [], testTitle = "Cambridge Listening Exam" } = Astro.props;
+
+// Lọc các part hợp lệ
+const validParts = parts.filter((p: any) => p && typeof p.part_number === 'number' && Array.isArray(p.questions) && p.questions.length > 0);
+
+// Chuẩn bị data chấm điểm
+const clientSubmitData = validParts.map((p: any) => ({
+    part_number: p.part_number,
+    questions: p.questions.map((q: any) => ({
+        ID: q.ID,
+        Answer: q.Answer
+    }))
+}));
 ---
 
-<div class="listening-container pb-32">
-  {parts.map(part => (
-    <div class="mb-20">
-      <div class="flex items-center gap-6 mb-8 max-w-5xl mx-auto px-4">
-        <h2 class="text-3xl font-black text-slate-900">PART {part.part_number}</h2>
-        <div class="h-[2px] flex-1 bg-slate-200"></div>
+<div class="relative min-h-screen bg-[#F1F5F9] pb-32 font-sans" id="exam-wrapper">
+  
+  <script id="exam-client-data" type="application/json" set:html={JSON.stringify(clientSubmitData)}></script>
+
+  <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-slate-900/50 z-[55] hidden opacity-0 transition-opacity duration-300"></div>
+
+  {/* NÚT MỞ SIDEBAR GÓC TRÁI MÀN HÌNH */}
+  <button id="sidebar-toggle-btn" class="hidden lg:flex fixed left-0 top-1/2 -translate-y-1/2 z-[60] bg-slate-800 hover:bg-sky-500 text-white w-8 h-16 items-center justify-center rounded-r-2xl shadow-md transition-colors cursor-pointer" title="Đóng/Mở Bản đồ câu hỏi">
+     <svg id="sidebar-toggle-icon" class="w-5 h-5 transition-transform duration-500 rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+  </button>
+
+  {/* TOPBAR */}
+  <div class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm" id="exam-topbar">
+    <div class="w-full mx-auto px-4 xl:px-12 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 md:gap-4">
+        <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-700 text-xl font-bold active:scale-95 transition-transform">☰</button>
+        <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center text-white font-black shrink-0">🎧</div>
+        <h1 class="font-black text-slate-800 hidden md:block uppercase tracking-tight truncate">{testTitle}</h1>
       </div>
-
-      <div class="max-w-4xl mx-auto px-4">
-        {/* AUDIO CHUNG CHO PART */}
-        {part.audioUrl && (
-          <div class="sticky top-4 z-30 bg-white/80 backdrop-blur-md p-4 rounded-2xl shadow-lg mb-8 border border-blue-100 flex items-center gap-4">
-             <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white shrink-0 shadow-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-             </div>
-             <audio controls class="flex-1 h-10"><source src={part.audioUrl} type="audio/mpeg"/></audio>
-          </div>
-        )}
-
-        {/* ĐIỀU PHỐI COMPONENT RIÊNG CHO TỪNG PART */}
-        <div class="grid gap-6">
-          {part.part_number === 1 && part.questions.map(q => <ListeningPart1 q={q} />)}
-          
-          {part.part_number === 2 && <ListeningPart2 questions={part.questions} />}
-          
-          {(part.part_number === 3 || part.part_number === 4) && 
-            part.questions.map(q => <MultipleChoice q={q} part={part.part_number} />)
-          }
-          
-          {part.part_number === 5 && <ListeningPart5 questions={part.questions} />}
-        </div>
-
-        {/* TRANSCRIPT */}
-        {part.passage && (
-          <details class="mt-10 group">
-            <summary class="cursor-pointer text-slate-400 font-bold uppercase text-xs tracking-widest hover:text-blue-600 list-none outline-none">
-                <span class="group-open:rotate-180 inline-block transition-transform mr-1">▼</span> View Transcript
-            </summary>
-            <div class="mt-4 p-8 bg-slate-50 rounded-[2rem] text-slate-600 italic leading-relaxed shadow-inner border border-slate-100" set:html={part.passage}></div>
-          </details>
-        )}
+      <div class="flex items-center gap-3 md:gap-6">
+        <div class="bg-slate-900 text-white px-3 md:px-4 py-2 rounded-xl font-mono font-bold text-base md:text-lg shadow-inner tracking-wider" id="timer-display">30:00</div>
+        <button id="top-submit-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-black px-4 md:px-6 py-2 rounded-xl shadow-md transition-all active:scale-95 uppercase text-xs md:text-sm tracking-wider">Nộp bài</button>
       </div>
     </div>
-  ))}
+  </div>
+
+  {/* NỘI DUNG CHÍNH */}
+  <div class="pt-24 highlightable-area" id="exam-content">
+    <div class="w-full mx-auto px-4 xl:px-12 flex items-start overflow-hidden lg:overflow-visible relative">
+      
+      {/* SIDEBAR BẢN ĐỒ CÂU HỎI */}
+      <aside id="exam-sidebar" class="fixed inset-y-0 left-0 z-[60] w-[280px] bg-white shadow-2xl transition-transform duration-300 -translate-x-full lg:static lg:translate-x-0 lg:w-[320px] lg:mr-10 lg:shadow-none lg:bg-transparent lg:z-40 lg:shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto custom-scrollbar origin-left">
+        <div class="w-full h-full p-6 lg:p-0 flex flex-col">
+          <div class="bg-white lg:p-6 lg:rounded-3xl lg:border lg:border-slate-200 lg:shadow-sm flex-1 flex flex-col">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4 shrink-0">
+               <h3 class="font-black text-slate-800 uppercase tracking-widest text-sm">Bản Đồ Câu Hỏi</h3>
+               <button id="close-sidebar-btn" class="lg:hidden w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-500">✕</button>
+            </div>
+            <div class="space-y-6 overflow-y-auto flex-1 custom-scrollbar pr-2">
+              {validParts.map((part: any) => (
+                <div>
+                  <div class="flex items-center justify-between mb-3">
+                    <span class="font-black text-slate-800 text-sm uppercase">Listening Part {part.part_number}</span>
+                    <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">{part.questions.length} câu</span>
+                  </div>
+                  <div class="flex flex-wrap gap-2">
+                    {part.questions.map((q: any) => (
+                       <a href={`#q-${q.Q_Num}`} data-target={`q-${q.ID}`} class="q-nav-btn w-[38px] h-[38px] flex items-center justify-center rounded-xl bg-slate-50 border-2 border-slate-200 text-slate-600 font-black text-sm hover:bg-sky-50 hover:border-sky-400 hover:text-sky-600 transition-all">
+                         {q.Q_Num}
+                       </a>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* KHUNG BÀI LÀM TỪNG PART */}
+      <main class="flex-1 w-full min-w-0 transition-all duration-500">
+        <div id="save-indicator" class="hidden fixed top-20 right-4 md:right-12 bg-slate-900/90 backdrop-blur text-white px-5 py-2 rounded-full font-medium text-sm shadow-xl z-50 flex items-center gap-2 transition-opacity">
+           <span class="animate-pulse">🔄</span> Đã lưu nháp...
+        </div>
+
+        {validParts.map((part: any) => {
+          const pNum = part.part_number;
+          const questions = part.questions;
+          
+          // Lấy đúng Link Audio và Data Passage
+          const audioUrl = part.audio || questions[0]?.Audio_Link || questions[0]?.Audio || questions[0]?.Audio_URL || questions[0]?.audio || null;
+          const passageData = part.passage || questions[0]?.Passage || ""; 
+
+          return (
+          <section id={`section-part-${pNum}`} class="exam-section mb-16 md:mb-24">
+            
+            {/* TIÊU ĐỀ PART */}
+            <div class="flex items-center gap-4 mb-6 md:mb-8">
+              <div class="w-10 h-10 md:w-12 md:h-12 bg-slate-900 rounded-xl flex items-center justify-center text-sky-400 font-black text-lg md:text-xl shadow-md rotate-3 shrink-0">{pNum}</div>
+              <h2 class="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight">Listening Part {pNum}</h2>
+            </div>
+
+            {/* THANH AUDIO CHÍNH GIỮA (mx-auto) */}
+            {audioUrl && (
+              <div class="w-full max-w-5xl mx-auto bg-white p-4 md:p-6 rounded-[2rem] border border-sky-100 shadow-sm mb-10 flex flex-col md:flex-row items-center gap-4 md:gap-6 sticky top-20 z-30">
+                <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center shrink-0 shadow-inner">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.236l8-1.6V11.114A4.369 4.369 0 0015 11c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path></svg>
+                </div>
+                <div class="flex-1 w-full">
+                   <p class="text-sm font-bold text-slate-700 mb-2 px-1">Track Audio Part {pNum}</p>
+                   <audio controls class="part-audio-player w-full h-12 outline-none rounded-xl" src={audioUrl} preload="metadata"></audio>
+                </div>
+              </div>
+            )}
+
+            {/* YÊU CẦU ĐỀ BÀI CỐ ĐỊNH CHO PART 1, 3, 4 */}
+            {(pNum === 1 || pNum === 3 || pNum === 4) && (
+                <div class="w-full max-w-5xl mx-auto mb-8">
+                    <div class="bg-sky-50/50 border border-sky-100 p-6 md:p-8 rounded-[2rem] shadow-sm">
+                       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                           <h4 class="text-sky-800 font-black uppercase text-sm tracking-widest flex items-center gap-2">
+                              <span>📝</span> YÊU CẦU ĐỀ BÀI
+                           </h4>
+                           <div class="bg-sky-200/50 text-sky-800 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider inline-block w-max">
+                               Part {pNum} • Questions {questions[0]?.Q_Num} - {questions[questions.length-1]?.Q_Num}
+                           </div>
+                       </div>
+                       <p class="text-sky-900 font-medium text-base md:text-lg leading-relaxed">
+                           For each question, choose the correct answer.
+                       </p>
+                    </div>
+                </div>
+            )}
+
+            {/* ======= ĐỊNH TUYẾN COMPONENT THEO TỪNG PART ======= */}
+            
+            {/* PART 1: Trắc nghiệm Hình ảnh */}
+            {pNum === 1 && (
+              <div class="flex flex-col gap-8 w-full max-w-4xl mx-auto">
+                {questions.map((q: any) => <div id={`q-${q.Q_Num || q.ID}`} class="scroll-mt-24 md:scroll-mt-40"><ListeningPart1 q={q} /></div>)}
+              </div>
+            )}
+
+            {/* PART 2: Điền từ (Ghi chú / Tin nhắn) */}
+            {pNum === 2 && (
+               <ListeningPart2 questions={questions} passage={passageData} partNum={pNum} />
+            )}
+
+            {/* PART 5: Nối đáp án (Matching) */}
+            {pNum === 5 && (
+               <ListeningPart5 questions={questions} passage={passageData} partNum={pNum} />
+            )}
+
+            {/* PART 3 & 4: Trắc nghiệm Chữ */}
+            {(pNum === 3 || pNum === 4) && (
+              <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8 w-full max-w-6xl mx-auto">
+                {questions.map((q: any) => <div id={`q-${q.Q_Num || q.ID}`} class="scroll-mt-24 md:scroll-mt-40"><MultipleChoice q={q} part={pNum} /></div>)}
+              </div>
+            )}
+            
+          </section>
+          )
+        })}
+      </main>
+    </div>
+  </div>
+
+  {/* TRANG KẾT QUẢ VÀ TRANSCRIPT (Ẩn cho đến khi nộp bài) */}
+  <div id="result-dashboard" class="hidden max-w-5xl mx-auto pt-24 px-4 pb-20 animate-fade-in-up">
+    <div class="bg-white rounded-[3rem] p-8 md:p-16 border text-center relative overflow-hidden shadow-2xl mb-12">
+      <div class="absolute top-0 left-0 w-full h-4 bg-sky-500"></div>
+      <h2 class="text-3xl md:text-4xl font-black mb-4 text-slate-900">Kết Quả Bài Nghe</h2>
+      <p class="text-slate-500 mb-8 md:mb-10 font-bold text-sm md:text-base">Thời gian làm bài: <span id="time-taken" class="text-slate-800 text-lg md:text-xl">00:00</span></p>
+      <div class="flex justify-center mb-10 md:mb-12">
+        <div class="relative w-48 h-48 md:w-56 md:h-56 flex items-center justify-center bg-slate-50 rounded-full border-[10px] md:border-[12px] border-sky-100 shadow-inner">
+          <div class="text-center">
+            <span class="text-5xl md:text-6xl font-black text-sky-600" id="final-score">0</span>
+            <span class="text-2xl md:text-3xl font-bold text-slate-400" id="total-score">/0</span>
+          </div>
+        </div>
+      </div>
+      <button id="review-btn" class="bg-slate-900 hover:bg-slate-800 transition-colors text-white font-bold px-8 md:px-10 py-3.5 md:py-4 rounded-2xl shadow-lg uppercase tracking-wider text-sm md:text-base w-full md:w-auto">Xem chi tiết & Lời thoại</button>
+    </div>
+
+    <div id="transcript-section" class="hidden">
+       <h3 class="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2"><span>💬</span> Audio Transcript</h3>
+       <div class="space-y-6">
+          {validParts.map((part: any) => (
+             <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm">
+                <h4 class="font-black text-sky-600 mb-4 uppercase tracking-wider text-sm">Part {part.part_number}</h4>
+                <div class="space-y-4">
+                  {part.questions.filter((q:any) => q.Explanation).map((q:any) => (
+                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <div class="flex items-center mb-2">
+                           <span class="bg-sky-500 text-white font-black px-2 py-0.5 rounded mr-2 text-xs">Q.{q.Q_Num}</span>
+                           <span class="text-sm font-bold text-slate-500">Đáp án: <span class="text-emerald-600">{q.Answer}</span></span>
+                        </div>
+                        <p class="text-slate-700 font-medium leading-relaxed text-sm md:text-base" set:html={q.Explanation}></p>
+                     </div>
+                  ))}
+                </div>
+             </div>
+          ))}
+       </div>
+    </div>
+  </div>
+
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    
+    const dataElement = document.getElementById('exam-client-data');
+    let safeValidParts = [];
+    try {
+        safeValidParts = JSON.parse(dataElement.textContent || '[]');
+    } catch(e) {}
+
+    // Xử lý tự động Play/Pause Audio
+    const allAudios = document.querySelectorAll('.part-audio-player');
+    allAudios.forEach(audio => {
+        audio.addEventListener('play', (e) => {
+            allAudios.forEach(otherAudio => {
+                if (otherAudio !== e.target) otherAudio.pause();
+            });
+        });
+    });
+
+    // Mở / Đóng Sidebar
+    const sidebar = document.getElementById('exam-sidebar');
+    const overlay = document.getElementById('mobile-sidebar-overlay');
+    const dtToggleBtn = document.getElementById('sidebar-toggle-btn');
+    const dtToggleIcon = document.getElementById('sidebar-toggle-icon');
+    const mbMenuBtn = document.getElementById('mobile-menu-btn');
+    const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+
+    dtToggleBtn?.addEventListener('click', () => {
+      sidebar.classList.toggle('lg:w-[320px]');
+      sidebar.classList.toggle('lg:mr-10');
+      sidebar.classList.toggle('lg:w-0');
+      sidebar.classList.toggle('lg:opacity-0');
+      dtToggleIcon.classList.toggle('rotate-180');
+    });
+
+    const openMobileMenu = () => {
+       sidebar.classList.remove('-translate-x-full');
+       overlay.classList.remove('hidden');
+       setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+       document.body.style.overflow = 'hidden'; 
+    };
+    const closeMobileMenu = () => {
+       sidebar.classList.add('-translate-x-full');
+       overlay.classList.add('opacity-0');
+       setTimeout(() => overlay.classList.add('hidden'), 300);
+       document.body.style.overflow = '';
+    };
+
+    mbMenuBtn?.addEventListener('click', openMobileMenu);
+    closeSidebarBtn?.addEventListener('click', closeMobileMenu);
+    overlay?.addEventListener('click', closeMobileMenu);
+
+    // Cuộn mượt đến câu hỏi
+    document.querySelectorAll('.q-nav-btn').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        if(window.innerWidth < 1024) closeMobileMenu();
+        const target = document.getElementById(this.getAttribute('href').substring(1));
+        if (target) window.scrollTo({ top: target.offsetTop - 140, behavior: 'smooth' }); 
+      });
+    });
+
+    // Lưu nháp LocalStorage
+    const testId = window.location.pathname.split('/').pop() || 'listening_test';
+    const storageKey = `listening_draft_${testId}`;
+    const saveIndicator = document.getElementById('save-indicator');
+    let saveTimeout;
+
+    const showSaveIndicator = () => {
+       saveIndicator.classList.remove('hidden');
+       saveIndicator.classList.add('opacity-100');
+       clearTimeout(saveTimeout);
+       saveTimeout = setTimeout(() => {
+          saveIndicator.classList.remove('opacity-100');
+          setTimeout(() => saveIndicator.classList.add('hidden'), 300);
+       }, 1500);
+    };
+
+    const checkAnswers = () => {
+      document.querySelectorAll('.q-nav-btn').forEach(btn => {
+        const id = btn.getAttribute('data-target').replace('q-', '');
+        const isAnswered = document.querySelector(`input[name="${id}"]:checked`) || 
+                           document.querySelector(`input[name="${id}"][type="text"]`)?.value;
+        if (isAnswered) {
+          btn.classList.add('bg-sky-500', 'text-white', 'border-sky-500');
+          btn.classList.remove('bg-slate-50', 'text-slate-600', 'border-slate-200');
+        }
+      });
+    };
+
+    const restoreDraft = () => {
+       try {
+           const draft = JSON.parse(localStorage.getItem(storageKey));
+           if (draft) {
+               Object.keys(draft).forEach(key => {
+                   const elList = document.querySelectorAll(`[name="${key}"]`);
+                   elList.forEach(el => {
+                       if (el.type === 'radio' && el.value === draft[key]) {
+                           el.checked = true;
+                       } else if (el.type === 'text') {
+                           el.value = draft[key];
+                       }
+                   });
+               });
+               checkAnswers();
+           }
+       } catch (e) {}
+    };
+
+    document.addEventListener('input', (e) => {
+        if (e.target.name) {
+            const draft = JSON.parse(localStorage.getItem(storageKey) || '{}');
+            draft[e.target.name] = e.target.value;
+            localStorage.setItem(storageKey, JSON.stringify(draft));
+            showSaveIndicator();
+        }
+    });
+    restoreDraft();
+    document.addEventListener('change', checkAnswers);
+    document.addEventListener('keyup', checkAnswers);
+
+    // Đồng hồ đếm ngược
+    let timeRemaining = 1800; 
+    const timerDisplay = document.getElementById('timer-display');
+    let timerInterval = setInterval(() => {
+      timeRemaining--;
+      if (timerDisplay) {
+         const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+         const s = (timeRemaining % 60).toString().padStart(2, '0');
+         timerDisplay.textContent = `${m}:${s}`;
+      }
+      if (timeRemaining <= 0) { clearInterval(timerInterval); submitExam(); }
+    }, 1000);
+
+    // Xử lý nộp bài
+    function submitExam() {
+      clearInterval(timerInterval);
+      let score = 0, total = 0;
+      localStorage.removeItem(storageKey);
+      
+      allAudios.forEach(audio => audio.pause()); // Tắt Audio khi nộp
+      
+      safeValidParts.forEach(part => {
+        part.questions.forEach(q => {
+          if (!q.ID || !q.Answer) return;
+          total++;
+          const correctAnswer = String(q.Answer).trim().toLowerCase();
+          const qId = q.ID;
+
+          const elements = document.querySelectorAll(`[name="${qId}"]`);
+          let isCorrect = false;
+
+          elements.forEach(el => {
+             // Check Radio (Trắc nghiệm)
+             if (el.type === 'radio') {
+                 const parent = el.closest('label');
+                 const iconBox = parent.querySelector('.submit-icon');
+                 el.disabled = true;
+                 
+                 if (el.value.trim().toLowerCase() === correctAnswer) {
+                    parent.classList.add('border-emerald-500', 'bg-emerald-50', 'ring-2', 'ring-emerald-200');
+                    if (iconBox) { iconBox.innerHTML = '✔️'; iconBox.classList.remove('hidden'); iconBox.classList.add('text-emerald-500'); }
+                    if (el.checked) isCorrect = true;
+                 } else if (el.checked) {
+                    parent.classList.add('border-rose-500', 'bg-rose-50');
+                    if (iconBox) { iconBox.innerHTML = '❌'; iconBox.classList.remove('hidden'); iconBox.classList.add('text-rose-500'); }
+                 }
+             }
+             // Check Input Text (Điền từ)
+             else if (el.type === 'text') {
+                 el.disabled = true;
+                 if (el.value.trim().toLowerCase() === correctAnswer) {
+                     isCorrect = true;
+                     el.classList.add('text-emerald-600', 'bg-emerald-50/50');
+                 } else {
+                     el.classList.add('text-rose-600', 'bg-rose-50/50');
+                     el.classList.remove('w-12', 'md:w-14', 'w-28', 'md:w-48'); // Gỡ width cứng
+                     el.classList.add('w-auto', 'min-w-[4rem]', 'px-2'); // Đệm để nhét thêm đáp án
+                     el.value = `${el.value || '?'} ➔ ${q.Answer}`;
+                 }
+             }
+          });
+          if (isCorrect) score++;
+        });
+      });
+
+      // Hiển thị điểm số
+      document.getElementById('time-taken').textContent = timerDisplay.textContent;
+      document.getElementById('final-score').textContent = score;
+      document.getElementById('total-score').textContent = `/${total}`;
+
+      // Chuyển trang
+      document.getElementById('exam-content').classList.add('hidden');
+      document.getElementById('exam-topbar').classList.add('hidden');
+      if (dtToggleBtn) dtToggleBtn.classList.add('hidden');
+      document.getElementById('result-dashboard').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.getElementById('top-submit-btn')?.addEventListener('click', () => {
+      if(confirm('Sếp đã làm xong và muốn nộp bài chứ? Audio sẽ tự động dừng.')) submitExam();
+    });
+
+    // Xem lại bài & Lời thoại
+    document.getElementById('review-btn')?.addEventListener('click', () => {
+      document.getElementById('result-dashboard').classList.add('hidden');
+      document.getElementById('exam-topbar').classList.remove('hidden');
+      document.getElementById('exam-content').classList.remove('hidden');
+      if (dtToggleBtn) dtToggleBtn.classList.remove('hidden');
+      
+      document.getElementById('transcript-section').classList.remove('hidden');
+      document.querySelectorAll('.explanation-box').forEach(box => box.classList.remove('hidden'));
+    });
+  });
+</script>
+
+<style is:global>
+  html { scroll-behavior: smooth; }
+  .animate-fade-in-up { animation: fadeInUp 0.3s ease-out; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 8px; }
+  
+  /* Làm đẹp Audio HTML5 chuẩn Sky Blue */
+  audio::-webkit-media-controls-panel { background-color: #f8fafc; }
+  audio::-webkit-media-controls-play-button,
+  audio::-webkit-media-controls-mute-button { background-color: #e0f2fe; border-radius: 50%; color: #0284c7; }
+</style>
