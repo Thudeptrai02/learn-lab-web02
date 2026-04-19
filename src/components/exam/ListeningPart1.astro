@@ -1,54 +1,74 @@
 ---
 const { q } = Astro.props;
-const hasImage = q.Image_URL && q.Image_URL.startsWith('http');
+
+// Bắt chính xác URL của bức ảnh chứa 3 đáp án
+const singleImage = q.Image || q.Image_Link || q.Image_URL || q.Image_A || q.Opt_A || "";
+
+// 3 Đáp án A, B, C
+const options = ['A', 'B', 'C'];
+
+// Lọc sạch số thứ tự thừa bị dính trong câu hỏi
+let cleanQuestion = (q.Question || "").replace(new RegExp(`^${q.Q_Num}\\s*[\\.\\:\\-]?\\s*`), '').trim();
+
+// TẠO TÊN NHÓM RADIO ĐỘC QUYỀN ĐỂ FIX LỖI CHỌN ĐƯỢC 3 ĐÁP ÁN
+const radioGroupName = `part1_q_${q.Q_Num || Math.random()}`;
 ---
 
 <div class="bg-white p-6 md:p-8 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative">
     
-    {/* 1. CÂU HỎI LÊN TRÊN CÙNG */}
-    <div class="flex items-start gap-4 mb-6">
-        <span class="bg-sky-100 text-sky-700 font-black px-4 py-1.5 rounded-xl shrink-0 text-lg md:text-xl shadow-sm">{q.Q_Num}</span>
-        <h3 class="text-lg md:text-xl font-bold text-slate-800 leading-relaxed mt-0.5">{q.Question}</h3>
+    {/* KHU VỰC CÂU HỎI */}
+    <div class="flex items-start gap-4 mb-8">
+        <span class="bg-sky-500 text-white font-black w-10 h-10 flex items-center justify-center rounded-xl shrink-0 text-lg shadow-md mt-0.5">
+            {q.Q_Num}
+        </span>
+        <div class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed pt-1" set:html={cleanQuestion}></div>
     </div>
 
-    {/* 2. KHUNG CHỨA ẢNH & NÚT BẤM (Gộp chung để dóng hàng) */}
-    {hasImage && (
-        <div class="max-w-3xl mx-auto mb-4">
-            
-            {/* Ảnh */}
-            <div class="bg-slate-50 p-4 pb-2 rounded-t-[2rem] border-2 border-b-0 border-slate-200 flex justify-center">
-                <img src={q.Image_URL} alt={`Question ${q.Q_Num} image`} class="w-full h-auto object-contain max-h-[300px] mix-blend-multiply" loading="lazy" />
+    {/* KHU VỰC HÌNH ẢNH VÀ NÚT BẤM (ĐƯỢC CĂN CHỈNH THẲNG HÀNG) */}
+    <div class="w-full max-w-2xl mx-auto flex flex-col items-center">
+        
+        {/* Bức ảnh lớn chứa 3 ảnh nhỏ */}
+        {singleImage && (
+            <div class="w-full mb-6">
+                <img 
+                    src={singleImage} 
+                    alt={`Question ${q.Q_Num}`} 
+                    class="w-full h-auto object-contain mix-blend-multiply" 
+                    loading="lazy"
+                />
             </div>
+        )}
 
-            {/* Khung Nút Bấm: Chia 3 cột đều nhau để khớp chính xác với 3 hình */}
-            <div class="bg-slate-50 border-2 border-t-0 border-slate-200 rounded-b-[2rem] pb-5 px-4">
-                <div class="grid grid-cols-3 gap-2 w-full h-full text-center">
-                    {['A', 'B', 'C'].map((opt) => (
-                        <label class="relative cursor-pointer group flex justify-center items-center">
-                            <input type="radio" name={q.ID} value={opt} class="peer sr-only" />
-                            
-                            {/* Nút tròn tinh tế, vừa vặn */}
-                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-lg md:text-xl font-bold text-slate-500 peer-checked:border-sky-500 peer-checked:bg-sky-50 peer-checked:text-sky-600 hover:border-sky-400 hover:bg-sky-50 transition-all">
-                                {opt}
-                            </div>
-                            
-                            {/* Icon chấm điểm */}
-                            <div class="submit-icon hidden absolute -top-1 right-1/4 w-6 h-6 rounded-full bg-white shadow-md text-xs flex items-center justify-center font-bold z-10 border border-slate-100"></div>
-                        </label>
-                    ))}
+        {/* Lưới 3 cột để căn giữa 3 nút bấm A, B, C khớp với 3 hình trên */}
+        <div class="grid grid-cols-3 w-full">
+            {options.map((key) => (
+                <div class="flex justify-center">
+                    <label class="relative cursor-pointer group flex flex-col items-center justify-center p-2 rounded-2xl transition-all">
+                        
+                        {/* Input Radio đã được gom nhóm chặt chẽ */}
+                        <input type="radio" name={radioGroupName} value={key} class="peer sr-only" />
+                        
+                        {/* Nút Tròn (Kích thước vừa phải, thanh lịch) */}
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-sky-500 bg-white flex items-center justify-center font-black text-sky-500 peer-checked:bg-sky-500 peer-checked:text-white transition-all shadow-sm text-lg hover:bg-sky-50">
+                            {key}
+                        </div>
+
+                        {/* Icon chấm điểm ẩn (Xanh ngọc / Đỏ hồng) */}
+                        <div class="submit-icon hidden absolute -top-1 -right-3 md:-right-4 w-6 h-6 rounded-full bg-white shadow-md text-xs flex items-center justify-center font-bold border border-slate-100 z-10"></div>
+                    </label>
                 </div>
-            </div>
+            ))}
+        </div>
+    </div>
 
+    {/* GIẢI THÍCH LỜI THOẠI (Ẩn, hiện khi nộp bài) */}
+    {q.Explanation && (
+        <div class="explanation-box hidden mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+            <div class="flex items-center gap-2 mb-4">
+                <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Đáp án đúng:</span>
+                <span class="bg-emerald-500 text-white font-black px-3 py-1 rounded-lg">{q.Answer}</span>
+            </div>
+            <p class="text-slate-700 font-medium leading-relaxed text-base md:text-lg" set:html={q.Explanation}></p>
         </div>
     )}
-    
-    {/* 3. GIẢI THÍCH (Ẩn đi, chỉ hiện khi nộp bài) */}
-    <div class="explanation-box hidden mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-200">
-        <div class="flex items-center gap-2 mb-3">
-            <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Đáp án đúng:</span>
-            <span class="bg-emerald-500 text-white font-black px-3 py-1 rounded-lg">{q.Answer}</span>
-        </div>
-        <p class="text-slate-700 font-medium leading-relaxed" set:html={q.Explanation}></p>
-    </div>
-
 </div>

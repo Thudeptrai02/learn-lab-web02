@@ -1,38 +1,23 @@
 ---
 const { q, part } = Astro.props;
 
-// THUẬT TOÁN TÁCH CÂU HƯỚNG DẪN VÀ CÂU HỎI CHÍNH (Siêu Cấp)
 function parseQuestionText(text: string) {
     if (!text) return { context: '', mainQuestion: '' };
-    
-    // Đổi toàn bộ thẻ xuống dòng thành \n để dễ xử lý
     let cleanText = text.replace(/\[BR\]|\|\||<br\s*\/?>/gi, '\n').trim();
 
-    // 1. Tách chuẩn theo thẻ xuống dòng (Nếu Data cào đẹp)
     if (cleanText.includes('\n')) {
         const parts = cleanText.split('\n');
         if (parts[0].toLowerCase().includes('hear')) {
             return { context: parts[0].trim(), mainQuestion: parts.slice(1).join(' ').trim() };
         }
     }
-
-    // 2. Tách theo dấu câu (Có dấu chấm/hai chấm sau chữ hear)
     const match1 = cleanText.match(/^(.*?(?:will hear|hear).*?[\.\:\?])\s*(.*)$/i);
-    if (match1) {
-        return { context: match1[1].trim(), mainQuestion: match1[2].trim() };
-    }
+    if (match1) return { context: match1[1].trim(), mainQuestion: match1[2].trim() };
 
-    // 3. TÁCH ÉP BUỘC (Dành cho Data lỗi thiếu dấu chấm)
-    // Cứ thấy chữ "hear" phía trước, và bắt đầu câu hỏi bằng W/H phía sau là chặt đôi!
     const match2 = cleanText.match(/^(.*?(?:will hear|hear).*?)\s+(Which|What|Why|Where|Who|How|When|Do|Does|Did|Is|Are)(.*)/i);
     if (match2) {
-        return {
-            context: match2[1].trim(),
-            mainQuestion: (match2[2] + match2[3]).trim()
-        };
+        return { context: match2[1].trim(), mainQuestion: (match2[2] + match2[3]).trim() };
     }
-
-    // Mặc định (Cho Part 3 không có ngữ cảnh)
     return { context: '', mainQuestion: cleanText };
 }
 
@@ -43,43 +28,33 @@ const options = [
     { key: 'B', text: q.Opt_B },
     { key: 'C', text: q.Opt_C }
 ].filter(o => o.text);
+
+// 🌟 TUYỆT CHIÊU FIX LỖI: Tự tạo ID gom nhóm nếu file CSV bị thiếu
+const inputName = q.ID || `q_${q.Q_Num}`;
 ---
 
 <div class="bg-white p-6 md:p-8 rounded-[2rem] border-2 border-slate-200 shadow-sm hover:shadow-md transition-shadow relative">
     
-    {/* KHU VỰC CÂU HỎI */}
     <div class="flex items-start gap-4 mb-6">
-        
-        {/* Số thứ tự: Khối vuông xanh sáng cực nổi bật */}
         <span class="bg-sky-500 text-white font-black w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-xl shrink-0 text-lg md:text-xl shadow-md">
             {q.Q_Num}
         </span>
-        
-        {/* Ngữ cảnh & Câu hỏi */}
         <div class="w-full pt-1">
-            {/* Dòng Ngữ cảnh (You will hear...): Chữ thường, màu xám */}
-            {context && (
-                <div class="text-slate-600 font-medium text-base md:text-lg mb-2 leading-relaxed">
-                    {context}
-                </div>
-            )}
-            {/* Dòng Câu hỏi chính: In đậm, to rõ */}
+            {context && <div class="text-slate-600 font-medium text-base md:text-lg mb-2 leading-relaxed">{context}</div>}
             <div class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed" set:html={mainQuestion}></div>
         </div>
     </div>
 
-    {/* KHU VỰC ĐÁP ÁN (A, B, C) - Được thụt lề vào trong cho thẳng hàng với câu hỏi */}
     <div class="space-y-4 ml-14 md:ml-16">
         {options.map((opt) => (
             <label class="flex items-start gap-4 p-4 rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-sky-400 hover:bg-sky-50 transition-all group relative bg-slate-50/50">
-                <input type="radio" name={q.ID} value={opt.key} class="peer sr-only" />
+                {/* 🌟 Gắn Input Name ở đây để chỉ được chọn 1 */}
+                <input type="radio" name={inputName} value={opt.key} class="peer sr-only" />
                 
-                {/* Nút tròn A, B, C */}
                 <div class="w-8 h-8 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-sm font-black text-slate-400 peer-checked:border-sky-500 peer-checked:bg-sky-500 peer-checked:text-white transition-all shrink-0 mt-0.5 shadow-sm">
                     {opt.key}
                 </div>
                 
-                {/* Chữ đáp án */}
                 <div class="text-base md:text-lg text-slate-700 font-medium peer-checked:text-sky-800 peer-checked:font-bold transition-all pt-0.5" set:html={opt.text}></div>
                 
                 <div class="submit-icon hidden absolute top-1/2 -translate-y-1/2 right-4 w-8 h-8 rounded-full bg-white shadow-sm text-base flex items-center justify-center font-bold border border-slate-100"></div>
@@ -87,7 +62,6 @@ const options = [
         ))}
     </div>
 
-    {/* GIẢI THÍCH LỜI THOẠI */}
     {q.Explanation && (
         <div class="explanation-box hidden mt-8 p-6 bg-slate-50 rounded-2xl border border-slate-200 ml-14 md:ml-16">
             <div class="flex items-center gap-2 mb-4">
@@ -97,5 +71,4 @@ const options = [
             <p class="text-slate-700 font-medium leading-relaxed" set:html={q.Explanation}></p>
         </div>
     )}
-
 </div>

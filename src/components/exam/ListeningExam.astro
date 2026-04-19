@@ -2,71 +2,79 @@
 import MultipleChoice from './MultipleChoice.astro';
 import ListeningPart1 from './ListeningPart1.astro';
 import ListeningPart2 from './ListeningPart2.astro';
+import ListeningPart4 from './ListeningPart4.astro';
 import ListeningPart5 from './ListeningPart5.astro';
 
 const { parts = [], testTitle = "Cambridge Listening Exam" } = Astro.props;
 
-// Lọc các part hợp lệ
 const validParts = parts.filter((p: any) => p && typeof p.part_number === 'number' && Array.isArray(p.questions) && p.questions.length > 0);
 
-// Chuẩn bị data chấm điểm
 const clientSubmitData = validParts.map((p: any) => ({
     part_number: p.part_number,
     questions: p.questions.map((q: any) => ({
-        ID: q.ID,
-        Answer: q.Answer
+        ID: q.ID || `q_${q.Q_Num}`,
+        Answer: q.Answer,
+        Q_Num: q.Q_Num
     }))
 }));
 ---
 
-<div class="relative min-h-screen bg-[#F1F5F9] pb-32 font-sans" id="exam-wrapper">
+{/* 🌟 NÂNG CẤP NỀN: Gradient mượt mà, sang trọng */}
+<div class="relative min-h-screen bg-slate-50 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-100/60 via-slate-50 to-slate-100 pb-32 font-sans selection:bg-sky-200 selection:text-sky-900" id="exam-wrapper">
   
   <script id="exam-client-data" type="application/json" set:html={JSON.stringify(clientSubmitData)}></script>
 
-  <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-slate-900/50 z-[55] hidden opacity-0 transition-opacity duration-300"></div>
+  <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] hidden opacity-0 transition-all duration-300"></div>
 
-  {/* NÚT MỞ SIDEBAR GÓC TRÁI MÀN HÌNH */}
-  <button id="sidebar-toggle-btn" class="hidden lg:flex fixed left-0 top-1/2 -translate-y-1/2 z-[60] bg-slate-800 hover:bg-sky-500 text-white w-8 h-16 items-center justify-center rounded-r-2xl shadow-md transition-colors cursor-pointer" title="Đóng/Mở Bản đồ câu hỏi">
-     <svg id="sidebar-toggle-icon" class="w-5 h-5 transition-transform duration-500 rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+  <button id="sidebar-toggle-btn" class="hidden lg:flex fixed left-0 top-1/2 -translate-y-1/2 z-[60] bg-slate-800 hover:bg-sky-500 text-white w-10 h-20 items-center justify-center rounded-r-2xl shadow-[4px_0_24px_rgba(0,0,0,0.1)] transition-all cursor-pointer hover:w-12 group" title="Đóng/Mở Bản đồ câu hỏi">
+     <svg id="sidebar-toggle-icon" class="w-6 h-6 transition-transform duration-500 rotate-0 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
   </button>
 
-  {/* TOPBAR */}
-  <div class="fixed top-0 left-0 w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm" id="exam-topbar">
+  {/* 🌟 TOPBAR: Hiệu ứng kính (Glassmorphism) chuẩn Apple */}
+  <div class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 shadow-sm" id="exam-topbar">
     <div class="w-full mx-auto px-4 xl:px-12 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3 md:gap-4">
-        <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-700 text-xl font-bold active:scale-95 transition-transform">☰</button>
-        <div class="w-10 h-10 bg-sky-500 rounded-xl flex items-center justify-center text-white font-black shrink-0">🎧</div>
-        <h1 class="font-black text-slate-800 hidden md:block uppercase tracking-tight truncate">{testTitle}</h1>
+      <div class="flex items-center gap-3 md:gap-5">
+        <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center text-slate-700 text-xl font-bold active:scale-95 transition-all">☰</button>
+        <div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-xl flex items-center justify-center text-white font-black shrink-0 shadow-lg shadow-sky-500/30">🎧</div>
+        <h1 class="font-black text-slate-800 hidden md:block uppercase tracking-tight truncate bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500">{testTitle}</h1>
       </div>
       <div class="flex items-center gap-3 md:gap-6">
-        <div class="bg-slate-900 text-white px-3 md:px-4 py-2 rounded-xl font-mono font-bold text-base md:text-lg shadow-inner tracking-wider" id="timer-display">30:00</div>
-        <button id="top-submit-btn" class="bg-sky-500 hover:bg-sky-600 text-white font-black px-4 md:px-6 py-2 rounded-xl shadow-md transition-all active:scale-95 uppercase text-xs md:text-sm tracking-wider">Nộp bài</button>
+        {/* ĐỒNG HỒ CAO CẤP */}
+        <div class="bg-slate-900 text-white px-4 py-2 rounded-xl font-mono font-bold text-base md:text-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] tracking-widest transition-colors duration-500 border border-slate-700 flex items-center gap-2" id="timer-display">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" id="timer-dot"></span>
+            <span id="timer-text">30:00</span>
+        </div>
+        <button id="top-submit-btn" class="bg-gradient-to-b from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 text-white font-black px-5 md:px-8 py-2 md:py-2.5 rounded-xl shadow-[0_4px_12px_rgba(14,165,233,0.3)] transition-all active:scale-95 uppercase text-xs md:text-sm tracking-wider border border-sky-400/50">Nộp bài</button>
       </div>
+    </div>
+    {/* 🌟 THANH TIẾN ĐỘ LÀM BÀI */}
+    <div class="w-full h-1 bg-slate-100">
+        <div id="global-progress" class="h-full bg-gradient-to-r from-sky-400 to-emerald-400 w-0 transition-all duration-500 ease-out shadow-[0_0_10px_rgba(56,189,248,0.5)]"></div>
     </div>
   </div>
 
-  {/* NỘI DUNG CHÍNH */}
-  <div class="pt-24 highlightable-area" id="exam-content">
+  <div class="pt-28 highlightable-area" id="exam-content">
     <div class="w-full mx-auto px-4 xl:px-12 flex items-start overflow-hidden lg:overflow-visible relative">
       
       {/* SIDEBAR BẢN ĐỒ CÂU HỎI */}
-      <aside id="exam-sidebar" class="fixed inset-y-0 left-0 z-[60] w-[280px] bg-white shadow-2xl transition-transform duration-300 -translate-x-full lg:static lg:translate-x-0 lg:w-[320px] lg:mr-10 lg:shadow-none lg:bg-transparent lg:z-40 lg:shrink-0 lg:sticky lg:top-24 lg:self-start lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto custom-scrollbar origin-left">
+      <aside id="exam-sidebar" class="fixed inset-y-0 left-0 z-[60] w-[280px] bg-white/90 backdrop-blur-xl shadow-2xl transition-transform duration-300 -translate-x-full lg:static lg:translate-x-0 lg:w-[320px] lg:mr-10 lg:shadow-none lg:bg-transparent lg:backdrop-blur-none lg:z-40 lg:shrink-0 lg:sticky lg:top-28 lg:self-start lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto custom-scrollbar origin-left rounded-r-[2rem] lg:rounded-none">
         <div class="w-full h-full p-6 lg:p-0 flex flex-col">
-          <div class="bg-white lg:p-6 lg:rounded-3xl lg:border lg:border-slate-200 lg:shadow-sm flex-1 flex flex-col">
+          <div class="bg-white/80 backdrop-blur-md lg:p-6 lg:rounded-[2rem] lg:border lg:border-slate-200 lg:shadow-xl flex-1 flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-sky-100 rounded-full blur-3xl -z-10 opacity-50 translate-x-10 -translate-y-10"></div>
             <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4 shrink-0">
-               <h3 class="font-black text-slate-800 uppercase tracking-widest text-sm">Bản Đồ Câu Hỏi</h3>
-               <button id="close-sidebar-btn" class="lg:hidden w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center font-bold text-slate-500">✕</button>
+               <h3 class="font-black text-slate-800 uppercase tracking-widest text-sm flex items-center gap-2"><span class="text-sky-500">🗺️</span> Bản Đồ Câu Hỏi</h3>
+               <button id="close-sidebar-btn" class="lg:hidden w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-500 transition-colors">✕</button>
             </div>
             <div class="space-y-6 overflow-y-auto flex-1 custom-scrollbar pr-2">
               {validParts.map((part: any) => (
                 <div>
                   <div class="flex items-center justify-between mb-3">
-                    <span class="font-black text-slate-800 text-sm uppercase">Listening Part {part.part_number}</span>
-                    <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">{part.questions.length} câu</span>
+                    <span class="font-black text-slate-700 text-sm uppercase">Part {part.part_number}</span>
+                    <span class="text-[10px] font-black text-sky-600 bg-sky-100 px-2 py-0.5 rounded-md">{part.questions.length} CÂU</span>
                   </div>
                   <div class="flex flex-wrap gap-2">
                     {part.questions.map((q: any) => (
-                       <a href={`#q-${q.Q_Num}`} data-target={`q-${q.ID}`} class="q-nav-btn w-[38px] h-[38px] flex items-center justify-center rounded-xl bg-slate-50 border-2 border-slate-200 text-slate-600 font-black text-sm hover:bg-sky-50 hover:border-sky-400 hover:text-sky-600 transition-all">
+                       <a href={`#q-${q.Q_Num}`} data-target={q.ID || `q_${q.Q_Num}`} class="q-nav-btn w-[38px] h-[38px] flex items-center justify-center rounded-xl bg-slate-50 border-2 border-slate-200 text-slate-500 font-black text-sm hover:bg-sky-50 hover:border-sky-400 hover:text-sky-600 hover:-translate-y-0.5 transition-all shadow-sm">
                          {q.Q_Num}
                        </a>
                     ))}
@@ -78,85 +86,102 @@ const clientSubmitData = validParts.map((p: any) => ({
         </div>
       </aside>
 
-      {/* KHUNG BÀI LÀM TỪNG PART */}
       <main class="flex-1 w-full min-w-0 transition-all duration-500">
-        <div id="save-indicator" class="hidden fixed top-20 right-4 md:right-12 bg-slate-900/90 backdrop-blur text-white px-5 py-2 rounded-full font-medium text-sm shadow-xl z-50 flex items-center gap-2 transition-opacity">
-           <span class="animate-pulse">🔄</span> Đã lưu nháp...
+        <div id="save-indicator" class="hidden fixed top-24 right-4 md:right-12 bg-slate-900/90 backdrop-blur text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-[0_8px_30px_rgba(0,0,0,0.2)] z-50 flex items-center gap-2 transition-all transform scale-95 border border-slate-700">
+           <span class="animate-spin">🌀</span> Đang lưu...
         </div>
 
         {validParts.map((part: any) => {
           const pNum = part.part_number;
           const questions = part.questions;
           
-          // Lấy đúng Link Audio và Data Passage
           const audioUrl = part.audio || questions[0]?.Audio_Link || questions[0]?.Audio || questions[0]?.Audio_URL || questions[0]?.audio || null;
           const passageData = part.passage || questions[0]?.Passage || ""; 
 
           return (
-          <section id={`section-part-${pNum}`} class="exam-section mb-16 md:mb-24">
+          <section id={`section-part-${pNum}`} class="exam-section mb-20 md:mb-28 relative">
             
-            {/* TIÊU ĐỀ PART */}
-            <div class="flex items-center gap-4 mb-6 md:mb-8">
-              <div class="w-10 h-10 md:w-12 md:h-12 bg-slate-900 rounded-xl flex items-center justify-center text-sky-400 font-black text-lg md:text-xl shadow-md rotate-3 shrink-0">{pNum}</div>
-              <h2 class="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tight">Listening Part {pNum}</h2>
+            <div class="flex items-center gap-4 mb-8 md:mb-10">
+              <div class="w-12 h-12 md:w-14 md:h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-sky-400 font-black text-xl md:text-2xl shadow-xl rotate-3 shrink-0 border border-slate-700">{pNum}</div>
+              <h2 class="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight tracking-tighter">Listening Part {pNum}</h2>
             </div>
 
-            {/* THANH AUDIO CHÍNH GIỮA (mx-auto) */}
+            {/* 🌟 PREMIUM AUDIO PLAYER CONTAINER */}
             {audioUrl && (
-              <div class="w-full max-w-5xl mx-auto bg-white p-4 md:p-6 rounded-[2rem] border border-sky-100 shadow-sm mb-10 flex flex-col md:flex-row items-center gap-4 md:gap-6 sticky top-20 z-30">
-                <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center shrink-0 shadow-inner">
+              <div class="audio-container w-full max-w-5xl mx-auto bg-white/90 backdrop-blur-md p-4 md:p-6 rounded-[2rem] border border-slate-200 shadow-xl mb-12 flex flex-col md:flex-row items-center gap-4 md:gap-6 sticky top-24 z-30 transition-all duration-500">
+                <div class="w-12 h-12 bg-gradient-to-br from-sky-100 to-sky-200 text-sky-600 rounded-full flex items-center justify-center shrink-0 shadow-inner audio-icon transition-all duration-500">
                   <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.236l8-1.6V11.114A4.369 4.369 0 0015 11c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path></svg>
                 </div>
                 <div class="flex-1 w-full">
-                   <p class="text-sm font-bold text-slate-700 mb-2 px-1">Track Audio Part {pNum}</p>
+                   <p class="text-sm font-black text-slate-800 mb-2 px-1 uppercase tracking-wider opacity-80">Track Audio Part {pNum}</p>
                    <audio controls class="part-audio-player w-full h-12 outline-none rounded-xl" src={audioUrl} preload="metadata"></audio>
                 </div>
               </div>
             )}
 
-            {/* YÊU CẦU ĐỀ BÀI CỐ ĐỊNH CHO PART 1, 3, 4 */}
             {(pNum === 1 || pNum === 3 || pNum === 4) && (
-                <div class="w-full max-w-5xl mx-auto mb-8">
-                    <div class="bg-sky-50/50 border border-sky-100 p-6 md:p-8 rounded-[2rem] shadow-sm">
-                       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+                <div class="w-full max-w-5xl mx-auto mb-10">
+                    <div class="bg-sky-50/80 border border-sky-100 p-6 md:p-8 rounded-[2rem] shadow-sm relative overflow-hidden">
+                       <div class="absolute -right-10 -top-10 text-[100px] opacity-5">📝</div>
+                       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 relative z-10">
                            <h4 class="text-sky-800 font-black uppercase text-sm tracking-widest flex items-center gap-2">
                               <span>📝</span> YÊU CẦU ĐỀ BÀI
                            </h4>
-                           <div class="bg-sky-200/50 text-sky-800 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider inline-block w-max">
+                           <div class="bg-white/60 text-sky-800 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider inline-block w-max border border-sky-200 shadow-sm">
                                Part {pNum} • Questions {questions[0]?.Q_Num} - {questions[questions.length-1]?.Q_Num}
                            </div>
                        </div>
-                       <p class="text-sky-900 font-medium text-base md:text-lg leading-relaxed">
+                       <p class="text-sky-900 font-medium text-base md:text-lg leading-relaxed relative z-10">
                            For each question, choose the correct answer.
                        </p>
                     </div>
                 </div>
             )}
 
-            {/* ======= ĐỊNH TUYẾN COMPONENT THEO TỪNG PART ======= */}
-            
-            {/* PART 1: Trắc nghiệm Hình ảnh */}
             {pNum === 1 && (
               <div class="flex flex-col gap-8 w-full max-w-4xl mx-auto">
-                {questions.map((q: any) => <div id={`q-${q.Q_Num || q.ID}`} class="scroll-mt-24 md:scroll-mt-40"><ListeningPart1 q={q} /></div>)}
+                {questions.map((q: any) => <div id={`q-${q.Q_Num || q.ID}`} class="scroll-mt-32 md:scroll-mt-48"><ListeningPart1 q={q} /></div>)}
               </div>
             )}
 
-            {/* PART 2: Điền từ (Ghi chú / Tin nhắn) */}
             {pNum === 2 && (
                <ListeningPart2 questions={questions} passage={passageData} partNum={pNum} />
             )}
 
-            {/* PART 5: Nối đáp án (Matching) */}
-            {pNum === 5 && (
-               <ListeningPart5 questions={questions} passage={passageData} partNum={pNum} />
+            {pNum === 3 && (
+              <div class="w-full max-w-6xl mx-auto">
+                {(() => {
+                    let ctx = passageData.replace(/For each question.*?answer\.?/ig, '').replace(/\[BR\]|\|\||<br\s*\/?>/gi, ' ').trim();
+                    if (!ctx && questions[0]?.Question?.toLowerCase().includes('hear')) {
+                        const match = questions[0].Question.match(/^(.*?(?:will hear|hear).*?[\.\?])/i);
+                        if (match) {
+                            ctx = match[1].replace(/\[BR\]|\|\||<br\s*\/?>/gi, ' ').trim();
+                            questions[0].Question = questions[0].Question.replace(match[0], '').replace(/^<br\s*\/?>|\[BR\]|\|\|/i, '').trim();
+                        }
+                    }
+                    if (ctx) {
+                        return (
+                            <div class="mb-10 bg-white p-5 md:p-6 rounded-[2rem] border-2 border-slate-200 shadow-md flex items-center gap-4 md:gap-6 hover:border-sky-300 transition-colors">
+                                <span class="w-14 h-14 md:w-16 md:h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center shrink-0 shadow-inner text-2xl md:text-3xl">🗣️</span>
+                                <p class="text-lg md:text-xl font-bold text-slate-800 leading-relaxed">{ctx}</p>
+                            </div>
+                        );
+                    }
+                })()}
+                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8">
+                  {questions.map((q: any) => <div id={`q-${q.Q_Num || q.ID}`} class="scroll-mt-32 md:scroll-mt-48"><MultipleChoice q={q} part={pNum} /></div>)}
+                </div>
+              </div>
             )}
 
-            {/* PART 3 & 4: Trắc nghiệm Chữ */}
-            {(pNum === 3 || pNum === 4) && (
+            {pNum === 4 && (
               <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8 w-full max-w-6xl mx-auto">
-                {questions.map((q: any) => <div id={`q-${q.Q_Num || q.ID}`} class="scroll-mt-24 md:scroll-mt-40"><MultipleChoice q={q} part={pNum} /></div>)}
+                {questions.map((q: any) => <div id={`q-${q.Q_Num || q.ID}`} class="scroll-mt-32 md:scroll-mt-48"><ListeningPart4 q={q} /></div>)}
               </div>
+            )}
+
+            {pNum === 5 && (
+               <ListeningPart5 questions={questions} passage={passageData} partNum={pNum} />
             )}
             
           </section>
@@ -166,37 +191,47 @@ const clientSubmitData = validParts.map((p: any) => ({
     </div>
   </div>
 
-  {/* TRANG KẾT QUẢ VÀ TRANSCRIPT (Ẩn cho đến khi nộp bài) */}
+  {/* 🌟 KẾT QUẢ ĐẦY VINH QUANG */}
   <div id="result-dashboard" class="hidden max-w-5xl mx-auto pt-24 px-4 pb-20 animate-fade-in-up">
-    <div class="bg-white rounded-[3rem] p-8 md:p-16 border text-center relative overflow-hidden shadow-2xl mb-12">
-      <div class="absolute top-0 left-0 w-full h-4 bg-sky-500"></div>
-      <h2 class="text-3xl md:text-4xl font-black mb-4 text-slate-900">Kết Quả Bài Nghe</h2>
-      <p class="text-slate-500 mb-8 md:mb-10 font-bold text-sm md:text-base">Thời gian làm bài: <span id="time-taken" class="text-slate-800 text-lg md:text-xl">00:00</span></p>
-      <div class="flex justify-center mb-10 md:mb-12">
-        <div class="relative w-48 h-48 md:w-56 md:h-56 flex items-center justify-center bg-slate-50 rounded-full border-[10px] md:border-[12px] border-sky-100 shadow-inner">
-          <div class="text-center">
-            <span class="text-5xl md:text-6xl font-black text-sky-600" id="final-score">0</span>
-            <span class="text-2xl md:text-3xl font-bold text-slate-400" id="total-score">/0</span>
+    <div class="bg-white rounded-[3rem] p-8 md:p-16 border border-slate-100 text-center relative overflow-hidden shadow-2xl mb-12">
+      <div class="absolute top-0 left-0 w-full h-4 bg-gradient-to-r from-sky-400 via-emerald-400 to-sky-400 background-animate"></div>
+      <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-100 rounded-full blur-3xl opacity-50 z-0"></div>
+      <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-sky-100 rounded-full blur-3xl opacity-50 z-0"></div>
+      
+      <div class="relative z-10">
+          <h2 class="text-4xl md:text-5xl font-black mb-4 text-slate-900 tracking-tight">KẾT QUẢ BÀI THI</h2>
+          <p class="text-slate-500 mb-10 font-bold text-sm md:text-base">Thời gian hoàn thành: <span id="time-taken" class="text-sky-600 text-lg md:text-xl font-black bg-sky-50 px-3 py-1 rounded-lg">00:00</span></p>
+          
+          <div class="flex justify-center mb-12">
+            <div class="relative w-56 h-56 md:w-64 md:h-64 flex items-center justify-center bg-white rounded-full border-[12px] border-emerald-50 shadow-[0_0_40px_rgba(52,211,153,0.3)]">
+              <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                 <circle cx="50" cy="50" r="46" fill="transparent" stroke="#f1f5f9" stroke-width="8" />
+                 <circle id="score-ring" cx="50" cy="50" r="46" fill="transparent" stroke="#10b981" stroke-width="8" stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
+              </svg>
+              <div class="text-center z-10">
+                <span class="text-6xl md:text-7xl font-black text-emerald-500 drop-shadow-md" id="final-score">0</span>
+                <span class="text-2xl md:text-3xl font-black text-slate-300" id="total-score">/0</span>
+              </div>
+            </div>
           </div>
-        </div>
+          <button id="review-btn" class="bg-slate-900 hover:bg-slate-800 transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)] text-white font-black px-10 py-4 rounded-2xl uppercase tracking-widest text-sm md:text-base w-full md:w-auto">🔍 Kiểm tra Lời Thoại</button>
       </div>
-      <button id="review-btn" class="bg-slate-900 hover:bg-slate-800 transition-colors text-white font-bold px-8 md:px-10 py-3.5 md:py-4 rounded-2xl shadow-lg uppercase tracking-wider text-sm md:text-base w-full md:w-auto">Xem chi tiết & Lời thoại</button>
     </div>
 
     <div id="transcript-section" class="hidden">
-       <h3 class="text-2xl font-black text-slate-800 mb-6 flex items-center gap-2"><span>💬</span> Audio Transcript</h3>
-       <div class="space-y-6">
+       <h3 class="text-3xl font-black text-slate-800 mb-8 flex items-center gap-3"><span class="bg-sky-100 p-3 rounded-2xl">💬</span> Audio Transcript</h3>
+       <div class="space-y-8">
           {validParts.map((part: any) => (
-             <div class="bg-white p-6 md:p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h4 class="font-black text-sky-600 mb-4 uppercase tracking-wider text-sm">Part {part.part_number}</h4>
+             <div class="bg-white p-6 md:p-10 rounded-[2rem] border border-slate-200 shadow-lg">
+                <h4 class="font-black text-sky-500 mb-6 uppercase tracking-widest text-base border-b-2 border-slate-100 pb-4">Phần {part.part_number}</h4>
                 <div class="space-y-4">
                   {part.questions.filter((q:any) => q.Explanation).map((q:any) => (
-                     <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                        <div class="flex items-center mb-2">
-                           <span class="bg-sky-500 text-white font-black px-2 py-0.5 rounded mr-2 text-xs">Q.{q.Q_Num}</span>
-                           <span class="text-sm font-bold text-slate-500">Đáp án: <span class="text-emerald-600">{q.Answer}</span></span>
+                     <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 hover:border-sky-300 transition-colors">
+                        <div class="flex items-center mb-3 gap-3">
+                           <span class="bg-sky-500 text-white font-black w-8 h-8 flex items-center justify-center rounded-lg text-sm shadow-sm">{q.Q_Num}</span>
+                           <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Đáp án: <span class="text-emerald-600 font-black text-base">{q.Answer}</span></span>
                         </div>
-                        <p class="text-slate-700 font-medium leading-relaxed text-sm md:text-base" set:html={q.Explanation}></p>
+                        <p class="text-slate-700 font-medium leading-loose text-base" set:html={q.Explanation}></p>
                      </div>
                   ))}
                 </div>
@@ -213,21 +248,47 @@ const clientSubmitData = validParts.map((p: any) => ({
     
     const dataElement = document.getElementById('exam-client-data');
     let safeValidParts = [];
-    try {
-        safeValidParts = JSON.parse(dataElement.textContent || '[]');
+    let totalQuestions = 0;
+    try { 
+        safeValidParts = JSON.parse(dataElement.textContent || '[]'); 
+        safeValidParts.forEach(p => totalQuestions += p.questions.length);
     } catch(e) {}
 
-    // Xử lý tự động Play/Pause Audio
     const allAudios = document.querySelectorAll('.part-audio-player');
     allAudios.forEach(audio => {
+        // Hào quang xanh khi phát Audio
         audio.addEventListener('play', (e) => {
-            allAudios.forEach(otherAudio => {
-                if (otherAudio !== e.target) otherAudio.pause();
-            });
+            allAudios.forEach(otherAudio => { if (otherAudio !== e.target) otherAudio.pause(); });
+            const container = e.target.closest('.audio-container');
+            if(container) {
+                container.classList.add('border-sky-400', 'shadow-[0_0_30px_rgba(56,189,248,0.2)]', 'scale-[1.01]');
+                container.querySelector('.audio-icon').classList.add('animate-pulse', 'bg-sky-500', 'text-white');
+            }
+        });
+
+        audio.addEventListener('pause', (e) => {
+            const container = e.target.closest('.audio-container');
+            if(container) {
+                container.classList.remove('border-sky-400', 'shadow-[0_0_30px_rgba(56,189,248,0.2)]', 'scale-[1.01]');
+                container.querySelector('.audio-icon').classList.remove('animate-pulse', 'bg-sky-500', 'text-white');
+            }
+        });
+
+        audio.addEventListener('ended', (e) => {
+            const currentSection = e.target.closest('.exam-section');
+            if (currentSection && currentSection.nextElementSibling && currentSection.nextElementSibling.classList.contains('exam-section')) {
+                const nextSection = currentSection.nextElementSibling;
+                const topOffset = nextSection.getBoundingClientRect().top + window.scrollY - 100;
+                window.scrollTo({ top: topOffset, behavior: 'smooth' });
+
+                const nextAudio = nextSection.querySelector('.part-audio-player');
+                if (nextAudio) {
+                    setTimeout(() => { nextAudio.play().catch(err => console.log('Autoplay chặn:', err)); }, 800);
+                }
+            }
         });
     });
 
-    // Mở / Đóng Sidebar
     const sidebar = document.getElementById('exam-sidebar');
     const overlay = document.getElementById('mobile-sidebar-overlay');
     const dtToggleBtn = document.getElementById('sidebar-toggle-btn');
@@ -260,7 +321,6 @@ const clientSubmitData = validParts.map((p: any) => ({
     closeSidebarBtn?.addEventListener('click', closeMobileMenu);
     overlay?.addEventListener('click', closeMobileMenu);
 
-    // Cuộn mượt đến câu hỏi
     document.querySelectorAll('.q-nav-btn').forEach(link => {
       link.addEventListener('click', function(e) {
         e.preventDefault();
@@ -270,32 +330,39 @@ const clientSubmitData = validParts.map((p: any) => ({
       });
     });
 
-    // Lưu nháp LocalStorage
     const testId = window.location.pathname.split('/').pop() || 'listening_test';
     const storageKey = `listening_draft_${testId}`;
     const saveIndicator = document.getElementById('save-indicator');
+    const progressBar = document.getElementById('global-progress');
     let saveTimeout;
 
     const showSaveIndicator = () => {
-       saveIndicator.classList.remove('hidden');
-       saveIndicator.classList.add('opacity-100');
+       saveIndicator.classList.remove('hidden', 'scale-95', 'opacity-0');
+       saveIndicator.classList.add('opacity-100', 'scale-100');
        clearTimeout(saveTimeout);
        saveTimeout = setTimeout(() => {
-          saveIndicator.classList.remove('opacity-100');
+          saveIndicator.classList.remove('opacity-100', 'scale-100');
+          saveIndicator.classList.add('opacity-0', 'scale-95');
           setTimeout(() => saveIndicator.classList.add('hidden'), 300);
-       }, 1500);
+       }, 1000);
     };
 
     const checkAnswers = () => {
+      let answeredCount = 0;
       document.querySelectorAll('.q-nav-btn').forEach(btn => {
-        const id = btn.getAttribute('data-target').replace('q-', '');
+        const id = btn.getAttribute('data-target');
         const isAnswered = document.querySelector(`input[name="${id}"]:checked`) || 
                            document.querySelector(`input[name="${id}"][type="text"]`)?.value;
         if (isAnswered) {
-          btn.classList.add('bg-sky-500', 'text-white', 'border-sky-500');
-          btn.classList.remove('bg-slate-50', 'text-slate-600', 'border-slate-200');
+          answeredCount++;
+          btn.classList.add('bg-sky-500', 'text-white', 'border-sky-500', 'shadow-md', '-translate-y-0.5');
+          btn.classList.remove('bg-slate-50', 'text-slate-500', 'border-slate-200');
         }
       });
+      // Cập nhật Progress Bar
+      if (progressBar && totalQuestions > 0) {
+          progressBar.style.width = `${(answeredCount / totalQuestions) * 100}%`;
+      }
     };
 
     const restoreDraft = () => {
@@ -305,11 +372,8 @@ const clientSubmitData = validParts.map((p: any) => ({
                Object.keys(draft).forEach(key => {
                    const elList = document.querySelectorAll(`[name="${key}"]`);
                    elList.forEach(el => {
-                       if (el.type === 'radio' && el.value === draft[key]) {
-                           el.checked = true;
-                       } else if (el.type === 'text') {
-                           el.value = draft[key];
-                       }
+                       if (el.type === 'radio' && el.value === draft[key]) el.checked = true;
+                       else if (el.type === 'text') el.value = draft[key];
                    });
                });
                checkAnswers();
@@ -329,64 +393,92 @@ const clientSubmitData = validParts.map((p: any) => ({
     document.addEventListener('change', checkAnswers);
     document.addEventListener('keyup', checkAnswers);
 
-    // Đồng hồ đếm ngược
     let timeRemaining = 1800; 
-    const timerDisplay = document.getElementById('timer-display');
+    const timerDisplay = document.getElementById('timer-text');
+    const timerBox = document.getElementById('timer-display');
+    const timerDot = document.getElementById('timer-dot');
+    
     let timerInterval = setInterval(() => {
       timeRemaining--;
       if (timerDisplay) {
          const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
          const s = (timeRemaining % 60).toString().padStart(2, '0');
          timerDisplay.textContent = `${m}:${s}`;
+         
+         // 🌟 HIỆU ỨNG KHẨN CẤP (< 5 phút)
+         if (timeRemaining <= 300) {
+             timerBox.classList.replace('border-slate-700', 'border-rose-500');
+             timerBox.classList.replace('text-white', 'text-rose-400');
+             timerBox.classList.add('shadow-[0_0_15px_rgba(244,63,94,0.3)]');
+             timerDot.classList.replace('bg-emerald-400', 'bg-rose-500');
+         }
       }
       if (timeRemaining <= 0) { clearInterval(timerInterval); submitExam(); }
     }, 1000);
 
-    // Xử lý nộp bài
     function submitExam() {
       clearInterval(timerInterval);
       let score = 0, total = 0;
       localStorage.removeItem(storageKey);
       
-      allAudios.forEach(audio => audio.pause()); // Tắt Audio khi nộp
+      allAudios.forEach(audio => audio.pause()); 
       
       safeValidParts.forEach(part => {
         part.questions.forEach(q => {
-          if (!q.ID || !q.Answer) return;
+          if (!q.ID && !q.Q_Num) return;
           total++;
+          
           const correctAnswer = String(q.Answer).trim().toLowerCase();
-          const qId = q.ID;
+          
+          let qId = q.ID || `q_${q.Q_Num}`;
+          let elements = document.querySelectorAll(`[name="${qId}"]`);
+          
+          if (elements.length === 0) elements = document.querySelectorAll(`[name="part1_q_${q.Q_Num}"]`);
+          if (elements.length === 0) elements = document.querySelectorAll(`[name="${q.Q_Num}"]`);
 
-          const elements = document.querySelectorAll(`[name="${qId}"]`);
           let isCorrect = false;
 
           elements.forEach(el => {
-             // Check Radio (Trắc nghiệm)
              if (el.type === 'radio') {
                  const parent = el.closest('label');
                  const iconBox = parent.querySelector('.submit-icon');
                  el.disabled = true;
                  
                  if (el.value.trim().toLowerCase() === correctAnswer) {
-                    parent.classList.add('border-emerald-500', 'bg-emerald-50', 'ring-2', 'ring-emerald-200');
-                    if (iconBox) { iconBox.innerHTML = '✔️'; iconBox.classList.remove('hidden'); iconBox.classList.add('text-emerald-500'); }
+                    parent.classList.add('border-emerald-400', 'bg-emerald-50/80', 'ring-2', 'ring-emerald-100', 'shadow-md');
+                    const textNode = parent.querySelector('.text-slate-700') || parent.querySelector('.text-slate-500');
+                    if (textNode) { textNode.classList.remove('text-slate-700', 'text-slate-500'); textNode.classList.add('text-emerald-700', 'font-black'); }
+                    
+                    const circleNode = parent.querySelector('.rounded-full');
+                    if (circleNode) { circleNode.classList.remove('bg-white', 'border-slate-300', 'border-sky-500', 'text-sky-500', 'text-slate-400'); circleNode.classList.add('bg-emerald-500', 'border-emerald-500', 'text-white', 'shadow-inner'); }
+                    
                     if (el.checked) isCorrect = true;
-                 } else if (el.checked) {
-                    parent.classList.add('border-rose-500', 'bg-rose-50');
-                    if (iconBox) { iconBox.innerHTML = '❌'; iconBox.classList.remove('hidden'); iconBox.classList.add('text-rose-500'); }
+                 } 
+                 else if (el.checked) {
+                    parent.classList.add('border-rose-300', 'bg-rose-50/80');
+                    const textNode = parent.querySelector('.text-slate-700') || parent.querySelector('.text-slate-500');
+                    if (textNode) { textNode.classList.remove('text-slate-700', 'text-slate-500'); textNode.classList.add('text-rose-600', 'font-bold'); }
+                    
+                    const circleNode = parent.querySelector('.rounded-full');
+                    if (circleNode) { circleNode.classList.remove('bg-white', 'border-slate-300', 'border-sky-500', 'text-sky-500', 'text-slate-400'); circleNode.classList.add('bg-rose-400', 'border-rose-400', 'text-white'); }
                  }
              }
-             // Check Input Text (Điền từ)
              else if (el.type === 'text') {
+                 el.removeAttribute('maxlength');
                  el.disabled = true;
-                 if (el.value.trim().toLowerCase() === correctAnswer) {
+                 const userAnswer = el.value.trim().toLowerCase();
+                 
+                 if (userAnswer === correctAnswer) {
                      isCorrect = true;
-                     el.classList.add('text-emerald-600', 'bg-emerald-50/50');
+                     el.classList.add('text-emerald-700', 'bg-emerald-100/50', 'border-emerald-400', 'shadow-sm');
+                     el.classList.replace('focus:border-sky-500', 'border-emerald-400');
+                     el.style.width = `calc(${el.value.length}ch + 2.5rem)`;
                  } else {
-                     el.classList.add('text-rose-600', 'bg-rose-50/50');
-                     el.classList.remove('w-12', 'md:w-14', 'w-28', 'md:w-48'); // Gỡ width cứng
-                     el.classList.add('w-auto', 'min-w-[4rem]', 'px-2'); // Đệm để nhét thêm đáp án
+                     el.classList.add('text-rose-600', 'bg-rose-50', 'border-rose-300', 'shadow-sm');
+                     el.classList.remove('w-28', 'md:w-36', 'md:w-40', 'h-8', 'w-12', 'h-12', 'md:w-14', 'md:h-14', 'text-2xl', 'text-center'); 
+                     el.classList.add('px-3', 'text-base', 'font-bold', 'text-center'); 
                      el.value = `${el.value || '?'} ➔ ${q.Answer}`;
+                     el.style.width = `calc(${el.value.length}ch + 2.5rem)`;
                  }
              }
           });
@@ -394,12 +486,20 @@ const clientSubmitData = validParts.map((p: any) => ({
         });
       });
 
-      // Hiển thị điểm số
       document.getElementById('time-taken').textContent = timerDisplay.textContent;
       document.getElementById('final-score').textContent = score;
       document.getElementById('total-score').textContent = `/${total}`;
+      
+      // Vẽ đường tròn điểm số
+      setTimeout(() => {
+          const ring = document.getElementById('score-ring');
+          if(ring) {
+              const circumference = 289; // 2 * pi * r (r=46)
+              const offset = circumference - (score / total) * circumference;
+              ring.style.strokeDashoffset = offset.toString();
+          }
+      }, 500);
 
-      // Chuyển trang
       document.getElementById('exam-content').classList.add('hidden');
       document.getElementById('exam-topbar').classList.add('hidden');
       if (dtToggleBtn) dtToggleBtn.classList.add('hidden');
@@ -408,10 +508,9 @@ const clientSubmitData = validParts.map((p: any) => ({
     }
 
     document.getElementById('top-submit-btn')?.addEventListener('click', () => {
-      if(confirm('Sếp đã làm xong và muốn nộp bài chứ? Audio sẽ tự động dừng.')) submitExam();
+      if(confirm('Bạn đã hoàn thành và muốn nộp bài? Audio sẽ tự động dừng.')) submitExam();
     });
 
-    // Xem lại bài & Lời thoại
     document.getElementById('review-btn')?.addEventListener('click', () => {
       document.getElementById('result-dashboard').classList.add('hidden');
       document.getElementById('exam-topbar').classList.remove('hidden');
@@ -426,14 +525,18 @@ const clientSubmitData = validParts.map((p: any) => ({
 
 <style is:global>
   html { scroll-behavior: smooth; }
-  .animate-fade-in-up { animation: fadeInUp 0.3s ease-out; }
-  @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-  .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 8px; }
+  .animate-fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   
-  /* Làm đẹp Audio HTML5 chuẩn Sky Blue */
-  audio::-webkit-media-controls-panel { background-color: #f8fafc; }
+  .background-animate { background-size: 200% 200%; animation: GradientAnimation 5s ease infinite; }
+  @keyframes GradientAnimation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb { background: #94a3b8; }
+  
+  audio::-webkit-media-controls-panel { background-color: transparent; }
   audio::-webkit-media-controls-play-button,
-  audio::-webkit-media-controls-mute-button { background-color: #e0f2fe; border-radius: 50%; color: #0284c7; }
+  audio::-webkit-media-controls-mute-button { background-color: white; border-radius: 50%; color: #0284c7; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
 </style>
