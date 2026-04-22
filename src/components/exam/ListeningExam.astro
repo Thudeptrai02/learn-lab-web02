@@ -19,50 +19,47 @@ const clientSubmitData = validParts.map((p: any) => ({
 }));
 ---
 
-{/* 🌟 NÂNG CẤP NỀN: Gradient mượt mà, sang trọng */}
-<div class="relative min-h-screen bg-slate-50 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-100/60 via-slate-50 to-slate-100 pb-32 font-sans selection:bg-sky-200 selection:text-sky-900" id="exam-wrapper">
+{/* 🌟 ĐÃ DỌN SẠCH CLASS RÁC ĐỂ VVIP-BG TỎA SÁNG */}
+<div class="relative min-h-screen vvip-bg pb-32 font-sans selection:bg-sky-200 selection:text-sky-900" id="exam-wrapper">
   
   <script id="exam-client-data" type="application/json" set:html={JSON.stringify(clientSubmitData)}></script>
 
   <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[55] hidden opacity-0 transition-all duration-300"></div>
 
-  <button id="sidebar-toggle-btn" class="hidden lg:flex fixed left-0 top-1/2 -translate-y-1/2 z-[60] bg-slate-800 hover:bg-sky-500 text-white w-10 h-20 items-center justify-center rounded-r-2xl shadow-[4px_0_24px_rgba(0,0,0,0.1)] transition-all cursor-pointer hover:w-12 group" title="Đóng/Mở Bản đồ câu hỏi">
+  <button id="sidebar-toggle-btn" class="hidden lg:flex fixed left-0 top-1/2 -translate-y-1/2 z-[60] bg-slate-800 hover:bg-sky-500 text-white w-10 h-20 items-center justify-center rounded-r-2xl shadow-xl transition-all cursor-pointer hover:w-12 group" title="Đóng/Mở Bản đồ câu hỏi">
      <svg id="sidebar-toggle-icon" class="w-6 h-6 transition-transform duration-500 rotate-0 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
   </button>
 
-  {/* 🌟 TOPBAR: Hiệu ứng kính (Glassmorphism) chuẩn Apple */}
-  <div class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 shadow-sm" id="exam-topbar">
+  {/* 🌟 ÉP HIỆU ỨNG KÍNH MỜ CHO TOPBAR */}
+  <div class="fixed top-0 left-0 w-full z-50 glass-topbar" id="exam-topbar">
     <div class="w-full mx-auto px-4 xl:px-12 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3 md:gap-5">
-        <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center text-slate-700 text-xl font-bold active:scale-95 transition-all">☰</button>
-        <div class="w-10 h-10 bg-gradient-to-br from-sky-400 to-sky-600 rounded-xl flex items-center justify-center text-white font-black shrink-0 shadow-lg shadow-sky-500/30">🎧</div>
-        <h1 class="font-black text-slate-800 hidden md:block uppercase tracking-tight truncate bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-500">{testTitle}</h1>
+        <button id="mobile-menu-btn" class="lg:hidden w-10 h-10 bg-white/50 hover:bg-white rounded-xl flex items-center justify-center text-slate-700 text-xl font-bold active:scale-95 transition-all">☰</button>
+        <div class="w-10 h-10 glow-bg rounded-xl flex items-center justify-center text-white font-black shrink-0 glow-shadow">🎧</div>
+        <h1 class="font-black text-slate-800 hidden md:block uppercase tracking-tight truncate bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-500">{testTitle}</h1>
       </div>
       <div class="flex items-center gap-3 md:gap-6">
-        {/* ĐỒNG HỒ CAO CẤP */}
-        <div class="bg-slate-900 text-white px-4 py-2 rounded-xl font-mono font-bold text-base md:text-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] tracking-widest transition-colors duration-500 border border-slate-700 flex items-center gap-2" id="timer-display">
+        <div class="bg-slate-900 text-white px-4 py-2 rounded-xl font-mono font-bold text-base md:text-lg tracking-widest transition-colors duration-500 border border-slate-700 flex items-center gap-2" id="timer-display" style="box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" id="timer-dot"></span>
             <span id="timer-text">30:00</span>
         </div>
-        <button id="top-submit-btn" class="bg-gradient-to-b from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 text-white font-black px-5 md:px-8 py-2 md:py-2.5 rounded-xl shadow-[0_4px_12px_rgba(14,165,233,0.3)] transition-all active:scale-95 uppercase text-xs md:text-sm tracking-wider border border-sky-400/50">Nộp bài</button>
+        <button id="top-submit-btn" class="glow-bg text-white font-black px-5 md:px-8 py-2 md:py-2.5 rounded-xl transition-all active:scale-95 uppercase text-xs md:text-sm tracking-wider border border-sky-400/50 glow-shadow hover:-translate-y-0.5 hover:brightness-110">Nộp bài</button>
       </div>
     </div>
-    {/* 🌟 THANH TIẾN ĐỘ LÀM BÀI */}
-    <div class="w-full h-1 bg-slate-100">
-        <div id="global-progress" class="h-full bg-gradient-to-r from-sky-400 to-emerald-400 w-0 transition-all duration-500 ease-out shadow-[0_0_10px_rgba(56,189,248,0.5)]"></div>
+    <div class="w-full h-1 bg-white/30">
+        <div id="global-progress" class="h-full glow-bg w-0 transition-all duration-500 ease-out glow-shadow"></div>
     </div>
   </div>
 
   <div class="pt-28 highlightable-area" id="exam-content">
     <div class="w-full mx-auto px-4 xl:px-12 flex items-start overflow-hidden lg:overflow-visible relative">
       
-      {/* SIDEBAR BẢN ĐỒ CÂU HỎI */}
       <aside id="exam-sidebar" class="fixed inset-y-0 left-0 z-[60] w-[280px] bg-white/90 backdrop-blur-xl shadow-2xl transition-transform duration-300 -translate-x-full lg:static lg:translate-x-0 lg:w-[320px] lg:mr-10 lg:shadow-none lg:bg-transparent lg:backdrop-blur-none lg:z-40 lg:shrink-0 lg:sticky lg:top-28 lg:self-start lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto custom-scrollbar origin-left rounded-r-[2rem] lg:rounded-none">
         <div class="w-full h-full p-6 lg:p-0 flex flex-col">
-          <div class="bg-white/80 backdrop-blur-md lg:p-6 lg:rounded-[2rem] lg:border lg:border-slate-200 lg:shadow-xl flex-1 flex flex-col relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-sky-100 rounded-full blur-3xl -z-10 opacity-50 translate-x-10 -translate-y-10"></div>
-            <div class="flex justify-between items-center mb-6 border-b border-slate-100 pb-4 shrink-0">
-               <h3 class="font-black text-slate-800 uppercase tracking-widest text-sm flex items-center gap-2"><span class="text-sky-500">🗺️</span> Bản Đồ Câu Hỏi</h3>
+          <div class="glass-box lg:p-6 lg:rounded-[2rem] lg:border lg:border-white/50 lg:shadow-xl flex-1 flex flex-col relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-sky-300 rounded-full blur-3xl -z-10 opacity-30 translate-x-10 -translate-y-10"></div>
+            <div class="flex justify-between items-center mb-6 border-b border-slate-200/50 pb-4 shrink-0">
+               <h3 class="font-black text-slate-800 uppercase tracking-widest text-sm flex items-center gap-2"><span class="text-sky-500">🗺️</span> Bản Đồ</h3>
                <button id="close-sidebar-btn" class="lg:hidden w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-500 transition-colors">✕</button>
             </div>
             <div class="space-y-6 overflow-y-auto flex-1 custom-scrollbar pr-2">
@@ -74,7 +71,7 @@ const clientSubmitData = validParts.map((p: any) => ({
                   </div>
                   <div class="flex flex-wrap gap-2">
                     {part.questions.map((q: any) => (
-                       <a href={`#q-${q.Q_Num}`} data-target={q.ID || `q_${q.Q_Num}`} class="q-nav-btn w-[38px] h-[38px] flex items-center justify-center rounded-xl bg-slate-50 border-2 border-slate-200 text-slate-500 font-black text-sm hover:bg-sky-50 hover:border-sky-400 hover:text-sky-600 hover:-translate-y-0.5 transition-all shadow-sm">
+                       <a href={`#q-${q.Q_Num}`} data-target={q.ID || `q_${q.Q_Num}`} class="q-nav-btn w-[38px] h-[38px] flex items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 font-black text-sm hover:bg-sky-50 hover:border-sky-400 hover:text-sky-600 hover:-translate-y-0.5 transition-all shadow-sm">
                          {q.Q_Num}
                        </a>
                     ))}
@@ -87,14 +84,13 @@ const clientSubmitData = validParts.map((p: any) => ({
       </aside>
 
       <main class="flex-1 w-full min-w-0 transition-all duration-500">
-        <div id="save-indicator" class="hidden fixed top-24 right-4 md:right-12 bg-slate-900/90 backdrop-blur text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-[0_8px_30px_rgba(0,0,0,0.2)] z-50 flex items-center gap-2 transition-all transform scale-95 border border-slate-700">
+        <div id="save-indicator" class="hidden fixed top-24 right-4 md:right-12 bg-slate-900/90 backdrop-blur text-white px-5 py-2.5 rounded-full font-bold text-sm shadow-xl z-50 flex items-center gap-2 transition-all transform scale-95 border border-slate-700">
            <span class="animate-spin">🌀</span> Đang lưu...
         </div>
 
         {validParts.map((part: any) => {
           const pNum = part.part_number;
           const questions = part.questions;
-          
           const audioUrl = part.audio || questions[0]?.Audio_Link || questions[0]?.Audio || questions[0]?.Audio_URL || questions[0]?.audio || null;
           const passageData = part.passage || questions[0]?.Passage || ""; 
 
@@ -103,13 +99,13 @@ const clientSubmitData = validParts.map((p: any) => ({
             
             <div class="flex items-center gap-4 mb-8 md:mb-10">
               <div class="w-12 h-12 md:w-14 md:h-14 bg-slate-900 rounded-2xl flex items-center justify-center text-sky-400 font-black text-xl md:text-2xl shadow-xl rotate-3 shrink-0 border border-slate-700">{pNum}</div>
-              <h2 class="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight tracking-tighter">Listening Part {pNum}</h2>
+              <h2 class="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight">Listening Part {pNum}</h2>
             </div>
 
-            {/* 🌟 PREMIUM AUDIO PLAYER CONTAINER */}
+            {/* 🌟 ÉP HIỆU ỨNG KÍNH CHO BẢNG AUDIO */}
             {audioUrl && (
-              <div class="audio-container w-full max-w-5xl mx-auto bg-white/90 backdrop-blur-md p-4 md:p-6 rounded-[2rem] border border-slate-200 shadow-xl mb-12 flex flex-col md:flex-row items-center gap-4 md:gap-6 sticky top-24 z-30 transition-all duration-500">
-                <div class="w-12 h-12 bg-gradient-to-br from-sky-100 to-sky-200 text-sky-600 rounded-full flex items-center justify-center shrink-0 shadow-inner audio-icon transition-all duration-500">
+              <div class="audio-container w-full max-w-5xl mx-auto glass-box p-4 md:p-6 rounded-[2rem] border border-white/60 shadow-lg mb-12 flex flex-col md:flex-row items-center gap-4 md:gap-6 sticky top-24 z-30 transition-all duration-500">
+                <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center shrink-0 shadow-inner audio-icon transition-all duration-500">
                   <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.236l8-1.6V11.114A4.369 4.369 0 0015 11c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path></svg>
                 </div>
                 <div class="flex-1 w-full">
@@ -122,12 +118,12 @@ const clientSubmitData = validParts.map((p: any) => ({
             {(pNum === 1 || pNum === 3 || pNum === 4) && (
                 <div class="w-full max-w-5xl mx-auto mb-10">
                     <div class="bg-sky-50/80 border border-sky-100 p-6 md:p-8 rounded-[2rem] shadow-sm relative overflow-hidden">
-                       <div class="absolute -right-10 -top-10 text-[100px] opacity-5">📝</div>
+                       <div class="absolute -right-10 -top-10 text-[100px] opacity-5 pointer-events-none">📝</div>
                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 relative z-10">
                            <h4 class="text-sky-800 font-black uppercase text-sm tracking-widest flex items-center gap-2">
                               <span>📝</span> YÊU CẦU ĐỀ BÀI
                            </h4>
-                           <div class="bg-white/60 text-sky-800 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider inline-block w-max border border-sky-200 shadow-sm">
+                           <div class="bg-white/80 text-sky-800 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider inline-block w-max border border-sky-200 shadow-sm">
                                Part {pNum} • Questions {questions[0]?.Q_Num} - {questions[questions.length-1]?.Q_Num}
                            </div>
                        </div>
@@ -162,7 +158,7 @@ const clientSubmitData = validParts.map((p: any) => ({
                     if (ctx) {
                         return (
                             <div class="mb-10 bg-white p-5 md:p-6 rounded-[2rem] border-2 border-slate-200 shadow-md flex items-center gap-4 md:gap-6 hover:border-sky-300 transition-colors">
-                                <span class="w-14 h-14 md:w-16 md:h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center shrink-0 shadow-inner text-2xl md:text-3xl">🗣️</span>
+                                <span class="w-14 h-14 md:w-16 md:h-16 bg-sky-50 text-sky-600 rounded-full flex items-center justify-center shrink-0 border border-sky-100 text-2xl md:text-3xl">🗣️</span>
                                 <p class="text-lg md:text-xl font-bold text-slate-800 leading-relaxed">{ctx}</p>
                             </div>
                         );
@@ -191,19 +187,18 @@ const clientSubmitData = validParts.map((p: any) => ({
     </div>
   </div>
 
-  {/* 🌟 KẾT QUẢ ĐẦY VINH QUANG */}
   <div id="result-dashboard" class="hidden max-w-5xl mx-auto pt-24 px-4 pb-20 animate-fade-in-up">
     <div class="bg-white rounded-[3rem] p-8 md:p-16 border border-slate-100 text-center relative overflow-hidden shadow-2xl mb-12">
-      <div class="absolute top-0 left-0 w-full h-4 bg-gradient-to-r from-sky-400 via-emerald-400 to-sky-400 background-animate"></div>
-      <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-100 rounded-full blur-3xl opacity-50 z-0"></div>
-      <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-sky-100 rounded-full blur-3xl opacity-50 z-0"></div>
+      <div class="absolute top-0 left-0 w-full h-4 background-animate glow-bg"></div>
+      <div class="absolute -right-20 -top-20 w-64 h-64 bg-emerald-200 rounded-full blur-3xl opacity-40 z-0 pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-64 h-64 bg-sky-200 rounded-full blur-3xl opacity-40 z-0 pointer-events-none"></div>
       
       <div class="relative z-10">
           <h2 class="text-4xl md:text-5xl font-black mb-4 text-slate-900 tracking-tight">KẾT QUẢ BÀI THI</h2>
-          <p class="text-slate-500 mb-10 font-bold text-sm md:text-base">Thời gian hoàn thành: <span id="time-taken" class="text-sky-600 text-lg md:text-xl font-black bg-sky-50 px-3 py-1 rounded-lg">00:00</span></p>
+          <p class="text-slate-500 mb-10 font-bold text-sm md:text-base">Thời gian hoàn thành: <span id="time-taken" class="text-sky-600 text-lg md:text-xl font-black bg-sky-50 px-3 py-1 rounded-lg border border-sky-100">00:00</span></p>
           
           <div class="flex justify-center mb-12">
-            <div class="relative w-56 h-56 md:w-64 md:h-64 flex items-center justify-center bg-white rounded-full border-[12px] border-emerald-50 shadow-[0_0_40px_rgba(52,211,153,0.3)]">
+            <div class="relative w-56 h-56 md:w-64 md:h-64 flex items-center justify-center bg-white rounded-full border-[12px] border-slate-50" style="box-shadow: 0 0 50px rgba(52,211,153,0.3);">
               <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
                  <circle cx="50" cy="50" r="46" fill="transparent" stroke="#f1f5f9" stroke-width="8" />
                  <circle id="score-ring" cx="50" cy="50" r="46" fill="transparent" stroke="#10b981" stroke-width="8" stroke-dasharray="289" stroke-dashoffset="289" stroke-linecap="round" class="transition-all duration-1000 ease-out" />
@@ -214,12 +209,12 @@ const clientSubmitData = validParts.map((p: any) => ({
               </div>
             </div>
           </div>
-          <button id="review-btn" class="bg-slate-900 hover:bg-slate-800 transition-all hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.2)] text-white font-black px-10 py-4 rounded-2xl uppercase tracking-widest text-sm md:text-base w-full md:w-auto">🔍 Kiểm tra Lời Thoại</button>
+          <button id="review-btn" class="bg-slate-900 hover:bg-slate-800 transition-all hover:-translate-y-1 hover:shadow-xl text-white font-black px-10 py-4 rounded-2xl uppercase tracking-widest text-sm md:text-base w-full md:w-auto">🔍 Kiểm tra Lời Thoại</button>
       </div>
     </div>
 
     <div id="transcript-section" class="hidden">
-       <h3 class="text-3xl font-black text-slate-800 mb-8 flex items-center gap-3"><span class="bg-sky-100 p-3 rounded-2xl">💬</span> Audio Transcript</h3>
+       <h3 class="text-3xl font-black text-slate-800 mb-8 flex items-center gap-3"><span class="bg-sky-100 text-sky-600 p-3 rounded-2xl shadow-inner">💬</span> Audio Transcript</h3>
        <div class="space-y-8">
           {validParts.map((part: any) => (
              <div class="bg-white p-6 md:p-10 rounded-[2rem] border border-slate-200 shadow-lg">
@@ -256,21 +251,20 @@ const clientSubmitData = validParts.map((p: any) => ({
 
     const allAudios = document.querySelectorAll('.part-audio-player');
     allAudios.forEach(audio => {
-        // Hào quang xanh khi phát Audio
         audio.addEventListener('play', (e) => {
             allAudios.forEach(otherAudio => { if (otherAudio !== e.target) otherAudio.pause(); });
             const container = e.target.closest('.audio-container');
             if(container) {
-                container.classList.add('border-sky-400', 'shadow-[0_0_30px_rgba(56,189,248,0.2)]', 'scale-[1.01]');
-                container.querySelector('.audio-icon').classList.add('animate-pulse', 'bg-sky-500', 'text-white');
+                container.classList.add('audio-glow');
+                container.querySelector('.audio-icon').classList.add('animate-pulse', 'glow-bg', 'text-white');
             }
         });
 
         audio.addEventListener('pause', (e) => {
             const container = e.target.closest('.audio-container');
             if(container) {
-                container.classList.remove('border-sky-400', 'shadow-[0_0_30px_rgba(56,189,248,0.2)]', 'scale-[1.01]');
-                container.querySelector('.audio-icon').classList.remove('animate-pulse', 'bg-sky-500', 'text-white');
+                container.classList.remove('audio-glow');
+                container.querySelector('.audio-icon').classList.remove('animate-pulse', 'glow-bg', 'text-white');
             }
         });
 
@@ -356,10 +350,9 @@ const clientSubmitData = validParts.map((p: any) => ({
         if (isAnswered) {
           answeredCount++;
           btn.classList.add('bg-sky-500', 'text-white', 'border-sky-500', 'shadow-md', '-translate-y-0.5');
-          btn.classList.remove('bg-slate-50', 'text-slate-500', 'border-slate-200');
+          btn.classList.remove('bg-white', 'bg-slate-50', 'text-slate-500', 'border-slate-200');
         }
       });
-      // Cập nhật Progress Bar
       if (progressBar && totalQuestions > 0) {
           progressBar.style.width = `${(answeredCount / totalQuestions) * 100}%`;
       }
@@ -405,12 +398,11 @@ const clientSubmitData = validParts.map((p: any) => ({
          const s = (timeRemaining % 60).toString().padStart(2, '0');
          timerDisplay.textContent = `${m}:${s}`;
          
-         // 🌟 HIỆU ỨNG KHẨN CẤP (< 5 phút)
          if (timeRemaining <= 300) {
-             timerBox.classList.replace('border-slate-700', 'border-rose-500');
-             timerBox.classList.replace('text-white', 'text-rose-400');
-             timerBox.classList.add('shadow-[0_0_15px_rgba(244,63,94,0.3)]');
-             timerDot.classList.replace('bg-emerald-400', 'bg-rose-500');
+             timerBox.style.borderColor = '#f43f5e';
+             timerBox.style.color = '#fb7185';
+             timerBox.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.5), 0 0 15px rgba(244,63,94,0.4)';
+             timerDot.style.backgroundColor = '#f43f5e';
          }
       }
       if (timeRemaining <= 0) { clearInterval(timerInterval); submitExam(); }
@@ -445,22 +437,22 @@ const clientSubmitData = validParts.map((p: any) => ({
                  el.disabled = true;
                  
                  if (el.value.trim().toLowerCase() === correctAnswer) {
-                    parent.classList.add('border-emerald-400', 'bg-emerald-50/80', 'ring-2', 'ring-emerald-100', 'shadow-md');
+                    parent.classList.add('border-emerald-400', 'bg-emerald-50', 'ring-2', 'ring-emerald-100', 'shadow-md');
                     const textNode = parent.querySelector('.text-slate-700') || parent.querySelector('.text-slate-500');
                     if (textNode) { textNode.classList.remove('text-slate-700', 'text-slate-500'); textNode.classList.add('text-emerald-700', 'font-black'); }
                     
                     const circleNode = parent.querySelector('.rounded-full');
-                    if (circleNode) { circleNode.classList.remove('bg-white', 'border-slate-300', 'border-sky-500', 'text-sky-500', 'text-slate-400'); circleNode.classList.add('bg-emerald-500', 'border-emerald-500', 'text-white', 'shadow-inner'); }
+                    if (circleNode) { circleNode.classList.remove('bg-white', 'border-slate-300', 'border-sky-500', 'text-sky-500', 'text-slate-400', 'border-slate-200'); circleNode.classList.add('bg-emerald-500', 'border-emerald-500', 'text-white', 'shadow-inner'); }
                     
                     if (el.checked) isCorrect = true;
                  } 
                  else if (el.checked) {
-                    parent.classList.add('border-rose-300', 'bg-rose-50/80');
+                    parent.classList.add('border-rose-300', 'bg-rose-50');
                     const textNode = parent.querySelector('.text-slate-700') || parent.querySelector('.text-slate-500');
                     if (textNode) { textNode.classList.remove('text-slate-700', 'text-slate-500'); textNode.classList.add('text-rose-600', 'font-bold'); }
                     
                     const circleNode = parent.querySelector('.rounded-full');
-                    if (circleNode) { circleNode.classList.remove('bg-white', 'border-slate-300', 'border-sky-500', 'text-sky-500', 'text-slate-400'); circleNode.classList.add('bg-rose-400', 'border-rose-400', 'text-white'); }
+                    if (circleNode) { circleNode.classList.remove('bg-white', 'border-slate-300', 'border-sky-500', 'text-sky-500', 'text-slate-400', 'border-slate-200'); circleNode.classList.add('bg-rose-400', 'border-rose-400', 'text-white'); }
                  }
              }
              else if (el.type === 'text') {
@@ -470,15 +462,10 @@ const clientSubmitData = validParts.map((p: any) => ({
                  
                  if (userAnswer === correctAnswer) {
                      isCorrect = true;
-                     el.classList.add('text-emerald-700', 'bg-emerald-100/50', 'border-emerald-400', 'shadow-sm');
-                     el.classList.replace('focus:border-sky-500', 'border-emerald-400');
-                     el.style.width = `calc(${el.value.length}ch + 2.5rem)`;
+                     el.className = 'exam-input !w-auto !min-w-[120px] px-3 py-2 text-base font-bold text-center text-emerald-700 bg-emerald-50 border-2 border-emerald-400 rounded-xl shadow-sm transition-all';
                  } else {
-                     el.classList.add('text-rose-600', 'bg-rose-50', 'border-rose-300', 'shadow-sm');
-                     el.classList.remove('w-28', 'md:w-36', 'md:w-40', 'h-8', 'w-12', 'h-12', 'md:w-14', 'md:h-14', 'text-2xl', 'text-center'); 
-                     el.classList.add('px-3', 'text-base', 'font-bold', 'text-center'); 
+                     el.className = 'exam-input !w-auto !min-w-[150px] px-3 py-2 text-base font-bold text-center text-rose-600 bg-rose-50 border-2 border-rose-300 rounded-xl shadow-sm transition-all';
                      el.value = `${el.value || '?'} ➔ ${q.Answer}`;
-                     el.style.width = `calc(${el.value.length}ch + 2.5rem)`;
                  }
              }
           });
@@ -490,11 +477,10 @@ const clientSubmitData = validParts.map((p: any) => ({
       document.getElementById('final-score').textContent = score;
       document.getElementById('total-score').textContent = `/${total}`;
       
-      // Vẽ đường tròn điểm số
       setTimeout(() => {
           const ring = document.getElementById('score-ring');
           if(ring) {
-              const circumference = 289; // 2 * pi * r (r=46)
+              const circumference = 289; 
               const offset = circumference - (score / total) * circumference;
               ring.style.strokeDashoffset = offset.toString();
           }
@@ -523,7 +509,45 @@ const clientSubmitData = validParts.map((p: any) => ({
   });
 </script>
 
+{/* 🌟 VŨ KHÍ BÍ MẬT: PURE CSS DẬP TẮT MỌI LỖI TRƯỚC ĐÓ */}
 <style is:global>
+  /* 1. Ép Nền Gradient Không Gian */
+  .vvip-bg {
+    background: radial-gradient(circle at 100% 0%, #e0f2fe 0%, #f8fafc 40%, #f1f5f9 100%) !important;
+  }
+
+  /* 2. Ép Hiệu ứng Kính Mờ (Glassmorphism) */
+  .glass-topbar {
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05) !important;
+  }
+  
+  .glass-box {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+  }
+
+  /* 3. Ép đổ màu Xanh rực rỡ */
+  .glow-bg {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+  }
+
+  /* 4. Đổ Bóng Phát Sáng (Glow Shadow) */
+  .glow-shadow {
+    box-shadow: 0 8px 25px -5px rgba(14, 165, 233, 0.6) !important;
+  }
+
+  /* 5. Hào Quang Khi Audio Đang Phát */
+  .audio-glow {
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 40px rgba(56, 189, 248, 0.3) !important;
+    transform: scale(1.02) !important;
+  }
+
   html { scroll-behavior: smooth; }
   .animate-fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
   @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
