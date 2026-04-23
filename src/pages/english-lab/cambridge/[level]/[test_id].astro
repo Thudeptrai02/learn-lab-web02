@@ -1,108 +1,37 @@
 ---
-export const prerender = true;
-import Papa from 'papaparse';
-import Layout from '../../../../layouts/Layout.astro';
-import ListeningExam from '../../../../components/exam/ListeningExam.astro';
+// src/pages/exam/[id].astro
+
+// 1. Import Master Engine từ thư mục components
 import ReadingExam from '../../../../components/exam/ReadingExam.astro';
 
+// 2. Hàm tự động quét tất cả file JSON trong thư mục data/exams
 export async function getStaticPaths() {
-  const SHEET_ID = '1KBlvcqTgURW1Z6EGUKL5xkEOE4MX5pIhAVNZ6eecH04';
-  const MASTER_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Master`;
+  const examFiles = await Astro.glob('../../data/exams/*.json');
   
-  try {
-    const response = await fetch(MASTER_URL);
-    const csvText = await response.text();
-    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-    
-    return parsed.data
-      .filter(row => row.ID || row.Test_ID)
-      .map(row => ({
-        params: { 
-          level: String(row.Level || 'a2-ket').trim().toLowerCase(), 
-          test_id: String(row.ID || row.Test_ID).trim() 
-        },
-        props: { 
-          // Làm sạch link ngay từ đầu
-          dataUrl: row.URL ? row.URL.trim().replace('/edit?usp=sharing', '/export?format=csv').replace('/edit#gid=', '/export?format=csv&gid=') : null, 
-          testTitle: row.Title 
-        }
-      }));
-  } catch (error) {
-    console.error("🚨 LỖI MASTER SHEET:", error);
-    return []; 
-  }
-}
-
-const { test_id, level } = Astro.params;
-const { dataUrl, testTitle } = Astro.props; 
-const isListening = test_id.toUpperCase().includes('-L-');
-
-let parts = [];
-let fetchError = null;
-
-try {
-  if (!dataUrl) throw new Error("Chưa có link đề trong file Master!");
-
-  console.log(`📡 Đang tải dữ liệu cho đề: ${test_id}...`);
-  
-  // Thiết lập Timeout 10 giây - Nếu quá 10s không tải được sẽ ngắt để báo lỗi
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-  const response = await fetch(dataUrl, { signal: controller.signal });
-  clearTimeout(timeoutId);
-
-  if (!response.ok) throw new Error(`Google Sheets từ chối (Status: ${response.status}). Sếp kiểm tra nút SHARE của file đề nhé!`);
-
-  const csvText = await response.text();
-  const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-  const questions = parsed.data;
-
-  // Chia Part (Logic giữ nguyên)
-  parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
-    let partQuestions = questions.filter(q => parseInt(q.Part) === num);
-    if (partQuestions.length === 0) return null;
-    const firstRow = partQuestions[0];
+  return examFiles.map(file => {
+    // Lấy tên file làm đường link (VD: ket-test.json -> ket-test)
+    const id = file.file.split('/').pop().replace('.json', '');
     return {
-      part_number: num,
-      audioUrl: firstRow.Audio_URL || firstRow.Audio || null,
-      partTranscript: firstRow.Transcript || null,
-      passage: firstRow.Passage || firstRow.Content || null,
-      questions: partQuestions
+      params: { id },
+      props: { examData: file.default }
     };
-  }).filter(p => p !== null);
-
-  console.log(`✅ Đã tải xong ${questions.length} câu hỏi cho ${test_id}`);
-
-} catch (error) {
-  fetchError = error.name === 'AbortError' ? "Quá thời gian tải dữ liệu (Timeout). Có thể do link hỏng hoặc mạng yếu!" : error.message;
-  console.error(`❌ LỖI TẠI ĐỀ ${test_id}:`, fetchError);
+  });
 }
+
+const { id } = Astro.params;
+const { examData } = Astro.props;
 ---
 
-<Layout title={testTitle || test_id}>
-  <main class="min-h-screen bg-[#F8FAFC] py-12">
-    <div class="max-w-7xl mx-auto px-6">
-      {fetchError ? (
-        <div class="bg-white p-20 rounded-[3rem] text-center border-2 border-dashed border-red-200 shadow-xl max-w-4xl mx-auto">
-          <div class="text-6xl mb-6">🚧</div>
-          <h2 class="text-2xl font-black text-slate-800 uppercase mb-4">Không thể nạp dữ liệu đề thi</h2>
-          <p class="text-red-500 font-bold bg-red-50 py-3 px-6 rounded-full inline-block mb-8">{fetchError}</p>
-          <div class="text-slate-400 text-sm text-left bg-slate-50 p-6 rounded-2xl">
-            <p class="font-bold mb-2">Sếp hãy kiểm tra các bước sau:</p>
-            <ol class="list-decimal ml-5 space-y-1">
-              <li>Mở file Google Sheet của đề <strong>{test_id}</strong>.</li>
-              <li>Bấm nút <strong>Share</strong> (Chia sẻ) ở góc phải.</li>
-              <li>Chuyển sang <strong>Anyone with the link</strong> (Bất kỳ ai có liên kết).</li>
-              <li>F5 lại trang web này.</li>
-            </ol>
-          </div>
-        </div>
-      ) : (
-        isListening ? 
-          <ListeningExam parts={parts} test_id={test_id} testTitle={testTitle} /> : 
-          <ReadingExam parts={parts} test_id={test_id} testTitle={testTitle} />
-      )}
-    </div>
-  </main>
-</Layout>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cambridge KET - Đề {id}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-slate-50 antialiased">
+    
+    <ReadingExam questions={examData} testTitle={`Cambridge KET - Đề ${id}`} />
+
+  </body>
+</html>
