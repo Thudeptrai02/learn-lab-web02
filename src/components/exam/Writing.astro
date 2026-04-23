@@ -1,122 +1,41 @@
 ---
 const { q } = Astro.props;
-
-// Kiểm tra xem có ảnh không
-const hasImage = q.Image_URL && q.Image_URL.startsWith('http');
-
-// Lấy bài mẫu từ Passage hoặc Explanation
-const sampleAnswer = q.Passage || q.Explanation || 'Hiện chưa có bài mẫu cho câu hỏi này.';
-
-// Hàm "Pro-VIP" tự động tách đề bài Writing thành Checklist chuyên nghiệp
-function formatWritingPrompt(text: string) {
-  if (!text) return "";
-  
-  // Xử lý xuống dòng cơ bản
-  let formatted = String(text).replace(/\[BR\]|\|\||\r\n|\n/g, '<br/>');
-  
-  // Phát hiện dấu gạch chéo " / " của đề Cambridge
-  if (formatted.includes(' / ')) {
-    // Tìm dấu ":" để tách câu dẫn (vd: "In your email:") và các yêu cầu
-    const splitIndex = formatted.lastIndexOf(':');
-    
-    if (splitIndex !== -1) {
-      const preamble = formatted.substring(0, splitIndex + 1);
-      const listPart = formatted.substring(splitIndex + 1);
-      const bullets = listPart.split(' / ').map(b => b.trim()).filter(b => b);
-      
-      formatted = `
-        <p class="mb-4 text-blue-900 text-lg md:text-xl font-medium leading-relaxed">${preamble}</p>
-        <ul class="space-y-3 mb-2 bg-white/80 p-5 rounded-xl border border-blue-100 shadow-sm">
-          ${bullets.map(b => `
-            <li class="flex items-start gap-3">
-               <div class="mt-1 w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 font-black text-xs">✓</div>
-               <span class="text-slate-800 font-medium text-lg leading-relaxed">${b.charAt(0).toUpperCase() + b.slice(1)}</span>
-            </li>
-          `).join('')}
-        </ul>
-      `;
-    } else {
-      // Nếu không có dấu ":", chỉ chia list trực tiếp
-      const bullets = formatted.split(' / ').map(b => b.trim()).filter(b => b);
-      formatted = `
-        <ul class="space-y-3 mb-2 bg-white/80 p-5 rounded-xl border border-blue-100 shadow-sm">
-          ${bullets.map(b => `
-            <li class="flex items-start gap-3">
-               <div class="mt-1 w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 font-black text-xs">✓</div>
-               <span class="text-slate-800 font-medium text-lg leading-relaxed">${b.charAt(0).toUpperCase() + b.slice(1)}</span>
-            </li>
-          `).join('')}
-        </ul>
-      `;
-    }
-  } else {
-    // Nếu đề bình thường không có dấu " / "
-    formatted = `<p class="text-blue-900 text-lg md:text-xl font-medium leading-relaxed">${formatted}</p>`;
-  }
-  
-  return formatted;
-}
-
-const formattedQuestion = formatWritingPrompt(q.Question);
 ---
 
-<div class="bg-white p-8 md:p-10 rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative">
-  <div class="mb-6 flex items-center gap-3">
-    <span class="bg-slate-900 text-emerald-400 font-black px-4 py-1.5 rounded-xl text-sm tracking-wider uppercase">Question {q.Q_Num}</span>
+<div class="bg-white border border-slate-100 rounded-[2.5rem] p-8 md:p-10 shadow-sm">
+  <div class="flex items-center gap-4 mb-8">
+    <span class="bg-slate-900 text-emerald-400 font-black px-4 py-1.5 rounded-xl text-sm italic">Writing</span>
+    <span class="text-slate-400 font-bold text-sm uppercase tracking-widest">Question {q.Q_Num}</span>
   </div>
-  
-  {/* NẾU CÓ ẢNH THÌ HIỂN THỊ Ở ĐÂY */}
-  {hasImage && (
-    <div class="mb-8 w-full bg-slate-50 p-4 rounded-2xl border-2 border-dashed border-slate-200 flex justify-center">
-       <img src={q.Image_URL} alt={`Prompt for Question ${q.Q_Num}`} class="max-w-full h-auto rounded-xl shadow-sm object-contain max-h-[400px]" loading="lazy" />
+
+  {q.Image_URL && (
+    <div class="mb-10 rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-inner bg-slate-50">
+       <img src={q.Image_URL} alt="Story Prompt" class="w-full object-cover max-h-[400px]" />
+       <div class="p-4 text-center text-xs font-bold text-slate-400 uppercase tracking-tighter bg-white/50">Cambridge Style Pencil Sketch Illustration</div>
     </div>
   )}
 
-  {/* KHUNG YÊU CẦU ĐỀ BÀI ĐƯỢC THIẾT KẾ LẠI CỰC KỲ CHUYÊN NGHIỆP */}
-  <div class="bg-blue-50 border border-blue-100 p-6 md:p-8 rounded-2xl mb-8">
-     <h4 class="text-blue-800 font-black uppercase text-sm mb-4 tracking-widest flex items-center gap-2">
-        <span>📝</span> YÊU CẦU ĐỀ BÀI
-     </h4>
-     <div set:html={formattedQuestion}></div>
+  <div class="prose prose-slate max-w-none mb-8">
+    <p class="text-slate-700 font-medium text-lg leading-relaxed italic" set:html={q.Passage}></p>
   </div>
 
   <div class="relative">
     <textarea 
-      name={q.ID} 
-      rows="10" 
-      class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 text-slate-800 font-medium text-lg leading-relaxed focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-50 outline-none resize-y transition-all placeholder:text-slate-400" 
-      placeholder="Start writing your answer here..."
+      name={q.ID}
+      placeholder="Type your answer here..."
+      class="w-full min-h-[200px] p-8 rounded-[2rem] border-2 border-slate-100 bg-slate-50/50 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-slate-700 font-medium text-lg resize-none"
+      oninput="this.parentElement.querySelector('.word-count span').innerText = this.value.trim().split(/\s+/).filter(w => w.length > 0).length"
     ></textarea>
-    <div class="absolute bottom-4 right-4 text-xs font-bold text-slate-400 bg-white px-2 py-1 rounded-md border border-slate-200 shadow-sm">
-      Writing Section
+    
+    <div class="word-count absolute bottom-6 right-8 bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm text-xs font-black text-slate-400 uppercase tracking-widest">
+      <span>0</span> words
     </div>
   </div>
 
-  <div class="post-submit-area hidden mt-8 pt-8 border-t-2 border-dashed border-slate-200">
-    <div class="flex flex-col md:flex-row gap-6 items-start">
-       <div class="flex-1 w-full">
-         <h4 class="font-black text-slate-800 uppercase tracking-widest text-sm mb-4 flex items-center gap-2"><span>💡</span> Sample Answer</h4>
-         <div class="bg-emerald-50 border border-emerald-100 p-6 md:p-8 rounded-2xl text-slate-800 whitespace-pre-wrap font-medium leading-relaxed text-lg shadow-sm">
-            {sampleAnswer}
-         </div>
-       </div>
-
-       <div class="w-full md:w-72 shrink-0 bg-indigo-50 border border-indigo-100 p-6 rounded-2xl flex flex-col items-center justify-center text-center shadow-sm">
-          <div class="text-4xl mb-3">🤖</div>
-          <h4 class="font-black text-indigo-900 mb-2 text-lg">AI Examiner</h4>
-          <p class="text-xs text-indigo-700 font-medium mb-4">Hệ thống AI sẽ phân tích từ vựng, ngữ pháp và chấm điểm bài viết của bạn.</p>
-          <button type="button" class="ai-grade-btn bg-indigo-600 hover:bg-indigo-700 active:scale-95 transition-all text-white font-black w-full py-3 rounded-xl shadow-md flex items-center justify-center gap-2">
-            <span>✨ Chấm bài ngay</span>
-          </button>
-          
-          <div class="ai-result-box hidden mt-4 w-full text-left bg-white p-4 rounded-xl border border-indigo-100 shadow-sm">
-             <div class="flex justify-between items-center mb-2 border-b border-indigo-50 pb-2">
-               <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Band Score</span>
-               <span class="font-black text-xl text-emerald-600">A2</span>
-             </div>
-             <p class="text-sm text-slate-700 italic leading-relaxed">"Bài viết của bạn khá tốt, đáp ứng đủ các gạch đầu dòng của đề bài. Tuy nhiên cần đa dạng từ vựng hơn." (Demo AI)</p>
-          </div>
-       </div>
-    </div>
+  <div class="explanation-box hidden mt-8 p-8 bg-slate-900 rounded-[2rem] text-white">
+     <h5 class="text-emerald-400 font-black text-xs uppercase tracking-[0.2em] mb-4">Sample Answer</h5>
+     <p class="text-slate-300 leading-relaxed italic">{q.Answer}</p>
+     <div class="h-px bg-slate-800 my-6"></div>
+     <p class="text-slate-400 text-sm font-medium">{q.Explanation}</p>
   </div>
 </div>
