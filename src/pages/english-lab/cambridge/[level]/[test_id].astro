@@ -1,37 +1,122 @@
 ---
-// src/pages/exam/[id].astro
-
-// 1. Import Master Engine từ thư mục components
+// =================================================================
+// ĐƯỜNG DẪN: src/pages/english-lab/cambridge/[level]/[test_id].astro
+// LOGIC: ƯU TIÊN JSON NỘI BỘ -> NẾU KHÔNG CÓ -> TRA CỨU SHEET MASTER -> FETCH LINK CSV
+// =================================================================
+import Layout from '../../../../layouts/Layout.astro';
 import ReadingExam from '../../../../components/exam/ReadingExam.astro';
+import MultipleChoice from '../../../../components/exam/MultipleChoice.astro';
+import Papa from 'papaparse';
 
-// 2. Hàm tự động quét tất cả file JSON trong thư mục data/exams
-export async function getStaticPaths() {
-  const examFiles = await Astro.glob('../../data/exams/*.json');
-  
-  return examFiles.map(file => {
-    // Lấy tên file làm đường link (VD: ket-test.json -> ket-test)
-    const id = file.file.split('/').pop().replace('.json', '');
-    return {
-      params: { id },
-      props: { examData: file.default }
-    };
+const { test_id } = Astro.params;
+const targetId = String(test_id).trim().toUpperCase(); // Đồng bộ viết hoa như trong file Master của sếp
+
+let isReadingJSON = false;
+let readingQuestions = [];
+
+// 1. KIỂM TRA FILE JSON TRONG THƯ MỤC CỤC BỘ (Ưu tiên cho đề Reading sếp đã code)
+try {
+  const jsonFiles = await Astro.glob('../../../../data/exams/*.json');
+  const matchedFile = jsonFiles.find(file => {
+    const fileName = file.file.split('/').pop().replace('.json', '').toUpperCase();
+    return fileName === targetId;
   });
+
+  if (matchedFile) {
+    isReadingJSON = true;
+    readingQuestions = matchedFile.default;
+  }
+} catch (e) {
+  // Không có file JSON thì chạy tiếp xuống Google Sheets
 }
 
-const { id } = Astro.params;
-const { examData } = Astro.props;
+// 2. NẾU KHÔNG CÓ JSON -> TRA CỨU GOOGLE SHEETS (Dùng file Master sếp gửi)
+let remoteQuestions = [];
+let audioUrl = null;
+let examTitle = test_id;
+
+if (!isReadingJSON) {
+  // Đây là link CSV của file Master sếp vừa gửi
+  const MASTER_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTuqu0bWw_v5kn2oHr6j5ryrBE8oh0feXbc8EMqyOBYoQ1oRMooTdw6ykJE5x313syGtaVBRfisvPtt/pub?gid=1538442297&single=true&output=csv';
+
+  try {
+    // Bước A: Đọc file Master
+    const masterRes = await fetch(MASTER_CSV_URL);
+    const masterText = await masterRes.text();
+    const masterParsed = Papa.parse(masterText, { header: true });
+    
+    // Tìm dòng có ID khớp (Ví dụ: KET-L-01)
+    const entry = masterParsed.data.find(row => 
+      String(row.ID).trim().toUpperCase() === targetId
+    );
+
+    if (entry && entry.URL) {
+      examTitle = entry.Title || test_id;
+      
+      // Bước B: Truy cập vào link CSV con nằm ở cột URL
+      const detailRes = await fetch(entry.URL);
+      const detailText = await detailRes.text();
+      const detailParsed = Papa.parse(detailText, { header: true, skipEmptyLines: true });
+      
+      remoteQuestions = detailParsed.data;
+      
+      // Bước C: Tìm link Audio (Code sẽ lục trong tất cả các dòng của file CSV con)
+      const rowWithAudio = remoteQuestions.find(q => q.Audio_URL || q.Audio || q.Audio_Link);
+      audioUrl = rowWithAudio ? (rowWithAudio.Audio_URL || rowWithAudio.Audio || rowWithAudio.Audio_Link) : null;
+    }
+  } catch (err) {
+    console.error("Lỗi kết nối dữ liệu:", err);
+  }
+}
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cambridge KET - Đề {id}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  </head>
-  <body class="bg-slate-50 antialiased">
-    
-    <ReadingExam questions={examData} testTitle={`Cambridge KET - Đề ${id}`} />
+<Layout title={`${examTitle}`}>
+  
+  {isReadingJSON ? (
+    /* --- GIAO DIỆN READING (DÙNG JSON CỤC BỘ) --- */
+    <div class="min-h-screen bg-slate-50 pt-10 pb-20">
+      <div class="max-w-4xl mx-auto px-4">
+         <ReadingExam questions={readingQuestions} testTitle={examTitle} />
+      </div>
+    </div>
+  ) : (
+    /* --- GIAO DIỆN LISTENING (DÙNG DỮ LIỆU TỪ LINK CSV TRONG MASTER) --- */
+    <main class="min-h-screen bg-slate-50 pb-32">
+      
+      {audioUrl && (
+        <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md">
+          <div class="bg-slate-900/95 backdrop-blur-xl p-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4 border border-white/10">
+            <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shrink-0">🎧</div>
+            <audio controls class="w-full h-8 accent-emerald-500">
+              <source src={audioUrl} type="audio/mpeg" />
+            </audio>
+          </div>
+        </div>
+      )}
 
-  </body>
-</html>
+      <div class="max-w-4xl mx-auto px-4 pt-10">
+        <div class="mb-12">
+          <h1 class="text-4xl font-black text-slate-900 uppercase tracking-tighter">{examTitle}</h1>
+          <div class="flex items-center gap-2 mt-2">
+            <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full uppercase">Cambridge Exam</span>
+          </div>
+        </div>
+
+        {remoteQuestions.length > 0 ? (
+          <div class="space-y-10">
+            {remoteQuestions.map((question) => (
+              <MultipleChoice q={question} part={parseInt(question.Part)} />
+            ))}
+          </div>
+        ) : (
+          <div class="bg-white p-20 rounded-[3rem] text-center border-2 border-dashed border-slate-200">
+             <div class="text-6xl mb-6">🔍</div>
+             <h2 class="text-xl font-bold text-slate-800">Đang tìm dữ liệu đề...</h2>
+             <p class="text-slate-500 mt-2">Nếu đợi lâu không thấy, sếp hãy kiểm tra cột URL trong file Master nhé.</p>
+          </div>
+        )}
+      </div>
+    </main>
+  )}
+
+</Layout>
