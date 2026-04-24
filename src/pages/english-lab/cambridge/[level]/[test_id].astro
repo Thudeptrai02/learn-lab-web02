@@ -1,122 +1,149 @@
 ---
-// =================================================================
+// ==========================================================
 // ĐƯỜNG DẪN: src/pages/english-lab/cambridge/[level]/[test_id].astro
-// LOGIC: ƯU TIÊN JSON NỘI BỘ -> NẾU KHÔNG CÓ -> TRA CỨU SHEET MASTER -> FETCH LINK CSV
-// =================================================================
-import Layout from '../../../../layouts/Layout.astro';
-import ReadingExam from '../../../../components/exam/ReadingExam.astro';
-import MultipleChoice from '../../../../components/exam/MultipleChoice.astro';
+// ==========================================================
+export const prerender = true;
+
 import Papa from 'papaparse';
+import Layout from '../../../../layouts/Layout.astro';
+import MultipleChoice from '../../../../components/exam/MultipleChoice.astro';
 
-const { test_id } = Astro.params;
-const targetId = String(test_id).trim().toUpperCase(); // Đồng bộ viết hoa như trong file Master của sếp
+export async function getStaticPaths() {
+  // 1. LẤY ĐỀ TỪ GOOGLE SHEET (LISTENING)
+  const SHEET_ID = '1KBlvcqTgURW1Z6EGUKL5xkEOE4MX5pIhAVNZ6eecH04';
+  const MASTER_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0`;
+  
+  let sheetPaths = [];
+  try {
+    const res = await fetch(MASTER_URL);
+    const parsed = Papa.parse(await res.text(), { header: true, skipEmptyLines: true });
+    sheetPaths = parsed.data.filter(row => row.ID).map(row => ({
+      params: { 
+        level: String(row.Level || 'a2-ket').trim().toLowerCase(), 
+        test_id: String(row.ID).trim().toLowerCase() 
+      },
+      props: { 
+        isJson: false, 
+        dataUrl: row.URL?.trim().replace('/edit?usp=sharing', '/export?format=csv'), 
+        testTitle: row.Title 
+      }
+    }));
+  } catch (e) { console.error("Lỗi Master Sheet:", e); }
 
-let isReadingJSON = false;
-let readingQuestions = [];
+  // 2. LẤY ĐỀ TỪ FILE JSON (READING)
+  let jsonPaths = [];
+  try {
+    const jsonFiles = import.meta.glob('../../../../data/exams/*.json', { eager: true });
+    for (const path in jsonFiles) {
+      const fileName = path.split('/').pop().replace('.json', '').toLowerCase();
+      jsonPaths.push({
+        params: { level: 'a2-ket', test_id: fileName },
+        props: { 
+          isJson: true, 
+          jsonData: jsonFiles[path].default, 
+          testTitle: `Reading & Writing: ${fileName.toUpperCase()}` 
+        }
+      });
+    }
+  } catch (e) { console.error("Lỗi quét JSON:", e); }
 
-// 1. KIỂM TRA FILE JSON TRONG THƯ MỤC CỤC BỘ (Ưu tiên cho đề Reading sếp đã code)
+  return [...sheetPaths, ...jsonPaths];
+}
+
+const { test_id, level } = Astro.params;
+const { dataUrl, testTitle, isJson, jsonData } = Astro.props; 
+
+// Xác định loại bài thi
+const isListening = test_id.toLowerCase().includes('-l-');
+const isReading = test_id.toLowerCase().includes('-r-') || isJson;
+
+let questions = [];
+let fetchError = null;
+
 try {
-  const jsonFiles = await Astro.glob('../../../../data/exams/*.json');
-  const matchedFile = jsonFiles.find(file => {
-    const fileName = file.file.split('/').pop().replace('.json', '').toUpperCase();
-    return fileName === targetId;
+  if (isJson) {
+    questions = jsonData || [];
+  } else if (dataUrl) {
+    const response = await fetch(dataUrl);
+    const parsed = Papa.parse(await response.text(), { header: true, skipEmptyLines: true });
+    questions = parsed.data;
+  }
+} catch (error) { fetchError = error.message; }
+
+// LOGIC CHIA PART (Đã nâng cấp để khớp hoa/thường)
+const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
+  // Lọc câu hỏi theo Part (chấp nhận cả 'Part', 'part', 'PART')
+  const partQuestions = questions.filter(q => {
+    const pVal = q.Part || q.part || q.PART;
+    return parseInt(pVal) === num;
   });
 
-  if (matchedFile) {
-    isReadingJSON = true;
-    readingQuestions = matchedFile.default;
+  if (partQuestions.length === 0) return null;
+
+  const firstRow = partQuestions[0];
+  const partAudio = firstRow.Audio_URL || firstRow.Audio || firstRow.audio_url || null;
+  const partTranscript = firstRow.Transcript || firstRow.transcript || null;
+  let passage = firstRow.Passage || firstRow.Content || firstRow.passage || firstRow.content || null;
+
+  // Format bài đọc cho Reading
+  if (isReading && num >= 2 && passage) {
+    passage = passage.split('\n').map(l => l.trim()).filter(l => l.length > 0)
+      .map(l => (l.length < 60 && !l.match(/[.?!]$/)) 
+        ? `<strong class="text-slate-900 text-xl font-black block mb-3 mt-8">${l}</strong>` 
+        : `<p class="mb-5 text-slate-700 leading-relaxed text-[1.1rem]">${l}</p>`)
+      .join('');
   }
-} catch (e) {
-  // Không có file JSON thì chạy tiếp xuống Google Sheets
-}
 
-// 2. NẾU KHÔNG CÓ JSON -> TRA CỨU GOOGLE SHEETS (Dùng file Master sếp gửi)
-let remoteQuestions = [];
-let audioUrl = null;
-let examTitle = test_id;
-
-if (!isReadingJSON) {
-  // Đây là link CSV của file Master sếp vừa gửi
-  const MASTER_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTuqu0bWw_v5kn2oHr6j5ryrBE8oh0feXbc8EMqyOBYoQ1oRMooTdw6ykJE5x313syGtaVBRfisvPtt/pub?gid=1538442297&single=true&output=csv';
-
-  try {
-    // Bước A: Đọc file Master
-    const masterRes = await fetch(MASTER_CSV_URL);
-    const masterText = await masterRes.text();
-    const masterParsed = Papa.parse(masterText, { header: true });
-    
-    // Tìm dòng có ID khớp (Ví dụ: KET-L-01)
-    const entry = masterParsed.data.find(row => 
-      String(row.ID).trim().toUpperCase() === targetId
-    );
-
-    if (entry && entry.URL) {
-      examTitle = entry.Title || test_id;
-      
-      // Bước B: Truy cập vào link CSV con nằm ở cột URL
-      const detailRes = await fetch(entry.URL);
-      const detailText = await detailRes.text();
-      const detailParsed = Papa.parse(detailText, { header: true, skipEmptyLines: true });
-      
-      remoteQuestions = detailParsed.data;
-      
-      // Bước C: Tìm link Audio (Code sẽ lục trong tất cả các dòng của file CSV con)
-      const rowWithAudio = remoteQuestions.find(q => q.Audio_URL || q.Audio || q.Audio_Link);
-      audioUrl = rowWithAudio ? (rowWithAudio.Audio_URL || rowWithAudio.Audio || rowWithAudio.Audio_Link) : null;
-    }
-  } catch (err) {
-    console.error("Lỗi kết nối dữ liệu:", err);
-  }
-}
+  return { part_number: num, partAudio, partTranscript, passage, questions: partQuestions };
+}).filter(p => p !== null);
 ---
 
-<Layout title={`${examTitle}`}>
-  
-  {isReadingJSON ? (
-    /* --- GIAO DIỆN READING (DÙNG JSON CỤC BỘ) --- */
-    <div class="min-h-screen bg-slate-50 pt-10 pb-20">
-      <div class="max-w-4xl mx-auto px-4">
-         <ReadingExam questions={readingQuestions} testTitle={examTitle} />
-      </div>
-    </div>
-  ) : (
-    /* --- GIAO DIỆN LISTENING (DÙNG DỮ LIỆU TỪ LINK CSV TRONG MASTER) --- */
-    <main class="min-h-screen bg-slate-50 pb-32">
+<Layout title={testTitle || test_id}>
+  <main class="min-h-screen bg-[#F8FAFC] py-8 md:py-12 font-['Plus_Jakarta_Sans']">
+    <div class="max-w-7xl mx-auto px-4 md:px-6">
       
-      {audioUrl && (
-        <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md">
-          <div class="bg-slate-900/95 backdrop-blur-xl p-5 rounded-[2.5rem] shadow-2xl flex items-center gap-4 border border-white/10">
-            <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white shrink-0">🎧</div>
-            <audio controls class="w-full h-8 accent-emerald-500">
-              <source src={audioUrl} type="audio/mpeg" />
-            </audio>
+      <div class="bg-white rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 mb-10 shadow-sm border border-slate-100 max-w-5xl mx-auto">
+        <span class={`px-4 py-1.5 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg ${isListening ? 'bg-blue-500' : 'bg-emerald-500'}`}>
+            {isListening ? 'Listening' : 'Reading'} • {level}
+        </span>
+        <h1 class="text-3xl md:text-5xl font-black text-slate-900 uppercase mt-4">{testTitle}</h1>
+      </div>
+
+      {parts.length > 0 ? (
+        parts.map(part => (
+          <div class="mb-24">
+            <div class="flex items-center gap-6 mb-8 max-w-4xl mx-auto">
+                <h2 class="text-2xl md:text-3xl font-black text-slate-900 shrink-0">PART {part.part_number}</h2>
+                <div class="h-[2px] flex-1 bg-slate-200 rounded-full"></div>
+            </div>
+
+            <div class={isReading && part.part_number >= 2 && part.passage ? "grid grid-cols-1 lg:grid-cols-12 gap-8 items-start" : "max-w-4xl mx-auto"}>
+              
+              {/* Hiển thị bài đọc nếu có */}
+              {part.passage && (
+                <div class="lg:col-span-7 bg-white p-8 md:p-12 rounded-[2.5rem] shadow-sm border border-slate-100 lg:sticky lg:top-8">
+                  <div class="prose prose-slate max-w-none" set:html={part.passage}></div>
+                </div>
+              )}
+
+              {/* Danh sách câu hỏi */}
+              <div class={part.passage ? "lg:col-span-5 space-y-6" : "space-y-6"}>
+                {part.partAudio && (
+                  <div class="bg-slate-900 p-4 rounded-3xl mb-6">
+                    <audio controls class="w-full h-8"><source src={part.partAudio} /></audio>
+                  </div>
+                )}
+                {part.questions.map(q => <MultipleChoice q={q} part={part.part_number} />)}
+              </div>
+            </div>
           </div>
+        ))
+      ) : (
+        <div class="bg-white p-20 rounded-[3rem] text-center border-2 border-dashed border-slate-200 max-w-4xl mx-auto">
+           <h2 class="text-xl font-bold text-slate-400">KHÔNG TÌM THẤY DỮ LIỆU CÂU HỎI</h2>
+           <p class="text-slate-400 mt-2">Sếp hãy kiểm tra lại cột <b>Part</b> trong file JSON nhé.</p>
         </div>
       )}
-
-      <div class="max-w-4xl mx-auto px-4 pt-10">
-        <div class="mb-12">
-          <h1 class="text-4xl font-black text-slate-900 uppercase tracking-tighter">{examTitle}</h1>
-          <div class="flex items-center gap-2 mt-2">
-            <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-3 py-1 rounded-full uppercase">Cambridge Exam</span>
-          </div>
-        </div>
-
-        {remoteQuestions.length > 0 ? (
-          <div class="space-y-10">
-            {remoteQuestions.map((question) => (
-              <MultipleChoice q={question} part={parseInt(question.Part)} />
-            ))}
-          </div>
-        ) : (
-          <div class="bg-white p-20 rounded-[3rem] text-center border-2 border-dashed border-slate-200">
-             <div class="text-6xl mb-6">🔍</div>
-             <h2 class="text-xl font-bold text-slate-800">Đang tìm dữ liệu đề...</h2>
-             <p class="text-slate-500 mt-2">Nếu đợi lâu không thấy, sếp hãy kiểm tra cột URL trong file Master nhé.</p>
-          </div>
-        )}
-      </div>
-    </main>
-  )}
-
+    </div>
+  </main>
 </Layout>

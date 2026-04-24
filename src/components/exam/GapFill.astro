@@ -1,0 +1,44 @@
+---
+// GapFill.astro — v2
+// Dùng cho: Reading Part 4 — gap fill từng dòng (1 ô trống / câu)
+// Props: { q }
+// q.Question — câu có chỗ trống, dùng ______ hoặc … hoặc ........ làm separator
+// q.Q_Num, q.ID, q.Answer, q.Explanation
+
+const { q } = Astro.props;
+
+// Normalize mọi dạng separator: ___+ hoặc …+ hoặc .....(3+ chấm)
+const normalized = (q.Question || '').replace(/_{2,}|…+|\.{3,}/g, '|||GAP|||');
+const parts = normalized.split('|||GAP|||');
+const before = parts[0]?.trim() ?? '';
+const after  = parts[1]?.trim() ?? '';
+---
+
+<div class="mb-4 flex items-center flex-wrap gap-x-2 gap-y-1.5 text-base md:text-lg text-slate-800 bg-white px-5 py-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+  
+  <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500 text-white font-black text-sm shrink-0 mr-1">
+    {q.Q_Num}
+  </span>
+
+  {before && <span class="font-medium text-slate-700">{before}</span>}
+
+  <input
+    type="text"
+    name={q.ID}
+    autocomplete="off"
+    class="w-28 sm:w-36 border-b-2 border-slate-300 focus:border-emerald-500 outline-none text-center font-bold text-emerald-700 bg-emerald-50/40 px-2 py-0.5 rounded-t-md hover:bg-emerald-50 focus:bg-emerald-100 transition-all text-base"
+    placeholder="..."
+  />
+
+  {after && <span class="font-medium text-slate-700">{after}</span>}
+
+  <!-- Explanation inline (ẩn đến submit) -->
+  {q.Explanation && (
+    <span class="explanation-box w-full mt-2 hidden">
+      <span class="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl text-sm font-medium text-slate-700">
+        <span class="bg-amber-400 text-amber-900 font-black px-2 py-0.5 rounded-lg text-xs uppercase">✓ {q.Answer}</span>
+        {q.Explanation}
+      </span>
+    </span>
+  )}
+</div>

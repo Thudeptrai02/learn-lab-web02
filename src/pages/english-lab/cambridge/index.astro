@@ -1,109 +1,91 @@
 ---
-import Papa from 'papaparse';
+// =================================================================
+// ĐƯỜNG DẪN: src/pages/english-lab/cambridge/index.astro
+// =================================================================
 import Layout from '../../../layouts/Layout.astro';
+import Papa from 'papaparse';
 
-// =================================================================
-// 1. CẤU HÌNH LINK - SẾP ĐÃ ĐỔI TÊN TAB THÀNH "Master" RỒI NHÉ
-// =================================================================
-const SHEET_ID = '1KBlvcqTgURW1Z6EGUKL5xkEOE4MX5pIhAVNZ6eecH04';
-const MASTER_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Master`;
+let allExams = [];
 
-let availableExams = [];
-let fetchError = null;
+// 1. QUÉT FILE JSON TRONG MÁY (Dùng lùi 3 cấp: ../../../)
+try {
+  const jsonFiles = import.meta.glob('../../../data/exams/*.json', { eager: true });
+  const jsonExams = Object.keys(jsonFiles).map(path => {
+    const fileName = path.split('/').pop().replace('.json', '');
+    return {
+      id: fileName,
+      title: `Reading & Writing: ${fileName.toUpperCase()}`,
+      level: 'a2-ket', // Mặc định cho đề JSON là KET hoặc sếp có thể tách từ tên file
+      type: 'READING'
+    };
+  });
+  allExams = [...jsonExams];
+} catch(e) {
+  console.error("Lỗi quét JSON:", e);
+}
+
+// 2. HÚT TỪ MASTER SHEET (Link sếp vừa gửi)
+const MASTER_URL = 'https://docs.google.com/spreadsheets/d/1KBlvcqTgURW1Z6EGUKL5xkEOE4MX5pIhAVNZ6eecH04/gviz/tq?tqx=out:csv&gid=0';
 
 try {
-  console.log("🚀 ĐANG KẾT NỐI GOOGLE SHEETS (TAB: Master)...");
+  const res = await fetch(MASTER_URL);
+  const text = await res.text();
+  const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
   
-  const response = await fetch(MASTER_CSV_URL);
-  
-  if (!response.ok) {
-    if (response.status === 401 || response.status === 403) {
-      throw new Error("Google vẫn chặn (401/403). Sếp kiểm tra nút Chia sẻ (Share) xanh dương đã để 'Bất kỳ ai có liên kết' chưa?");
-    }
-    throw new Error(`Lỗi kết nối: ${response.status}`);
-  }
-  
-  const csvText = await response.text();
-
-  // Kiểm tra xem có bị trả về trang Login của Google không
-  if (csvText.includes('google-signin') || csvText.includes('<!DOCTYPE html>')) {
-    throw new Error("File vẫn bị khóa nội bộ. Sếp hãy thử mở file bằng trình duyệt ẩn danh, nếu nó bắt đăng nhập là do quyền Share chưa mở hết.");
-  }
-
-  const parsed = Papa.parse(csvText, { 
-    header: true, 
-    skipEmptyLines: true,
-    dynamicTyping: true 
-  });
-  
-  // Lọc lấy các dòng có ID
-  availableExams = parsed.data.filter(row => row.ID || row.Test_ID);
-  console.log("🎯 THÀNH CÔNG! ĐÃ QUÉT ĐƯỢC:", availableExams.length, "ĐỀ THI");
-
-} catch (error) {
-  console.error("🚨 Lỗi mục lục:", error.message);
-  fetchError = error.message;
+  const sheetExams = parsed.data
+    .filter(row => row.ID)
+    .map(row => ({
+      id: String(row.ID).trim(),
+      title: row.Title || String(row.ID).trim(),
+      level: String(row.Level || 'a2-ket').toLowerCase().trim(),
+      type: 'LISTENING'
+    }));
+    
+  allExams = [...allExams, ...sheetExams];
+} catch(e) {
+  console.error("Lỗi Google Sheets:", e);
 }
 ---
 
-<Layout title="English Lab - Cambridge">
-  <main class="min-h-screen bg-slate-50 p-10 font-['Plus_Jakarta_Sans']">
-    <div class="max-w-4xl mx-auto">
-      <div class="flex items-center justify-between mb-10">
-        <div>
-          <h1 class="text-3xl font-black text-slate-900 uppercase tracking-tighter">Practice Tests</h1>
-          <p class="text-slate-500 font-bold">Danh sách đề thi từ Google Sheets</p>
-        </div>
-        <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-200">
-           <span class="text-2xl font-black text-emerald-500">{availableExams.length}</span>
-           <span class="text-xs font-bold text-slate-400 uppercase ml-1">Đề khả dụng</span>
-        </div>
-      </div>
+<Layout title="Thư viện đề thi Cambridge">
+  <main class="min-h-screen bg-[#F8FAFC] py-16 px-4 font-['Plus_Jakarta_Sans']">
+    <div class="max-w-5xl mx-auto">
       
-      {/* HIỂN THỊ CẢNH BÁO LỖI */}
-      {fetchError && (
-        <div class="bg-red-50 text-red-600 p-6 rounded-3xl border-2 border-red-200 font-bold mb-6 shadow-sm">
-          <p class="flex items-center gap-2">
-            <span>🚨</span> Lỗi: {fetchError}
-          </p>
-          <p class="text-xs mt-2 opacity-70">Gợi ý: Kiểm tra lại nút Share (Bất kỳ ai có liên kết) và tên Tab phải là "Master"</p>
-        </div>
-      )}
-
-      {/* DANH SÁCH BÀI THI */}
-      <div class="grid gap-4">
-        {availableExams.map((exam) => {
-          const examId = exam.ID || exam.Test_ID;
-          const examTitle = exam.Title || `Practice Test ${examId}`;
-          const examLevel = exam.Level ? exam.Level.trim().toLowerCase() : 'a2-ket'; 
-          
-          return (
-            <a href={`/english-lab/cambridge/${examLevel}/${examId}`} 
-               class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-500 hover:shadow-md transition-all flex items-center justify-between group">
-              <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-slate-100 text-slate-600 group-hover:bg-emerald-50 group-hover:text-emerald-600 rounded-xl flex items-center justify-center font-black transition-colors">
-                  {availableExams.indexOf(exam) + 1}
-                </div>
-                <div>
-                  <h2 class="font-black text-slate-800 uppercase group-hover:text-emerald-600 transition-colors">{examTitle}</h2>
-                  <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{examLevel} • {examId}</p>
-                </div>
-              </div>
-              <div class="flex items-center gap-2 text-emerald-500 font-black opacity-0 group-hover:opacity-100 transition-all translate-x-2 group-hover:translate-x-0">
-                LÀM BÀI <span class="text-xl">→</span>
-              </div>
-            </a>
-          );
-        })}
+      <div class="mb-12">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 uppercase tracking-tight mb-4">Cambridge English Lab</h1>
+        <p class="text-slate-500 font-bold uppercase tracking-widest text-sm flex items-center gap-2">
+            <span class="w-8 h-1 bg-blue-500 rounded-full"></span>
+            Tất cả trình độ
+        </p>
       </div>
 
-      {/* TRẠNG THÁI TRỐNG */}
-      {availableExams.length === 0 && !fetchError && (
-        <div class="p-20 text-center bg-white rounded-[3rem] border-2 border-dashed border-slate-200 mt-6">
-           <div class="text-4xl mb-4">Empty</div>
-           <p class="text-slate-400 font-bold">Chưa có dữ liệu nào được tìm thấy trong tab "Master".</p>
-        </div>
-      )}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {allExams.map((exam) => (
+          <a href={`/english-lab/cambridge/${exam.level}/${exam.id.toLowerCase()}`} 
+             class="group bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+            
+            <div class="flex items-center gap-3 mb-4">
+              <span class={`text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest text-white shadow-lg
+                ${exam.type === 'READING' ? 'bg-emerald-500 shadow-emerald-100' : 'bg-blue-500 shadow-blue-100'}`}>
+                {exam.type}
+              </span>
+              <span class="text-slate-300 font-bold text-xs uppercase">{exam.level}</span>
+            </div>
+            
+            <h3 class="text-2xl font-black text-slate-800 leading-tight group-hover:text-blue-600 transition-colors mb-6">
+              {exam.title}
+            </h3>
+
+            <div class="flex items-center gap-2 text-blue-600 font-black text-sm group-hover:translate-x-2 transition-all">
+               LÀM BÀI NGAY 
+               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7-7 7" />
+               </svg>
+            </div>
+          </a>
+        ))}
+      </div>
+
     </div>
   </main>
 </Layout>

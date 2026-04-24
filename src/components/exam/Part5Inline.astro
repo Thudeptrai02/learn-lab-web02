@@ -1,0 +1,36 @@
+---
+// src/components/exam/Part5Inline.astro - FIX LỖI DÍNH CHỮ THƯ TỪ
+const { questions } = Astro.props;
+let passageHtml = questions[0]?.Passage || "";
+
+// FIX CHÍNH LÀ Ở ĐÂY: Biến dấu Enter trong Sheets thành dấu xuống dòng của web (<br/>)
+passageHtml = passageHtml.replace(/\r?\n/g, '<br/>');
+
+questions.forEach(q => {
+  // Regex quét số câu hỏi (VD: (25) ....)
+  const gapRegex = new RegExp(`\\(\\s*${q.Q_Num}\\s*\\)\\s*[_\\.]+`, 'g');
+  
+  const inputHtml = `<input type="text" name="${q.ID}" autocomplete="off" class="w-24 sm:w-32 border-b-2 border-slate-300 focus:border-emerald-500 outline-none text-center font-black text-emerald-600 bg-emerald-50/50 mx-1 px-1 transition-all rounded-t-md hover:bg-emerald-50 focus:bg-emerald-100" placeholder="${q.Q_Num}" />`;
+  
+  passageHtml = passageHtml.replace(gapRegex, inputHtml);
+});
+---
+<div class="bg-white p-6 md:p-10 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden">
+  <div class="absolute top-0 left-0 w-full h-2 bg-emerald-500"></div>
+  
+  {/* KHUNG BÀI ĐỌC (ĐÃ SỬA LỖI DÍNH CHỮ) */}
+  <div class="prose prose-slate max-w-none text-lg leading-loose text-slate-700 font-medium" set:html={passageHtml} />
+  
+  {/* GIẢI THÍCH */}
+  <div class="explanation-box mt-10 space-y-4 pt-8 border-t-2 border-slate-100 hidden">
+    <h4 class="font-black text-slate-800 text-xl">💡 Giải thích chi tiết Part 5</h4>
+    <div class="grid sm:grid-cols-2 gap-4 mt-4">
+      {questions.map((q) => (
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+          <div class="mb-2"><span class="bg-emerald-500 text-white font-black px-3 py-1 rounded-lg text-sm mr-2 shadow-sm">Câu {q.Q_Num}: {q.Answer}</span></div>
+          <p class="text-sm text-slate-600 font-medium leading-relaxed">{q.Explanation}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
