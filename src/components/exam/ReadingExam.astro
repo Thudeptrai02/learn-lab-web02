@@ -1,81 +1,81 @@
 ---
-import MultipleChoice from './MultipleChoice.astro';
-import Writing from './Writing.astro';
+// src/components/exam/ReadingExam.astro
+import ReadingPart1 from './ReadingPart1.astro'; // Biển báo
+import ReadingPart23 from './ReadingPart23.astro'; // Split-screen Matching/MCQ
+import ReadingPart4 from './ReadingPart4.astro'; // Inline Dropdown
+import ReadingPart5 from './ReadingPart5.astro'; // Inline Input
+import ReadingWriting67 from './ReadingWriting67.astro'; // Writing
 
-const { questions = [], testTitle = "A2 Key Exam" } = Astro.props;
+const { questions = [], testTitle = "Reading Practice" } = Astro.props;
 
-// Logic phân loại Part thông minh
-const partNumbers = [...new Set(questions.map(q => parseInt(q.Part)))].sort((a, b) => a - b);
-const parts = partNumbers.map(num => {
-  const partQuestions = questions.filter(q => parseInt(q.Part) === num);
-  return {
-    num,
-    guideline: partQuestions[0]?.Part_Guideline || "Answer the questions.",
-    questions: partQuestions,
-    passage: partQuestions[0]?.Passage || ""
-  };
-});
-
-function processPassage(text, partNum) {
-  if (!text) return "";
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l !== "");
-
-  if (partNum === 2) {
-    let html = '<div class="grid gap-6">';
-    lines.forEach(line => {
-      const match = line.match(/^([A-C])\s+(.*)/i);
-      if (match) {
-        html += `
-          <div class="group bg-white border border-slate-100 rounded-3xl p-8 hover:border-emerald-300 transition-all shadow-sm flex gap-6">
-            <div class="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center text-3xl font-black text-slate-200 group-hover:text-emerald-500 transition-colors shrink-0">${match[1]}</div>
-            <div class="flex-1">
-              <h4 class="font-black text-slate-800 text-xl mb-4">${match[2]}</h4>`;
-      } else {
-        html += `<p class="text-slate-600 leading-relaxed text-lg font-medium mb-3">${line}</p>`;
-      }
-      if (lines[lines.indexOf(line) + 1]?.match(/^([A-C])\s+/i) || lines.indexOf(line) === lines.length - 1) {
-        html += '</div></div>';
-      }
-    });
-    return html + '</div>';
-  }
-
-  return lines.map((line, i) => {
-    if (i === 0 && line.length < 60 && !line.includes('.')) {
-      return `<h3 class="text-3xl font-black text-slate-900 mb-10 text-center uppercase tracking-tighter">${line}</h3>`;
-    }
-    return `<p class="mb-6 text-slate-700 leading-relaxed text-lg font-medium text-justify">${line}</p>`;
-  }).join("");
-}
+// Phân nhóm câu hỏi
+const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
+  const pQs = questions.filter(q => parseInt(q.Part || q.part) === num);
+  return pQs.length > 0 ? { num, questions: pQs, guideline: pQs[0].Part_Guideline, passage: pQs[0].Passage } : null;
+}).filter(p => p !== null);
 ---
 
-<main class="flex-1 space-y-20">
-  {parts.map(part => (
-    <section id={`part-${part.num}`} class="animate-in fade-in slide-in-from-bottom-8 duration-1000">
-      <div class="flex items-center gap-5 mb-10">
-        <span class="w-16 h-16 bg-slate-900 text-emerald-400 rounded-3xl flex items-center justify-center font-black text-2xl shadow-2xl rotate-3">{part.num}</span>
+<div class="relative flex min-h-screen bg-slate-50 font-['Plus_Jakarta_Sans']">
+  
+  <aside id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-xl border-r border-slate-200 z-[100] transition-transform -translate-x-full shadow-2xl">
+    <div class="p-8">
+      <div class="flex items-center justify-between mb-8">
+        <h3 class="text-xl font-black text-slate-900 uppercase">Questions</h3>
+        <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">0/32</span>
+      </div>
+      <div class="grid grid-cols-5 gap-3">
+        {questions.map((q, i) => (
+          <button class="q-nav-btn w-10 h-10 rounded-xl border-2 border-slate-100 flex items-center justify-center font-bold text-slate-400 hover:border-emerald-500 transition-all" data-id={q.ID}>
+            {i + 1}
+          </button>
+        ))}
+      </div>
+    </div>
+    <button id="toggle-sidebar" class="absolute -right-12 top-10 w-12 h-12 bg-slate-900 text-white rounded-r-2xl flex items-center justify-center shadow-lg group">
+      <span class="transform transition-transform group-hover:scale-125">➜</span>
+    </button>
+  </aside>
+
+  <div class="flex-1 transition-all duration-500" id="main-content">
+    <div class="max-w-7xl mx-auto px-6 py-12">
+      <header class="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
         <div>
-          <h2 class="text-3xl font-black text-slate-900 tracking-tighter uppercase">Part {part.num}</h2>
-          <p class="text-slate-400 font-bold text-sm tracking-widest">{part.guideline}</p>
+           <span class="text-emerald-600 font-black text-sm uppercase tracking-widest bg-emerald-50 px-4 py-1.5 rounded-xl mb-4 inline-block">Cambridge Assessment</span>
+           <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">{testTitle}</h1>
         </div>
-      </div>
-
-      <div class="space-y-10">
-        {part.passage && (
-          <div class="bg-white border border-slate-100 rounded-[3rem] p-10 md:p-16 shadow-sm relative">
-            <div class="prose prose-slate max-w-none" set:html={processPassage(part.passage, part.num)} />
-          </div>
-        )}
-
-        <div class="grid gap-8">
-          {part.questions.map(q => {
-            const type = q.Type?.toLowerCase();
-            if (type === 'mcq') return <MultipleChoice q={q} />;
-            if (type === 'writing') return <Writing q={q} />;
-            return null;
-          })}
+        <div class="flex items-center gap-4 bg-slate-900 text-white px-6 py-4 rounded-3xl shadow-xl">
+           <div class="text-right">
+              <p class="text-[10px] font-bold text-slate-400 uppercase">Time Remaining</p>
+              <p class="text-2xl font-black font-mono tracking-tighter">60:00</p>
+           </div>
+           <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center">🕒</div>
         </div>
-      </div>
-    </section>
-  ))}
-</main>
+      </header>
+
+      {parts.map(p => (
+        <div class="mb-32">
+          {p.num === 1 && <ReadingPart1 part={p} />}
+          {(p.num === 2 || p.num === 3) && <ReadingPart23 part={p} />}
+          {p.num === 4 && <ReadingPart4 part={p} />}
+          {p.num === 5 && <ReadingPart5 part={p} />}
+          {(p.num === 6 || p.num === 7) && <ReadingWriting67 part={p} />}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('toggle-sidebar');
+  const mainContent = document.getElementById('main-content');
+
+  toggleBtn.addEventListener('click', () => {
+    const isOpen = sidebar.classList.toggle('translate-x-0');
+    toggleBtn.querySelector('span').style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+    // Đẩy nội dung chính nếu màn hình đủ lớn
+    if (window.innerWidth > 1280) {
+      mainContent.style.paddingLeft = isOpen ? '320px' : '0';
+    }
+  });
+</script>

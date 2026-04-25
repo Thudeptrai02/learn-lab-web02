@@ -1,138 +1,53 @@
 ---
 // src/components/exam/MultipleChoice.astro
-const { q, part } = Astro.props;
-
-// 1. Hàm phân tách câu hỏi
-function parseQuestionText(text: string) {
-    if (!text) return { context: '', mainQuestion: '' };
-    let cleanText = text.replace(/\[BR\]|\|\||<br\s*\/?>/gi, '\n').trim();
-
-    if (cleanText.includes('\n')) {
-        const parts = cleanText.split('\n');
-        if (parts[0].toLowerCase().includes('hear')) {
-            return { context: parts[0].trim(), mainQuestion: parts.slice(1).join(' ').trim() };
-        }
-    }
-    const match1 = cleanText.match(/^(.*?(?:will hear|hear).*?[\.\:\?])\s*(.*)$/i);
-    if (match1) return { context: match1[1].trim(), mainQuestion: match1[2].trim() };
-
-    const match2 = cleanText.match(/^(.*?(?:will hear|hear).*?)\s+(Which|What|Why|Where|Who|How|When|Do|Does|Did|Is|Are)(.*)/i);
-    if (match2) {
-        return { context: match2[1].trim(), mainQuestion: (match2[2] + match2[3]).trim() };
-    }
-    return { context: '', mainQuestion: cleanText };
-}
-
-// 2. Hàm Format chữ: XÓA bôi đỏ, GIẢM khoảng trắng
-function formatPart1Passage(text: string, style: string) {
-    if (!text) return "";
-    let formatted = text.replace(/\\n/g, '\n'); 
-    
-    if (style === "email") {
-        return formatted
-            .replace(/^(Hi|Dear|To:|From:.*?)[\r\n,]/gim, match => `<span class="font-bold opacity-80 block mb-1">${match}</span>`)
-            .replace(/(Cheers,|Best,|Regards,|Thanks,.*?)$/gim, match => `<span class="font-bold opacity-80 block mt-3">${match}</span>`)
-            .replace(/\n/g, '<br/>');
-    }
-    
-    if (style === "notice") {
-        // Chỉ tách tiêu đề in hoa toàn bộ, viền dưới mỏng hơn, sát chữ hơn
-        formatted = formatted.replace(/^([A-Z\s0-9!?]{5,})(?=\s|$|\n)/, '<span class="block text-xl md:text-2xl font-black mb-2 border-b-2 border-current pb-1 opacity-90">$1</span>');
-        return formatted.replace(/\n/g, '<br/>');
-    }
-
-    return formatted.replace(/\n/g, '<br/>');
-}
-
-const { context, mainQuestion } = parseQuestionText(q.Question || "");
-const formattedPassage = formatPart1Passage(q.Passage || "", q.Style);
+// BẢN TINH GỌN (CHỈ DÀNH CHO READING/WRITING - TONE MÀU EMERALD)
+const { q } = Astro.props;
 
 const options = [
     { key: 'A', text: q.Opt_A },
     { key: 'B', text: q.Opt_B },
     { key: 'C', text: q.Opt_C },
     { key: 'D', text: q.Opt_D }
-].filter(o => o.text);
+].filter(o => o.text); // Tự động ẩn đi nếu không có đáp án D
 
 const inputName = q.ID || `q_${q.Q_Num}`;
-const qNumInt = parseInt(q.Q_Num) || 0;
-
-// 3. BỘ SƯU TẬP GIAO DIỆN ĐA DẠNG (Tự động xoay vòng theo câu hỏi)
-const noticeStyles = [
-    "border-[4px] border-slate-800 bg-amber-50 text-slate-900 rounded-lg", // 0: Bảng vàng viền đen
-    "border-l-[8px] border-l-rose-500 border-y border-r border-slate-200 bg-white text-slate-800 rounded-r-xl", // 1: Cảnh báo viền đỏ
-    "border-dashed border-[3px] border-sky-400 bg-sky-50 text-sky-900 rounded-2xl", // 2: Dạng Coupon/Vé màu xanh
-    "border-2 border-slate-300 bg-slate-100 text-slate-800 shadow-inner rounded-md", // 3: Bảng ghi chú xám
-    "border-t-[8px] border-t-emerald-500 border-x border-b border-slate-200 bg-white text-slate-800 rounded-b-xl" // 4: Bảng thông tin xanh lá
-];
-
-const emailStyles = [
-    "border-t-[8px] border-t-sky-500 border-x border-b border-slate-200 bg-white rounded-xl", // 0: Viền trên xanh
-    "border-l-[6px] border-l-indigo-500 bg-indigo-50/40 border border-slate-200 rounded-r-xl", // 1: Viền trái tím
-    "bg-slate-50 border border-slate-200 rounded-2xl shadow-sm", // 2: Minimalist xám
-    "border-t-[8px] border-t-amber-400 border-x border-b border-slate-200 bg-white rounded-xl" // 3: Dạng giấy note vàng
-];
-
-const currentNoticeStyle = noticeStyles[qNumInt % noticeStyles.length];
-const currentEmailStyle = emailStyles[qNumInt % emailStyles.length];
 ---
 
-<div class="bg-white p-5 md:p-8 rounded-[2rem] border-2 border-slate-200 shadow-sm relative overflow-hidden">
+<div class="bg-white p-6 md:p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm relative group hover:border-emerald-200 transition-colors">
     
-    {/* KHU VỰC HIỂN THỊ PART 1 */}
-    {part === 1 && q.Passage && (
-        <div class="mb-8 w-full flex justify-center">
-            {q.Style === "notice" ? (
-                <div class={`p-5 md:p-6 w-[95%] max-w-[320px] shadow-sm text-center flex flex-col justify-center min-h-[140px] relative overflow-hidden ${currentNoticeStyle}`}>
-                    <p class="text-base md:text-lg font-semibold leading-snug tracking-wide whitespace-pre-line" 
-                       set:html={formattedPassage}></p>
-                </div>
-            ) : (
-                <div class={`p-5 md:p-7 max-w-lg w-full relative overflow-hidden ${currentEmailStyle}`}>
-                    <div class="absolute top-3 right-4 text-slate-300/50 text-3xl select-none hidden md:block">✉️</div>
-                    <p class="text-slate-700 text-base md:text-lg font-medium leading-relaxed whitespace-pre-line" 
-                       set:html={formattedPassage}></p>
-                </div>
-            )}
-        </div>
-    )}
-
     {/* SỐ CÂU & CÂU HỎI */}
-    <div class="flex items-start gap-4 mb-5 relative z-10">
-        <span class="bg-sky-500 text-white font-black w-9 h-9 md:w-10 md:h-10 flex items-center justify-center rounded-xl shrink-0 shadow-sm mt-0.5 md:mt-1">
+    <div class="flex items-start gap-4 mb-6 relative z-10">
+        <span class="bg-emerald-500 text-white font-black w-10 h-10 flex items-center justify-center rounded-xl shrink-0 shadow-sm mt-1">
             {q.Q_Num}
         </span>
-        <div class="w-full pt-1">
-            {context && <div class="text-slate-500 font-semibold text-sm md:text-base mb-1.5 leading-relaxed">{context}</div>}
-            <div class="text-base md:text-xl font-bold text-slate-900 leading-snug md:leading-relaxed" set:html={mainQuestion}></div>
+        <div class="w-full pt-1.5">
+            <div class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed" set:html={q.Question}></div>
         </div>
     </div>
 
     {/* CÁC ĐÁP ÁN A, B, C */}
     <div class="space-y-3 ml-0 md:ml-14 relative z-10">
         {options.map((opt) => (
-            <label class="flex items-start gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-sky-400 hover:bg-sky-50 transition-all group relative bg-white">
+            <label class="flex items-start gap-4 p-4 rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition-all bg-white group/opt">
                 <input type="radio" name={inputName} value={opt.key} class="peer sr-only" />
                 
-                <div class="w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-xs md:text-sm font-black text-slate-400 peer-checked:border-sky-500 peer-checked:bg-sky-500 peer-checked:text-white transition-all shrink-0 mt-0.5 shadow-sm">
+                <div class="w-8 h-8 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-sm font-black text-slate-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 peer-checked:text-white transition-all shrink-0 mt-0.5 shadow-sm">
                     {opt.key}
                 </div>
                 
-                <div class="text-base md:text-lg text-slate-700 font-medium peer-checked:text-sky-800 peer-checked:font-bold transition-all pt-0.5 leading-snug md:leading-relaxed" set:html={opt.text}></div>
-                
-                <div class="submit-icon hidden absolute top-1/2 -translate-y-1/2 right-4 w-7 h-7 md:w-8 md:h-8 rounded-full bg-white shadow-sm text-base flex items-center justify-center font-bold border border-slate-100"></div>
+                <div class="text-lg text-slate-700 font-medium peer-checked:text-emerald-800 peer-checked:font-bold transition-all pt-0.5 leading-relaxed" set:html={opt.text}></div>
             </label>
         ))}
     </div>
 
-    {/* LỜI GIẢI THÍCH (Mặc định ẩn) */}
+    {/* LỜI GIẢI THÍCH (Mặc định ẩn, dùng cho tính năng Show Answers sau này) */}
     {q.Explanation && (
-        <div class="explanation-box hidden mt-6 p-5 bg-sky-50/50 rounded-xl border border-sky-100 ml-0 md:ml-14 relative z-10">
+        <div class="explanation-box hidden mt-6 p-5 bg-emerald-50/50 rounded-xl border border-emerald-100 ml-0 md:ml-14 relative z-10">
             <div class="flex items-center gap-2 mb-2">
-                <span class="text-xs md:text-sm font-bold text-slate-500 uppercase tracking-wider">Đáp án đúng:</span>
+                <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Đáp án đúng:</span>
                 <span class="bg-emerald-500 text-white font-black px-2 py-0.5 rounded-md text-sm">{q.Answer}</span>
             </div>
-            <p class="text-sm md:text-base text-slate-700 font-medium leading-relaxed" set:html={q.Explanation}></p>
+            <p class="text-base text-slate-700 font-medium leading-relaxed" set:html={q.Explanation}></p>
         </div>
     )}
 </div>
