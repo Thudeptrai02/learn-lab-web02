@@ -1,70 +1,106 @@
 ---
 // src/components/exam/ReadingPart4.astro
+import MultipleChoice from './MultipleChoice.astro';
 const { part } = Astro.props;
 const passage = part.passage || "";
 const questions = part.questions;
 
-// Chia văn bản dựa trên các điểm (19) ....
-const segments = passage.split(/(\(\d+\)\s*\.{2,})/g);
+// Regex tách đoạn văn dựa trên (19) .... hoặc (19) ________
+const segments = passage.split(/(\(\d+\)\s*[\._]{2,})/g);
 ---
 
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-  <div class="lg:col-span-8 bg-white p-10 md:p-16 rounded-[3.5rem] border border-slate-200 shadow-sm sticky top-10">
-    <h2 class="text-3xl font-black text-slate-900 mb-8 flex items-center gap-4">
-      <span class="w-12 h-12 bg-emerald-500 text-white rounded-2xl flex items-center justify-center">4</span>
-      PART 4
-    </h2>
-    <div class="text-lg md:text-xl text-slate-700 leading-[2.2] font-medium text-justify">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start animate-in fade-in duration-1000">
+  
+  {/* CỘT TRÁI: VĂN BẢN ĐỤC LỖ (STICKY) */}
+  <div class="lg:col-span-8 bg-white p-10 md:p-16 rounded-[3.5rem] border border-slate-200 shadow-sm lg:sticky lg:top-10 max-h-[85vh] overflow-y-auto custom-scrollbar">
+    <div class="text-xl md:text-2xl text-slate-700 leading-[2.5] font-medium text-justify">
       {segments.map(seg => {
         const match = seg.match(/\((\d+)\)/);
         if (match) {
           const qNum = match[1];
           const qData = questions.find(q => parseInt(q.Q_Num) === parseInt(qNum));
           return (
-            <div class="inline-block mx-1 relative group gap-dropdown" data-qnum={qNum}>
-              <button class="bg-slate-100 border-2 border-slate-200 px-4 py-1 rounded-xl font-black text-emerald-600 hover:border-emerald-500 hover:bg-emerald-50 transition-all min-w-[100px]">
-                ({qNum}) <span class="selected-val">.......</span>
+            <div class="inline-block mx-1.5 relative gap-component group" data-qnum={qNum}>
+              <button type="button" class="gap-trigger bg-slate-100 border-2 border-slate-200 px-4 py-1 rounded-2xl font-black text-emerald-600 hover:border-emerald-500 hover:bg-emerald-50 transition-all min-w-[110px] flex items-center justify-center gap-2">
+                <span class="text-xs opacity-50">({qNum})</span>
+                <span class="selected-text uppercase">.......</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-30 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" /></svg>
               </button>
-              <div class="dropdown-menu absolute bottom-full left-0 mb-2 w-32 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 pointer-events-none transition-all scale-90 origin-bottom z-50">
+              
+              {/* DROPDOWN MENU PHÓNG TO */}
+              <div class="gap-menu absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-40 bg-white/90 backdrop-blur-xl rounded-[1.5rem] shadow-2xl border border-white/50 opacity-0 pointer-events-none transition-all scale-90 origin-bottom z-50 overflow-hidden translate-y-2">
                 {['A', 'B', 'C'].map(opt => qData[`Opt_${opt}`] && (
-                  <button class="w-full text-left p-4 hover:bg-emerald-50 font-bold text-slate-700 first:rounded-t-2xl last:rounded-b-2xl transition-colors">
-                    {opt}. {qData[`Opt_${opt}`]}
+                  <button type="button" class="option-btn w-full text-left px-5 py-4 hover:bg-emerald-500 hover:text-white font-bold text-slate-700 transition-all flex items-center gap-3 border-b border-slate-50 last:border-0" data-val={opt}>
+                    <span class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] group-hover:bg-white/20">{opt}</span>
+                    <span class="text-sm">{qData[`Opt_${opt}`]}</span>
                   </button>
                 ))}
               </div>
             </div>
           );
         }
-        return <span>{seg}</span>;
+        return <span class="align-middle">{seg}</span>;
       })}
     </div>
   </div>
-  <div class="lg:col-span-4 bg-emerald-900 text-white p-10 rounded-[3rem] shadow-xl">
-     <h4 class="font-black text-emerald-400 mb-4 uppercase tracking-widest text-xs">Hướng dẫn</h4>
-     <p class="text-emerald-100/80 leading-relaxed font-medium">{part.guideline}</p>
+
+  {/* CỘT PHẢI: HƯỚNG DẪN BẮT MẮT */}
+  <div class="lg:col-span-4 space-y-6">
+    <div class="bg-slate-900 p-10 rounded-[3rem] text-white shadow-2xl shadow-slate-200 relative overflow-hidden group">
+       <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all"></div>
+       <h4 class="text-emerald-400 font-black uppercase tracking-widest text-xs mb-4">Reading Part 4</h4>
+       <p class="text-lg font-bold leading-relaxed">{part.guideline}</p>
+       <div class="mt-8 flex items-center gap-2 text-emerald-400 text-sm font-black">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          CLICK VÀO Ô TRỐNG ĐỂ CHỌN
+       </div>
+    </div>
   </div>
 </div>
 
+<style>
+  .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+  
+  .gap-component.is-active .gap-menu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) scale(1) translateY(0);
+  }
+
+  .gap-component.is-completed .gap-trigger {
+    background: #10b981;
+    color: white;
+    border-color: #059669;
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+  }
+</style>
+
 <script>
-  document.querySelectorAll('.gap-dropdown').forEach(dropdown => {
-    const btn = dropdown.querySelector('button');
-    const menu = dropdown.querySelector('.dropdown-menu');
-    
-    btn.addEventListener('click', (e) => {
+  document.querySelectorAll('.gap-component').forEach(comp => {
+    const trigger = comp.querySelector('.gap-trigger');
+    const menu = comp.querySelector('.gap-menu');
+    const options = comp.querySelectorAll('.option-btn');
+    const display = comp.querySelector('.selected-text');
+
+    trigger.addEventListener('click', (e) => {
       e.stopPropagation();
-      document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('opacity-0', 'pointer-events-none'));
-      menu.classList.toggle('opacity-0');
-      menu.classList.toggle('pointer-events-none');
-      menu.classList.toggle('scale-100');
+      const isActive = comp.classList.contains('is-active');
+      document.querySelectorAll('.gap-component').forEach(c => c.classList.remove('is-active'));
+      if (!isActive) comp.classList.add('is-active');
     });
 
-    menu.querySelectorAll('button').forEach(opt => {
+    options.forEach(opt => {
       opt.addEventListener('click', () => {
-        dropdown.querySelector('.selected-val').innerText = opt.innerText.split('.')[0];
-        menu.classList.add('opacity-0', 'pointer-events-none');
-        btn.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600');
+        const val = opt.getAttribute('data-val');
+        display.textContent = val;
+        comp.classList.remove('is-active');
+        comp.classList.add('is-completed');
       });
     });
   });
-  document.addEventListener('click', () => document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('opacity-0', 'pointer-events-none')));
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.gap-component').forEach(c => c.classList.remove('is-active'));
+  });
 </script>
