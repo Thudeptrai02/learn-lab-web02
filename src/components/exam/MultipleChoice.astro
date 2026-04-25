@@ -1,57 +1,48 @@
 ---
 // src/components/exam/MultipleChoice.astro
-const { q, showAnswers = false, userChoice = null } = Astro.props;
+const { q, showAnswers = false } = Astro.props;
 
 const options = [
     { key: 'A', text: q.Opt_A },
     { key: 'B', text: q.Opt_B },
-    { key: 'C', text: q.Opt_C },
-    { key: 'D', text: q.Opt_D }
+    { key: 'C', text: q.Opt_C }
 ].filter(o => o.text);
 
 const inputName = q.ID || `q_${q.Q_Num}`;
 ---
 
-<div class="bg-white p-6 md:p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm relative group hover:border-emerald-200 transition-colors">
-    <div class="flex items-start gap-4 mb-6 relative z-10">
-        <span class="bg-emerald-500 text-white font-black w-10 h-10 flex items-center justify-center rounded-xl shrink-0 shadow-sm mt-1">
+<div class="multiple-choice-card bg-white p-6 md:p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm relative transition-all hover:border-emerald-200">
+    <div class="flex items-start gap-4 mb-6">
+        <span class="bg-emerald-500 text-white font-black w-10 h-10 flex items-center justify-center rounded-xl shrink-0 shadow-lg shadow-emerald-100">
             {q.Q_Num}
         </span>
-        <div class="w-full pt-1.5">
-            <div class="text-lg md:text-xl font-bold text-slate-900 leading-relaxed" set:html={q.Question}></div>
+        <div class="pt-1.5">
+            <h4 class="text-lg md:text-xl font-bold text-slate-900 leading-snug" set:html={q.Question}></h4>
         </div>
     </div>
 
-    <div class="space-y-3 ml-0 md:ml-14 relative z-10">
-        {options.map((opt) => {
-            const isCorrect = showAnswers && opt.key === q.Answer;
-            const isWrong = showAnswers && userChoice === opt.key && opt.key !== q.Answer;
-            
-            return (
-                <label class={`flex items-start gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all bg-white group/opt
-                    ${isCorrect ? 'border-emerald-500 bg-emerald-50' : isWrong ? 'border-red-500 bg-red-50' : 'border-slate-100 hover:border-emerald-400 hover:bg-emerald-50'}`}>
-                    <input type="radio" name={inputName} value={opt.key} class="peer sr-only" disabled={showAnswers} />
-                    
-                    <div class={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-black transition-all shrink-0 mt-0.5 shadow-sm
-                        ${isCorrect ? 'bg-emerald-500 border-emerald-500 text-white' : isWrong ? 'bg-red-500 border-red-500 text-white' : 'border-slate-300 bg-white text-slate-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 peer-checked:text-white'}`}>
-                        {opt.key}
-                    </div>
-                    
-                    <div class={`text-lg transition-all pt-0.5 leading-relaxed
-                        ${isCorrect ? 'text-emerald-800 font-bold' : isWrong ? 'text-red-800' : 'text-slate-700 font-medium peer-checked:text-emerald-800 peer-checked:font-bold'}`} 
-                        set:html={opt.text}>
-                    </div>
-                </label>
-            )
-        })}
+    <div class="space-y-3 ml-0 md:ml-14">
+        {options.map((opt) => (
+            <label class="option-label flex items-start gap-4 p-4 rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition-all bg-white group/opt relative">
+                <input type="radio" name={inputName} value={opt.key} class="peer sr-only" data-correct={opt.key === q.Answer} />
+                
+                <div class="w-8 h-8 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-sm font-black text-slate-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 peer-checked:text-white transition-all shrink-0 mt-0.5">
+                    {opt.key}
+                </div>
+                
+                <div class="text-lg text-slate-700 font-medium peer-checked:text-emerald-800 peer-checked:font-bold transition-all pt-0.5" set:html={opt.text}></div>
+                
+                {/* Icon Check/X sẽ hiện khi nộp bài */}
+                <div class="result-icon hidden absolute right-4 top-1/2 -translate-y-1/2 text-2xl"></div>
+            </label>
+        ))}
     </div>
 
-    {showAnswers && q.Explanation && (
-        <div class="mt-6 p-5 bg-emerald-50/50 rounded-xl border border-emerald-100 ml-0 md:ml-14 relative z-10 animate-in fade-in slide-in-from-top-2">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Giải thích:</span>
-            </div>
-            <p class="text-base text-slate-700 font-medium leading-relaxed" set:html={q.Explanation}></p>
+    {/* Lời giải thích */}
+    <div class="explanation-box hidden mt-6 p-5 bg-emerald-50 rounded-2xl border border-emerald-100 ml-0 md:ml-14 animate-in fade-in slide-in-from-top-2">
+        <div class="flex items-center gap-2 mb-2">
+            <span class="text-xs font-black text-emerald-600 uppercase tracking-widest">Key: {q.Answer}</span>
         </div>
-    )}
+        <p class="text-slate-700 font-medium leading-relaxed" set:html={q.Explanation}></p>
+    </div>
 </div>
