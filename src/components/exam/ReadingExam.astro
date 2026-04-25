@@ -1,81 +1,95 @@
 ---
 // src/components/exam/ReadingExam.astro
-import ReadingPart1 from './ReadingPart1.astro'; // Biển báo
-import ReadingPart23 from './ReadingPart23.astro'; // Split-screen Matching/MCQ
-import ReadingPart4 from './ReadingPart4.astro'; // Inline Dropdown
-import ReadingPart5 from './ReadingPart5.astro'; // Inline Input
-import ReadingWriting67 from './ReadingWriting67.astro'; // Writing
+import ReadingPart1 from './ReadingPart1.astro';
+import MultipleChoice from './MultipleChoice.astro';
 
 const { questions = [], testTitle = "Reading Practice" } = Astro.props;
 
-// Phân nhóm câu hỏi
+// Logic chia Part (Ví dụ cho Part 1 và Part 3)
 const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
-  const pQs = questions.filter(q => parseInt(q.Part || q.part) === num);
-  return pQs.length > 0 ? { num, questions: pQs, guideline: pQs[0].Part_Guideline, passage: pQs[0].Passage } : null;
+    const pQs = questions.filter(q => parseInt(q.Part) === num);
+    return pQs.length > 0 ? { num, questions: pQs, guideline: pQs[0].Part_Guideline, passage: pQs[0].Passage } : null;
 }).filter(p => p !== null);
 ---
 
-<div class="relative flex min-h-screen bg-slate-50 font-['Plus_Jakarta_Sans']">
-  
-  <aside id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-xl border-r border-slate-200 z-[100] transition-transform -translate-x-full shadow-2xl">
-    <div class="p-8">
-      <div class="flex items-center justify-between mb-8">
-        <h3 class="text-xl font-black text-slate-900 uppercase">Questions</h3>
-        <span class="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">0/32</span>
-      </div>
-      <div class="grid grid-cols-5 gap-3">
-        {questions.map((q, i) => (
-          <button class="q-nav-btn w-10 h-10 rounded-xl border-2 border-slate-100 flex items-center justify-center font-bold text-slate-400 hover:border-emerald-500 transition-all" data-id={q.ID}>
-            {i + 1}
-          </button>
-        ))}
-      </div>
-    </div>
-    <button id="toggle-sidebar" class="absolute -right-12 top-10 w-12 h-12 bg-slate-900 text-white rounded-r-2xl flex items-center justify-center shadow-lg group">
-      <span class="transform transition-transform group-hover:scale-125">➜</span>
-    </button>
-  </aside>
+<div class="exam-container relative flex min-h-screen bg-slate-50 font-['Plus_Jakarta_Sans'] overflow-x-hidden">
+    
+    <aside id="sidebar" class="fixed left-0 top-0 h-full w-80 bg-white/90 backdrop-blur-xl border-r border-slate-200 z-[100] transition-transform -translate-x-full shadow-2xl">
+        <div class="p-8">
+            <h3 class="text-xl font-black text-slate-900 uppercase mb-8">Tiến độ bài thi</h3>
+            <div class="grid grid-cols-5 gap-3">
+                {questions.map((q, i) => (
+                    <button class="w-10 h-10 rounded-xl border-2 border-slate-100 flex items-center justify-center font-bold text-slate-400 hover:border-emerald-500 transition-all cursor-pointer" data-q={q.Q_Num}>
+                        {i + 1}
+                    </button>
+                ))}
+            </div>
+            <button id="submit-btn" class="w-full mt-10 bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-xl">
+                Nộp bài & Kiểm tra
+            </button>
+        </div>
+        <button id="toggle-sidebar" class="absolute -right-12 top-10 w-12 h-12 bg-slate-900 text-white rounded-r-2xl flex items-center justify-center shadow-lg group cursor-pointer">
+            <span class="transition-transform duration-500 text-xl">➜</span>
+        </button>
+    </aside>
 
-  <div class="flex-1 transition-all duration-500" id="main-content">
-    <div class="max-w-7xl mx-auto px-6 py-12">
-      <header class="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-        <div>
-           <span class="text-emerald-600 font-black text-sm uppercase tracking-widest bg-emerald-50 px-4 py-1.5 rounded-xl mb-4 inline-block">Cambridge Assessment</span>
-           <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">{testTitle}</h1>
+    <div class="flex-1 transition-all duration-500" id="main-view">
+        <div class="max-w-7xl mx-auto px-6 py-12">
+            {parts.map(p => (
+                <div class="mb-32">
+                    {p.num === 1 ? (
+                        <ReadingPart1 part={p} />
+                    ) : (
+                        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                            <div class="lg:col-span-7 bg-white p-10 md:p-14 rounded-[3rem] border border-slate-100 shadow-sm lg:sticky lg:top-10 max-h-[85vh] overflow-y-auto">
+                                <div class="prose prose-emerald max-w-none passage-content" data-evidence={p.questions[0].Evidence}>
+                                    <h2 class="text-3xl font-black mb-6 uppercase">{p.questions[0].Title || 'Reading Passage'}</h2>
+                                    <div class="text-lg leading-loose text-slate-700" set:html={p.passage.replace(/\n/g, '<br/>')} />
+                                </div>
+                            </div>
+                            <div class="lg:col-span-5 space-y-6">
+                                {p.questions.map(q => <MultipleChoice q={q} />)}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            ))}
         </div>
-        <div class="flex items-center gap-4 bg-slate-900 text-white px-6 py-4 rounded-3xl shadow-xl">
-           <div class="text-right">
-              <p class="text-[10px] font-bold text-slate-400 uppercase">Time Remaining</p>
-              <p class="text-2xl font-black font-mono tracking-tighter">60:00</p>
-           </div>
-           <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center">🕒</div>
-        </div>
-      </header>
-
-      {parts.map(p => (
-        <div class="mb-32">
-          {p.num === 1 && <ReadingPart1 part={p} />}
-          {(p.num === 2 || p.num === 3) && <ReadingPart23 part={p} />}
-          {p.num === 4 && <ReadingPart4 part={p} />}
-          {p.num === 5 && <ReadingPart5 part={p} />}
-          {(p.num === 6 || p.num === 7) && <ReadingWriting67 part={p} />}
-        </div>
-      ))}
     </div>
-  </div>
 </div>
 
 <script>
-  const sidebar = document.getElementById('sidebar');
-  const toggleBtn = document.getElementById('toggle-sidebar');
-  const mainContent = document.getElementById('main-content');
+    // Logic Sidebar
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-sidebar');
+    const mainView = document.getElementById('main-view');
+    const arrow = toggleBtn.querySelector('span');
 
-  toggleBtn.addEventListener('click', () => {
-    const isOpen = sidebar.classList.toggle('translate-x-0');
-    toggleBtn.querySelector('span').style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
-    // Đẩy nội dung chính nếu màn hình đủ lớn
-    if (window.innerWidth > 1280) {
-      mainContent.style.paddingLeft = isOpen ? '320px' : '0';
-    }
-  });
+    toggleBtn.addEventListener('click', () => {
+        const isOpen = sidebar.classList.toggle('translate-x-0');
+        arrow.style.transform = isOpen ? 'rotate(180deg)' : 'rotate(0deg)';
+        if (window.innerWidth > 1280) {
+            mainView.style.paddingLeft = isOpen ? '320px' : '0';
+        }
+    });
+
+    // Logic Nộp bài & Highlighter
+    const submitBtn = document.getElementById('submit-btn');
+    submitBtn.addEventListener('click', () => {
+        // 1. Hiện đáp án trong MultipleChoice (Sử dụng CSS hoặc re-render tùy framework)
+        // Ở đây ta mô phỏng bằng cách thêm class để hiện explanation
+        document.querySelectorAll('.explanation-box').forEach(el => el.classList.remove('hidden'));
+        
+        // 2. Kích hoạt Highlighter
+        document.querySelectorAll('.passage-content').forEach(container => {
+            const evidence = container.getAttribute('data-evidence');
+            if (evidence) {
+                const content = container.innerHTML;
+                const regex = new RegExp(`(${evidence.trim()})`, 'gi');
+                container.innerHTML = content.replace(regex, `<mark class="bg-yellow-300 px-1 font-black">$1</mark>`);
+            }
+        });
+        
+        alert("Đã nộp bài! Sếp hãy xem các phần bôi vàng trong văn bản nhé.");
+    });
 </script>
