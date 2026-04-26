@@ -7,32 +7,40 @@ const options = [
     { key: 'B', text: q.Opt_B },
     { key: 'C', text: q.Opt_C }
 ].filter(o => o.text);
-
-const inputName = q.ID || `q_${q.Q_Num}`;
 ---
 
-<div class={`w-full relative ${!isPart1 ? 'bg-white p-6 md:p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm' : ''}`}>
+{/* Thêm class 'mcq-container' và 'transition-all' để làm hiệu ứng kính mờ */}
+<div class={`w-full relative mcq-container transition-all duration-500 ${!isPart1 ? 'bg-white p-6 md:p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm' : 'p-4 rounded-[2rem] border-2 border-transparent'}`} data-qid={q.ID}>
     
     <div class="flex items-start gap-4 mb-6">
-        <span class="bg-emerald-500 text-white font-black w-10 h-10 flex items-center justify-center rounded-xl shrink-0 shadow-sm mt-1">
+        <span class="q-number bg-teal-600 text-white font-black w-9 h-9 flex items-center justify-center rounded-lg shrink-0 shadow-sm mt-1 transition-colors">
             {q.Q_Num}
         </span>
-        <div class="pt-1.5">
-            <h4 class="text-lg md:text-xl font-bold text-slate-900 leading-snug" set:html={q.Question}></h4>
+        <div class="pt-1">
+            <h4 class="text-lg md:text-xl font-bold text-slate-800 leading-snug" set:html={q.Question}></h4>
         </div>
     </div>
 
-    <div class="space-y-3 ml-0 md:ml-14">
+    <div class="space-y-3 ml-0 md:ml-13">
         {options.map((opt) => (
-            <label class="flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-emerald-400 hover:bg-emerald-50 transition-all bg-white group/opt relative">
-                <input type="radio" name={inputName} value={opt.key} class="peer sr-only" />
-                
-                <div class="w-8 h-8 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-sm font-black text-slate-400 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 peer-checked:text-white transition-all shrink-0">
+            <label class="opt-label flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-teal-400 hover:bg-teal-50 transition-all bg-white group/opt relative">
+                <input type="radio" name={q.ID} value={opt.key} class="peer sr-only" />
+                <div class="w-8 h-8 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-sm font-black text-slate-400 peer-checked:border-teal-500 peer-checked:bg-teal-500 peer-checked:text-white transition-all shrink-0">
                     {opt.key}
                 </div>
-                
-                <div class="text-lg text-slate-700 font-medium peer-checked:text-emerald-800 peer-checked:font-bold transition-all pt-0.5" set:html={opt.text}></div>
+                <div class="text-lg text-slate-700 font-medium peer-checked:text-teal-800 peer-checked:font-bold transition-all pt-0.5" set:html={opt.text}></div>
             </label>
         ))}
     </div>
+
+    {/* HỘP GIẢI THÍCH (Ẩn đi, chờ nộp bài mới hiện) */}
+    {q.Explanation && (
+        <div class="explanation-box hidden mt-6 p-6 bg-white/60 backdrop-blur-md rounded-2xl border border-white/50 ml-0 md:ml-13 shadow-sm animate-in fade-in slide-in-from-top-2">
+            <div class="flex items-center gap-3 mb-3 border-b border-teal-200/50 pb-3">
+                <span class="bg-teal-600 text-white text-xs font-black px-3 py-1.5 rounded-lg tracking-widest uppercase shadow-sm">Key: {q.Answer}</span>
+                <span class="text-teal-800 font-bold text-sm uppercase tracking-widest">Explanation</span>
+            </div>
+            <p class="text-teal-900 font-medium leading-relaxed text-[1.05rem]" set:html={q.Explanation}></p>
+        </div>
+    )}
 </div>

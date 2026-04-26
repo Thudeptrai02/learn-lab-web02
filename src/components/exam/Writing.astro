@@ -1,41 +1,145 @@
 ---
+// src/components/exam/Writing.astro
 const { q } = Astro.props;
+const partNum = parseInt(q.Part || q.part);
+
+// ===== BỘ LỌC THÔNG MINH (SMART PARSER) =====
+let rawPassage = q.Passage || "";
+let cleanPassage = rawPassage;
+let isPart6 = (partNum === 6);
+let isPart7 = (partNum === 7);
+
+let introText = "";
+let emailBox = [];
+let bulletPoints = [];
+let outroText = "";
+
+if (isPart7) {
+    // Tự động xóa các đoạn chữ mô tả ảnh "[Picture 1: A boy...]"
+    cleanPassage = cleanPassage.replace(/\[?Picture\s*\d\s*[:.-].*?\]?/gi, '').replace(/\n{2,}/g, '\n\n').trim();
+}
+
+if (isPart6) {
+    // Tách riêng Hướng dẫn, Nội dung Email, và Yêu cầu gạch đầu dòng
+    const lines = cleanPassage.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    
+    lines.forEach((line, index) => {
+        const lowerLine = line.toLowerCase();
+        if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) {
+            bulletPoints.push(line.replace(/^[-•*]\s*/, ''));
+        } else if (lowerLine.includes('read') && index === 0) {
+            introText = line;
+        } else if (lowerLine.includes('write') && lowerLine.includes('words')) {
+            outroText = line;
+        } else {
+            emailBox.push(line);
+        }
+    });
+    
+    // Nếu JSON của sếp không có gạch đầu dòng, nhưng có câu hỏi trong thư, nó vẫn hiển thị đẹp.
+}
 ---
 
-<div class="bg-white border border-slate-100 rounded-[2.5rem] p-8 md:p-10 shadow-sm">
-  <div class="flex items-center gap-4 mb-8">
-    <span class="bg-slate-900 text-emerald-400 font-black px-4 py-1.5 rounded-xl text-sm italic">Writing</span>
-    <span class="text-slate-400 font-bold text-sm uppercase tracking-widest">Question {q.Q_Num}</span>
+<div class="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-sm relative transition-all hover:shadow-md">
+  
+  <div class="absolute top-8 right-8">
+     <span class="bg-teal-100 text-teal-700 font-black px-4 py-2 rounded-xl text-sm uppercase tracking-widest shadow-sm border border-teal-200/50">Question {q.Q_Num}</span>
   </div>
 
-  {q.Image_URL && (
-    <div class="mb-10 rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-inner bg-slate-50">
-       <img src={q.Image_URL} alt="Story Prompt" class="w-full object-cover max-h-[400px]" />
-       <div class="p-4 text-center text-xs font-bold text-slate-400 uppercase tracking-tighter bg-white/50">Cambridge Style Pencil Sketch Illustration</div>
+  <h3 class="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tight">Part {q.Part}</h3>
+
+  {/* ================= GIAO DIỆN PART 7 ================= */}
+  {isPart7 && (
+    <div class="mb-10">
+      {/* Khung chừa sẵn cho Ảnh */}
+      <div class="rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-md bg-slate-100 mb-6 flex flex-col items-center justify-center min-h-[250px] relative group">
+         {q.Image_URL ? (
+            <img src={q.Image_URL} alt="Writing Prompt" class="w-full object-contain max-h-[400px]" />
+         ) : (
+            <div class="text-slate-400 font-bold flex flex-col items-center gap-2">
+               <svg class="w-10 h-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+               [Chèn link ảnh Part 7 vào đây]
+            </div>
+         )}
+         <div class="absolute bottom-0 w-full p-2 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/90 backdrop-blur-sm border-t border-slate-200">Look at the pictures and write the story</div>
+      </div>
+      
+      {/* Yêu cầu đề bài sạch sẽ (đã ẩn text mô tả ảnh) */}
+      <p class="text-slate-800 font-serif text-[1.15rem] leading-8 text-justify border-l-[5px] border-teal-400 pl-5 bg-teal-50/40 py-4 pr-4 rounded-r-2xl" set:html={cleanPassage.replace(/\n/g, '<br/>')}></p>
     </div>
   )}
 
-  <div class="prose prose-slate max-w-none mb-8">
-    <p class="text-slate-700 font-medium text-lg leading-relaxed italic" set:html={q.Passage}></p>
-  </div>
 
-  <div class="relative">
+  {/* ================= GIAO DIỆN PART 6 ================= */}
+  {isPart6 && (
+    <div class="mb-10">
+      {/* Hướng dẫn mở đầu */}
+      {introText && <p class="text-slate-500 font-bold mb-4 uppercase tracking-wider text-sm">{introText}</p>}
+      
+      {/* Khung nội dung Email rõ ràng */}
+      {emailBox.length > 0 && (
+         <div class="bg-slate-50 border border-slate-200 p-6 rounded-2xl mb-6 shadow-inner relative">
+            <div class="absolute top-4 right-4 flex gap-1">
+               <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+               <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+               <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+            </div>
+            <p class="text-slate-800 font-serif text-[1.15rem] leading-8" set:html={emailBox.join('<br/>')}></p>
+         </div>
+      )}
+
+      {/* Yêu cầu gạch đầu dòng */}
+      {bulletPoints.length > 0 && (
+         <div class="mb-6 bg-teal-50/50 border border-teal-100 p-5 rounded-2xl">
+            <p class="text-teal-800 font-bold mb-3 text-sm">In your email, you must:</p>
+            <ul class="space-y-2">
+               {bulletPoints.map(bullet => (
+                  <li class="flex items-start gap-3 text-teal-900 font-medium">
+                     <span class="text-teal-500 mt-1"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg></span>
+                     <span set:html={bullet}></span>
+                  </li>
+               ))}
+            </ul>
+         </div>
+      )}
+
+      {/* Yêu cầu chốt số từ */}
+      {outroText && <p class="text-rose-600 font-bold text-sm bg-rose-50 inline-block px-4 py-2 rounded-lg border border-rose-100">{outroText}</p>}
+    </div>
+  )}
+
+  {/* ================= KHUNG GÕ BÀI (WORD COUNTER) ================= */}
+  <div class="relative group">
     <textarea 
       name={q.ID}
-      placeholder="Type your answer here..."
-      class="w-full min-h-[200px] p-8 rounded-[2rem] border-2 border-slate-100 bg-slate-50/50 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all text-slate-700 font-medium text-lg resize-none"
+      placeholder="Start typing your answer here..."
+      class="w-full min-h-[250px] p-8 pb-16 rounded-[2rem] border-2 border-slate-200 bg-slate-50/50 focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none transition-all text-slate-700 font-medium text-[1.1rem] leading-relaxed resize-none custom-scrollbar"
       oninput="this.parentElement.querySelector('.word-count span').innerText = this.value.trim().split(/\s+/).filter(w => w.length > 0).length"
     ></textarea>
     
-    <div class="word-count absolute bottom-6 right-8 bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm text-xs font-black text-slate-400 uppercase tracking-widest">
+    <div class="word-count absolute bottom-6 right-6 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 group-focus-within:border-teal-300 group-focus-within:text-teal-600 transition-colors">
+      <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
       <span>0</span> words
     </div>
   </div>
 
-  <div class="explanation-box hidden mt-8 p-8 bg-slate-900 rounded-[2rem] text-white">
-     <h5 class="text-emerald-400 font-black text-xs uppercase tracking-[0.2em] mb-4">Sample Answer</h5>
-     <p class="text-slate-300 leading-relaxed italic">{q.Answer}</p>
-     <div class="h-px bg-slate-800 my-6"></div>
-     <p class="text-slate-400 text-sm font-medium">{q.Explanation}</p>
+  {/* ================= BÀI MẪU (NỘP BÀI XONG MỚI HIỆN) ================= */}
+  <div class="explanation-box hidden mt-10 p-8 bg-emerald-50/80 backdrop-blur-md rounded-[2rem] border border-emerald-200 shadow-inner animate-in fade-in slide-in-from-top-4">
+     <h5 class="text-emerald-700 font-black text-sm uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        Sample Answer
+     </h5>
+     <div class="text-emerald-900 font-medium text-[1.1rem] leading-relaxed bg-white/80 p-6 rounded-2xl border border-emerald-100 shadow-sm" set:html={q.Answer.replace(/\n/g, '<br/>')}></div>
+     {q.Explanation && (
+        <div class="mt-5 pt-5 border-t border-emerald-200/50">
+           <p class="text-emerald-800/80 text-sm font-bold leading-relaxed">{q.Explanation}</p>
+        </div>
+     )}
   </div>
+
 </div>
+
+<style>
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+</style>

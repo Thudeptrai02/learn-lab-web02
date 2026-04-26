@@ -1,18 +1,22 @@
 ---
-// src/components/exam/ReadingPart5.astro
+// src/components/exam/Part5Inline.astro
 const { part } = Astro.props;
-let passageHtml = part.passage.replace(/\n/g, '<br/>');
+const questions = part.questions;
+let passageHtml = part.passage;
 
-part.questions.forEach(q => {
-  const inputTag = `<input type="text" name="${q.ID}" placeholder="${q.Q_Num}" class="mx-1 w-24 border-b-2 border-slate-300 focus:border-emerald-500 bg-emerald-50/30 text-center font-black text-emerald-700 outline-none transition-all rounded-t-lg hover:bg-emerald-50" />`;
+const lines = passageHtml.split('\n');
+const title = lines[0];
+// Xóa tiêu đề khỏi đoạn text gốc và bọc lại với margin cực thấp (mb-2)
+passageHtml = passageHtml.replace(title, '').trim();
+passageHtml = passageHtml.replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>');
+
+questions.forEach(q => {
+  const inputTag = `<input type="text" id="q-${q.ID}" name="${q.ID}" autocomplete="off" class="mx-1 w-20 border border-teal-200 bg-teal-50/50 text-center font-bold font-sans text-teal-800 outline-none focus:bg-teal-100 focus:border-teal-400 transition-all rounded shadow-sm text-[1rem] py-0.5 scroll-mt-32" placeholder="${q.Q_Num}" />`;
   passageHtml = passageHtml.replace(new RegExp(`\\(\\s*${q.Q_Num}\\s*\\)\\s*[_\\.]+`, 'g'), inputTag);
 });
 ---
-<div class="max-w-4xl mx-auto bg-white p-12 md:p-20 rounded-[4rem] border-2 border-slate-100 shadow-sm relative overflow-hidden">
-  <div class="absolute top-0 left-0 w-full h-3 bg-emerald-500"></div>
-  <h2 class="text-2xl font-black text-slate-900 mb-10 flex items-center gap-3">
-    <span class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center text-sm">5</span>
-    PART 5: OPEN CLOZE
-  </h2>
-  <div class="text-xl md:text-2xl text-slate-700 leading-[2.5] font-medium text-justify" set:html={passageHtml} />
+
+<div class="relative">
+  <h3 class="text-xl md:text-2xl font-black text-slate-800 mb-2 text-center uppercase tracking-tight">{title}</h3>
+  <div class="text-[1.1rem] md:text-[1.15rem] text-slate-800 font-serif leading-8 text-justify" set:html={passageHtml} />
 </div>
