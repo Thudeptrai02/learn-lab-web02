@@ -3,7 +3,6 @@
 const { q } = Astro.props;
 const partNum = parseInt(q.Part || q.part);
 
-// ===== BỘ LỌC THÔNG MINH (SMART PARSER) =====
 let rawPassage = q.Passage || "";
 let cleanPassage = rawPassage;
 let isPart6 = (partNum === 6);
@@ -15,14 +14,11 @@ let bulletPoints = [];
 let outroText = "";
 
 if (isPart7) {
-    // Tự động xóa các đoạn chữ mô tả ảnh "[Picture 1: A boy...]"
     cleanPassage = cleanPassage.replace(/\[?Picture\s*\d\s*[:.-].*?\]?/gi, '').replace(/\n{2,}/g, '\n\n').trim();
 }
 
 if (isPart6) {
-    // Tách riêng Hướng dẫn, Nội dung Email, và Yêu cầu gạch đầu dòng
     const lines = cleanPassage.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    
     lines.forEach((line, index) => {
         const lowerLine = line.toLowerCase();
         if (line.startsWith('-') || line.startsWith('•') || line.startsWith('*')) {
@@ -35,8 +31,6 @@ if (isPart6) {
             emailBox.push(line);
         }
     });
-    
-    // Nếu JSON của sếp không có gạch đầu dòng, nhưng có câu hỏi trong thư, nó vẫn hiển thị đẹp.
 }
 ---
 
@@ -48,10 +42,8 @@ if (isPart6) {
 
   <h3 class="text-2xl font-black text-slate-800 mb-8 uppercase tracking-tight">Part {q.Part}</h3>
 
-  {/* ================= GIAO DIỆN PART 7 ================= */}
   {isPart7 && (
     <div class="mb-10">
-      {/* Khung chừa sẵn cho Ảnh */}
       <div class="rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-md bg-slate-100 mb-6 flex flex-col items-center justify-center min-h-[250px] relative group">
          {q.Image_URL ? (
             <img src={q.Image_URL} alt="Writing Prompt" class="w-full object-contain max-h-[400px]" />
@@ -63,32 +55,19 @@ if (isPart6) {
          )}
          <div class="absolute bottom-0 w-full p-2 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/90 backdrop-blur-sm border-t border-slate-200">Look at the pictures and write the story</div>
       </div>
-      
-      {/* Yêu cầu đề bài sạch sẽ (đã ẩn text mô tả ảnh) */}
       <p class="text-slate-800 font-serif text-[1.15rem] leading-8 text-justify border-l-[5px] border-teal-400 pl-5 bg-teal-50/40 py-4 pr-4 rounded-r-2xl" set:html={cleanPassage.replace(/\n/g, '<br/>')}></p>
     </div>
   )}
 
-
-  {/* ================= GIAO DIỆN PART 6 ================= */}
   {isPart6 && (
     <div class="mb-10">
-      {/* Hướng dẫn mở đầu */}
       {introText && <p class="text-slate-500 font-bold mb-4 uppercase tracking-wider text-sm">{introText}</p>}
-      
-      {/* Khung nội dung Email rõ ràng */}
       {emailBox.length > 0 && (
          <div class="bg-slate-50 border border-slate-200 p-6 rounded-2xl mb-6 shadow-inner relative">
-            <div class="absolute top-4 right-4 flex gap-1">
-               <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
-               <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
-               <div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
-            </div>
+            <div class="absolute top-4 right-4 flex gap-1"><div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div><div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div><div class="w-2.5 h-2.5 rounded-full bg-slate-300"></div></div>
             <p class="text-slate-800 font-serif text-[1.15rem] leading-8" set:html={emailBox.join('<br/>')}></p>
          </div>
       )}
-
-      {/* Yêu cầu gạch đầu dòng */}
       {bulletPoints.length > 0 && (
          <div class="mb-6 bg-teal-50/50 border border-teal-100 p-5 rounded-2xl">
             <p class="text-teal-800 font-bold mb-3 text-sm">In your email, you must:</p>
@@ -102,28 +81,25 @@ if (isPart6) {
             </ul>
          </div>
       )}
-
-      {/* Yêu cầu chốt số từ */}
       {outroText && <p class="text-rose-600 font-bold text-sm bg-rose-50 inline-block px-4 py-2 rounded-lg border border-rose-100">{outroText}</p>}
     </div>
   )}
 
-  {/* ================= KHUNG GÕ BÀI (WORD COUNTER) ================= */}
-  <div class="relative group">
+  {/* 🚨 THÊM data-part ĐỂ BỘ ĐẾM BIẾT ĐANG Ở PART NÀO MÀ TÍNH LUẬT */}
+  <div class="relative group writing-block">
     <textarea 
       name={q.ID}
+      data-part={partNum}
       placeholder="Start typing your answer here..."
-      class="w-full min-h-[250px] p-8 pb-16 rounded-[2rem] border-2 border-slate-200 bg-slate-50/50 focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none transition-all text-slate-700 font-medium text-[1.1rem] leading-relaxed resize-none custom-scrollbar"
-      oninput="this.parentElement.querySelector('.word-count span').innerText = this.value.trim().split(/\s+/).filter(w => w.length > 0).length"
+      class="writing-ta w-full min-h-[250px] p-8 pb-16 rounded-[2rem] border-2 border-slate-200 bg-slate-50/50 focus:bg-white focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 outline-none transition-all text-slate-700 font-medium text-[1.1rem] leading-relaxed resize-none custom-scrollbar"
     ></textarea>
     
-    <div class="word-count absolute bottom-6 right-6 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 group-focus-within:border-teal-300 group-focus-within:text-teal-600 transition-colors">
+    <div class="word-count-ui absolute bottom-6 right-6 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2 transition-colors">
       <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
       <span>0</span> words
     </div>
   </div>
 
-  {/* ================= BÀI MẪU (NỘP BÀI XONG MỚI HIỆN) ================= */}
   <div class="explanation-box hidden mt-10 p-8 bg-emerald-50/80 backdrop-blur-md rounded-[2rem] border border-emerald-200 shadow-inner animate-in fade-in slide-in-from-top-4">
      <h5 class="text-emerald-700 font-black text-sm uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -136,10 +112,41 @@ if (isPart6) {
         </div>
      )}
   </div>
-
 </div>
 
 <style>
   .custom-scrollbar::-webkit-scrollbar { width: 6px; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 </style>
+
+<script>
+  // LOGIC ĐẾM TỪ & ĐỔI MÀU THÔNG MINH
+  document.querySelectorAll('.writing-ta').forEach(ta => {
+     ta.addEventListener('input', function() {
+         const partNum = parseInt(this.getAttribute('data-part'));
+         const ui = this.parentElement.querySelector('.word-count-ui');
+         const span = ui.querySelector('span');
+         const words = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;
+         
+         span.innerText = words;
+
+         // Reset toàn bộ màu sắc
+         ui.className = "word-count-ui absolute bottom-6 right-6 px-4 py-2 rounded-xl border shadow-sm text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-colors ";
+
+         if (words === 0) {
+             ui.classList.add('bg-white', 'border-slate-200', 'text-slate-500');
+             return;
+         }
+
+         // Luật của Cambridge: Part 6 (25-35 từ), Part 7 (>= 35 từ)
+         if (partNum === 6) {
+             if (words < 25) ui.classList.add('bg-amber-100', 'border-amber-300', 'text-amber-700'); // Thiếu chữ
+             else if (words <= 35) ui.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-700'); // Quá chuẩn
+             else ui.classList.add('bg-rose-100', 'border-rose-400', 'text-rose-700'); // Lố chữ
+         } else if (partNum === 7) {
+             if (words < 35) ui.classList.add('bg-amber-100', 'border-amber-300', 'text-amber-700'); // Thiếu chữ
+             else ui.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-700'); // Quá chuẩn
+         }
+     });
+  });
+</script>

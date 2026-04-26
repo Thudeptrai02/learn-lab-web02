@@ -16,15 +16,21 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
 }).filter(p => p !== null);
 ---
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 <div class="flex min-h-screen bg-[#f8fafc] text-slate-800 font-sans relative">
   
-  {/* NÚT NỘP BÀI GHIM GÓC DƯỚI BÊN PHẢI (TRÁNH ĐÈ MENU) */}
+  {/* 🚨 ĐỒNG HỒ ĐẾM NGƯỢC ĐÃ ĐƯỢC DỜI XUỐNG GÓC TRÁI DƯỚI */}
+  <div id="exam-timer-widget" class="fixed bottom-6 left-6 lg:left-10 z-[105] bg-white/95 backdrop-blur-md text-slate-800 font-black px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-slate-200 flex items-center gap-3 text-xl tracking-widest transition-colors duration-500">
+     <svg class="w-6 h-6 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+     <span id="timer-display">60:00</span>
+  </div>
+
   <button id="btn-submit" class="fixed bottom-[5.5rem] right-6 lg:right-10 z-[105] bg-slate-900/95 backdrop-blur-md text-white font-black px-6 py-3.5 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:bg-teal-600 hover:-translate-y-1 transition-all duration-300 flex items-center gap-2 uppercase tracking-widest text-[13px] border border-white/10 group">
       <svg class="w-5 h-5 text-teal-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       Nộp Bài
   </button>
 
-  {/* HIGHLIGHT TOOLBAR */}
   <div id="highlighter-tools" class="fixed bottom-6 right-6 lg:right-10 bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 z-[90] flex items-center gap-3 transition-opacity duration-300">
       <button class="tool-btn w-8 h-8 rounded-full bg-[#fde047] shadow-sm transition-all border-2 border-transparent" data-action="highlight" data-color="#fef08a" title="Vàng"></button>
       <button class="tool-btn w-8 h-8 rounded-full bg-[#86efac] shadow-sm transition-all border-2 border-transparent" data-action="highlight" data-color="#bbf7d0" title="Xanh"></button>
@@ -35,12 +41,11 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
       </button>
   </div>
 
-  {/* MODAL XÁC NHẬN NỘP BÀI */}
   <div id="confirm-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[200] hidden items-center justify-center opacity-0 transition-all duration-300 px-4">
     <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-2xl max-w-sm w-full text-center transform scale-95 transition-all duration-300">
         <div class="w-16 h-16 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-5"><svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
-        <h3 class="text-2xl font-black text-slate-900 mb-2">Nộp bài ngay?</h3>
-        <p class="text-slate-500 font-medium mb-8 italic">Vui lòng kiểm tra kỹ đáp án trước khi nhấn nộp bài.</p>
+        <h3 class="text-2xl font-black text-slate-900 mb-2" id="confirm-title">Nộp bài ngay?</h3>
+        <p class="text-slate-500 font-medium mb-8 italic" id="confirm-desc">Vui lòng kiểm tra kỹ đáp án trước khi nhấn nộp bài.</p>
         <div class="flex gap-4">
            <button id="btn-cancel-submit" class="flex-1 bg-slate-100 text-slate-600 font-bold py-3.5 rounded-xl hover:bg-slate-200 transition-colors">Quay lại</button>
            <button id="btn-confirm-submit" class="flex-1 bg-teal-600 text-white font-bold py-3.5 rounded-xl hover:bg-teal-700 transition-colors shadow-lg shadow-teal-500/30">Nộp bài</button>
@@ -48,8 +53,7 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
     </div>
   </div>
 
-  {/* MODAL KẾT QUẢ THỐNG KÊ */}
-  <div id="score-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[200] hidden items-center justify-center opacity-0 transition-all duration-300 px-4">
+  <div id="score-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-[200] hidden items-center justify-center opacity-0 transition-all duration-300 px-4">
      <div class="bg-white p-10 md:p-12 rounded-[3.5rem] shadow-2xl max-w-lg w-full text-center transform scale-95 transition-all duration-300 relative overflow-hidden flex flex-col items-center">
          <div class="absolute -top-32 -right-32 w-64 h-64 bg-teal-400/20 rounded-full blur-3xl"></div>
          <h2 class="text-3xl font-black text-slate-900 mb-1 relative z-10 uppercase tracking-tighter">Kết Quả</h2>
@@ -64,7 +68,10 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
             <div class="bg-rose-50 border border-rose-100 rounded-2xl p-4 flex flex-col items-center"><span class="text-2xl font-black text-rose-600" id="stat-wrong">0</span><span class="text-[9px] font-black text-rose-800 uppercase tracking-widest mt-1">Sai</span></div>
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center"><span class="text-2xl font-black text-slate-500" id="stat-skipped">0</span><span class="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Bỏ qua</span></div>
          </div>
-         <button id="btn-close-modal" class="w-full bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-teal-600 transition-colors uppercase tracking-widest text-sm relative z-10 shadow-xl">Xem chi tiết giải đáp</button>
+         <div class="w-full flex gap-3 relative z-10">
+            <button id="btn-close-modal" class="flex-1 bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-teal-600 transition-colors uppercase tracking-widest text-xs shadow-xl">Xem toàn bộ</button>
+            <button id="btn-filter-wrong" class="flex-1 bg-rose-50 border border-rose-200 text-rose-600 font-black py-4 rounded-2xl hover:bg-rose-100 transition-colors uppercase tracking-widest text-xs shadow-sm">Chỉ xem câu Sai</button>
+         </div>
      </div>
   </div>
 
@@ -73,10 +80,13 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
        <svg id="arrow-icon" class="w-6 h-6 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
     </button>
     <div class="p-6 mt-14 flex-1 overflow-y-auto custom-scrollbar">
-      <h3 class="text-lg font-black text-slate-800 uppercase mb-6 border-b pb-3">Menu Câu Hỏi</h3>
+      <div class="flex items-center justify-between mb-6 border-b pb-3">
+         <h3 class="text-lg font-black text-slate-800 uppercase">Menu Câu Hỏi</h3>
+         <button id="btn-clear-filter" class="hidden text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded font-bold uppercase tracking-widest">Bỏ lọc</button>
+      </div>
       <div class="space-y-8">
         {parts.map(p => (
-          <div>
+          <div class="part-group">
             <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Part {p.num}</h4>
             <div class="grid grid-cols-5 gap-2">
               {p.questions.map(q => (
@@ -110,7 +120,7 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
                       {p.num === 4 && <ReadingPart4 part={p} />}
                       {p.num === 5 && <Part5Inline part={p} />}
                       {(p.num === 6 || p.num === 7) && (
-                          <div class="space-y-10">{p.questions.map(q => <div id={`q-${q.ID}`} class="scroll-mt-32"><Writing q={q} /></div>)}</div>
+                          <div class="space-y-10">{p.questions.map(q => <div id={`q-${q.ID}`} class="scroll-mt-32 q-block" data-qid={q.ID}><Writing q={q} /></div>)}</div>
                       )}
                   </div>
               )}
@@ -126,12 +136,13 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
   .custom-scrollbar::-webkit-scrollbar { width: 5px; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
   .tool-btn.active-tool { border-color: #0f766e; transform: scale(1.15); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
-  
   a[data-target="sidebar-link"].is-answered { background-color: #ccfbf1; border-color: #14b8a6; color: #0f766e; }
   body.review-mode a[data-target="sidebar-link"].is-correct { background-color: #10b981; border-color: #10b981; color: white; }
   body.review-mode a[data-target="sidebar-link"].is-incorrect { background-color: #f43f5e; border-color: #f43f5e; color: white; }
   body.review-mode input { pointer-events: none; }
   body.review-mode .gap-trigger { pointer-events: none; }
+  body.filter-wrong-mode .is-correct-block { opacity: 0.2; pointer-events: none; filter: grayscale(100%); transition: all 0.5s; }
+  body.filter-wrong-mode a[data-target="sidebar-link"].is-correct { opacity: 0.1; pointer-events: none; }
 </style>
 
 <script define:vars={{ questions }}>
@@ -139,37 +150,99 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
 </script>
 
 <script>
-  // 1. SIDEBAR & UTILS
-  const sidebar = document.getElementById('sidebar');
-  const toggleBtn = document.getElementById('toggle-sidebar');
-  const arrowIcon = document.getElementById('arrow-icon');
-  const mainWrapper = document.getElementById('main-wrapper');
-  toggleBtn.addEventListener('click', () => {
-    if (sidebar.classList.contains('-translate-x-full')) {
-      sidebar.classList.remove('-translate-x-full'); arrowIcon.style.transform = 'rotate(180deg)';
-      if (window.innerWidth > 1024) mainWrapper.style.marginLeft = '288px';
-    } else {
-      sidebar.classList.add('-translate-x-full'); arrowIcon.style.transform = 'rotate(0deg)';
-      mainWrapper.style.marginLeft = '0';
-    }
-  });
-  document.querySelectorAll('#sidebar a[data-target="sidebar-link"]').forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      const targetElement = document.getElementById(this.getAttribute('href').substring(1));
-      if (targetElement) window.scrollTo({ top: targetElement.getBoundingClientRect().top + window.pageYOffset - 120, behavior: "smooth" });
-    });
-  });
+  const DRAFT_KEY = 'exam_draft_' + window.location.pathname;
 
-  // 2. TRACKING
+  function saveDraft(qID, val) {
+    if (document.body.classList.contains('review-mode')) return;
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY)) || {};
+    draft[qID] = val;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+  }
+
+  function restoreDraft() {
+    const draft = JSON.parse(localStorage.getItem(DRAFT_KEY)) || {};
+    for (const [qid, val] of Object.entries(draft)) {
+       const radio = document.querySelector(`input[name="${qid}"][value="${val}"]`);
+       if (radio) { radio.checked = true; markAsAnswered(qid, true); }
+       const input = document.getElementById(`q-${qid}`) || document.querySelector(`textarea[name="${qid}"]`);
+       if (input && (input.tagName === 'INPUT' || input.tagName === 'TEXTAREA')) {
+           input.value = val; markAsAnswered(qid, val.trim().length > 0);
+           input.dispatchEvent(new Event('input', {bubbles:true})); 
+       }
+       const gapComp = document.querySelector(`.gap-component[data-qid="${qid}"]`);
+       if (gapComp) {
+           gapComp.setAttribute('data-user-answer', val);
+           const optBtn = gapComp.querySelector(`.option-btn[data-val="${val}"]`);
+           if(optBtn) {
+               gapComp.querySelector('.selected-text').textContent = optBtn.querySelector('span:last-child').textContent;
+               gapComp.classList.add('is-completed');
+               markAsAnswered(qid, true);
+           }
+       }
+    }
+  }
+
+  document.addEventListener('change', (e) => { 
+      if (e.target.type === 'radio') { markAsAnswered(e.target.name, true); saveDraft(e.target.name, e.target.value); }
+  });
+  document.addEventListener('input', (e) => { 
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          markAsAnswered(e.target.name, e.target.value.trim().length > 0);
+          saveDraft(e.target.name, e.target.value);
+      }
+  });
+  document.addEventListener('dropdownAnswered', (e) => { 
+      markAsAnswered(e.detail.id, true);
+      const gapComp = document.querySelector(`.gap-component[data-qid="${e.detail.id}"]`);
+      saveDraft(e.detail.id, gapComp.getAttribute('data-user-answer'));
+  });
+  document.addEventListener('DOMContentLoaded', restoreDraft);
+
+  const TIMER_KEY = DRAFT_KEY + '_timer';
+  let timeLeft = parseInt(localStorage.getItem(TIMER_KEY));
+  if (isNaN(timeLeft) || timeLeft <= 0) timeLeft = 60 * 60; 
+
+  const timerDisplay = document.getElementById('timer-display');
+  const timerWidget = document.getElementById('exam-timer-widget');
+  let timerInterval;
+
+  function updateTimerUI() {
+      const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+      const s = (timeLeft % 60).toString().padStart(2, '0');
+      timerDisplay.textContent = `${m}:${s}`;
+      if (timeLeft <= 300 && timeLeft > 0) {
+          timerWidget.classList.replace('bg-white/95', 'bg-rose-100');
+          timerWidget.classList.replace('text-slate-800', 'text-rose-700');
+          timerWidget.classList.replace('border-slate-200', 'border-rose-400');
+          timerWidget.classList.add('animate-pulse');
+      }
+  }
+
+  function startTimer() {
+      updateTimerUI();
+      timerInterval = setInterval(() => {
+          if (document.body.classList.contains('review-mode')) { clearInterval(timerInterval); return; }
+          timeLeft--;
+          localStorage.setItem(TIMER_KEY, timeLeft);
+          updateTimerUI();
+
+          if (timeLeft <= 0) {
+              clearInterval(timerInterval);
+              document.getElementById('confirm-title').innerText = "HẾT GIỜ!";
+              document.getElementById('confirm-desc').innerText = "Thời gian làm bài đã kết thúc. Hệ thống tự động thu bài.";
+              document.getElementById('btn-cancel-submit').style.display = 'none';
+              document.getElementById('btn-submit').click();
+              setTimeout(() => document.getElementById('btn-confirm-submit').click(), 2000);
+          }
+      }, 1000);
+  }
+  startTimer();
+
   function markAsAnswered(qID, hasVal) {
     if(document.body.classList.contains('review-mode')) return;
     const link = document.querySelector(`a[data-qid="${qID}"]`);
     if (link) { if (hasVal) link.classList.add('is-answered'); else link.classList.remove('is-answered'); }
   }
-  document.addEventListener('change', (e) => { if (e.target.type === 'radio') markAsAnswered(e.target.name, true); });
-  document.addEventListener('input', (e) => { if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') markAsAnswered(e.target.name, e.target.value.trim().length > 0); });
-  document.addEventListener('dropdownAnswered', (e) => markAsAnswered(e.detail.id, true));
 
   let currentTool = null; let currentColor = null;
   document.querySelectorAll('.tool-btn').forEach(btn => {
@@ -193,7 +266,27 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
     selection.removeAllRanges();
   });
 
-  // 3. AUTO-GRADING ENGINE
+  const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('toggle-sidebar');
+  const arrowIcon = document.getElementById('arrow-icon');
+  const mainWrapper = document.getElementById('main-wrapper');
+  toggleBtn.addEventListener('click', () => {
+    if (sidebar.classList.contains('-translate-x-full')) {
+      sidebar.classList.remove('-translate-x-full'); arrowIcon.style.transform = 'rotate(180deg)';
+      if (window.innerWidth > 1024) mainWrapper.style.marginLeft = '288px';
+    } else {
+      sidebar.classList.add('-translate-x-full'); arrowIcon.style.transform = 'rotate(0deg)';
+      mainWrapper.style.marginLeft = '0';
+    }
+  });
+  document.querySelectorAll('#sidebar a[data-target="sidebar-link"]').forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      const targetElement = document.getElementById(this.getAttribute('href').substring(1));
+      if (targetElement) window.scrollTo({ top: targetElement.getBoundingClientRect().top + window.pageYOffset - 120, behavior: "smooth" });
+    });
+  });
+
   const btnSubmit = document.getElementById('btn-submit');
   const confirmModal = document.getElementById('confirm-modal');
   const scoreModal = document.getElementById('score-modal');
@@ -208,6 +301,8 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
     document.body.classList.add('review-mode');
     document.getElementById('highlighter-tools').style.opacity = '0'; 
     btnSubmit.style.display = 'none';
+    localStorage.removeItem(DRAFT_KEY);
+    localStorage.removeItem(TIMER_KEY);
 
     let score = 0, skipped = 0;
     const totalReadingQs = window.examData.filter(q => parseInt(q.Part) <= 5).length;
@@ -222,12 +317,12 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
            return; 
        }
 
-       // DROPDOWN (Part 4)
        if (partNum === 4) {
            const gapComp = document.querySelector(`.gap-component[data-qid="${q.ID}"]`);
            if (gapComp) {
                userAnswer = gapComp.getAttribute('data-user-answer');
                if (!userAnswer) skipped++; else isCorrect = (userAnswer === q.Answer);
+               if(isCorrect) gapComp.classList.add('is-correct-block'); 
                
                const trigger = gapComp.querySelector('.gap-trigger');
                const numBadge = gapComp.querySelector('.q-number');
@@ -241,8 +336,6 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
                   if(trigger) { trigger.style.borderColor = userAnswer ? '#f43f5e' : '#94a3b8'; trigger.style.backgroundColor = userAnswer ? '#fff1f2' : '#f8fafc'; }
                   if(numBadge) numBadge.style.backgroundColor = userAnswer ? '#f43f5e' : '#94a3b8';
                   if(selectedText) { selectedText.style.color = userAnswer ? '#be123c' : '#64748b'; if(userAnswer) selectedText.style.textDecoration = 'line-through'; }
-                  
-                  // Chèn thẳng đáp án bên cạnh
                   const correctText = q[`Opt_${q.Answer}`] || q.Answer;
                   const correctSpan = document.createElement('span');
                   correctSpan.className = "text-emerald-700 font-bold ml-2 px-2 py-0.5 bg-emerald-50 border border-emerald-300 rounded-lg inline-block font-serif text-[1.1rem] md:text-[1.15rem] leading-none align-middle shadow-sm";
@@ -251,7 +344,6 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
                }
            }
        }
-       // MCQ (Part 1, 2, 3)
        else if (q.Type === 'mcq') {
            const checked = document.querySelector(`input[name="${q.ID}"]:checked`);
            if (checked) { userAnswer = checked.value; isCorrect = (userAnswer === q.Answer); } else skipped++;
@@ -259,7 +351,7 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
            if (container) {
                container.classList.remove('bg-white', 'border-slate-100');
                if (userAnswer) {
-                   if (isCorrect) container.classList.add('bg-emerald-50/70', 'backdrop-blur-sm', 'border-emerald-300', 'shadow-lg');
+                   if (isCorrect) { container.classList.add('bg-emerald-50/70', 'backdrop-blur-sm', 'border-emerald-300', 'shadow-lg', 'is-correct-block'); }
                    else container.classList.add('bg-rose-50/70', 'backdrop-blur-sm', 'border-rose-300', 'shadow-lg');
                } else container.classList.add('bg-slate-50', 'border-slate-300');
                container.querySelector('.explanation-box')?.classList.remove('hidden');
@@ -270,17 +362,17 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
                });
            }
        }
-       // INPUT (Part 5)
        else if (partNum === 5) {
            const inputEl = document.getElementById(`q-${q.ID}`);
            if (inputEl) {
                userAnswer = inputEl.value.trim().toLowerCase();
                if (!userAnswer) skipped++; else isCorrect = (userAnswer === q.Answer.toLowerCase());
-               if(isCorrect) { inputEl.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700'); }
-               else {
+               
+               if(isCorrect) { 
+                   inputEl.classList.add('border-emerald-500', 'bg-emerald-50', 'text-emerald-700', 'is-correct-block'); 
+               } else {
                   inputEl.classList.add(userAnswer ? 'border-rose-500' : 'border-slate-300', userAnswer ? 'bg-rose-50' : 'bg-slate-50', 'text-rose-700');
                   if(userAnswer) inputEl.classList.add('line-through');
-                  
                   const span = document.createElement('span');
                   span.className = "text-emerald-700 font-bold ml-2 px-2 py-0.5 bg-emerald-50 border border-emerald-300 rounded-lg inline-block font-serif text-[1.1rem] md:text-[1.15rem] leading-none align-middle shadow-sm";
                   span.innerText = `👉 ${q.Answer}`;
@@ -289,14 +381,12 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
            }
        }
 
-       // Update Sidebar Menu
        const sLink = document.querySelector(`a[data-qid="${q.ID}"]`);
        if (userAnswer) {
            if (isCorrect) { score++; sLink?.classList.add('is-correct'); } else sLink?.classList.add('is-incorrect');
        } else if(sLink) sLink.style.backgroundColor = '#e2e8f0';
     });
 
-    // Cập nhật thống kê CEFR
     const wrong = totalReadingQs - score - skipped;
     document.getElementById('stat-correct').innerText = score;
     document.getElementById('stat-wrong').innerText = wrong;
@@ -306,11 +396,27 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
     const cefrBadge = document.getElementById('cefr-badge');
     const circle = document.getElementById('score-circle');
     if (score < 17) { cefrBadge.innerText = "Level A1"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-slate-400"; circle.style.borderColor = "#cbd5e1"; }
-    else if (score <= 26) { cefrBadge.innerText = "Level A2 (Pass)"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-teal-500"; circle.style.borderColor = "#14b8a6"; }
-    else { cefrBadge.innerText = "Level B1 (Merit)"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-emerald-500"; circle.style.borderColor = "#10b981"; }
+    else if (score <= 26) { 
+        cefrBadge.innerText = "Level A2 (Pass)"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-teal-500"; circle.style.borderColor = "#14b8a6"; 
+        setTimeout(() => confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, zIndex: 9999 }), 500);
+    } else { 
+        cefrBadge.innerText = "Level B1 (Merit)"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-emerald-500"; circle.style.borderColor = "#10b981"; 
+        setTimeout(() => confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 }, zIndex: 9999 }), 500);
+    }
 
     setTimeout(() => { scoreModal.classList.remove('hidden'); scoreModal.classList.add('flex'); setTimeout(() => scoreModal.classList.remove('opacity-0'), 10); }, 400);
   });
 
   document.getElementById('btn-close-modal').addEventListener('click', () => { scoreModal.classList.add('opacity-0'); setTimeout(() => { scoreModal.classList.add('hidden'); scoreModal.classList.remove('flex'); }, 300); });
+  
+  document.getElementById('btn-filter-wrong').addEventListener('click', () => {
+      document.body.classList.add('filter-wrong-mode');
+      document.getElementById('btn-clear-filter').classList.remove('hidden');
+      document.getElementById('btn-close-modal').click();
+  });
+  
+  document.getElementById('btn-clear-filter').addEventListener('click', () => {
+      document.body.classList.remove('filter-wrong-mode');
+      document.getElementById('btn-clear-filter').classList.add('hidden');
+  });
 </script>
