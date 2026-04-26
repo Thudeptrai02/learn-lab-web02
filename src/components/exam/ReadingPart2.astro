@@ -4,28 +4,54 @@ import MultipleChoice from './MultipleChoice.astro';
 const { part } = Astro.props;
 
 function parseProfiles(passage) {
-  const sections = passage.split(/(?=[A-C]\.\s+)/);
+  // 1. Bảo vệ lớp 1: Không có đoạn văn thì trả về rỗng, không làm gì cả
+  if (!passage) return [];
+  
+  const profiles = [];
   const colors = [
     { bg: 'bg-rose-50/50', text: 'text-rose-700' },
     { bg: 'bg-sky-50/50', text: 'text-sky-700' },
     { bg: 'bg-amber-50/50', text: 'text-amber-700' }
   ];
 
-  return sections.filter(s => s.trim()).map((sec, i) => {
-    const lines = sec.split('\n').filter(l => l.trim());
-    return {
-      letter: lines[0].match(/^[A-C]/)[0],
-      name: lines[0].replace(/^[A-C]\.\s*/, ''),
-      content: lines.slice(1).join('<br/><br/>'),
-      theme: colors[i % 3]
-    };
-  });
+  try {
+    // Tách văn bản thành các khối (tìm chữ A., B., C. đứng đầu)
+    const sections = passage.split(/(?=[A-C]\.\s*)/);
+    let colorIndex = 0;
+
+    sections.forEach(sec => {
+      // Dọn dẹp khoảng trắng thừa
+      const lines = sec.trim().split('\n').filter(l => l.trim() !== '');
+      if (lines.length === 0) return;
+
+      // 2. Bảo vệ lớp 2: Dùng Match an toàn, bắt cụm "A." và "Tên nhân vật"
+      const match = lines[0].match(/^([A-C])\.\s*(.*)/);
+      
+      // Nếu có match (Tức là đúng chuẩn A. Name) thì mới nạp vào mảng
+      if (match) {
+        profiles.push({
+          letter: match[1], // Lấy chữ A, B, hoặc C
+          name: match[2].trim(), // Lấy tên nhân vật
+          content: lines.slice(1).join('<br/><br/>'), // Các dòng còn lại là nội dung
+          theme: colors[colorIndex % 3]
+        });
+        colorIndex++;
+      }
+    });
+  } catch (error) {
+    // 3. Bảo vệ lớp 3: Nếu có lỗi dị nào đó, in ra console chứ KHÔNG SẬP WEB
+    console.error("Lỗi khi bóc tách nhân vật Part 2:", error);
+  }
+
+  return profiles;
 }
+
 const profiles = parseProfiles(part.passage);
 ---
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start relative">
-  {/* ĐỔI THÀNH lg:top-28 ĐỂ NÉ MENU TRÊN CÙNG CỦA WEB */}
+  
+  {/* KHUNG BÊN TRÁI: NHÂN VẬT */}
   <div class="lg:col-span-6 space-y-6 lg:sticky lg:top-28 self-start max-h-[calc(100vh-8rem)] overflow-y-auto pr-2 custom-scrollbar">
     {profiles.map(p => (
       <div class={`${p.theme.bg} border border-slate-100 p-6 rounded-2xl`}>
@@ -38,12 +64,17 @@ const profiles = parseProfiles(part.passage);
     ))}
   </div>
   
+  {/* KHUNG BÊN PHẢI: CÂU HỎI */}
   <div class="lg:col-span-6 space-y-5">
     {part.questions.map(q => (
-       /* THÊM ID CHỖ NÀY ĐỂ BẤM TỪ SIDEBAR LÀ NHẢY TỚI ĐÂY */
        <div id={`q-${q.ID}`}>
           <MultipleChoice q={q} />
        </div>
     ))}
   </div>
 </div>
+
+<style>
+  .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+</style>
