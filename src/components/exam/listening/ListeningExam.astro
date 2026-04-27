@@ -1,6 +1,7 @@
 ---
 // src/components/exam/listening/ListeningExam.astro
 import ListeningMCQ from './ListeningMCQ.astro';
+import ListeningPart1 from './ListeningPart1.astro'; // Đã thêm import cho Part 1
 
 const { questions = [], testTitle = "Cambridge Listening Test" } = Astro.props;
 
@@ -21,12 +22,13 @@ const parts = [1, 2, 3, 4, 5].map(num => {
 
 <div class="flex min-h-screen bg-[#f1f5f9] text-slate-800 font-sans relative">
   
-  {/* ĐỒNG HỒ ĐẾM NGƯỢC (LISTENING 30 PHÚT) */}
+  {/* ĐỒNG HỒ ĐẾM NGƯỢC */}
   <div id="exam-timer-widget" class="fixed bottom-6 left-6 lg:left-10 z-[105] bg-white/95 backdrop-blur-md text-slate-800 font-black px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-slate-200 flex items-center gap-3 text-xl tracking-widest transition-colors duration-500">
      <svg class="w-6 h-6 opacity-70 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
      <span id="timer-display">30:00</span>
   </div>
 
+  {/* NÚT NỘP BÀI */}
   <button id="btn-submit" class="fixed bottom-[5.5rem] right-6 lg:right-10 z-[105] bg-slate-900/95 backdrop-blur-md text-white font-black px-6 py-3.5 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.2)] hover:bg-indigo-600 hover:-translate-y-1 transition-all duration-300 flex items-center gap-2 uppercase tracking-widest text-[13px] border border-white/10 group">
       <svg class="w-5 h-5 text-indigo-400 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
       Nộp Bài
@@ -44,12 +46,13 @@ const parts = [1, 2, 3, 4, 5].map(num => {
             <span id="cefr-badge" class="px-5 py-2 rounded-full font-black text-sm uppercase tracking-widest text-white shadow-md">Loading...</span>
          </div>
          <div class="w-full flex gap-3 relative z-10">
-            <button id="btn-close-modal" class="flex-1 bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-indigo-600 transition-colors uppercase tracking-widest text-xs shadow-xl">Xem Script & Giải Thích</button>
-            <button id="btn-filter-wrong" class="flex-1 bg-rose-50 border border-rose-200 text-rose-600 font-black py-4 rounded-2xl hover:bg-rose-100 transition-colors uppercase tracking-widest text-xs shadow-sm">Chỉ xem câu Sai</button>
+            <button id="btn-close-modal" class="flex-1 bg-slate-900 text-white font-black py-4 rounded-2xl hover:bg-indigo-600 transition-colors uppercase tracking-widest text-xs shadow-xl">Xem Giải Thích</button>
+            <button id="btn-filter-wrong" class="flex-1 bg-rose-50 border border-rose-200 text-rose-600 font-black py-4 rounded-2xl hover:bg-rose-100 transition-colors uppercase tracking-widest text-xs shadow-sm">Xem câu Sai</button>
          </div>
      </div>
   </div>
 
+  {/* SIDEBAR MENU CÂU HỎI */}
   <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-white border-r border-slate-200 z-[100] transition-transform duration-500 -translate-x-full shadow-2xl flex flex-col">
     <button id="toggle-sidebar" class="absolute top-1/2 -translate-y-1/2 -right-10 w-10 h-16 bg-indigo-700 text-white rounded-r-xl shadow-[4px_0_15px_rgba(0,0,0,0.15)] flex items-center justify-center hover:bg-indigo-800 transition-colors cursor-pointer outline-none">
        <svg id="arrow-icon" class="w-6 h-6 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
@@ -76,9 +79,12 @@ const parts = [1, 2, 3, 4, 5].map(num => {
     </div>
   </aside>
 
+  {/* NỘI DUNG BÀI THI CHÍNH */}
   <div id="main-wrapper" class="flex-1 transition-all duration-500 ml-0 w-full pb-20 pt-8">
     <div class="max-w-4xl mx-auto py-12 px-4 md:px-8 mt-10 lg:mt-0">
-      <header class="mb-14 border-b border-slate-200 pb-6"><h1 class="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight">{testTitle}</h1></header>
+      <header class="mb-14 border-b border-slate-200 pb-6">
+        <h1 class="text-3xl md:text-4xl font-black text-slate-900 uppercase tracking-tight">{testTitle}</h1>
+      </header>
 
       {parts.map(p => (
         <div class="mb-24 relative">
@@ -93,20 +99,25 @@ const parts = [1, 2, 3, 4, 5].map(num => {
           </div>
 
           {/* AUDIO PLAYER CỦA PART */}
-          <div class="bg-slate-900 rounded-3xl p-4 mb-10 shadow-xl flex items-center gap-4 sticky top-6 z-50">
-             <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center shrink-0">
-                 <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"></path></svg>
-             </div>
-             <audio controls class="w-full custom-audio h-10" src={p.audioLink}></audio>
-          </div>
+          {p.audioLink && (
+            <div class="bg-slate-900 rounded-3xl p-4 mb-10 shadow-xl flex items-center gap-4 sticky top-6 z-50">
+               <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center shrink-0">
+                   <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"></path></svg>
+               </div>
+               <audio controls class="w-full custom-audio h-10" src={p.audioLink}></audio>
+            </div>
+          )}
 
           <div class="animate-in fade-in duration-700 space-y-6">
-              {/* Render Câu hỏi MCQ (Part 1, 3, 4) */}
-              {[1, 3, 4].includes(p.num) && p.questions.map(q => <div id={`q-${q.Q_Num}`} class="scroll-mt-32 q-block"><ListeningMCQ q={q} /></div>)}
-              
-              {/* Part 2 & Part 5 sẽ làm tiếp ở bước sau, tạm thời bỏ qua */}
-              {p.num === 2 && <div class="bg-amber-100 p-6 rounded-2xl font-bold text-amber-700 text-center">Part 2 Form Input (Sẽ code ở file sau)</div>}
-              {p.num === 5 && <div class="bg-amber-100 p-6 rounded-2xl font-bold text-amber-700 text-center">Part 5 Matching (Sẽ code ở file sau)</div>}
+             
+             {/* 🟢 TÁCH RIÊNG GIAO DIỆN PART 1 VÀ CÁC PART TRẮC NGHIỆM KHÁC */}
+             {p.num === 1 && p.questions.map(q => <div id={`q-${q.Q_Num}`} class="scroll-mt-32 q-block"><ListeningPart1 q={q} /></div>)}
+             
+             {[3, 4].includes(p.num) && p.questions.map(q => <div id={`q-${q.Q_Num}`} class="scroll-mt-32 q-block"><ListeningMCQ q={q} /></div>)}
+             
+             {/* Part 2 & Part 5 (Giữ nguyên Placeholder để code sau) */}
+             {p.num === 2 && <div class="bg-amber-100 p-6 rounded-2xl font-bold text-amber-700 text-center border-2 border-amber-200">Khu vực code Part 2 (Điền từ)</div>}
+             {p.num === 5 && <div class="bg-amber-100 p-6 rounded-2xl font-bold text-amber-700 text-center border-2 border-amber-200">Khu vực code Part 5 (Điền từ)</div>}
           </div>
         </div>
       ))}
@@ -128,7 +139,7 @@ const parts = [1, 2, 3, 4, 5].map(num => {
   body.filter-wrong-mode .is-correct-block { opacity: 0.2; pointer-events: none; filter: grayscale(100%); transition: all 0.5s; }
   body.filter-wrong-mode a[data-target="sidebar-link"].is-correct { opacity: 0.1; pointer-events: none; }
 
-  /* Audio custom basic CSS */
+  /* Audio player shadow */
   audio { filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2)); }
 </style>
 
@@ -137,7 +148,7 @@ const parts = [1, 2, 3, 4, 5].map(num => {
 </script>
 
 <script>
-  // 1. CHẤM ĐIỂM LISTENING ENGINE
+  // TÍNH NĂNG CHẤM ĐIỂM
   const btnSubmit = document.getElementById('btn-submit');
   const scoreModal = document.getElementById('score-modal');
 
@@ -155,7 +166,7 @@ const parts = [1, 2, 3, 4, 5].map(num => {
     btnSubmit.style.display = 'none';
 
     let score = 0;
-    const totalListeningQs = 25; // KET Listening có 25 câu
+    const totalQs = window.examData.length;
 
     window.examData.forEach(q => {
        const partNum = parseInt(q.Part);
@@ -173,28 +184,28 @@ const parts = [1, 2, 3, 4, 5].map(num => {
                    else container.classList.add('bg-rose-50/70', 'border-rose-300');
                } else container.classList.add('bg-slate-50', 'border-slate-300');
                
-               container.querySelector('.explanation-box')?.classList.remove('hidden'); // Bung Transcript ra
+               container.querySelector('.explanation-box')?.classList.remove('hidden');
                
                container.querySelectorAll('.opt-label').forEach(label => {
-                   const input = label.querySelector('input'); label.classList.remove('bg-white');
+                   const input = label.querySelector('input'); 
+                   label.classList.remove('bg-white');
                    if (input.value === q.Answer) label.classList.add('border-emerald-500', 'bg-emerald-100/80');
                    else if (input.checked && !isCorrect) label.classList.add('border-rose-500', 'bg-rose-100/80');
                });
            }
        }
 
-       // Update Sidebar
+       // Update Sidebar Score
        const sLink = document.querySelector(`a[data-qnum="${q.Q_Num}"]`);
        if (userAnswer) {
            if (isCorrect) { score++; sLink?.classList.add('is-correct'); } else sLink?.classList.add('is-incorrect');
        } else if(sLink) sLink.style.backgroundColor = '#e2e8f0';
     });
 
-    document.getElementById('score-text').innerText = `${score}/${totalListeningQs}`;
+    document.getElementById('score-text').innerText = `${score}/${totalQs}`;
     const cefrBadge = document.getElementById('cefr-badge');
     const circle = document.getElementById('score-circle');
     
-    // Thang điểm Listening KET A2
     if (score < 13) { cefrBadge.innerText = "Level A1"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-slate-400"; circle.style.borderColor = "#cbd5e1"; }
     else if (score <= 19) { cefrBadge.innerText = "Level A2 (Pass)"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-indigo-500"; circle.style.borderColor = "#4f46e5"; setTimeout(() => confetti({ particleCount: 150, zIndex: 9999 }), 500); }
     else { cefrBadge.innerText = "Level B1 (Merit)"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-emerald-500"; circle.style.borderColor = "#10b981"; setTimeout(() => confetti({ particleCount: 200, zIndex: 9999 }), 500); }
@@ -202,12 +213,10 @@ const parts = [1, 2, 3, 4, 5].map(num => {
     scoreModal.classList.remove('hidden'); setTimeout(() => scoreModal.classList.remove('opacity-0'), 10);
   });
 
-  // Tắt Modal / Bật Lọc
   document.getElementById('btn-close-modal').addEventListener('click', () => { scoreModal.classList.add('opacity-0'); setTimeout(() => scoreModal.classList.add('hidden'), 300); });
   document.getElementById('btn-filter-wrong').addEventListener('click', () => { document.body.classList.add('filter-wrong-mode'); document.getElementById('btn-clear-filter').classList.remove('hidden'); document.getElementById('btn-close-modal').click(); });
   document.getElementById('btn-clear-filter').addEventListener('click', () => { document.body.classList.remove('filter-wrong-mode'); document.getElementById('btn-clear-filter').classList.add('hidden'); });
 
-  // Sidebar Toggle
   const sidebar = document.getElementById('sidebar');
   document.getElementById('toggle-sidebar').addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
 </script>

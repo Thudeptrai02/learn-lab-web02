@@ -1,22 +1,21 @@
 ---
 export const prerender = true;
 
-// ĐÚNG 5 BẬC ../
+// Import Layout và Component bằng 5 bậc
 import Layout from '../../../../../layouts/Layout.astro';
 import ListeningExam from '../../../../../components/exam/listening/ListeningExam.astro'; 
 
 export async function getStaticPaths() {
-  const jsonFiles = import.meta.glob('../../../../../data/listening/*.json', { eager: true });
-  let paths = [];
-
-  for (const path in jsonFiles) {
-    const fileName = path.split('/').pop().replace('.json', '').toLowerCase();
-    paths.push({
+  // Dùng đường dẫn TUYỆT ĐỐI /src/... 
+  const jsonFiles = import.meta.glob('/src/data/exams/listening/*.json', { eager: true });
+  
+  return Object.keys(jsonFiles).map((path) => {
+    const fileName = path.split('/').pop().replace('.json', '').toLowerCase().trim();
+    return {
       params: { level: 'a2-ket', test_id: fileName },
-      props: { examData: jsonFiles[path].default }
-    });
-  }
-  return paths;
+      props: { examData: jsonFiles[path].default },
+    };
+  });
 }
 
 const { test_id } = Astro.params;

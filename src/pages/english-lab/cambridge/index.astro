@@ -1,49 +1,42 @@
 ---
-// =================================================================
-// ĐƯỜNG DẪN: src/pages/english-lab/cambridge/index.astro
-// =================================================================
 import Layout from '../../../layouts/Layout.astro';
 
 let allExams = [];
 
 try {
-  // 1. ĐÃ SỬA ĐƯỜNG DẪN: Thêm /exams/ vào giữa
   const readingFiles = import.meta.glob('../../../data/exams/reading/*.json', { eager: true });
   const readingExams = Object.keys(readingFiles).map(path => {
-    const fileName = path.split('/').pop().replace('.json', '');
+    const fileName = path.split('/').pop().replace('.json', '').toLowerCase();
     return {
       id: fileName,
       title: `Reading & Writing: ${fileName.toUpperCase()}`,
       level: 'a2-ket', 
       type: 'READING',
-      url: `/english-lab/cambridge/a2-ket/reading/${fileName.toLowerCase()}`
+      url: `/english-lab/cambridge/a2-ket/reading/${fileName}`
     };
   });
 
-  // 2. ĐÃ SỬA ĐƯỜNG DẪN: Thêm /exams/ vào giữa
   const listeningFiles = import.meta.glob('../../../data/exams/listening/*.json', { eager: true });
   const listeningExams = Object.keys(listeningFiles).map(path => {
-    const fileName = path.split('/').pop().replace('.json', '');
+    const fileName = path.split('/').pop().replace('.json', '').toLowerCase();
     return {
       id: fileName,
       title: `Listening: ${fileName.toUpperCase()}`,
       level: 'a2-ket',
       type: 'LISTENING',
-      url: `/english-lab/cambridge/a2-ket/listening/${fileName.toLowerCase()}`
+      url: `/english-lab/cambridge/a2-ket/listening/${fileName}`
     };
   });
 
-  // Gộp cả 2 danh sách lại
   allExams = [...readingExams, ...listeningExams];
 } catch(e) {
   console.error("Lỗi quét JSON:", e);
 }
 ---
 
-<Layout title="Thư viện đề thi Cambridge">
+<Layout title="Cambridge English Lab">
   <main class="min-h-screen bg-[#F8FAFC] py-16 px-4 font-['Plus_Jakarta_Sans']">
     <div class="max-w-5xl mx-auto">
-      
       <div class="mb-12">
         <h1 class="text-4xl md:text-5xl font-black text-slate-900 uppercase tracking-tight mb-4">Cambridge English Lab</h1>
         <p class="text-slate-500 font-bold uppercase tracking-widest text-sm flex items-center gap-2">
@@ -55,7 +48,6 @@ try {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {allExams.map((exam) => (
           <a href={exam.url} class="group bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
-            
             <div class="flex items-center gap-3 mb-4">
               <span class={`text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-widest text-white shadow-lg
                 ${exam.type === 'READING' ? 'bg-emerald-500 shadow-emerald-100' : 'bg-indigo-500 shadow-indigo-100'}`}>
@@ -63,11 +55,9 @@ try {
               </span>
               <span class="text-slate-300 font-bold text-xs uppercase">{exam.level}</span>
             </div>
-            
             <h3 class="text-2xl font-black text-slate-800 leading-tight group-hover:text-blue-600 transition-colors mb-6">
               {exam.title}
             </h3>
-
             <div class="flex items-center gap-2 text-blue-600 font-black text-sm group-hover:translate-x-2 transition-all">
                LÀM BÀI NGAY 
                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,7 +67,6 @@ try {
           </a>
         ))}
       </div>
-
     </div>
   </main>
 </Layout>
