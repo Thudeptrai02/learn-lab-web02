@@ -1,98 +1,81 @@
 ---
-const { questions = [], passage = "", partNum } = Astro.props;
+// src/components/exam/listening/ListeningPart2.astro
+const { partData } = Astro.props;
 
-let contextText = "For each question, write the correct answer in the gap. Write ONE word or a number or a date or a time.";
-let notepadTitle = "Listening Part " + partNum;
-let staticLines: string[] = [];
-
-if (passage) {
-    const lines = passage.split(/\[BR\]|\|\||\r\n|\n|<br\s*\/?>/).map((l: string) => l.trim()).filter((l: string) => l);
-    if (lines.length > 0) {
-        if (lines[0].toLowerCase().match(/hear|listen|write|for each/)) {
-            contextText = lines[0];
-            if (lines[1]) notepadTitle = lines[1];
-            staticLines = lines.slice(2);
-        } else {
-            notepadTitle = lines[0];
-            staticLines = lines.slice(1);
-        }
-    }
-}
-
-staticLines = staticLines.filter(line => !line.match(/\.{3,}|_{3,}/) && !line.match(/\(\d+\)/));
-
-function parseQuestionLine(text: string) {
-    if (!text) return { label: "", valueText: "" };
-    const colonIdx = text.indexOf(':');
-    if (colonIdx !== -1) {
-        return {
-            label: text.substring(0, colonIdx + 1).trim(),
-            valueText: text.substring(colonIdx + 1).trim()
-        };
-    }
-    return { label: text, valueText: "" };
-}
-
-function formatValueWithInput(valueText: string, qNum: string|number, qId: string) {
-    let cleanText = valueText.replace(new RegExp(`^\\s*\\(?${qNum}\\)?\\.?\\s*`), '').trim();
-
-    // 🌟 TUYỆT CHIÊU FIX LỖI: Tạo tên input dự phòng nếu thiếu ID
-    const safeName = qId || `q_${qNum}`;
-
-    const inputHtml = `
-        <span class="inline-flex items-center gap-1.5 mx-1.5 align-middle">
-            <span class="flex items-center justify-center w-7 h-7 font-black text-sm text-white bg-sky-500 rounded-md shadow-sm shrink-0 leading-none">${qNum}</span>
-            <input type="text" name="${safeName}" class="exam-input w-28 md:w-36 h-8 bg-slate-50 border-2 border-slate-300 rounded-lg outline-none px-2 font-bold text-center text-sky-700 focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100 transition-all shadow-sm" autocomplete="off" />
-        </span>
-    `;
-    
-    if (cleanText.match(/[\._]{2,}/)) return cleanText.replace(/[\._]{2,}/g, inputHtml);
-    if (cleanText.toLowerCase().startsWith('from ')) return "from " + inputHtml + cleanText.substring(4);
-    if (cleanText.toLowerCase().startsWith('in the ')) return "in the " + inputHtml + cleanText.substring(6);
-    return cleanText + " " + inputHtml;
-}
+const formTitle = partData.passage || partData.Passage || "NOTES / FORM";
 ---
 
-<div class="w-full max-w-4xl mx-auto scroll-mt-24 md:scroll-mt-40" id={`q-${questions[0]?.Q_Num || questions[0]?.ID}`}>
+<div class="bg-white rounded-[2rem] p-6 sm:p-10 border border-teal-100 shadow-sm hover:shadow-md transition-shadow duration-300 mb-8 relative">
     
-    <div class="bg-sky-50/50 border border-sky-100 p-6 md:p-8 rounded-[2rem] mb-8 shadow-sm">
-       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-           <h4 class="text-sky-800 font-black uppercase text-sm tracking-widest flex items-center gap-2">
-              <span>📝</span> YÊU CẦU ĐỀ BÀI
-           </h4>
-           <div class="bg-sky-200/50 text-sky-800 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider inline-block w-max">
-               Part {partNum} • Questions {questions[0]?.Q_Num} - {questions[questions.length-1]?.Q_Num}
-           </div>
-       </div>
-       <p class="text-sky-900 font-medium text-base md:text-lg leading-relaxed">{contextText}</p>
-    </div>
+    <div class="max-w-3xl mx-auto bg-[#fdfbf7] rounded-xl shadow-inner border border-teal-100 relative overflow-hidden">
+        <div class="h-3 bg-teal-500 w-full opacity-90"></div>
+        
+        <div class="p-8 sm:p-12">
+            <h3 class="text-xl sm:text-2xl font-black text-center text-teal-900 tracking-widest uppercase mb-10 border-b-2 border-teal-100 pb-5">
+                {formTitle.split('<br/>')[0]}
+            </h3>
 
-    <div class="bg-white rounded-[2rem] border-2 border-slate-200 shadow-sm w-full p-8 md:p-12 relative overflow-hidden">
-        <h4 class="text-2xl md:text-3xl font-black text-slate-900 mb-10 text-center uppercase tracking-wide border-b-2 border-slate-100 pb-6">
-            {notepadTitle}
-        </h4>
+            <div class="space-y-6 text-lg font-medium text-slate-700">
+                {partData.questions?.map((q) => {
+                    const qNum = q.Q_Num || q.qNum || q.so_cau || q.id;
+                    const rawQuestion = String(q.Question || q.cau_hoi || q.text || "Question");
+                    const correctAnswer = q.Answer || q.dap_an || "";
 
-        <div class="grid grid-cols-[140px_1fr] sm:grid-cols-[180px_1fr] md:grid-cols-[220px_1fr] gap-x-4 gap-y-6 md:gap-y-8 max-w-3xl mx-auto text-lg md:text-xl">
-            {staticLines.map(line => {
-                const { label, valueText } = parseQuestionLine(line);
-                return (
-                    <div class="contents">
-                        <div class="font-bold text-slate-600 flex items-center md:items-center pb-1">{label}</div>
-                        <div class="flex items-center text-slate-800 italic font-medium pb-1">{valueText}</div>
-                    </div>
-                )
-            })}
-            {questions.map((q: any) => {
-                const { label, valueText } = parseQuestionLine(q.Question);
-                return (
-                    <div class="contents group">
-                        <div class="font-bold text-slate-900 flex items-center md:items-center pb-1">{label}</div>
-                        <div class="flex items-center flex-wrap text-slate-700 leading-loose">
-                            <span set:html={formatValueWithInput(valueText, q.Q_Num, q.ID)}></span>
+                    // 🟢 BỘ LỌC DẤU CHẤM CỰC MẠNH: Quét sạch mọi loại dấu chấm (chấm liền, chấm cách, dấu ba chấm...)
+                    const normalizedQ = rawQuestion.replace(/(?:\.[\s]*){3,}|…+/g, '___SPLIT___');
+                    const splitText = normalizedQ.split('___SPLIT___');
+                    
+                    // Lọc bỏ các khoảng trắng dư thừa
+                    const beforeText = splitText[0] ? splitText[0].trim() : "";
+                    const afterText = splitText[1] ? splitText[1].trim() : "";
+
+                    return (
+                        <div class="part2-container" data-qnum={qNum} data-answer={correctAnswer}>
+                            
+                            {/* 🟢 DÙNG INLINE-BLOCK ĐỂ ÉP CHÚNG NÓ NẰM CÙNG 1 DÒNG */}
+                            <div class="leading-[3.5rem] group transition-all">
+                                
+                                {/* Cục số thứ tự */}
+                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-500 text-white font-black text-sm shadow-sm mr-3 align-middle">
+                                    {qNum}
+                                </span>
+                                
+                                {/* Chữ phía trước */}
+                                <span class="font-bold text-teal-900 align-middle">
+                                    {beforeText}
+                                </span>
+                                
+                                {/* Ô Nhập Liệu - Căn giữa theo chữ */}
+                                <div class="input-wrapper relative inline-block mx-3 align-middle">
+                                    <input 
+                                        type="text" 
+                                        name={`q-${qNum}`} 
+                                        class="w-40 sm:w-48 bg-white border-2 border-teal-300 text-teal-900 font-black px-3 py-2 placeholder-teal-200/70 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 rounded-lg shadow-sm transition-all h-11"
+                                        placeholder="Enter answer..."
+                                        autocomplete="off"
+                                    />
+                                </div>
+
+                                {/* Chữ phía sau (nếu có) */}
+                                {afterText && (
+                                    <span class="font-bold text-teal-900 align-middle">
+                                        {afterText}
+                                    </span>
+                                )}
+                            </div>
+                            
+                            {/* Hộp giải thích (Ẩn) */}
+                            <div class="explanation-box hidden w-full text-sm mt-2 p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 animate-in fade-in duration-500">
+                                <div class="font-black mb-1 flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                    Correct: {correctAnswer}
+                                </div>
+                                {q.Transcript && <div class="text-slate-600 italic bg-white/50 p-2 rounded mt-2 text-xs">{q.Transcript}</div>}
+                            </div>
                         </div>
-                    </div>
-                );
-            })}
+                    );
+                })}
+            </div>
         </div>
     </div>
 </div>

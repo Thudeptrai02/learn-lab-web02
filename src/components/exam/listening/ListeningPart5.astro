@@ -1,110 +1,104 @@
 ---
-const { questions = [], passage = "", partNum } = Astro.props;
+// src/components/exam/listening/ListeningPart5.astro
+const { partData } = Astro.props;
 
-let directionText = "For each question, choose the correct answer.";
-let contextText = ""; 
-let leftTitle = "Names"; 
-let rightTitle = "Options"; 
-let optionsList: {letter: string, text: string}[] = [];
+const formTitle = partData.passage || partData.Passage || "Questions 21-25";
+const instruction = partData.instruction || partData.Instruction || "For each question, choose the correct answer.";
 
-if (passage) {
-    const lines = passage.split(/\[BR\]|\|\||\r\n|\n|<br\s*\/?>/).map((l: string) => l.trim()).filter((l: string) => l);
-    let textLines: string[] = [];
-    
-    lines.forEach(line => {
-        const optMatch = line.match(/^([A-H])[\.\-\:]?\s+(.+)$/i);
-        if (optMatch) {
-            optionsList.push({ letter: optMatch[1].toUpperCase(), text: optMatch[2] });
-        } else {
-            textLines.push(line);
-        }
-    });
+// 🟢 1. LINH HOẠT TIÊU ĐỀ CỘT TỪ JSON 
+// (Mặc định là "Questions" và "Options" nếu file JSON của sếp không khai báo)
+const col1Title = partData.col1Header || partData.col1_title || "Questions";
+const col2Title = partData.col2Header || partData.col2_title || "Options";
 
-    if (textLines.length > 0) {
-        contextText = textLines[0]; 
-        if (textLines.length === 2) {
-            rightTitle = textLines[1];
-            if (contextText.toLowerCase().includes('friend')) leftTitle = 'Friends';
-            else if (contextText.toLowerCase().includes('people')) leftTitle = 'People';
-            else if (contextText.toLowerCase().includes('day')) leftTitle = 'Days';
-        } 
-        else if (textLines.length >= 3) {
-            leftTitle = textLines[1];
-            rightTitle = textLines[2];
-        }
-    }
-}
+// Tự động lấy danh sách đáp án từ JSON
+const firstQ = partData.questions[0] || {};
+const rawOptions = firstQ.options || firstQ.choices || ['A. actor', 'B. coach', 'C. dentist', 'D. journalist', 'E. mechanic', 'F. pilot', 'G. receptionist', 'H. tour guide'];
 
-function getCleanQuestion(text: string) {
-    if (!text) return "";
-    return text.replace(/\.{3,}|_{3,}/g, '').replace(':', '').trim();
-}
+const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
 ---
 
-<div class="w-full max-w-5xl mx-auto scroll-mt-24 md:scroll-mt-40" id={`q-${questions[0]?.Q_Num || questions[0]?.ID}`}>
+<div class="bg-white rounded-[2rem] p-6 sm:p-10 border border-teal-100 shadow-sm hover:shadow-md transition-shadow duration-300 mb-8">
     
-    <div class="bg-sky-50/50 border border-sky-100 p-6 md:p-8 rounded-[2rem] mb-8 shadow-sm">
-       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-           <h4 class="text-sky-800 font-black uppercase text-sm tracking-widest flex items-center gap-2">
-              <span>📝</span> YÊU CẦU ĐỀ BÀI
-           </h4>
-           <div class="bg-sky-200/50 text-sky-800 px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wider inline-block w-max">
-               Part {partNum} • Questions {questions[0]?.Q_Num} - {questions[questions.length-1]?.Q_Num}
-           </div>
-       </div>
-       <p class="text-sky-900 font-medium text-base md:text-lg leading-relaxed">{directionText}</p>
+    <div class="mb-8 pb-5 border-b border-slate-200">
+        <h3 class="text-xl font-black text-slate-900 tracking-tight mb-2">
+            {formTitle.split('<br/>')[0]}
+        </h3>
+        <p class="text-slate-700 font-medium">{instruction}</p>
     </div>
 
-    <div class="bg-white rounded-[2rem] border-2 border-slate-200 p-8 md:p-12 shadow-sm relative overflow-hidden">
-        {contextText && (
-            <p class="text-lg md:text-xl font-bold text-slate-800 mb-10 pb-6 border-b-2 border-slate-100 leading-relaxed">
-                {contextText}
-            </p>
-        )}
+    {/* LAYOUT 2 CỘT SONG SONG */}
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row gap-12 md:gap-24">
+        
+        {/* CỘT TRÁI: DANH SÁCH CÂU HỎI */}
+        <div class="flex-1">
+            <div class="border-b-2 border-slate-800 pb-2 mb-6">
+                <h4 class="font-black text-lg text-slate-900 uppercase tracking-wider">{col1Title}</h4>
+            </div>
+            
+            <div class="space-y-6">
+                {partData.questions?.map((q) => {
+                    const qNum = q.Q_Num || q.qNum || q.so_cau || q.id;
+                    let questionLabel = q.Question || q.cau_hoi || q.text || "Name";
+                    
+                    // 🟢 2. TẨY SẠCH DẤU CHẤM: Biến "Tyler: ......" thành "Tyler:"
+                    questionLabel = String(questionLabel).replace(/\.{2,}/g, '').trim();
+                    
+                    const correctAnswer = q.Answer || q.dap_an || "";
 
-        <div class="flex flex-col md:flex-row gap-12 md:gap-24">
-            <div class="w-full md:w-1/2">
-                <h4 class="font-black text-xl md:text-2xl text-slate-800 mb-6">{leftTitle}</h4>
-                <div class="space-y-6">
-                    {questions.map((q: any) => (
-                        <div class="flex items-center justify-between group">
-                            <div class="flex items-center gap-4">
-                                <span class="font-black text-xl text-sky-500 w-8 shrink-0">{q.Q_Num}</span>
-                                <span class="font-bold text-slate-800 text-lg md:text-xl">{getCleanQuestion(q.Question)}</span>
+                    return (
+                        <div class="part5-container flex flex-col" data-qnum={qNum} data-answer={correctAnswer}>
+                            <div class="flex items-center justify-between gap-4">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <span class="font-black text-slate-900 w-6">{qNum}</span>
+                                    <span class="font-bold text-slate-700">{questionLabel}</span>
+                                </div>
+                                
+                                {/* 🟢 3. Ô BOX HÌNH CHỮ NHẬT XỊN XÒ CHUẨN UI */}
+                                <div class="input-wrapper relative shrink-0">
+                                    <input 
+                                        type="text" 
+                                        name={`q-${qNum}`} 
+                                        maxlength="1"
+                                        class="w-14 h-12 border-2 border-slate-300 rounded-lg bg-white text-center font-black text-2xl text-teal-700 uppercase focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 focus:outline-none transition-all shadow-sm"
+                                        autocomplete="off"
+                                    />
+                                </div>
                             </div>
-                            
-                            <div class="relative shrink-0 ml-4">
-                                {/* 🌟 TUYỆT CHIÊU FIX LỖI: Gắn safeName (ID dự phòng) */}
-                                <input 
-                                    type="text" 
-                                    name={q.ID || `q_${q.Q_Num}`} 
-                                    class="exam-input w-12 h-12 md:w-14 md:h-14 text-center bg-slate-50 border-2 border-slate-300 rounded-xl outline-none font-black text-sky-600 text-2xl uppercase placeholder:text-slate-300 focus:border-sky-500 focus:bg-white focus:ring-4 focus:ring-sky-100 transition-all shadow-sm" 
-                                    maxlength="1" 
-                                    autocomplete="off" 
-                                />
+
+                            {/* Hộp giải thích khi chấm điểm */}
+                            <div class="explanation-box hidden mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-lg text-sm text-emerald-800 animate-in fade-in">
+                                <div class="font-black">Correct: {correctAnswer}</div>
+                                {q.Transcript && <div class="text-slate-600 italic mt-1">{q.Transcript}</div>}
                             </div>
                         </div>
-                    ))}
-                </div>
-            </div>
-
-            <div class="w-full md:w-1/2 relative">
-                <div class="hidden md:block absolute -left-6 lg:-left-12 top-0 w-px h-full bg-slate-200"></div>
-                <h4 class="font-black text-xl md:text-2xl text-slate-800 mb-6">{rightTitle}</h4>
-                
-                {optionsList.length > 0 ? (
-                    <div class="space-y-5">
-                        {optionsList.map(opt => (
-                            <div class="flex items-center gap-4">
-                                <span class="font-black text-slate-800 text-xl w-6 shrink-0">{opt.letter}</span>
-                                <span class="font-medium text-slate-700 text-lg md:text-xl">{opt.text}</span>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div class="text-slate-500 italic p-6 text-center border-2 border-dashed border-slate-300 rounded-xl font-medium">⚠️ Thiếu danh sách đáp án (A-H).</div>
-                )}
+                    );
+                })}
             </div>
         </div>
+
+        {/* CỘT PHẢI: DANH SÁCH LỰA CHỌN */}
+        <div class="flex-1">
+            <div class="border-b-2 border-slate-800 pb-2 mb-6">
+                <h4 class="font-black text-lg text-slate-900 uppercase tracking-wider">{col2Title}</h4>
+            </div>
+            
+            {/* Tạo nền nhạt cho cột bên phải để phân biệt rõ ràng với cột trái */}
+            <div class="space-y-4 bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-inner">
+                {rawOptions.map((opt, index) => {
+                    const fallbackLetter = letters[index] || '?';
+                    const match = String(opt).match(/^([A-H])[\.\-\:]?\s*(.*)/i);
+                    const letter = match ? match[1].toUpperCase() : fallbackLetter;
+                    const text = match ? match[2] : opt;
+
+                    return (
+                        <div class="flex items-start gap-4">
+                            <span class="font-black text-teal-600 w-6 text-lg">{letter}</span>
+                            <span class="font-bold text-slate-700">{text}</span>
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+
     </div>
 </div>

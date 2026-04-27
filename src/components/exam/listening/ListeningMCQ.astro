@@ -1,63 +1,55 @@
 ---
 // src/components/exam/listening/ListeningMCQ.astro
 const { q } = Astro.props;
-
-// Xử lý options (Part 1 thường Opt rỗng vì nằm trong ảnh, Part 3,4 có Opt text)
-const options = [
-    { key: 'A', text: q.Opt_A || '' },
-    { key: 'B', text: q.Opt_B || '' },
-    { key: 'C', text: q.Opt_C || '' }
-];
+const options = ['A', 'B', 'C']; 
 ---
 
-<div class="w-full relative mcq-container bg-white p-6 md:p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm transition-all duration-500" data-qnum={q.Q_Num}>
+<div class="mcq-container bg-white rounded-2xl p-6 sm:p-8 border border-slate-100 shadow-sm hover:shadow-md transition-shadow duration-300 mb-8" data-qnum={q.Q_Num}>
     
     <div class="flex items-start gap-4 mb-6">
-        <span class="q-number bg-indigo-600 text-white font-black w-9 h-9 flex items-center justify-center rounded-lg shrink-0 shadow-sm mt-1 transition-colors">
+        <span class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-teal-500 text-white font-black text-lg rounded-xl shadow-md shadow-teal-200/50">
             {q.Q_Num}
         </span>
-        <div class="pt-1 w-full">
-            <h4 class="text-lg md:text-xl font-bold text-slate-800 leading-snug" set:html={q.Question}></h4>
+        <h3 class="text-xl font-bold text-slate-700 pt-1 leading-relaxed">
+            {q.Question || q.questionText}
+        </h3>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 pl-0 sm:pl-14">
+        {options.map((opt) => {
+            const optText = q[opt] || q[opt.toLowerCase()];
+            if (!optText) return null;
             
-            {/* Nếu có ảnh (Part 1), hiện ảnh to rõ rệt */}
-            {q.Image_URL && (
-                <div class="mt-6 mb-2 rounded-2xl overflow-hidden border-2 border-slate-100 shadow-sm bg-white p-2 w-full max-w-xl mx-auto">
-                    <img src={q.Image_URL} alt={`Question ${q.Q_Num}`} class="w-full object-contain max-h-[250px]" />
-                </div>
-            )}
-        </div>
+            return (
+                <label class="relative cursor-pointer group opt-label block">
+                    <input type="radio" name={`q-${q.Q_Num}`} value={opt} class="peer sr-only" />
+                    
+                    <div class="w-full p-4 rounded-xl border-2 border-slate-100 bg-white text-slate-600 font-medium transition-all duration-200 ease-in-out
+                        peer-checked:border-teal-500 peer-checked:bg-teal-50/50 peer-checked:text-teal-800 peer-checked:shadow-sm
+                        group-hover:border-teal-200">
+                        
+                        <div class="flex items-center gap-4">
+                            <div class="w-6 h-6 flex-shrink-0 rounded-full border-2 border-slate-300 flex items-center justify-center 
+                                peer-checked:border-teal-500 peer-checked:bg-teal-500 transition-colors group-hover:border-teal-300">
+                                <div class="w-2.5 h-2.5 rounded-full bg-white opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+                            </div>
+                            <span class="text-lg leading-relaxed flex-1"><strong class="mr-2 text-slate-400">{opt}.</strong> {optText}</span>
+                        </div>
+                    </div>
+                </label>
+            )
+        })}
     </div>
 
-    {/* Các nút chọn A, B, C */}
-    <div class="space-y-3 ml-0 md:ml-13 grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {options.map((opt) => (
-            <label class="opt-label flex items-center gap-4 p-4 rounded-2xl border-2 border-slate-100 cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-all bg-white relative w-full m-0">
-                <input type="radio" name={`q-${q.Q_Num}`} value={opt.key} class="peer sr-only" />
-                <div class="w-8 h-8 rounded-full border-2 border-slate-300 bg-white flex items-center justify-center text-sm font-black text-slate-400 peer-checked:border-indigo-500 peer-checked:bg-indigo-500 peer-checked:text-white transition-all shrink-0">
-                    {opt.key}
-                </div>
-                {/* Nếu có chữ thì hiện, không có chữ (Part 1) thì chỉ cần hiện nút A, B, C */}
-                {opt.text && <div class="text-slate-700 font-medium peer-checked:text-indigo-800 peer-checked:font-bold transition-all pt-0.5" set:html={opt.text}></div>}
-            </label>
-        ))}
-    </div>
-
-    {/* HỘP TRANSCRIPT BILINGUAL (Ẩn đi, chờ nộp bài) */}
-    {q.Explanation && (
-        <div class="explanation-box hidden mt-8 p-6 bg-slate-50 rounded-[2rem] border border-slate-200 ml-0 md:ml-13 shadow-inner animate-in fade-in slide-in-from-top-2">
-            <div class="flex items-center gap-3 mb-4 border-b border-slate-200 pb-3">
-                <span class="bg-indigo-600 text-white text-xs font-black px-3 py-1.5 rounded-lg tracking-widest uppercase shadow-sm">Key: {q.Answer}</span>
-                <span class="text-indigo-800 font-bold text-sm uppercase tracking-widest">Transcript</span>
+    <div class="explanation-box hidden mt-8 pt-6 border-t border-dashed border-slate-200 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div class="bg-teal-50 rounded-xl p-5 border border-teal-100">
+            <h4 class="font-black text-teal-800 text-sm uppercase tracking-widest mb-3 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Transcript & Giải thích
+            </h4>
+            <div class="text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
+                {q.Explanation || q.Transcript || "Chưa có lời giải chi tiết."}
             </div>
-            {/* CSS Tùy chỉnh cho Transcript: in đậm tên người, highlight màu vàng, in nghiêng tiếng Việt */}
-            <div class="transcript-content text-slate-700 font-medium leading-loose text-[1.05rem]" set:html={q.Explanation}></div>
         </div>
-    )}
+    </div>
 </div>
-
-<style is:global>
-    /* Làm đẹp đoạn Transcript được xuất ra từ AI */
-    .transcript-content strong { color: #3730a3; font-weight: 900; margin-right: 4px; }
-    .transcript-content em { color: #64748b; display: block; margin-bottom: 12px; font-size: 0.95rem; }
-    .transcript-content mark { background-color: #fef08a; color: #854d0e; padding: 2px 6px; border-radius: 4px; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-</style>
