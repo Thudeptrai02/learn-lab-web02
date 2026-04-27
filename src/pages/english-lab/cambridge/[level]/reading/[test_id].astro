@@ -1,61 +1,41 @@
 ---
-// ĐƯỜNG DẪN: src/pages/english-lab/cambridge/[level]/[test_id].astro
+// ĐƯỜNG DẪN MỚI: src/pages/english-lab/cambridge/[level]/reading/[test_id].astro
 export const prerender = true;
-import Papa from 'papaparse';
-import Layout from '../../../../layouts/Layout.astro';
-// KẾT NỐI VỚI BỘ GIAO DIỆN CHUẨN:
-import ReadingExam from '../../../../components/exam/ReadingExam.astro'; 
+
+// 1. Nhảy 5 bậc (../../../../..) để lấy Layout và Component của Reading
+import Layout from '../../../../../layouts/Layout.astro';
+import ReadingExam from '../../../../../components/exam/reading/ReadingExam.astro'; 
 
 export async function getStaticPaths() {
-  const SHEET_ID = '1KBlvcqTgURW1Z6EGUKL5xkEOE4MX5pIhAVNZ6eecH04';
-  const MASTER_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&gid=0`;
+  // 2. Chỉ quét các file JSON nằm trong thư mục data/reading
+  const jsonFiles = import.meta.glob('../../../../../data/reading/*.json', { eager: true });
+  let paths = [];
 
-  let sheetPaths = [];
-  try {
-    const res = await fetch(MASTER_URL);
-    const parsed = Papa.parse(await res.text(), { header: true, skipEmptyLines: true });
-    sheetPaths = parsed.data.filter(row => row.ID).map(row => ({
-      params: { level: String(row.Level || 'a2-ket').trim().toLowerCase(), test_id: String(row.ID).trim().toLowerCase() },
-      props: { isJson: false, dataUrl: row.URL?.trim().replace('/edit?usp=sharing', '/export?format=csv'), testTitle: row.Title }
-    }));
-  } catch (e) { }
+  for (const path in jsonFiles) {
+    const fileName = path.split('/').pop().replace('.json', '').toLowerCase();
+    
+    paths.push({
+      params: { 
+        level: 'a2-ket', // Nếu sau này có B1, B2, sếp có thể viết logic tự nhận diện level ở đây
+        test_id: fileName 
+      },
+      props: { 
+        examData: jsonFiles[path].default, 
+        testTitle: `Cambridge A2 Key Reading - ${fileName.toUpperCase()}` 
+      }
+    });
+  }
 
-  let jsonPaths = [];
-  try {
-    const jsonFiles = import.meta.glob('../../../../data/exams/*.json', { eager: true });
-    for (const path in jsonFiles) {
-      const fileName = path.split('/').pop().replace('.json', '').toLowerCase();
-      jsonPaths.push({
-        params: { level: 'a2-ket', test_id: fileName },
-        props: { isJson: true, jsonData: jsonFiles[path].default, testTitle: `Reading & Writing: ${fileName.toUpperCase()}` }
-      });
-    }
-  } catch (e) { }
-
-  return [...sheetPaths, ...jsonPaths];
+  return paths;
 }
 
-const { test_id, level } = Astro.params;
-const { dataUrl, testTitle, isJson, jsonData } = Astro.props;
-
-const isListening = test_id.toLowerCase().includes('-l-');
-let questions = [];
-
-if (isJson) {
-  questions = jsonData || [];
-} else if (dataUrl) {
-  const response = await fetch(dataUrl);
-  const parsed = Papa.parse(await response.text(), { header: true, skipEmptyLines: true });
-  questions = parsed.data;
-}
+const { test_id } = Astro.params;
+const { testTitle, examData } = Astro.props;
 ---
 
 <Layout title={testTitle || test_id}>
-   {isListening ? (
-      <main class="min-h-screen flex items-center justify-center bg-slate-50">
-          <h1 class="text-2xl font-bold text-slate-400">Giao diện Listening đang cập nhật...</h1>
-      </main>
-   ) : (
-      <ReadingExam questions={questions} testTitle={testTitle} />
-   )}
+  <main class="min-h-screen bg-[#f8fafc]">
+     {/* 3. Truyền dữ liệu thẳng vào bộ não Reading */}
+     <ReadingExam questions={examData} testTitle={testTitle} />
+  </main>
 </Layout>
