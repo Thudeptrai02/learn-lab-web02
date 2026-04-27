@@ -1,11 +1,12 @@
 ---
 export const prerender = true;
-// Lùi 6 lần để ra tới src
-import Layout from '../../../../../../layouts/Layout.astro';
-import ReadingExam from '../../../../../../components/exam/reading/ReadingExam.astro'; 
+
+// ĐÚNG 5 BẬC ../
+import Layout from '../../../../../layouts/Layout.astro';
+import ReadingExam from '../../../../../components/exam/reading/ReadingExam.astro'; 
 
 export async function getStaticPaths() {
-  const jsonFiles = import.meta.glob('../../../../../../data/reading/*.json', { eager: true });
+  const jsonFiles = import.meta.glob('../../../../../data/reading/*.json', { eager: true });
   let paths = [];
 
   for (const path in jsonFiles) {

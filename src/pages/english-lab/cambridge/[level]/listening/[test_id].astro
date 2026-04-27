@@ -1,13 +1,12 @@
 ---
-// Lệnh bắt buộc để hết lỗi Warning vàng
 export const prerender = true;
 
-// Đủ 6 cụm ../ và đúng tên Layout.astro
-import Layout from '../../../../../../layouts/Layout.astro';
-import ListeningExam from '../../../../../../components/exam/listening/ListeningExam.astro'; 
+// ĐÚNG 5 BẬC ../
+import Layout from '../../../../../layouts/Layout.astro';
+import ListeningExam from '../../../../../components/exam/listening/ListeningExam.astro'; 
 
 export async function getStaticPaths() {
-  const jsonFiles = import.meta.glob('../../../../../../data/listening/*.json', { eager: true });
+  const jsonFiles = import.meta.glob('../../../../../data/listening/*.json', { eager: true });
   let paths = [];
 
   for (const path in jsonFiles) {
