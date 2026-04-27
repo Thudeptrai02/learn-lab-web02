@@ -1,41 +1,27 @@
 ---
-// ĐƯỜNG DẪN MỚI: src/pages/english-lab/cambridge/[level]/reading/[test_id].astro
 export const prerender = true;
-
-// 1. Nhảy 5 bậc (../../../../..) để lấy Layout và Component của Reading
-import Layout from '../../../../../layouts/Layout.astro';
-import ReadingExam from '../../../../../components/exam/reading/ReadingExam.astro'; 
+// Lùi 6 lần để ra tới src
+import Layout from '../../../../../../layouts/Layout.astro';
+import ReadingExam from '../../../../../../components/exam/reading/ReadingExam.astro'; 
 
 export async function getStaticPaths() {
-  // 2. Chỉ quét các file JSON nằm trong thư mục data/reading
-  const jsonFiles = import.meta.glob('../../../../../data/reading/*.json', { eager: true });
+  const jsonFiles = import.meta.glob('../../../../../../data/reading/*.json', { eager: true });
   let paths = [];
 
   for (const path in jsonFiles) {
     const fileName = path.split('/').pop().replace('.json', '').toLowerCase();
-    
     paths.push({
-      params: { 
-        level: 'a2-ket', // Nếu sau này có B1, B2, sếp có thể viết logic tự nhận diện level ở đây
-        test_id: fileName 
-      },
-      props: { 
-        examData: jsonFiles[path].default, 
-        testTitle: `Cambridge A2 Key Reading - ${fileName.toUpperCase()}` 
-      }
+      params: { level: 'a2-ket', test_id: fileName },
+      props: { examData: jsonFiles[path].default }
     });
   }
-
   return paths;
 }
 
 const { test_id } = Astro.params;
-const { testTitle, examData } = Astro.props;
+const { examData } = Astro.props;
 ---
 
-<Layout title={testTitle || test_id}>
-  <main class="min-h-screen bg-[#f8fafc]">
-     {/* 3. Truyền dữ liệu thẳng vào bộ não Reading */}
-     <ReadingExam questions={examData} testTitle={testTitle} />
-  </main>
+<Layout title={`Reading - ${test_id.toUpperCase()}`}>
+  <ReadingExam questions={examData} testTitle={`Reading & Writing: ${test_id.toUpperCase()}`} />
 </Layout>
