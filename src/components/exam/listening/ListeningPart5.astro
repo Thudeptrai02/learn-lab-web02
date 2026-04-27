@@ -3,72 +3,83 @@
 const { partData } = Astro.props;
 
 const formTitle = partData.passage || partData.Passage || "Questions 21-25";
-const instruction = partData.instruction || partData.Instruction || "For each question, choose the correct answer.";
+const instruction = partData.instruction || partData.Instruction || "Choose the correct answer.";
 
-// 🟢 1. LINH HOẠT TIÊU ĐỀ CỘT TỪ JSON 
-// (Mặc định là "Questions" và "Options" nếu file JSON của sếp không khai báo)
+// 🟢 1. LINH HOẠT TIÊU ĐỀ CỘT
 const col1Title = partData.col1Header || partData.col1_title || "Questions";
 const col2Title = partData.col2Header || partData.col2_title || "Options";
 
-// Tự động lấy danh sách đáp án từ JSON
-const firstQ = partData.questions[0] || {};
-const rawOptions = firstQ.options || firstQ.choices || ['A. actor', 'B. coach', 'C. dentist', 'D. journalist', 'E. mechanic', 'F. pilot', 'G. receptionist', 'H. tour guide'];
+// 🟢 2. THUẬT TOÁN TỰ ĐỘNG BÓC TÁCH DANH SÁCH A-H TỪ PASSAGE
+// Nó sẽ tìm trong đoạn Passage những dòng có dạng "A - Nội dung" hoặc "A. Nội dung"
+const passageText = partData.Passage || partData.passage || "";
+const optionsFromPassage = [];
+const regex = /([A-H])[\s\.\-\:]+\s*([^<]+)/gi;
+let match;
 
-const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+while ((match = regex.exec(passageText)) !== null) {
+    optionsFromPassage.push({
+        letter: match[1].toUpperCase(),
+        text: match[2].trim()
+    });
+}
+
+// Nếu không tìm thấy trong Passage thì mới dùng bảng chữ cái trống
+const finalOptions = optionsFromPassage.length > 0 
+    ? optionsFromPassage 
+    : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].map(l => ({letter: l, text: ''}));
 ---
 
-<div class="bg-white rounded-[2rem] p-6 sm:p-10 border border-teal-100 shadow-sm hover:shadow-md transition-shadow duration-300 mb-8">
+<div class="bg-white rounded-[2rem] p-6 sm:p-10 border border-teal-100 shadow-sm mb-8">
     
     <div class="mb-8 pb-5 border-b border-slate-200">
-        <h3 class="text-xl font-black text-slate-900 tracking-tight mb-2">
+        <h3 class="text-xl font-black text-teal-900 mb-2 uppercase tracking-tight">
             {formTitle.split('<br/>')[0]}
         </h3>
-        <p class="text-slate-700 font-medium">{instruction}</p>
+        <p class="text-slate-700 font-medium italic">{instruction}</p>
     </div>
 
-    {/* LAYOUT 2 CỘT SONG SONG */}
-    <div class="max-w-5xl mx-auto flex flex-col md:flex-row gap-12 md:gap-24">
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row gap-12 md:gap-20">
         
-        {/* CỘT TRÁI: DANH SÁCH CÂU HỎI */}
+        {/* CỘT TRÁI: CÂU HỎI & Ô BOX */}
         <div class="flex-1">
-            <div class="border-b-2 border-slate-800 pb-2 mb-6">
+            <div class="border-b-2 border-teal-500 pb-2 mb-6">
                 <h4 class="font-black text-lg text-slate-900 uppercase tracking-wider">{col1Title}</h4>
             </div>
             
             <div class="space-y-6">
                 {partData.questions?.map((q) => {
-                    const qNum = q.Q_Num || q.qNum || q.so_cau || q.id;
-                    let questionLabel = q.Question || q.cau_hoi || q.text || "Name";
-                    
-                    // 🟢 2. TẨY SẠCH DẤU CHẤM: Biến "Tyler: ......" thành "Tyler:"
+                    const qNum = q.Q_Num || q.qNum || q.so_cau;
+                    let questionLabel = q.Question || q.cau_hoi || "Item";
+                    // Dọn rác dấu chấm
                     questionLabel = String(questionLabel).replace(/\.{2,}/g, '').trim();
-                    
                     const correctAnswer = q.Answer || q.dap_an || "";
 
                     return (
                         <div class="part5-container flex flex-col" data-qnum={qNum} data-answer={correctAnswer}>
-                            <div class="flex items-center justify-between gap-4">
+                            <div class="flex items-center justify-between gap-4 py-1">
                                 <div class="flex items-center gap-4 flex-1">
-                                    <span class="font-black text-slate-900 w-6">{qNum}</span>
+                                    <span class="font-black text-teal-600 w-6">{qNum}</span>
                                     <span class="font-bold text-slate-700">{questionLabel}</span>
                                 </div>
                                 
-                                {/* 🟢 3. Ô BOX HÌNH CHỮ NHẬT XỊN XÒ CHUẨN UI */}
                                 <div class="input-wrapper relative shrink-0">
                                     <input 
                                         type="text" 
                                         name={`q-${qNum}`} 
                                         maxlength="1"
-                                        class="w-14 h-12 border-2 border-slate-300 rounded-lg bg-white text-center font-black text-2xl text-teal-700 uppercase focus:border-teal-500 focus:ring-4 focus:ring-teal-500/20 focus:outline-none transition-all shadow-sm"
+                                        class="w-14 h-12 border-2 border-teal-200 rounded-xl bg-white text-center font-black text-2xl text-teal-700 uppercase focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none transition-all shadow-sm"
+                                        placeholder="?"
                                         autocomplete="off"
                                     />
                                 </div>
                             </div>
 
-                            {/* Hộp giải thích khi chấm điểm */}
-                            <div class="explanation-box hidden mt-3 p-3 bg-emerald-50 border border-emerald-100 rounded-lg text-sm text-emerald-800 animate-in fade-in">
-                                <div class="font-black">Correct: {correctAnswer}</div>
-                                {q.Transcript && <div class="text-slate-600 italic mt-1">{q.Transcript}</div>}
+                            <div class="explanation-box hidden mt-3 p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 animate-in fade-in">
+                                <div class="font-black flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                    Correct: {correctAnswer}
+                                </div>
+                                {q.Explanation && <div class="text-slate-600 text-xs mt-2 leading-relaxed" set:html={q.Explanation}></div>}
                             </div>
                         </div>
                     );
@@ -76,27 +87,19 @@ const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
             </div>
         </div>
 
-        {/* CỘT PHẢI: DANH SÁCH LỰA CHỌN */}
+        {/* CỘT PHẢI: DANH SÁCH LỰA CHỌN (TỰ ĐỘNG THEO ĐỀ) */}
         <div class="flex-1">
-            <div class="border-b-2 border-slate-800 pb-2 mb-6">
+            <div class="border-b-2 border-teal-500 pb-2 mb-6">
                 <h4 class="font-black text-lg text-slate-900 uppercase tracking-wider">{col2Title}</h4>
             </div>
             
-            {/* Tạo nền nhạt cho cột bên phải để phân biệt rõ ràng với cột trái */}
-            <div class="space-y-4 bg-slate-50 p-6 sm:p-8 rounded-2xl border border-slate-100 shadow-inner">
-                {rawOptions.map((opt, index) => {
-                    const fallbackLetter = letters[index] || '?';
-                    const match = String(opt).match(/^([A-H])[\.\-\:]?\s*(.*)/i);
-                    const letter = match ? match[1].toUpperCase() : fallbackLetter;
-                    const text = match ? match[2] : opt;
-
-                    return (
-                        <div class="flex items-start gap-4">
-                            <span class="font-black text-teal-600 w-6 text-lg">{letter}</span>
-                            <span class="font-bold text-slate-700">{text}</span>
-                        </div>
-                    )
-                })}
+            <div class="space-y-3 bg-teal-50/30 p-6 rounded-2xl border border-teal-100 shadow-inner">
+                {finalOptions.map((opt) => (
+                    <div class="flex items-start gap-4 py-1">
+                        <span class="font-black text-teal-600 w-6 text-lg">{opt.letter}</span>
+                        <span class="font-bold text-slate-700">{opt.text}</span>
+                    </div>
+                ))}
             </div>
         </div>
 
