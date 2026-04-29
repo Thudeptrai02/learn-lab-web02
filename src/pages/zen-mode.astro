@@ -1,0 +1,161 @@
+---
+// src/pages/zen-mode.astro
+---
+
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zen Mode - Trạm dừng tâm trí</title>
+</head>
+<body class="bg-black overflow-hidden select-none">
+    <div class="zen-wrapper fixed inset-0 flex items-center justify-center">
+        
+        <div id="stars" class="absolute inset-0"></div>
+        <div id="stars2" class="absolute inset-0"></div>
+        <div id="stars3" class="absolute inset-0"></div>
+
+        <div class="relative z-10 w-full max-w-xl px-6 flex flex-col items-center">
+            
+            <div id="guide-wrap" class="h-24 mb-12 flex items-center justify-center">
+                <h1 id="guide-text" class="text-white/80 text-2xl sm:text-3xl font-light tracking-[0.2em] text-center transition-all duration-1000 leading-relaxed">
+                    Điều gì đang làm bạn bận lòng?
+                </h1>
+            </div>
+
+            <div id="zen-bubble" class="relative w-72 h-72 sm:w-96 sm:h-96 rounded-full flex items-center justify-center transition-all duration-[60000ms] ease-linear">
+                <div class="absolute inset-0 rounded-full bg-white/[0.03] backdrop-blur-md border border-white/10 shadow-[0_0_80px_rgba(255,255,255,0.05)]"></div>
+                <div class="absolute inset-0 rounded-full animate-pulse-glow shadow-[0_0_120px_rgba(255,255,255,0.1)]"></div>
+                
+                <textarea 
+                    id="thought-input" 
+                    class="relative z-20 w-3/4 h-1/2 bg-transparent border-none outline-none text-white text-center resize-none placeholder-white/20 font-light text-xl transition-opacity duration-1000" 
+                    placeholder="Gõ suy nghĩ của bạn tại đây..."></textarea>
+            </div>
+
+            <div class="mt-20 flex flex-col items-center gap-6">
+                <button id="start-btn" class="group relative px-12 py-4 rounded-full border border-white/20 text-white/50 hover:text-white transition-all tracking-[0.3em] text-xs font-bold uppercase overflow-hidden">
+                    <span class="relative z-10">Bắt đầu thả trôi</span>
+                    <div class="absolute inset-0 bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                </button>
+                
+                <a href="/" class="text-white/20 hover:text-teal-400 text-[10px] uppercase tracking-[0.4em] transition-all">Quay lại trang chủ</a>
+            </div>
+        </div>
+
+        <audio id="zen-audio" loop>
+            <source src="https://cdn.pixabay.com/download/audio/2022/02/07/audio_13bdf2d08d.mp3?filename=space-ambient-106596.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Hiệu ứng sao trôi đa tầng */
+        #stars, #stars2, #stars3 {
+            background: transparent;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+        }
+
+        .animate-pulse-glow {
+            animation: pulse 6s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+
+        /* Khi bắt đầu thiền, bóp nhỏ ngôi sao */
+        .zen-active #zen-bubble {
+            transform: scale(0);
+            opacity: 0;
+        }
+    </style>
+
+    <script is:inline>
+        // Tạo sao ngẫu nhiên
+        const createStars = (id, count, size) => {
+            const container = document.getElementById(id);
+            for(let i=0; i<count; i++){
+                const star = document.createElement('div');
+                star.style.cssText = `
+                    position: absolute;
+                    left: ${Math.random()*100}%;
+                    top: ${Math.random()*100}%;
+                    width: ${Math.random()*size}px;
+                    height: ${Math.random()*size}px;
+                    background: white;
+                    border-radius: 50%;
+                    opacity: ${Math.random()};
+                `;
+                container.appendChild(star);
+            }
+        }
+        createStars('stars', 200, 1.5);
+        createStars('stars2', 100, 2);
+
+        const btn = document.getElementById('start-btn');
+        const bubble = document.getElementById('zen-bubble');
+        const input = document.getElementById('thought-input');
+        const guide = document.getElementById('guide-text');
+        const audio = document.getElementById('zen-audio');
+
+        const scripts = [
+            "Hãy hít vào thật sâu...",
+            "Và thở ra thật chậm...",
+            "Hãy ngắm nhìn nỗi lo của bạn...",
+            "Nó đang dần trở nên nhỏ bé...",
+            "Thật bé nhỏ trong vũ trụ này...",
+            "Bởi vì bạn mạnh mẽ hơn bạn nghĩ...",
+            "Hãy để nó tan biến mãi mãi...",
+            "Hít vào sự tự tin...",
+            "Thở ra mọi áp lực...",
+            "Bây giờ, bạn đã sẵn sàng. ✨"
+        ];
+
+        btn.addEventListener('click', () => {
+            if(!input.value.trim()) return;
+            
+            audio.volume = 0;
+            audio.play();
+            let vol = 0;
+            const fadeIn = setInterval(() => {
+                if(vol < 0.4) { vol += 0.05; audio.volume = vol; }
+                else clearInterval(fadeIn);
+            }, 200);
+
+            btn.style.opacity = '0';
+            input.style.opacity = '0';
+            setTimeout(() => btn.classList.add('hidden'), 500);
+
+            // Kích hoạt thu nhỏ trong 60s
+            bubble.classList.add('duration-[60000ms]');
+            document.body.classList.add('zen-active');
+
+            let index = 0;
+            const textFlow = setInterval(() => {
+                guide.style.opacity = '0';
+                setTimeout(() => {
+                    if(index < scripts.length) {
+                        guide.innerText = scripts[index];
+                        guide.style.opacity = '1';
+                        index++;
+                    } else {
+                        clearInterval(textFlow);
+                        guide.innerText = "Tâm trí bạn đã tĩnh lặng.";
+                        guide.style.opacity = '1';
+                        // Hiện nút quay lại trang chủ rực rỡ
+                        btn.innerText = "QUAY LẠI HỌC TẬP";
+                        btn.style.opacity = '1';
+                        btn.classList.remove('hidden', 'text-white/50');
+                        btn.classList.add('bg-teal-500', 'text-white', 'border-none', 'shadow-lg');
+                        btn.onclick = () => window.location.href = '/';
+                    }
+                }, 1000);
+            }, 6000);
+        });
+    </script>
+</body>
+</html>

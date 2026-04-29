@@ -1,302 +1,331 @@
 ---
-// src/components/exam/listening/ListeningExam.astro
 import ListeningMCQ from './ListeningMCQ.astro';
 import ListeningPart1 from './ListeningPart1.astro'; 
 import ListeningPart2 from './ListeningPart2.astro';
-import ListeningPart5 from './ListeningPart5.astro'; // ĐÃ THÊM PART 5
+import ListeningPart5 from './ListeningPart5.astro';
 
-const { questions = [], testTitle = "Cambridge Listening Test" } = Astro.props;
+const { questions = [], testTitle = "Cambridge A2 KET Listening" } = Astro.props;
+const hasData = questions && questions.length > 0;
 
 const parts = [1, 2, 3, 4, 5].map(num => {
-  const pQs = questions.filter(q => {
-      const pVal = q.Part || q.part || q.phan;
-      return parseInt(pVal) === num;
-  });
-
+  const pQs = questions.filter(q => parseInt(q.Part || q.part) === num);
   if (pQs.length === 0) return null;
-  
-  return { 
-      num, 
-      questions: pQs, 
-      passage: pQs[0].Passage || pQs[0].passage || pQs[0].huong_dan || "",
-      audioLink: pQs[0].Audio_Link || pQs[0].audioLink || pQs[0].link_audio || ""
-  };
+  const qNums = pQs.map(q => parseInt(q.Q_Num || q.qNum)).filter(n => !isNaN(n));
+  const minQ = qNums.length > 0 ? Math.min(...qNums) : "";
+  const maxQ = qNums.length > 0 ? Math.max(...qNums) : "";
+  const qRange = minQ && maxQ ? (minQ === maxQ ? `Question ${minQ}` : `Questions ${minQ}-${maxQ}`) : "";
+  return { num, questions: pQs, passage: pQs[0].Passage || pQs[0].passage || "", audioLink: pQs[0].Audio_Link || pQs[0].audioLink || "", qRange };
 }).filter(p => p !== null);
 ---
 
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
-<div class="flex min-h-screen bg-[#f0fdfa] text-slate-700 font-sans relative">
-  
-  <div id="exam-timer-widget" class="fixed bottom-6 left-6 lg:left-10 z-[105] bg-white/95 backdrop-blur-md text-teal-700 font-black px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(20,184,166,0.15)] border border-teal-100 flex items-center gap-3 text-xl tracking-widest transition-colors duration-500">
-     <svg class="w-6 h-6 opacity-70 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-     <span id="timer-display">30:00</span>
-  </div>
-
-  <button id="btn-submit" class="fixed bottom-[5.5rem] right-6 lg:right-10 z-[105] bg-teal-500 backdrop-blur-md text-white font-black px-6 py-3.5 rounded-2xl shadow-[0_10px_30px_rgba(20,184,166,0.3)] hover:bg-teal-600 hover:-translate-y-1 transition-all duration-300 flex items-center gap-2 uppercase tracking-widest text-[13px] border border-teal-400 group">
-      <svg class="w-5 h-5 text-teal-100 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-      Nộp Bài
-  </button>
-
-  <div id="score-modal" class="fixed inset-0 bg-teal-900/80 backdrop-blur-md z-[200] hidden items-center justify-center opacity-0 transition-all duration-300 px-4">
-     <div class="bg-white p-10 md:p-12 rounded-[3.5rem] shadow-2xl max-w-lg w-full text-center transform scale-95 transition-all duration-300 relative overflow-hidden flex flex-col items-center">
-         <div class="absolute -top-32 -right-32 w-64 h-64 bg-teal-200/40 rounded-full blur-3xl"></div>
-         <h2 class="text-3xl font-black text-teal-900 mb-1 relative z-10 uppercase tracking-tighter">Listening Score</h2>
-         <div class="w-36 h-36 rounded-full border-[10px] border-teal-50 flex flex-col items-center justify-center mx-auto my-8 shadow-inner relative z-10 bg-white" id="score-circle">
-             <span class="text-4xl font-black text-teal-700 tracking-tighter" id="score-text">0/25</span>
-         </div>
-         <div class="mb-8 relative z-10">
-            <span id="cefr-badge" class="px-5 py-2 rounded-full font-black text-sm uppercase tracking-widest text-white shadow-md">Loading...</span>
-         </div>
-         <div class="w-full flex gap-3 relative z-10">
-            <button id="btn-close-modal" class="flex-1 bg-teal-500 text-white font-black py-4 rounded-2xl hover:bg-teal-600 transition-colors uppercase tracking-widest text-xs shadow-xl shadow-teal-500/20">Xem Giải Thích</button>
-            <button id="btn-filter-wrong" class="flex-1 bg-rose-50 border border-rose-200 text-rose-600 font-black py-4 rounded-2xl hover:bg-rose-100 transition-colors uppercase tracking-widest text-xs shadow-sm">Xem câu Sai</button>
-         </div>
-     </div>
-  </div>
-
-  <aside id="sidebar" class="fixed left-0 top-0 h-full w-72 bg-white border-r border-teal-100 z-[100] transition-transform duration-500 -translate-x-full shadow-2xl flex flex-col">
-    <button id="toggle-sidebar" class="absolute top-1/2 -translate-y-1/2 -right-10 w-10 h-16 bg-teal-500 text-white rounded-r-xl shadow-[4px_0_15px_rgba(20,184,166,0.2)] flex items-center justify-center hover:bg-teal-600 transition-colors cursor-pointer outline-none">
-       <svg id="arrow-icon" class="w-6 h-6 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
-    </button>
-    <div class="p-6 mt-14 flex-1 overflow-y-auto custom-scrollbar">
-      <div class="flex items-center justify-between mb-6 border-b border-teal-50 pb-3">
-         <h3 class="text-lg font-black text-teal-800 uppercase">Menu Câu Hỏi</h3>
-         <button id="btn-clear-filter" class="hidden text-[10px] bg-teal-100 hover:bg-teal-200 text-teal-700 px-2 py-1 rounded font-bold uppercase tracking-widest">Bỏ lọc</button>
-      </div>
-      <div class="space-y-8">
-        {parts.map(p => (
-          <div class="part-group">
-            <h4 class="text-[10px] font-black text-teal-500/70 uppercase tracking-[0.2em] mb-3">Part {p.num}</h4>
-            <div class="grid grid-cols-5 gap-2">
-              {p.questions.map(q => {
-                 const qNum = q.Q_Num || q.qNum || q.so_cau || q.id;
-                 return (
-                    <a href={`#q-${qNum}`} data-target="sidebar-link" data-qnum={qNum} class="w-9 h-9 rounded-lg border-2 border-slate-100 flex items-center justify-center font-bold text-slate-400 hover:bg-teal-50 hover:border-teal-200 hover:text-teal-600 transition-all text-xs">
-                      {qNum}
-                    </a>
-                 )
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </aside>
-
-  <div id="main-wrapper" class="flex-1 transition-all duration-500 ml-0 w-full pb-20 pt-8">
-    <div class="max-w-4xl mx-auto py-12 px-4 md:px-8 mt-10 lg:mt-0">
-      <header class="mb-14 border-b border-teal-200/50 pb-6">
-        <h1 class="text-3xl md:text-4xl font-black text-teal-900 uppercase tracking-tight">{testTitle}</h1>
-      </header>
-
-      {parts.map(p => (
-        <div class="mb-24 relative">
-          
-          <div class="mb-6 flex items-start gap-4">
-             <div class="w-10 h-10 bg-teal-500 text-white flex items-center justify-center rounded-lg font-black text-xl shadow-md shadow-teal-200 shrink-0">{p.num}</div>
-             <div>
-                <h2 class="text-2xl font-black text-teal-900 uppercase tracking-tight leading-none pt-1.5">Part {p.num}</h2>
-                <p class="text-teal-600/80 font-semibold mt-2">{p.passage.split('<br/>')[0]}</p>
-             </div>
-          </div>
-
-          {p.audioLink && (
-            <div class="bg-white rounded-3xl p-4 mb-10 shadow-lg shadow-teal-100/50 border border-teal-100 flex items-center gap-4 sticky top-6 z-50">
-               <div class="w-12 h-12 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-2xl flex items-center justify-center shrink-0 shadow-md shadow-teal-200">
-                   <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"></path></svg>
-               </div>
-               <audio controls class="w-full custom-audio h-10 accent-teal-500 outline-none" src={p.audioLink}></audio>
-            </div>
-          )}
-
-          <div class="animate-in fade-in duration-700 space-y-6">
-             {/* Render components */}
-             {p.num === 1 && p.questions.map(q => {
-                 const qNum = q.Q_Num || q.qNum || q.so_cau || q.id;
-                 return <div id={`q-${qNum}`} class="scroll-mt-32 q-block"><ListeningPart1 q={q} /></div>
-             })}
-             
-             {p.num === 2 && <div class="scroll-mt-32 q-block"><ListeningPart2 partData={p} /></div>}
-             
-             {[3, 4].includes(p.num) && p.questions.map(q => {
-                 const qNum = q.Q_Num || q.qNum || q.so_cau || q.id;
-                 return <div id={`q-${qNum}`} class="scroll-mt-32 q-block"><ListeningMCQ q={q} /></div>
-             })}
-             
-             {/* GỌI PART 5 */}
-             {p.num === 5 && <div class="scroll-mt-32 q-block"><ListeningPart5 partData={p} /></div>}
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-</div>
-
-<style>
-  html { scroll-behavior: smooth; }
-  .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-  .custom-scrollbar::-webkit-scrollbar-thumb { background: #99f6e4; border-radius: 10px; }
-  
-  a[data-target="sidebar-link"].is-answered { background-color: #ccfbf1; border-color: #14b8a6; color: #0f766e; }
-  body.review-mode a[data-target="sidebar-link"].is-correct { background-color: #10b981; border-color: #10b981; color: white; }
-  body.review-mode a[data-target="sidebar-link"].is-incorrect { background-color: #f43f5e; border-color: #f43f5e; color: white; }
-  body.review-mode input, body.review-mode select { pointer-events: none; }
-  
-  body.filter-wrong-mode .is-correct-block { opacity: 0.2; pointer-events: none; filter: grayscale(100%); transition: all 0.5s; }
-  body.filter-wrong-mode a[data-target="sidebar-link"].is-correct { opacity: 0.1; pointer-events: none; }
+<style is:global>
+    .menu-scroll::-webkit-scrollbar { width: 4px; }
+    .menu-scroll::-webkit-scrollbar-track { background: transparent; }
+    .menu-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .highlight-target { animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) forwards; }
+    @keyframes pulse-ring {
+        0% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(20, 184, 166, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
+    }
 </style>
 
-<script define:vars={{ questions }}>
-  window.examData = questions;
-</script>
+{!hasData ? (
+    <div class="min-h-screen flex items-center justify-center bg-slate-50"><p class="font-black text-rose-500">NO DATA</p></div>
+) : (
+    <script is:inline src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <div id="exam-data" data-questions={JSON.stringify(questions)} class="hidden"></div>
 
-<script>
-  const btnSubmit = document.getElementById('btn-submit');
-  const scoreModal = document.getElementById('score-modal');
+    <div class="min-h-screen bg-[#f8fafc] text-slate-700 font-sans relative overflow-x-hidden">
+        
+        <aside id="side-menu" class="fixed top-0 left-0 h-screen w-72 bg-white shadow-[10px_0_30px_rgba(0,0,0,0.08)] z-[900] transform -translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col border-r border-slate-200">
+            
+            <button id="toggle-menu-btn" class="absolute top-1/2 -translate-y-1/2 -right-10 w-10 h-16 bg-white border-y border-r border-slate-200 rounded-r-xl shadow-[5px_0_10px_rgba(0,0,0,0.05)] flex items-center justify-center text-teal-600 hover:text-teal-500 transition-colors cursor-pointer group">
+                <svg id="menu-arrow" class="w-6 h-6 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+            </button>
 
-  function markAsAnswered(qNum, hasVal) {
-    if(document.body.classList.contains('review-mode')) return;
-    const link = document.querySelector(`a[data-qnum="${qNum}"]`);
-    if (link) { if (hasVal) link.classList.add('is-answered'); else link.classList.remove('is-answered'); }
-  }
-  
-  // Bắt sự kiện Radio, Input Text và Select (Part 5)
-  document.addEventListener('change', (e) => { 
-      if (e.target.type === 'radio') markAsAnswered(e.target.name.replace('q-',''), true); 
-      if (e.target.tagName.toLowerCase() === 'select') markAsAnswered(e.target.name.replace('q-',''), e.target.value !== '');
-  });
-  document.addEventListener('input', (e) => { 
-      if (e.target.type === 'text') markAsAnswered(e.target.name.replace('q-',''), e.target.value.trim().length > 0); 
-  });
+            <div class="p-6 border-b border-slate-100 bg-teal-50/30">
+                <h3 class="font-black text-teal-800 tracking-widest uppercase flex items-center gap-2 text-sm">
+                    <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+                    Bản đồ câu hỏi
+                </h3>
+            </div>
 
-  btnSubmit.addEventListener('click', () => {
-    if(!confirm("Sếp chắc chắn muốn nộp bài Listening?")) return;
-    
-    document.body.classList.add('review-mode');
-    btnSubmit.style.display = 'none';
+            <div class="flex-1 overflow-y-auto p-5 space-y-8 menu-scroll">
+                {parts.map(p => (
+                    <div>
+                        <h4 class="font-bold text-slate-400 mb-3 text-xs uppercase tracking-widest border-b border-slate-100 pb-2">
+                            Part {p.num}
+                        </h4>
+                        <div class="grid grid-cols-5 gap-2">
+                            {p.questions.map(q => {
+                                const qNum = q.Q_Num || q.qNum;
+                                return (
+                                    <button data-nav-target={qNum} class="nav-q-btn w-full aspect-square rounded-lg border-2 border-slate-100 bg-slate-50 font-black text-slate-400 hover:border-teal-400 hover:text-teal-500 transition-all flex items-center justify-center text-xs">
+                                        {qNum}
+                                    </button>
+                                )
+                            })}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </aside>
 
-    let score = 0;
-    const totalQs = window.examData.length;
+        <div id="start-overlay" class="fixed inset-0 z-[1000] bg-white/95 backdrop-blur-xl flex items-center justify-center p-6 transition-all duration-700">
+            <div class="text-center max-w-lg">
+                <div class="w-24 h-24 mx-auto bg-teal-50 rounded-full flex items-center justify-center mb-8 border-4 border-teal-100">
+                    <span class="text-5xl">🎧</span>
+                </div>
+                <h2 class="text-4xl font-black text-slate-900 mb-10 tracking-tighter uppercase">{testTitle}</h2>
+                <button id="btn-start-exam" class="px-16 py-6 bg-teal-500 text-white font-black rounded-[2rem] text-xl shadow-xl shadow-teal-200 hover:scale-105 active:scale-95 transition-all">START TEST NOW</button>
+            </div>
+        </div>
 
-    window.examData.forEach(q => {
-       const partNum = parseInt(q.Part || q.part || q.phan);
-       const qNum = q.Q_Num || q.qNum || q.so_cau || q.id;
-       const ansStr = String(q.Answer || q.dap_an || "");
-       let isCorrect = false, userAnswer = null;
+        <main class="max-w-4xl mx-auto px-4 lg:px-8 py-12 transition-all duration-300" id="main-content">
+            <header class="mb-16 text-center">
+                <h1 class="text-5xl lg:text-6xl font-black text-slate-900 mb-4 tracking-tighter">{testTitle}</h1>
+                <div class="h-1 w-20 bg-teal-500 mx-auto rounded-full"></div>
+            </header>
 
-       // CHẤM PART 1, 3, 4 (TRẮC NGHIỆM)
-       if ([1, 3, 4].includes(partNum)) {
-           const checked = document.querySelector(`input[name="q-${qNum}"]:checked`);
-           if (checked) { userAnswer = checked.value; isCorrect = (userAnswer.toLowerCase() === ansStr.toLowerCase()); }
-           
-           const container = document.querySelector(`.mcq-container[data-qnum="${qNum}"]`);
-           if (container) {
-               container.classList.remove('bg-white', 'border-slate-100');
-               if (userAnswer) {
-                   if (isCorrect) { container.classList.add('bg-emerald-50/70', 'border-emerald-300', 'is-correct-block'); }
-                   else container.classList.add('bg-rose-50/70', 'border-rose-300');
-               } else container.classList.add('bg-slate-50', 'border-slate-300');
-               
-               container.querySelector('.explanation-box')?.classList.remove('hidden');
-               container.querySelectorAll('.opt-label').forEach(label => {
-                   const input = label.querySelector('input'); label.classList.remove('bg-white');
-                   if (input.value.toLowerCase() === ansStr.toLowerCase()) label.classList.add('border-emerald-500', 'bg-emerald-100/80');
-                   else if (input.checked && !isCorrect) label.classList.add('border-rose-500', 'bg-rose-100/80');
-               });
-           }
-       }
-       
-       // CHẤM PART 2 (ĐIỀN TỪ INPUT)
-       if (partNum === 2) {
-           const inputEl = document.querySelector(`input[name="q-${qNum}"]`);
-           if (inputEl) {
-               userAnswer = inputEl.value.trim().toLowerCase();
-               const validAnswers = ansStr.toLowerCase().split('/').map(a => a.trim());
-               isCorrect = validAnswers.includes(userAnswer);
-               inputEl.disabled = true; 
-               
-               const container = document.querySelector(`.part2-container[data-qnum="${qNum}"]`);
-               if (container) {
-                   const wrapper = container.querySelector('.input-wrapper');
-                   if (userAnswer) {
-                       if (isCorrect) {
-                           wrapper.classList.add('bg-emerald-100', 'rounded', 'px-2');
-                           inputEl.classList.replace('text-teal-900', 'text-emerald-700');
-                       } else {
-                           wrapper.classList.add('bg-rose-100', 'rounded', 'px-2');
-                           inputEl.classList.replace('text-teal-900', 'text-rose-700');
-                           inputEl.classList.add('line-through'); 
-                           const corrSpan = document.createElement('span');
-                           corrSpan.className = "absolute right-2 top-1 font-black text-emerald-600";
-                           corrSpan.innerText = validAnswers[0];
-                           wrapper.appendChild(corrSpan);
-                       }
-                   } else {
-                       wrapper.classList.add('bg-amber-100', 'rounded', 'px-2');
-                       const corrSpan = document.createElement('span');
-                       corrSpan.className = "absolute right-2 top-1 font-black text-emerald-600";
-                       corrSpan.innerText = validAnswers[0];
-                       wrapper.appendChild(corrSpan);
-                   }
-                   container.querySelector('.explanation-box')?.classList.remove('hidden');
-               }
-           }
-       }
+            <div class="space-y-32">
+                {parts.map(p => (
+                    <section id={`section-part-${p.num}`} class="relative pt-6">
+                        <div class="sticky top-4 z-40 mb-12">
+    <div class="bg-white/90 backdrop-blur-md border border-slate-200 shadow-lg rounded-[2rem] p-3 flex items-center gap-6 max-w-4xl mx-auto">
+        <div class="px-5 h-12 rounded-2xl bg-teal-500 text-white flex items-center justify-center font-black text-sm uppercase tracking-[0.2em] shrink-0 shadow-md shadow-teal-100">
+            PART {p.num}
+        </div>
+        <div class="flex-1">
+            <audio controls class="w-full part-audio accent-teal-500 h-10" data-part={p.num} src={p.audioLink}></audio>
+        </div>
+    </div>
+</div>
 
-       // CHẤM PART 5 (SELECT DROPDOWN)
-       if (partNum === 5) {
-           const selectEl = document.querySelector(`select[name="q-${qNum}"]`);
-           if (selectEl) {
-               userAnswer = selectEl.value.trim();
-               isCorrect = (userAnswer.toLowerCase() === ansStr.toLowerCase());
-               selectEl.disabled = true;
-               
-               const container = document.querySelector(`.part5-container[data-qnum="${qNum}"]`);
-               if (container) {
-                   if (userAnswer) {
-                       if (isCorrect) {
-                           selectEl.classList.add('bg-emerald-100', 'border-emerald-400', 'text-emerald-800');
-                           selectEl.classList.remove('bg-white', 'border-teal-200');
-                       } else {
-                           selectEl.classList.add('bg-rose-100', 'border-rose-400', 'text-rose-800');
-                           selectEl.classList.remove('bg-white', 'border-teal-200');
-                           const corrDiv = document.createElement('div');
-                           corrDiv.className = "absolute right-12 top-3 text-sm font-black text-emerald-600";
-                           corrDiv.innerText = `=> ${ansStr}`;
-                           selectEl.parentElement.appendChild(corrDiv);
-                       }
-                   } else {
-                        selectEl.classList.add('bg-amber-100', 'border-amber-300');
-                        selectEl.classList.remove('bg-white', 'border-teal-200');
-                   }
-                   container.querySelector('.explanation-box')?.classList.remove('hidden');
-               }
-           }
-       }
+                        {p.num === 1 && p.questions.map(q => <ListeningPart1 q={q} />)}
+                        {p.num === 2 && <ListeningPart2 partData={p} />}
+                        {(p.num === 3 || p.num === 4) && p.questions.map(q => <ListeningMCQ q={q} />)}
+                        {p.num === 5 && <ListeningPart5 partData={p} />}
+                    </section>
+                ))}
+            </div>
+        </main>
 
-       // CẬP NHẬT TRẠNG THÁI MENU SIDEBAR
-       const sLink = document.querySelector(`a[data-qnum="${qNum}"]`);
-       if (userAnswer) {
-           if (isCorrect) { score++; sLink?.classList.add('is-correct'); } else sLink?.classList.add('is-incorrect');
-       } else if(sLink) sLink.style.backgroundColor = '#e2e8f0';
-    });
+        <div class="fixed bottom-6 inset-x-0 z-[800] flex justify-center pointer-events-none">
+            <div class="bg-white/90 backdrop-blur-lg border border-slate-200 shadow-[0_15px_30px_rgba(0,0,0,0.1)] rounded-[2.5rem] p-2 flex items-center gap-2 pointer-events-auto">
+                
+                <div class="hidden sm:flex items-center px-5 font-black text-slate-400 text-sm border-r border-slate-200">
+                    <span id="answered-count" class="text-teal-500 text-lg mr-1">0</span> / {questions.length}
+                </div>
 
-    document.getElementById('score-text').innerText = `${score}/${totalQs}`;
-    const cefrBadge = document.getElementById('cefr-badge');
-    const circle = document.getElementById('score-circle');
-    
-    if (score < 13) { cefrBadge.innerText = "Level A1"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-slate-400"; circle.style.borderColor = "#cbd5e1"; }
-    else if (score <= 19) { cefrBadge.innerText = "Level A2 (Pass)"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-teal-500"; circle.style.borderColor = "#14b8a6"; setTimeout(() => confetti({ particleCount: 150, zIndex: 9999 }), 500); }
-    else { cefrBadge.innerText = "Level B1 (Merit)"; cefrBadge.className = "px-5 py-2 rounded-full font-black text-xs uppercase tracking-widest text-white shadow-md bg-emerald-500"; circle.style.borderColor = "#10b981"; setTimeout(() => confetti({ particleCount: 200, zIndex: 9999 }), 500); }
+                <div id="timer-display" class="bg-slate-100 text-slate-800 px-6 py-3 rounded-[2rem] font-black text-xl flex items-center gap-3">
+                    <span id="timer-dot" class="w-2.5 h-2.5 bg-teal-500 rounded-full animate-pulse"></span>
+                    <span id="time-string" class="tabular-nums tracking-tight">30:00</span>
+                </div>
+                
+                <button id="btn-submit-exam-main" class="bg-teal-500 hover:bg-teal-600 text-white font-black py-3 px-8 rounded-[2rem] shadow-md text-sm uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2">
+                    Nộp Bài <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </button>
+            </div>
+        </div>
 
-    scoreModal.classList.remove('hidden'); setTimeout(() => scoreModal.classList.remove('opacity-0'), 10);
-  });
+        <div id="result-modal" class="fixed inset-0 z-[1200] bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-6 opacity-0 transition-all duration-500">
+            <div class="bg-white rounded-[4rem] p-16 max-w-xl w-full text-center shadow-2xl border border-white transform scale-90 transition-all duration-500" id="result-modal-content">
+                <div class="text-8xl mb-8">✨</div>
+                <h2 class="text-4xl font-black text-slate-900 mb-2">Well Done!</h2>
+                <div class="text-[8rem] leading-none font-black text-teal-500 my-8 tracking-tighter" id="score-display">0/25</div>
+                <button id="btn-review-exam" class="w-full bg-slate-900 text-white font-black py-6 rounded-[2rem] text-lg shadow-2xl hover:bg-teal-600 transition-all uppercase tracking-widest">Xem Đáp Án</button>
+            </div>
+        </div>
+    </div>
 
-  document.getElementById('btn-close-modal').addEventListener('click', () => { scoreModal.classList.add('opacity-0'); setTimeout(() => scoreModal.classList.add('hidden'), 300); });
-  document.getElementById('btn-filter-wrong').addEventListener('click', () => { document.body.classList.add('filter-wrong-mode'); document.getElementById('btn-clear-filter').classList.remove('hidden'); document.getElementById('btn-close-modal').click(); });
-  document.getElementById('btn-clear-filter').addEventListener('click', () => { document.body.classList.remove('filter-wrong-mode'); document.getElementById('btn-clear-filter').classList.add('hidden'); });
+    <script is:inline>
+        // --- LOGIC GIAO DIỆN MENU (OFF-CANVAS) ---
+        const sideMenu = document.getElementById('side-menu');
+        const menuBtn = document.getElementById('toggle-menu-btn');
+        const menuArrow = document.getElementById('menu-arrow');
 
-  const sidebar = document.getElementById('sidebar');
-  document.getElementById('toggle-sidebar').addEventListener('click', () => sidebar.classList.toggle('-translate-x-full'));
-</script>
+        menuBtn.addEventListener('click', () => {
+            const isClosed = sideMenu.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sideMenu.classList.remove('-translate-x-full');
+                menuArrow.classList.add('rotate-180'); // Mũi tên quay ngược
+            } else {
+                sideMenu.classList.add('-translate-x-full');
+                menuArrow.classList.remove('rotate-180');
+            }
+        });
+
+        // Bấm số chuyển trang
+        document.querySelectorAll('.nav-q-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetNum = e.currentTarget.dataset.navTarget;
+                const targetEl = document.querySelector(`[data-qnum="${targetNum}"]`);
+                if (targetEl) {
+                    sideMenu.classList.add('-translate-x-full'); // Auto đóng menu
+                    menuArrow.classList.remove('rotate-180');
+                    const y = targetEl.getBoundingClientRect().top + window.scrollY - 100;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+
+                    targetEl.classList.remove('highlight-target');
+                    void targetEl.offsetWidth;
+                    targetEl.classList.add('highlight-target', 'rounded-3xl');
+                    setTimeout(() => targetEl.classList.remove('highlight-target'), 1500);
+                }
+            });
+        });
+
+        // --- LOGIC TRACKING CÂU ĐÃ LÀM (TÔ MÀU NÚT) ---
+        let questionsData = [];
+        try { questionsData = JSON.parse(document.getElementById('exam-data').dataset.questions); } catch(e) {}
+        
+        function updateProgress() {
+            let answered = 0;
+            document.querySelectorAll('.nav-q-btn').forEach(btn => {
+                const qNum = btn.dataset.navTarget;
+                const container = document.querySelector(`[data-qnum="${qNum}"]`);
+                if(!container) return;
+
+                let isAns = false;
+                if(container.querySelector('input[type="radio"]:checked')) isAns = true;
+                else {
+                    const textInput = container.querySelector('input[type="text"]');
+                    if(textInput && textInput.value.trim() !== '') isAns = true;
+                    const select = container.querySelector('select');
+                    if(select && select.value.trim() !== '') isAns = true;
+                }
+
+                if(isAns) {
+                    btn.classList.add('!bg-teal-500', '!text-white', '!border-teal-500');
+                    answered++;
+                } else {
+                    btn.classList.remove('!bg-teal-500', '!text-white', '!border-teal-500');
+                }
+            });
+            const countEl = document.getElementById('answered-count');
+            if(countEl) countEl.innerText = answered;
+            return answered;
+        }
+
+        // Lắng nghe mọi thay đổi để tô màu menu ngay lập tức
+        document.addEventListener('change', updateProgress);
+        document.addEventListener('input', updateProgress);
+
+
+        // --- LOGIC START, AUDIO & NỘP BÀI ---
+        const btnStart = document.getElementById('btn-start-exam');
+        const overlay = document.getElementById('start-overlay');
+        const timerText = document.getElementById('time-string');
+        const btnSubmitMain = document.getElementById('btn-submit-exam-main');
+        const resultModal = document.getElementById('result-modal');
+        const btnReview = document.getElementById('btn-review-exam');
+
+        let duration = 30 * 60;
+        let timerInterval;
+        let isSubmitted = false;
+
+        function playSequence(pNum) {
+            const audio = document.querySelector(`.part-audio[data-part="${pNum}"]`);
+            if (!audio) return;
+            audio.play();
+            audio.onended = () => { if (pNum < 5) playSequence(pNum + 1); };
+        }
+
+        btnStart?.addEventListener('click', () => {
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            timerInterval = setInterval(() => {
+                const m = Math.floor(duration / 60);
+                const s = duration % 60;
+                if(timerText) timerText.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if (--duration < 0) finalSubmit();
+            }, 1000);
+            playSequence(1);
+        });
+
+        // NÂNG CẤP PRO: Cảnh báo quên làm bài
+        btnSubmitMain?.addEventListener('click', () => {
+            const answered = updateProgress();
+            const total = questionsData.length;
+            if (answered < total) {
+                if(!confirm(`CẢNH BÁO: Bạn vẫn còn ${total - answered} câu chưa làm!\nBạn có chắc chắn muốn nộp bài sớm không?`)) {
+                    return; // Hủy nộp bài
+                }
+            }
+            finalSubmit();
+        });
+
+        function finalSubmit() {
+            if (isSubmitted) return;
+            isSubmitted = true;
+            clearInterval(timerInterval);
+            
+            let score = 0;
+            questionsData.forEach(q => {
+                const qNum = q.Q_Num || q.qNum;
+                const correctAns = String(q.Answer || "").trim().toLowerCase();
+                const container = document.querySelector(`[data-qnum="${qNum}"]`);
+                if(!container) return;
+
+                let userAns = "";
+                const partNum = Number(q.Part || q.part);
+                if ([1, 3, 4].includes(partNum)) {
+                    userAns = container.querySelector('input:checked')?.value?.trim().toLowerCase() || "";
+                } else if (partNum === 2) {
+                    userAns = container.querySelector('input')?.value?.trim().toLowerCase() || "";
+                } else if (partNum === 5) {
+                    userAns = container.querySelector('select')?.value?.trim().toLowerCase() || "";
+                }
+
+                const isCorrect = partNum === 2 ? correctAns.split('/').map(s => s.trim().toLowerCase()).includes(userAns) : userAns === correctAns;
+                if (isCorrect && userAns !== "") score++;
+
+                const explBox = container.querySelector('.explanation-box');
+                if(explBox) {
+                    explBox.classList.remove('hidden');
+                    const badge = isCorrect 
+                        ? `<div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-700 font-black text-xs uppercase px-4 py-2 rounded-xl mb-4 border border-emerald-200">✓ CHÍNH XÁC</div>`
+                        : `<div class="inline-flex items-center gap-2 bg-rose-100 text-rose-700 font-black text-xs uppercase px-4 py-2 rounded-xl mb-4 border border-rose-200">✗ SAI - ĐÁP ÁN: ${correctAns.toUpperCase()}</div>`;
+                    explBox.insertAdjacentHTML('afterbegin', badge);
+                }
+
+                if ([1, 3, 4].includes(partNum)) {
+                    container.querySelectorAll('label').forEach(label => {
+                        const radio = label.querySelector('input');
+                        const element = label.querySelector('.opt-box') || label.querySelector('.opt-radio');
+                        radio.disabled = true;
+                        if (radio.value.toLowerCase() === correctAns) {
+                            element.classList.add('!border-emerald-500', '!bg-emerald-50', '!text-emerald-700');
+                        } else if (radio.checked) {
+                            element.classList.add('!border-rose-500/50', '!bg-rose-50', '!text-rose-700');
+                        }
+                    });
+                } else if (partNum === 2 || partNum === 5) {
+                    const el = container.querySelector('input, select');
+                    el.disabled = true;
+                    if(isCorrect) el.classList.add('!border-emerald-500', '!bg-emerald-50', '!text-emerald-700');
+                    else {
+                        el.classList.add('!border-rose-400', '!bg-rose-50', '!text-rose-700', 'line-through');
+                        el.insertAdjacentHTML('afterend', `<span class="ml-4 text-emerald-600 font-black bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200">Ans: ${correctAns.toUpperCase()}</span>`);
+                    }
+                }
+            });
+
+            document.getElementById('score-display').innerText = `${score}/${questionsData.length}`;
+            resultModal.classList.remove('hidden');
+            resultModal.classList.add('flex');
+            setTimeout(() => {
+                resultModal.classList.add('opacity-100');
+                document.getElementById('result-modal-content').classList.remove('scale-90');
+                if (typeof confetti === 'function') confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+            }, 100);
+            
+            // Ẩn thanh bottom khi đã nộp bài
+            document.querySelector('.fixed.bottom-6').classList.add('hidden');
+        }
+
+        btnReview?.addEventListener('click', () => {
+            resultModal.classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+)}

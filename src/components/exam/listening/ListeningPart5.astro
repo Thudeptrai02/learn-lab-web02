@@ -1,107 +1,111 @@
 ---
-// src/components/exam/listening/ListeningPart5.astro
 const { partData } = Astro.props;
+const firstQ = partData.questions[0] || {};
+const passageText = partData.passage || partData.Passage || firstQ.Passage || "";
+const instruction = partData.instruction || partData.Instruction || "For each question, choose the correct answer.";
+const col1Title = partData.col1Header || firstQ.col1Header || "Friends";
+const col2Title = partData.col2Header || firstQ.col2Header || "Hobbies";
+const example = { name: "Mateo", ans: "H", num: "0" };
 
-const formTitle = partData.passage || partData.Passage || "Questions 21-25";
-const instruction = partData.instruction || partData.Instruction || "Choose the correct answer.";
+const letters = ['A','B','C','D','E','F','G','H'];
+const finalOptions = letters.map(L => ({ letter: L, text: firstQ[`Opt_${L}`] || firstQ[`opt_${L.toLowerCase()}`] })).filter(o => o.text);
 
-// 🟢 1. LINH HOẠT TIÊU ĐỀ CỘT
-const col1Title = partData.col1Header || partData.col1_title || "Questions";
-const col2Title = partData.col2Header || partData.col2_title || "Options";
-
-// 🟢 2. THUẬT TOÁN TỰ ĐỘNG BÓC TÁCH DANH SÁCH A-H TỪ PASSAGE
-// Nó sẽ tìm trong đoạn Passage những dòng có dạng "A - Nội dung" hoặc "A. Nội dung"
-const passageText = partData.Passage || partData.passage || "";
-const optionsFromPassage = [];
-const regex = /([A-H])[\s\.\-\:]+\s*([^<]+)/gi;
-let match;
-
-while ((match = regex.exec(passageText)) !== null) {
-    optionsFromPassage.push({
-        letter: match[1].toUpperCase(),
-        text: match[2].trim()
-    });
-}
-
-// Nếu không tìm thấy trong Passage thì mới dùng bảng chữ cái trống
-const finalOptions = optionsFromPassage.length > 0 
-    ? optionsFromPassage 
-    : ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].map(l => ({letter: l, text: ''}));
+const highlightTranscript = (fullText, evidence) => {
+    if (!evidence || !fullText) return fullText || "";
+    try {
+        const words = evidence.match(/[\p{L}\p{N}]+/gu);
+        if (!words || words.length === 0) return fullText;
+        const regexStr = words.join('[\\s\\W]+');
+        const regex = new RegExp(`(${regexStr})`, 'gi');
+        if (regex.test(fullText)) {
+            return fullText.replace(regex, '<mark class="bg-yellow-300 text-black font-black px-2 py-0.5 rounded shadow-sm border-b-2 border-orange-500">$1</mark>');
+        }
+        let highlightedText = fullText;
+        let isMatched = false;
+        const chunks = [];
+        for (let i = 0; i < words.length; i += 5) {
+            const chunk = words.slice(i, i + 7);
+            if (chunk.length >= 3) chunks.push(chunk);
+        }
+        chunks.forEach(chunk => {
+            const subRegex = new RegExp(`(${chunk.join('[\\s\\W]+')})`, 'gi');
+            if (subRegex.test(highlightedText)) {
+                highlightedText = highlightedText.replace(subRegex, '<mark class="bg-yellow-300 text-black font-black px-2 py-0.5 rounded shadow-sm border-b-2 border-orange-500">$1</mark>');
+                isMatched = true;
+            }
+        });
+        return isMatched ? highlightedText : fullText;
+    } catch (e) { return fullText; }
+};
 ---
 
-<div class="bg-white rounded-[2rem] p-6 sm:p-10 border border-teal-100 shadow-sm mb-8">
+<div class="bg-white rounded-[2.5rem] p-8 sm:p-12 border border-slate-100 shadow-sm mb-12 max-w-5xl mx-auto" id={`part-container-${partData.num}`}>
     
-    <div class="mb-8 pb-5 border-b border-slate-200">
-        <h3 class="text-xl font-black text-teal-900 mb-2 uppercase tracking-tight">
-            {formTitle.split('<br/>')[0]}
-        </h3>
-        <p class="text-slate-700 font-medium italic">{instruction}</p>
+    <div class="mb-10">
+        <h3 class="text-3xl font-black text-slate-900 mb-4 uppercase tracking-tighter">Part 5</h3>
+        <div class="bg-teal-50/50 border-l-4 border-teal-500 p-6 rounded-r-2xl border border-teal-100 mb-4">
+            <p class="text-slate-700 font-bold text-lg leading-relaxed">{passageText}</p>
+        </div>
+        <p class="text-teal-600 font-bold italic">{instruction}</p>
     </div>
 
-    <div class="max-w-5xl mx-auto flex flex-col md:flex-row gap-12 md:gap-20">
-        
-        {/* CỘT TRÁI: CÂU HỎI & Ô BOX */}
-        <div class="flex-1">
-            <div class="border-b-2 border-teal-500 pb-2 mb-6">
-                <h4 class="font-black text-lg text-slate-900 uppercase tracking-wider">{col1Title}</h4>
-            </div>
-            
-            <div class="space-y-6">
-                {partData.questions?.map((q) => {
-                    const qNum = q.Q_Num || q.qNum || q.so_cau;
-                    let questionLabel = q.Question || q.cau_hoi || "Item";
-                    // Dọn rác dấu chấm
-                    questionLabel = String(questionLabel).replace(/\.{2,}/g, '').trim();
-                    const correctAnswer = q.Answer || q.dap_an || "";
+    <div class="flex flex-col lg:flex-row gap-12">
+        <div class="flex-[1.4]">
+            <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 text-center border-b border-slate-100 pb-2">{col1Title}</div>
+            <div class="space-y-4">
+                <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200 opacity-60 pointer-events-none mb-8 shadow-inner">
+                    <span class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-white text-slate-400 font-black rounded-xl border border-slate-200">{example.num}</span>
+                    <span class="text-lg font-bold text-slate-500 flex-1">{example.name}</span>
+                    <div class="w-16 h-12 flex items-center justify-center bg-white border-2 border-slate-200 rounded-xl font-black text-xl text-slate-400">{example.ans}</div>
+                </div>
 
-                    return (
-                        <div class="part5-container flex flex-col" data-qnum={qNum} data-answer={correctAnswer}>
-                            <div class="flex items-center justify-between gap-4 py-1">
-                                <div class="flex items-center gap-4 flex-1">
-                                    <span class="font-black text-teal-600 w-6">{qNum}</span>
-                                    <span class="font-bold text-slate-700">{questionLabel}</span>
-                                </div>
-                                
-                                <div class="input-wrapper relative shrink-0">
-                                    <input 
-                                        type="text" 
-                                        name={`q-${qNum}`} 
-                                        maxlength="1"
-                                        class="w-14 h-12 border-2 border-teal-200 rounded-xl bg-white text-center font-black text-2xl text-teal-700 uppercase focus:border-teal-500 focus:ring-4 focus:ring-teal-500/10 focus:outline-none transition-all shadow-sm"
-                                        placeholder="?"
-                                        autocomplete="off"
-                                    />
-                                </div>
+                {partData.questions?.map((q) => (
+                    <div class="mcq-container group bg-white p-4 rounded-2xl border border-slate-100 hover:border-teal-300 hover:shadow-md transition-all" data-qnum={q.Q_Num || q.qNum}>
+                        <div class="flex items-center gap-4">
+                            <span class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-teal-500 text-white font-black rounded-xl shadow-sm group-hover:scale-110 transition-transform">{q.Q_Num || q.qNum}</span>
+                            <div class="flex-1">
+                                <p class="text-xs font-black text-slate-300 uppercase tracking-widest mb-0.5">Part 5 - Question {q.Q_Num}</p>
+                                <span class="text-lg font-bold text-slate-800">{q.Question}</span>
                             </div>
-
-                            <div class="explanation-box hidden mt-3 p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 animate-in fade-in">
-                                <div class="font-black flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                                    Correct: {correctAnswer}
-                                </div>
-                                {q.Explanation && <div class="text-slate-600 text-xs mt-2 leading-relaxed" set:html={q.Explanation}></div>}
-                            </div>
+                            <select name={`q-${q.Q_Num || q.qNum}`} class="w-20 bg-slate-50 border-2 border-slate-200 rounded-xl h-14 font-black text-teal-600 text-center text-xl focus:border-teal-500 outline-none appearance-none cursor-pointer hover:bg-white transition-colors">
+                                <option value="">-</option>
+                                {finalOptions.map(opt => <option value={opt.letter}>{opt.letter}</option>)}
+                            </select>
                         </div>
-                    );
-                })}
-            </div>
-        </div>
 
-        {/* CỘT PHẢI: DANH SÁCH LỰA CHỌN (TỰ ĐỘNG THEO ĐỀ) */}
-        <div class="flex-1">
-            <div class="border-b-2 border-teal-500 pb-2 mb-6">
-                <h4 class="font-black text-lg text-slate-900 uppercase tracking-wider">{col2Title}</h4>
-            </div>
-            
-            <div class="space-y-3 bg-teal-50/30 p-6 rounded-2xl border border-teal-100 shadow-inner">
-                {finalOptions.map((opt) => (
-                    <div class="flex items-start gap-4 py-1">
-                        <span class="font-black text-teal-600 w-6 text-lg">{opt.letter}</span>
-                        <span class="font-bold text-slate-700">{opt.text}</span>
+                        <div class="explanation-box hidden mt-6 p-6 bg-white rounded-2xl border border-teal-100 shadow-sm">
+                            <div class="mb-4">
+                                <h4 class="font-black text-teal-800 text-xs uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                                    <span class="w-2 h-2 bg-teal-400 rounded-full animate-pulse"></span>
+                                    LOGIC GIẢI THÍCH
+                                </h4>
+                                <p class="text-slate-700 font-bold">{q.Logic_VN}</p>
+                            </div>
+
+                            {q.Distractor_VN && (
+                                <div class="mb-4 p-4 bg-rose-50/50 rounded-xl border border-rose-100">
+                                    <h4 class="font-black text-rose-800 text-[10px] uppercase tracking-[0.2em] mb-1 flex items-center gap-2"><span class="text-sm">⚠️</span> LƯU Ý BẪY</h4>
+                                    <p class="text-rose-700 font-medium text-sm">{q.Distractor_VN}</p>
+                                </div>
+                            )}
+
+                             <div class="bg-slate-50 p-4 rounded-xl text-sm italic text-slate-600 border border-slate-100 leading-relaxed" set:html={highlightTranscript(q.Transcript_EN, q.Evidence_EN)}></div>
+                        </div>
                     </div>
                 ))}
             </div>
         </div>
 
+        <div class="flex-1">
+            <div class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] mb-6 text-center border-b border-slate-100 pb-2">{col2Title}</div>
+            <div class="space-y-2 sticky top-32">
+                {finalOptions.map((opt) => (
+                    <div class="flex items-center gap-4 p-4 rounded-xl bg-white border border-slate-100 shadow-sm transition-all hover:border-teal-200 hover:translate-x-2">
+                        <span class="w-8 h-8 flex items-center justify-center bg-teal-50 text-teal-600 font-black rounded-lg shrink-0">{opt.letter}</span>
+                        <span class="font-bold text-slate-600 text-sm">{opt.text}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
     </div>
 </div>

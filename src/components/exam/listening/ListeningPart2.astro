@@ -1,80 +1,89 @@
 ---
-// src/components/exam/listening/ListeningPart2.astro
 const { partData } = Astro.props;
+const firstQ = partData.questions[0] || {};
+const exampleName = firstQ.Example_Name || "";
+const exampleAns = firstQ.Example_Ans || "";
+const tableTitle = partData.col1Header || firstQ.col1Header || "NOTES";
 
-const formTitle = partData.passage || partData.Passage || "NOTES / FORM";
+const highlightTranscript = (fullText, evidence) => {
+    if (!evidence || !fullText) return fullText || "";
+    try {
+        const words = evidence.match(/[\p{L}\p{N}]+/gu);
+        if (!words || words.length === 0) return fullText;
+        const regexStr = words.join('[\\s\\W]+');
+        const regex = new RegExp(`(${regexStr})`, 'gi');
+        if (regex.test(fullText)) {
+            return fullText.replace(regex, '<mark class="bg-yellow-300 text-black font-black px-2 py-0.5 rounded shadow-sm border-b-2 border-orange-500">$1</mark>');
+        }
+        let highlightedText = fullText;
+        let isMatched = false;
+        const chunks = [];
+        for (let i = 0; i < words.length; i += 5) {
+            const chunk = words.slice(i, i + 7);
+            if (chunk.length >= 3) chunks.push(chunk);
+        }
+        chunks.forEach(chunk => {
+            const subRegex = new RegExp(`(${chunk.join('[\\s\\W]+')})`, 'gi');
+            if (subRegex.test(highlightedText)) {
+                highlightedText = highlightedText.replace(subRegex, '<mark class="bg-yellow-300 text-black font-black px-2 py-0.5 rounded shadow-sm border-b-2 border-orange-500">$1</mark>');
+                isMatched = true;
+            }
+        });
+        return isMatched ? highlightedText : fullText;
+    } catch (e) { return fullText; }
+};
 ---
 
-<div class="bg-white rounded-[2rem] p-6 sm:p-10 border border-teal-100 shadow-sm hover:shadow-md transition-shadow duration-300 mb-8 relative">
-    
-    <div class="max-w-3xl mx-auto bg-[#fdfbf7] rounded-xl shadow-inner border border-teal-100 relative overflow-hidden">
-        <div class="h-3 bg-teal-500 w-full opacity-90"></div>
-        
-        <div class="p-8 sm:p-12">
-            <h3 class="text-xl sm:text-2xl font-black text-center text-teal-900 tracking-widest uppercase mb-10 border-b-2 border-teal-100 pb-5">
-                {formTitle.split('<br/>')[0]}
-            </h3>
-
-            <div class="space-y-6 text-lg font-medium text-slate-700">
-                {partData.questions?.map((q) => {
-                    const qNum = q.Q_Num || q.qNum || q.so_cau || q.id;
-                    const rawQuestion = String(q.Question || q.cau_hoi || q.text || "Question");
-                    const correctAnswer = q.Answer || q.dap_an || "";
-
-                    // 🟢 BỘ LỌC DẤU CHẤM CỰC MẠNH: Quét sạch mọi loại dấu chấm (chấm liền, chấm cách, dấu ba chấm...)
-                    const normalizedQ = rawQuestion.replace(/(?:\.[\s]*){3,}|…+/g, '___SPLIT___');
-                    const splitText = normalizedQ.split('___SPLIT___');
-                    
-                    // Lọc bỏ các khoảng trắng dư thừa
-                    const beforeText = splitText[0] ? splitText[0].trim() : "";
-                    const afterText = splitText[1] ? splitText[1].trim() : "";
-
-                    return (
-                        <div class="part2-container" data-qnum={qNum} data-answer={correctAnswer}>
-                            
-                            {/* 🟢 DÙNG INLINE-BLOCK ĐỂ ÉP CHÚNG NÓ NẰM CÙNG 1 DÒNG */}
-                            <div class="leading-[3.5rem] group transition-all">
-                                
-                                {/* Cục số thứ tự */}
-                                <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-teal-500 text-white font-black text-sm shadow-sm mr-3 align-middle">
-                                    {qNum}
-                                </span>
-                                
-                                {/* Chữ phía trước */}
-                                <span class="font-bold text-teal-900 align-middle">
-                                    {beforeText}
-                                </span>
-                                
-                                {/* Ô Nhập Liệu - Căn giữa theo chữ */}
-                                <div class="input-wrapper relative inline-block mx-3 align-middle">
-                                    <input 
-                                        type="text" 
-                                        name={`q-${qNum}`} 
-                                        class="w-40 sm:w-48 bg-white border-2 border-teal-300 text-teal-900 font-black px-3 py-2 placeholder-teal-200/70 focus:outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-200 rounded-lg shadow-sm transition-all h-11"
-                                        placeholder="Enter answer..."
-                                        autocomplete="off"
-                                    />
-                                </div>
-
-                                {/* Chữ phía sau (nếu có) */}
-                                {afterText && (
-                                    <span class="font-bold text-teal-900 align-middle">
-                                        {afterText}
-                                    </span>
-                                )}
-                            </div>
-                            
-                            {/* Hộp giải thích (Ẩn) */}
-                            <div class="explanation-box hidden w-full text-sm mt-2 p-4 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-800 animate-in fade-in duration-500">
-                                <div class="font-black mb-1 flex items-center gap-2">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                                    Correct: {correctAnswer}
-                                </div>
-                                {q.Transcript && <div class="text-slate-600 italic bg-white/50 p-2 rounded mt-2 text-xs">{q.Transcript}</div>}
-                            </div>
+<div class="mb-12" id={`part-container-${partData.num}`}>
+    <div class="bg-white rounded-[2.5rem] p-6 sm:p-10 border border-slate-100 shadow-sm relative">
+        <div class="max-w-3xl mx-auto bg-white rounded-3xl border border-slate-200 relative overflow-hidden">
+            <div class="h-3 bg-teal-500 w-full"></div>
+            <div class="p-8 sm:p-14">
+                <h3 class="text-xl font-black text-center text-teal-600 mb-10"><span class="border-b-4 border-teal-500 pb-1 uppercase">{tableTitle}</span></h3>
+                <div class="space-y-6 text-lg text-slate-700">
+                    {exampleName && exampleAns && (
+                        <div class="flex items-center pb-5 border-b border-slate-100">
+                            <div class="w-10 h-10 mr-4 shrink-0"></div> 
+                            <span class="font-bold text-slate-400 w-48 sm:w-64 shrink-0">{exampleName}</span>
+                            <span class="font-black text-teal-600 bg-teal-50 px-5 py-2 rounded-xl border border-teal-100">{exampleAns}</span>
                         </div>
-                    );
-                })}
+                    )}
+                    {partData.questions?.map((q) => {
+                        const qNum = q.Q_Num || q.qNum;
+                        const splitText = String(q.Question).replace(/(?:\.[\s]*){3,}|…+/g, '___SPLIT___').split('___SPLIT___');
+                        return (
+                            <div class="part2-container flex flex-col py-2" data-qnum={qNum}>
+                                <div class="flex items-center group">
+                                    <span class="inline-flex shrink-0 items-center justify-center w-10 h-10 rounded-xl bg-teal-500 text-white font-black text-sm mr-4 shadow-md shadow-teal-100">{qNum}</span>
+                                    <span class="font-bold text-slate-700 w-48 sm:w-64 shrink-0">{splitText[0]}</span>
+                                    <input type="text" name={`q-${qNum}`} class="flex-1 max-w-[16rem] bg-white border-2 border-slate-200 text-teal-600 font-black px-4 py-3 rounded-xl focus:border-teal-500 outline-none shadow-sm transition-all" placeholder="..." />
+                                    {splitText[1] && <span class="font-bold text-slate-700 ml-4">{splitText[1]}</span>}
+                                </div>
+                                
+                                <div class="explanation-box hidden mt-8 pt-8 border-t border-dashed border-slate-200 animate-in fade-in duration-700 w-full">
+                                    <div class="bg-gradient-to-br from-white to-teal-50/30 rounded-[2rem] p-8 border border-teal-100 shadow-inner">
+                                        <div class="mb-6">
+                                            <h4 class="font-black text-teal-800 text-xs uppercase tracking-[0.2em] mb-3 flex items-center gap-2"><span class="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></span> LOGIC GIẢI THÍCH</h4>
+                                            <p class="text-slate-700 font-bold text-lg leading-relaxed">{q.Logic_VN}</p>
+                                        </div>
+                                        {q.Distractor_VN && (
+                                            <div class="mb-6 p-5 bg-rose-50/50 rounded-2xl border border-rose-100 shadow-sm">
+                                                <h4 class="font-black text-rose-800 text-xs uppercase tracking-[0.2em] mb-2 flex items-center gap-2"><span class="text-base">⚠️</span> PHÂN TÍCH BẪY (DISTRACTOR)</h4>
+                                                <p class="text-rose-700 font-semibold text-sm leading-relaxed">{q.Distractor_VN}</p>
+                                            </div>
+                                        )}
+                                        <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+                                            <h4 class="font-black text-slate-400 text-[10px] uppercase tracking-widest mb-4">Audio Transcript Analysis</h4>
+                                            <div class="text-slate-600 font-medium leading-relaxed italic text-base">
+                                                <span set:html={highlightTranscript(q.Transcript_EN, q.Evidence_EN)}></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
         </div>
     </div>
