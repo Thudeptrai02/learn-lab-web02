@@ -1,15 +1,18 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
-import { getSheetData } from '../../../../lib/googleSheets.js';
 
+// Quét tất cả file JSON để Astro biết có bao nhiêu trang cần tạo
 export async function getStaticPaths() {
-  const SHEET_ID = '1J77QG5Fh63Kk0cYnK_eGy_RuMuQu0Nzs4qxetC3k0O8';
-  const allCards = await getSheetData(SHEET_ID, 'Flashcards');
-  
-  const uniqueTopics = [...new Set(allCards.map(c => c.topic || 'chua-phan-loai'))];
+  const jsonFilesPaths = import.meta.glob('../../../../data/**/*.json', { eager: true });
+  let cardsData = [];
+  Object.values(jsonFilesPaths).forEach(file => {
+    cardsData = [...cardsData, ...(file.default || [])];
+  });
+
+  const uniqueTopics = [...new Set(cardsData.map(c => c.topic || 'chua-phan-loai'))];
   
   return uniqueTopics.map(topic => {
-    const filteredCards = allCards.filter(c => (c.topic || 'chua-phan-loai') === topic);
+    const filteredCards = cardsData.filter(c => (c.topic || 'chua-phan-loai') === topic);
     return {
       params: { topic: topic },
       props: { 
@@ -23,75 +26,61 @@ export async function getStaticPaths() {
 let { cards, topicName } = Astro.props;
 
 if (!cards || cards.length === 0) {
-  cards = [{ word: 'Trống', meaning: 'Chưa có từ vựng', partOfSpeech: '-', example: '', synonyms: [] }];
+  cards = [{ word: 'Trống', meaning: 'Chưa có dữ liệu', partOfSpeech: '-', example: '', synonyms: '' }];
 }
 ---
 
 <Layout title={`${topicName} - Flashcards | Learn Lab`}>
-  <main class="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-    <section class="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white px-6 py-8 shadow-sm sm:px-10 sm:py-10">
+  <main class="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8 lg:py-14 overflow-x-hidden">
+    <section class="mx-auto max-w-4xl rounded-2xl border border-slate-200 bg-white px-4 py-8 shadow-sm sm:px-10 sm:py-10">
       
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <!-- HEADER PHÒNG HỌC -->
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
-          <a href="/english-lab/toeic/flashcards" class="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-teal-600 transition-colors">&larr; Về Menu Chủ Đề</a>
-          <h1 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl">Học từ vựng: <span class="text-teal-600">{topicName}</span></h1>
+          <a href="/english-lab/toeic/flashcards" class="text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-teal-600 transition-colors">&larr; Trở về kho từ vựng</a>
+          <h1 class="mt-2 text-2xl font-extrabold text-slate-900 sm:text-3xl"><span class="text-teal-600">{topicName}</span></h1>
         </div>
-        <div id="progress" class="inline-flex rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-inner">
-          1 / {cards.length}
+        <div class="inline-flex rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 shadow-inner">
+          <span id="progress-text">Đang tải...</span>
         </div>
       </div>
 
-      <div class="mt-8 flex rounded-xl bg-slate-100 p-1">
-        <button id="tab-flashcards" class="flex-1 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition-all">
-          Flashcards
-        </button>
-        <button id="tab-sheet" class="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-500 transition-all hover:text-slate-900">
-          Vocabulary Sheet
-        </button>
-      </div>
-
-      <div id="flashcards-view" class="mt-10">
-        <div id="card-stage" class="relative mx-auto max-w-xl transition-all duration-300 ease-out">
+      <!-- KHU VỰC THẺ 3D -->
+      <div id="flashcards-view">
+        <div id="card-stage" class="relative mx-auto max-w-md h-[400px] transition-all duration-300 ease-out">
           
-          <div class="absolute inset-x-6 top-4 h-[420px] rounded-2xl bg-slate-100 border border-slate-200"></div>
-          <div class="absolute inset-x-3 top-2 h-[420px] rounded-2xl bg-slate-50 border border-slate-200 shadow-sm"></div>
+          <div class="absolute inset-x-6 top-4 bottom-0 rounded-3xl bg-slate-100 border border-slate-200"></div>
+          <div class="absolute inset-x-3 top-2 bottom-0 rounded-3xl bg-slate-50 border border-slate-200 shadow-sm"></div>
 
-          <div class="[perspective:1200px] relative z-10">
-            <button id="flashcard" class="group relative block h-[420px] w-full rounded-2xl text-left focus:outline-none cursor-pointer" aria-label="Flip flashcard">
-              <div id="flashcard-inner" class="relative h-full w-full rounded-2xl transition-transform duration-500 [transform-style:preserve-3d]">
+          <div class="[perspective:1200px] relative z-10 w-full h-full">
+            <button id="flashcard" class="group relative block w-full h-full text-left focus:outline-none cursor-pointer" aria-label="Flip flashcard">
+              <div id="flashcard-inner" class="relative w-full h-full rounded-3xl transition-transform duration-700 [transform-style:preserve-3d]">
                 
-                <div class="absolute inset-0 flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-md [backface-visibility:hidden]">
-                  <p class="text-xs font-semibold uppercase tracking-widest text-slate-400">Front</p>
+                <!-- MẶT TRƯỚC (TIẾNG ANH) -->
+                <div class="absolute inset-0 w-full h-full flex flex-col rounded-3xl border-2 border-slate-100 bg-white p-8 shadow-xl [backface-visibility:hidden]">
+                  <p class="text-xs font-bold uppercase tracking-widest text-slate-300">Front</p>
                   <div class="flex flex-1 flex-col items-center justify-center text-center">
-                    <p class="text-sm font-semibold text-teal-600 mb-2">Word</p>
-                    <h2 id="card-word" class="text-4xl font-extrabold text-slate-900 sm:text-5xl tracking-tight">{cards[0].word}</h2>
-                    <p class="mt-4 inline-flex rounded bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-slate-500">
-                      <span id="card-pos-front">{cards[0].partOfSpeech}</span>
-                    </p>
-                    <p id="card-example" class="mt-6 text-base text-slate-600 italic">
-                      "{cards[0].example}"
-                    </p>
+                    <p class="mt-2 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold uppercase tracking-widest text-slate-500 mb-4" id="card-pos-front">POS</p>
+                    <h2 id="card-word" class="text-4xl sm:text-5xl font-black text-slate-800 tracking-tight">Word</h2>
+                    <p id="card-ipa" class="text-lg text-teal-600 font-medium mt-2">/ipa/</p>
+                    <p id="card-example" class="mt-6 text-base text-slate-600 font-medium leading-relaxed italic">"Example"</p>
                   </div>
-                  <p class="text-center text-sm font-medium text-slate-400">Nhấp để lật thẻ</p>
+                  <p class="text-center text-sm font-bold text-slate-300 animate-pulse">Nhấp để lật thẻ</p>
                 </div>
 
-                <div class="absolute inset-0 flex flex-col rounded-2xl border border-teal-600 bg-teal-600 p-8 shadow-md [backface-visibility:hidden] [transform:rotateY(180deg)] text-white">
-                  <p class="text-xs font-semibold uppercase tracking-widest text-teal-200">Back</p>
+                <!-- MẶT SAU (TIẾNG VIỆT) -->
+                <div class="absolute inset-0 w-full h-full flex flex-col rounded-3xl border border-slate-700 bg-gradient-to-br from-slate-800 to-slate-900 p-8 shadow-xl [backface-visibility:hidden] [transform:rotateY(180deg)] text-white">
+                  <p class="text-xs font-bold uppercase tracking-widest text-slate-500">Back</p>
                   <div class="flex flex-1 flex-col items-center justify-center text-center">
-                    <p class="text-sm font-semibold text-teal-200 mb-2">Meaning</p>
-                    <h3 id="card-meaning" class="text-4xl font-extrabold sm:text-5xl tracking-tight">{cards[0].meaning}</h3>
-                    <p class="mt-3 inline-flex rounded bg-teal-700 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-teal-100">
-                      <span id="card-pos-back">{cards[0].partOfSpeech}</span>
-                    </p>
+                    <p class="mt-2 inline-flex rounded-full bg-slate-700 px-3 py-1 text-xs font-bold uppercase tracking-widest text-teal-400 mb-4" id="card-pos-back">POS</p>
+                    <h3 id="card-meaning" class="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">Meaning</h3>
                     
-                    <div class="mt-6 w-full rounded-xl bg-teal-800/40 p-4 backdrop-blur-sm border border-teal-500/50">
-                      <p class="text-xs font-bold uppercase tracking-widest text-teal-300 mb-3">Synonyms / Paraphrase</p>
-                      <div id="card-synonyms" class="flex flex-wrap gap-2 justify-center">
-                      </div>
+                    <div class="mt-8 w-full rounded-2xl bg-slate-800/80 p-5 border border-slate-700">
+                      <p class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Từ đồng nghĩa</p>
+                      <div id="card-synonyms" class="flex flex-wrap gap-2 justify-center"></div>
                     </div>
-
                   </div>
-                  <p class="text-center text-sm font-medium text-teal-200">Nhấp để lật lại</p>
+                  <p class="text-center text-sm font-bold text-slate-500">Nhấp để xem lại mặt trước</p>
                 </div>
 
               </div>
@@ -99,88 +88,46 @@ if (!cards || cards.length === 0) {
           </div>
         </div>
 
-        <div id="study-actions" class="mt-10 mx-auto grid max-w-xl gap-4 sm:grid-cols-2">
-          <button id="not-known" class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+        <!-- NÚT ĐIỀU KHIỂN -->
+        <div id="study-actions" class="mt-12 mx-auto grid max-w-md gap-4 grid-cols-2">
+          <button id="not-known" class="inline-flex items-center justify-center rounded-2xl border-2 border-rose-100 bg-white px-5 py-4 text-sm font-bold text-rose-500 transition-all hover:bg-rose-50 hover:border-rose-200">
             Chưa thuộc
           </button>
-          <button id="known" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-teal-700 shadow-md">
+          <button id="known" class="inline-flex items-center justify-center rounded-2xl bg-teal-600 px-5 py-4 text-sm font-bold text-white transition-all hover:bg-teal-500 shadow-lg shadow-teal-200">
             Đã thuộc
           </button>
         </div>
 
-        <div id="done-box" class="mt-10 hidden mx-auto max-w-xl rounded-2xl border border-teal-100 bg-teal-50 p-8 text-center">
-          <p class="text-xs font-semibold uppercase tracking-widest text-teal-700">Completed</p>
-          <h3 class="mt-3 text-2xl font-bold text-slate-900">Hoàn thành chủ đề!</h3>
-          <p class="mt-2 text-sm text-slate-600">Bạn đã ôn xong toàn bộ từ vựng của <strong class="text-teal-700">{topicName}</strong>.</p>
-          <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <a href="/english-lab/toeic/flashcards" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-700 shadow-md">
+        <!-- MÀN HÌNH HOÀN THÀNH -->
+        <div id="done-box" class="mt-10 hidden mx-auto max-w-md rounded-3xl border-2 border-teal-100 bg-white p-10 text-center shadow-xl">
+          <div class="text-6xl mb-6">🎉</div>
+          <h3 class="text-2xl font-black text-slate-800">Tuyệt vời sếp ơi!</h3>
+          <p class="mt-2 text-sm font-medium text-slate-500 mb-8">Bạn đã hoàn thành toàn bộ từ vựng của chủ đề này.</p>
+          <div class="flex justify-center">
+            <a href="/english-lab/toeic/flashcards" class="inline-flex items-center justify-center rounded-xl bg-teal-600 px-8 py-3 text-sm font-bold text-white transition-all hover:bg-teal-500 shadow-lg shadow-teal-200">
               Học chủ đề khác
             </a>
-            <button id="go-to-sheet" class="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-              Xem lại danh sách
-            </button>
           </div>
         </div>
       </div>
 
-      <div id="sheet-view" class="mt-10 hidden">
-        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 text-left">
-              <thead class="bg-slate-50">
-                <tr>
-                  <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Word</th>
-                  <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Meaning</th>
-                  <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Synonyms</th>
-                  <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">Example</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-100">
-                {cards.map((card) => (
-                  <tr class="align-top hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4">
-                      <p class="text-sm font-bold text-slate-900">{card.word}</p>
-                      <p class="mt-1 text-xs text-slate-500">{card.partOfSpeech}</p>
-                    </td>
-                    <td class="px-6 py-4 text-sm font-medium text-slate-700">{card.meaning}</td>
-                    <td class="px-6 py-4">
-                      <div class="flex flex-wrap gap-1">
-                        {card.synonyms.map((syn) => (
-                          <span class="inline-flex items-center rounded-md bg-teal-50 px-2 py-1 text-[11px] font-bold text-teal-700 ring-1 ring-inset ring-teal-600/20">
-                            {syn}
-                          </span>
-                        ))}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 text-sm text-slate-600 italic">"{card.example}"</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </section>
   </main>
 </Layout>
 
 <script define:vars={{ cards }}>
+  let learningQueue = [...cards]; 
   let currentIndex = 0;
   let isFlipped = false;
   let isAnimating = false;
 
-  const progress = document.getElementById('progress');
-  const tabFlashcards = document.getElementById('tab-flashcards');
-  const tabSheet = document.getElementById('tab-sheet');
-  const flashcardsView = document.getElementById('flashcards-view');
-  const sheetView = document.getElementById('sheet-view');
-  const goToSheet = document.getElementById('go-to-sheet');
-
+  const progress = document.getElementById('progress-text');
   const flashcard = document.getElementById('flashcard');
   const flashcardInner = document.getElementById('flashcard-inner');
   const cardStage = document.getElementById('card-stage');
 
   const word = document.getElementById('card-word');
+  const ipa = document.getElementById('card-ipa');
   const example = document.getElementById('card-example');
   const meaning = document.getElementById('card-meaning');
   const posFront = document.getElementById('card-pos-front');
@@ -192,38 +139,14 @@ if (!cards || cards.length === 0) {
   const doneBox = document.getElementById('done-box');
   const studyActions = document.getElementById('study-actions');
 
-  function showFlashcardsTab() {
-    flashcardsView?.classList.remove('hidden');
-    sheetView?.classList.add('hidden');
-    tabFlashcards?.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
-    tabFlashcards?.classList.remove('text-slate-500');
-    tabSheet?.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
-    tabSheet?.classList.add('text-slate-500');
-  }
-
-  function showSheetTab() {
-    flashcardsView?.classList.add('hidden');
-    sheetView?.classList.remove('hidden');
-    tabSheet?.classList.add('bg-white', 'text-slate-900', 'shadow-sm');
-    tabSheet?.classList.remove('text-slate-500');
-    tabFlashcards?.classList.remove('bg-white', 'text-slate-900', 'shadow-sm');
-    tabFlashcards?.classList.add('text-slate-500');
-  }
-
-  function playFlipSound() {
-    try {
-      const ctx = new window.AudioContext();
-      const osc1 = ctx.createOscillator();
-      const gain1 = ctx.createGain();
-      osc1.connect(gain1);
-      gain1.connect(ctx.destination);
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(1046, ctx.currentTime);
-      gain1.gain.setValueAtTime(0.6, ctx.currentTime);
-      gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-      osc1.start(ctx.currentTime);
-      osc1.stop(ctx.currentTime + 0.6);
-    } catch (e) {}
+  function playWordAudio(wordText) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel(); 
+      const utterance = new SpeechSynthesisUtterance(wordText);
+      utterance.lang = 'en-US'; 
+      utterance.rate = 0.9;     
+      window.speechSynthesis.speak(utterance);
+    }
   }
 
   function resetCardFace() {
@@ -232,27 +155,36 @@ if (!cards || cards.length === 0) {
   }
 
   function renderCard() {
-    const card = cards[currentIndex];
+    const card = learningQueue[currentIndex];
     if (!card) return;
 
-    if (progress) progress.textContent = `${currentIndex + 1} / ${cards.length}`;
-    if (word) word.textContent = card.word;
-    if (example) example.textContent = `"${card.example}"`;
-    if (meaning) meaning.textContent = card.meaning;
-    if (posFront) posFront.textContent = card.partOfSpeech;
-    if (posBack) posBack.textContent = card.partOfSpeech;
+    if (progress) progress.textContent = `Còn ${learningQueue.length - currentIndex} thẻ`;
+    
+    if (word) word.textContent = card.word || 'Unknown';
+    if (ipa) ipa.textContent = card.ipa ? card.ipa : '';
+    if (example) example.textContent = card.example ? `"${card.example}"` : "";
+    if (meaning) meaning.textContent = card.meaning || 'Chưa có nghĩa';
+    if (posFront) posFront.textContent = card.partOfSpeech || '-';
+    if (posBack) posBack.textContent = card.partOfSpeech || '-';
     
     if (synonymsContainer) {
       synonymsContainer.innerHTML = ''; 
-      if (card.synonyms && card.synonyms.length > 0) {
-        card.synonyms.forEach(syn => {
+      let synArray = [];
+      if (typeof card.synonyms === 'string' && card.synonyms.trim() !== '') {
+         synArray = card.synonyms.split(',').map(s => s.trim());
+      } else if (Array.isArray(card.synonyms)) {
+         synArray = card.synonyms;
+      }
+
+      if (synArray.length > 0) {
+        synArray.forEach(syn => {
           const span = document.createElement('span');
-          span.className = 'px-3 py-1 bg-white/20 rounded-full text-sm font-bold border border-white/30 backdrop-blur-md shadow-sm cursor-default';
+          span.className = 'px-3 py-1 bg-slate-700/50 rounded-lg text-sm font-bold text-slate-300 border border-slate-600';
           span.textContent = syn;
           synonymsContainer.appendChild(span);
         });
       } else {
-        synonymsContainer.innerHTML = '<span class="text-teal-300 text-sm">Không có</span>';
+        synonymsContainer.innerHTML = '<span class="text-slate-500 text-sm font-medium">Không có dữ liệu</span>';
       }
     }
     resetCardFace();
@@ -263,7 +195,7 @@ if (!cards || cards.length === 0) {
     if (!isFlipped) {
       isFlipped = true;
       flashcardInner?.style.setProperty('transform', 'rotateY(180deg)');
-      playFlipSound();
+      playWordAudio(learningQueue[currentIndex].word);
     } else {
       isFlipped = false;
       flashcardInner?.style.setProperty('transform', 'rotateY(0deg)');
@@ -291,32 +223,35 @@ if (!cards || cards.length === 0) {
     });
   }
 
-  async function nextCard() {
+  async function handleCardAnswer(isKnown) {
     if (isAnimating) return;
     isAnimating = true;
     await animateNextCard();
+
+    if (!isKnown) {
+      learningQueue.push(learningQueue[currentIndex]);
+    }
+
     currentIndex += 1;
 
-    if (currentIndex >= cards.length) {
+    if (currentIndex >= learningQueue.length) {
       flashcard?.classList.add('hidden');
       cardStage?.classList.add('hidden');
       studyActions?.classList.add('hidden');
       doneBox?.classList.remove('hidden');
-      if (progress) progress.textContent = `${cards.length} / ${cards.length}`;
+      if (progress) progress.textContent = `Hoàn thành!`;
       isAnimating = false;
       return;
     }
+
     renderCard();
     animateCardIn();
     setTimeout(() => { isAnimating = false; }, 280);
   }
 
   flashcard?.addEventListener('click', flipCard);
-  knownBtn?.addEventListener('click', nextCard);
-  notKnownBtn?.addEventListener('click', nextCard);
-  tabFlashcards?.addEventListener('click', showFlashcardsTab);
-  tabSheet?.addEventListener('click', showSheetTab);
-  goToSheet?.addEventListener('click', showSheetTab);
+  knownBtn?.addEventListener('click', () => handleCardAnswer(true));
+  notKnownBtn?.addEventListener('click', () => handleCardAnswer(false));
 
   if (cardStage) {
     cardStage.style.opacity = '1';
@@ -324,5 +259,4 @@ if (!cards || cards.length === 0) {
   }
 
   renderCard();
-  showFlashcardsTab();
 </script>

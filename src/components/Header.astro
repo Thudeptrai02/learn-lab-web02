@@ -1,9 +1,11 @@
 ---
+// src/components/Header.astro
 ---
 <header class="sticky top-0 z-50 border-b border-slate-200/80 bg-white/80 backdrop-blur-md shadow-sm transition-all duration-300">
   <div class="mx-auto max-w-7xl px-6 py-3">
     <div class="flex items-center justify-between">
       
+      <!-- LOGO -->
       <a href="/" class="flex items-center gap-2.5 group shrink-0">
         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-md shadow-teal-200 transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
           <span class="text-xl font-black text-white">L</span>
@@ -13,15 +15,17 @@
         </span>
       </a>
 
+      <!-- NAVIGATION CHÍNH -->
       <nav class="hidden md:flex flex-1 items-center justify-center gap-8 text-sm font-bold text-slate-600">
         <a href="/" class="transition-colors hover:text-teal-600">Trang chủ</a>
         
+        <!-- DROPDOWN ENGLISH LAB (Khôi phục nguyên bản 3 bài thi của sếp) -->
         <div class="group relative py-4">
           <button class="flex items-center gap-1.5 transition-colors hover:text-teal-600 outline-none">
             English Lab
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-4 w-4 transition-transform duration-300 group-hover:-rotate-180"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
           </button>
-          <div class="absolute left-1/2 top-full w-56 -translate-x-1/2 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+          <div class="absolute left-1/2 top-full w-56 -translate-x-1/2 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-50">
             <div class="rounded-2xl border border-slate-100 bg-white/95 backdrop-blur-xl p-2 shadow-xl ring-1 ring-black/5">
               <a href="/english-lab/toeic" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-700 hover:bg-teal-50 hover:text-teal-700 transition-colors font-bold">🎯 <span class="truncate">TOEIC Master</span></a>
               <a href="/english-lab/ielts" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-700 hover:bg-sky-50 hover:text-sky-700 transition-colors font-bold">📘 <span class="truncate">IELTS Pro</span></a>
@@ -29,51 +33,60 @@
             </div>
           </div>
         </div>
-
+        
         <a href="/blog" class="transition-colors hover:text-teal-600">Blog</a>
+        
+        <a href="/free-resources" class="transition-colors hover:text-teal-600">Tài liệu</a>
+
+        <!-- NÚT ZEN MODE -->
+        <a href="/zen-mode" class="group relative flex items-center gap-2 rounded-full bg-teal-50 px-4 py-1.5 text-teal-600 transition-all duration-300 hover:text-white overflow-hidden shadow-sm border border-teal-100/50">
+          <span class="relative z-10 uppercase tracking-widest text-[10px] font-black">Zen Mode</span>
+          <span class="relative z-10 text-sm animate-pulse">✨</span>
+          <div class="absolute inset-0 bg-gradient-to-r from-teal-400 to-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
+        </a>
       </nav>
 
-      <div class="hidden md:flex items-center gap-4 shrink-0 min-w-[180px] justify-end">
-        
-        <div id="nav-logged-out" class="flex items-center gap-3 transition-opacity duration-300">
-          <a href="/login" class="px-4 py-2 text-sm font-bold text-slate-600 transition-colors hover:text-teal-600">Đăng nhập</a>
-          <a href="/register" class="rounded-full bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:bg-teal-600 hover:shadow-teal-200 hover:-translate-y-0.5 active:scale-95">Đăng ký</a>
+      <!-- AUTH BUTTONS & AVATAR -->
+      <div class="flex items-center gap-3 border-l border-slate-100 pl-8">
+        <div id="auth-out" class="hidden flex items-center gap-3">
+          <a href="/login" class="px-4 py-2 text-sm font-bold text-slate-700 transition-all hover:text-teal-700">Đăng nhập</a>
+          <a href="/register" class="rounded-xl bg-teal-600 px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-teal-100 transition-all hover:bg-teal-700 hover:-translate-y-0.5 active:scale-95">Đăng ký</a>
         </div>
 
-        <div id="nav-logged-in" class="hidden relative transition-opacity duration-300">
-          <button id="avatar-btn" class="flex items-center gap-2.5 p-1.5 pl-4 pr-1.5 rounded-full border border-slate-200 hover:border-teal-300 hover:bg-teal-50/50 transition-all focus:ring-2 focus:ring-teal-100 bg-white outline-none group">
-            <span id="nav-user-name" class="text-sm font-bold text-slate-700 max-w-[100px] truncate group-hover:text-teal-700 transition-colors">Học viên</span>
-            <div id="avatar-initial" class="w-8 h-8 bg-gradient-to-br from-teal-500 to-emerald-500 text-white font-bold rounded-full flex items-center justify-center text-sm shadow-inner transform transition-transform group-hover:scale-105">U</div>
+        <div id="auth-in" class="hidden relative">
+          <button id="avatar-btn" class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-teal-500 to-emerald-500 font-bold text-white shadow-md ring-2 ring-white transition-transform hover:scale-105 active:scale-95 outline-none">
+            <span id="user-initial">U</span>
           </button>
-
-          <div id="avatar-dropdown" class="hidden absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 origin-top-right z-50 transform opacity-0 scale-95 transition-all duration-200">
+          
+          <!-- Dropdown Menu Tài khoản -->
+          <div id="user-dropdown" class="hidden absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 origin-top-right z-50">
             <div class="px-5 py-4 border-b border-slate-50 mb-2">
               <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider mb-1">Tài khoản của bạn</p>
-              <p id="dropdown-email" class="text-sm font-bold text-slate-800 truncate">email@example.com</p>
+              <p id="user-name" class="text-sm font-bold text-slate-800 truncate">Học viên</p>
+              <p id="user-email" class="text-xs font-medium text-slate-500 truncate">email@example.com</p>
             </div>
             <a href="/profile" class="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-teal-600 font-bold transition-colors"><span class="text-lg grayscale opacity-70">⚙️</span> Cài đặt hồ sơ</a>
             <hr class="my-2 border-slate-100 mx-3">
-            <button id="nav-logout-btn" class="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-rose-500 hover:bg-rose-50 hover:text-rose-600 font-bold transition-colors outline-none"><span class="text-lg grayscale opacity-70">🚪</span> Đăng xuất hệ thống</button>
+            <button id="logout-btn" class="w-full flex items-center gap-3 px-5 py-2.5 text-sm text-rose-500 hover:bg-rose-50 hover:text-rose-600 font-bold transition-colors outline-none"><span class="text-lg grayscale opacity-70">🚪</span> Đăng xuất</button>
           </div>
         </div>
-
       </div>
+
     </div>
   </div>
 </header>
 
 <script>
-  import { supabase } from '../lib/supabase.js';
-
+  import { supabase } from '../lib/supabase';
   const els = {
-    out: document.getElementById('nav-logged-out'),
-    in: document.getElementById('nav-logged-in'),
-    name: document.getElementById('nav-user-name'),
-    initial: document.getElementById('avatar-initial'),
-    email: document.getElementById('dropdown-email'),
+    out: document.getElementById('auth-out'),
+    in: document.getElementById('auth-in'),
+    name: document.getElementById('user-name'),
+    email: document.getElementById('user-email'),
+    initial: document.getElementById('user-initial'),
     avatarBtn: document.getElementById('avatar-btn'),
-    dropdown: document.getElementById('avatar-dropdown'),
-    logoutBtn: document.getElementById('nav-logout-btn')
+    dropdown: document.getElementById('user-dropdown'),
+    logoutBtn: document.getElementById('logout-btn')
   };
 
   function updateUI(session) {
@@ -90,28 +103,15 @@
     }
   }
 
-  // Khởi tạo & Lắng nghe tự động
   supabase.auth.getSession().then(({ data: { session } }) => updateUI(session));
   supabase.auth.onAuthStateChange((_event, session) => updateUI(session));
 
-  // Toggle Dropdown mượt mà
   els.avatarBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (els.dropdown?.classList.contains('hidden')) {
-      els.dropdown.classList.remove('hidden');
-      setTimeout(() => els.dropdown.classList.remove('opacity-0', 'scale-95'), 10);
-    } else {
-      els.dropdown?.classList.add('opacity-0', 'scale-95');
-      setTimeout(() => els.dropdown?.classList.add('hidden'), 200);
-    }
+    els.dropdown?.classList.toggle('hidden');
   });
 
-  document.addEventListener('click', (e) => {
-    if (els.in && !els.in.contains(e.target)) {
-      els.dropdown?.classList.add('opacity-0', 'scale-95');
-      setTimeout(() => els.dropdown?.classList.add('hidden'), 200);
-    }
-  });
+  document.addEventListener('click', () => els.dropdown?.classList.add('hidden'));
 
   els.logoutBtn?.addEventListener('click', async () => {
     await supabase.auth.signOut();

@@ -2,160 +2,291 @@
 // src/pages/zen-mode.astro
 ---
 
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zen Mode - Trạm dừng tâm trí</title>
+    <script is:inline src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-black overflow-hidden select-none">
-    <div class="zen-wrapper fixed inset-0 flex items-center justify-center">
-        
-        <div id="stars" class="absolute inset-0"></div>
-        <div id="stars2" class="absolute inset-0"></div>
-        <div id="stars3" class="absolute inset-0"></div>
+<body style="margin: 0; overflow: hidden; height: 100vh; width: 100vw; user-select: none; background-color: #030305;">
+    
+    <!-- VŨ TRỤ ĐỘNG 3D -->
+    <canvas id="universe" class="absolute inset-0 z-0"></canvas>
+    <div class="absolute inset-0 z-10 bg-[radial-gradient(ellipse_at_center,_rgba(19,19,32,0.4)_0%,_rgba(3,3,5,0.8)_100%)] pointer-events-none"></div>
 
-        <div class="relative z-10 w-full max-w-xl px-6 flex flex-col items-center">
+    <!-- MÀN HÌNH 1: CHỌN CẢM XÚC -->
+    <div id="screen-selection" class="absolute inset-0 z-40 flex flex-col items-center justify-center transition-all duration-1000">
+        <h2 class="text-white/90 text-2xl sm:text-3xl font-light tracking-[0.1em] mb-12 drop-shadow-lg">
+            Lúc này, bạn đang mang cảm xúc gì?
+        </h2>
+        <div class="flex gap-6 sm:gap-12">
+            <!-- Nút Vui -->
+            <button onclick="selectMode('joy')" class="group relative w-40 h-40 sm:w-48 sm:h-48 rounded-full border border-yellow-200/30 bg-yellow-500/10 hover:bg-yellow-400/20 flex flex-col items-center justify-center gap-3 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_50px_rgba(253,224,71,0.2)]">
+                <span class="text-4xl group-hover:scale-110 transition-transform duration-500">✨</span>
+                <span class="text-yellow-100 text-sm tracking-widest uppercase font-bold">Niềm vui</span>
+            </button>
             
-            <div id="guide-wrap" class="h-24 mb-12 flex items-center justify-center">
-                <h1 id="guide-text" class="text-white/80 text-2xl sm:text-3xl font-light tracking-[0.2em] text-center transition-all duration-1000 leading-relaxed">
-                    Điều gì đang làm bạn bận lòng?
-                </h1>
-            </div>
-
-            <div id="zen-bubble" class="relative w-72 h-72 sm:w-96 sm:h-96 rounded-full flex items-center justify-center transition-all duration-[60000ms] ease-linear">
-                <div class="absolute inset-0 rounded-full bg-white/[0.03] backdrop-blur-md border border-white/10 shadow-[0_0_80px_rgba(255,255,255,0.05)]"></div>
-                <div class="absolute inset-0 rounded-full animate-pulse-glow shadow-[0_0_120px_rgba(255,255,255,0.1)]"></div>
-                
-                <textarea 
-                    id="thought-input" 
-                    class="relative z-20 w-3/4 h-1/2 bg-transparent border-none outline-none text-white text-center resize-none placeholder-white/20 font-light text-xl transition-opacity duration-1000" 
-                    placeholder="Gõ suy nghĩ của bạn tại đây..."></textarea>
-            </div>
-
-            <div class="mt-20 flex flex-col items-center gap-6">
-                <button id="start-btn" class="group relative px-12 py-4 rounded-full border border-white/20 text-white/50 hover:text-white transition-all tracking-[0.3em] text-xs font-bold uppercase overflow-hidden">
-                    <span class="relative z-10">Bắt đầu thả trôi</span>
-                    <div class="absolute inset-0 bg-white/5 translate-y-full group-hover:translate-y-0 transition-transform"></div>
-                </button>
-                
-                <a href="/" class="text-white/20 hover:text-teal-400 text-[10px] uppercase tracking-[0.4em] transition-all">Quay lại trang chủ</a>
-            </div>
+            <!-- Nút Buồn -->
+            <button onclick="selectMode('sad')" class="group relative w-40 h-40 sm:w-48 sm:h-48 rounded-full border border-indigo-200/30 bg-indigo-500/10 hover:bg-indigo-400/20 flex flex-col items-center justify-center gap-3 transition-all duration-500 hover:scale-105 hover:shadow-[0_0_50px_rgba(99,102,241,0.2)]">
+                <span class="text-4xl group-hover:scale-110 transition-transform duration-500">🌧️</span>
+                <span class="text-indigo-100 text-sm tracking-widest uppercase font-bold">Nỗi lo âu</span>
+            </button>
         </div>
-
-        <audio id="zen-audio" loop>
-            <source src="https://cdn.pixabay.com/download/audio/2022/02/07/audio_13bdf2d08d.mp3?filename=space-ambient-106596.mp3" type="audio/mpeg">
-        </audio>
+        <a href="/" class="mt-16 text-white/30 hover:text-teal-400 text-[10px] uppercase tracking-[0.4em] transition-all">Quay lại trang chủ</a>
     </div>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;900&display=swap');
+    <!-- MÀN HÌNH 2: NGÔI SAO TRUNG TÂM (Tạo hiệu ứng chiều sâu perspective) -->
+    <div id="screen-zen" class="absolute inset-0 z-30 flex items-center justify-center opacity-0 pointer-events-none transition-all duration-1000" style="perspective: 1000px;">
+        
+        <div class="absolute top-[15%] left-0 right-0 px-4 text-center">
+            <h1 id="guide-text" class="text-white/90 text-xl sm:text-2xl font-light tracking-[0.1em] transition-all duration-1000 leading-relaxed drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                <!-- Tiêu đề sẽ được JS thay đổi -->
+            </h1>
+        </div>
+
+        <!-- MẶT TRỜI CHÓI LÒA (Bản nâng cấp) -->
+        <div id="zen-bubble" class="relative w-72 h-72 sm:w-96 sm:h-96 rounded-full flex items-center justify-center bg-white shadow-[0_0_100px_40px_rgba(255,255,255,0.8),_0_0_200px_80px_rgba(255,255,200,0.4)] z-30" style="transition: transform 60000ms cubic-bezier(0.25, 0.1, 0.25, 1), opacity 60000ms ease, filter 60000ms ease;">
+            
+            <div class="absolute inset-0 rounded-full animate-sun-pulse shadow-[0_0_150px_rgba(255,255,255,1)] pointer-events-none"></div>
+            
+            <!-- THẺ TEXT TỰ ĐỘNG CĂN GIỮA (Chữ màu đậm để đọc được trên nền sáng) -->
+            <div 
+                id="thought-input" 
+                contenteditable="true" 
+                data-placeholder="Chạm vào đây và viết..." 
+                class="relative z-20 w-4/5 max-h-[80%] overflow-hidden bg-transparent border-none outline-none text-slate-800 text-center font-medium break-words transition-all duration-300" 
+                style="font-size: 28px; line-height: 1.4;"></div>
+        </div>
+
+        <div id="enter-hint" class="absolute bottom-[15%] left-0 right-0 text-center transition-opacity duration-500">
+            <p class="text-white/50 text-sm tracking-widest font-light animate-pulse">
+                Nhấn <kbd class="px-2 py-1 bg-white/10 rounded-md border border-white/20 font-sans mx-1 text-white">Enter</kbd> để thả trôi
+            </p>
+        </div>
+
+        <div id="finish-btn-container" class="absolute bottom-[15%] left-0 right-0 flex justify-center opacity-0 pointer-events-none transition-all duration-1000">
+            <button onclick="window.location.href='/'" class="px-10 py-4 rounded-full bg-teal-600 text-white font-bold uppercase tracking-[0.3em] text-xs shadow-[0_0_40px_rgba(20,184,166,0.6)] hover:bg-teal-500 hover:scale-105 transition-all">
+                Sẵn sàng học tập
+            </button>
+        </div>
+    </div>
+
+    <!-- Nơi chứa Audio động -->
+    <audio id="zen-audio" loop preload="auto"></audio>
+
+    <style is:global>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;400;700;900&display=swap');
         body { font-family: 'Inter', sans-serif; }
 
-        /* Hiệu ứng sao trôi đa tầng */
-        #stars, #stars2, #stars3 {
-            background: transparent;
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+        /* Hơi thở mặt trời chói lóa */
+        .animate-sun-pulse {
+            animation: sun-pulse 4s ease-in-out infinite alternate;
+        }
+        @keyframes sun-pulse {
+            0% { transform: scale(0.98); opacity: 0.8; box-shadow: 0 0 100px rgba(255,255,255,0.8), 0 0 200px rgba(255,255,200,0.5); }
+            100% { transform: scale(1.02); opacity: 1; box-shadow: 0 0 150px rgba(255,255,255,1), 0 0 300px rgba(255,240,150,0.6); }
         }
 
-        .animate-pulse-glow {
-            animation: pulse 6s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.05); }
+        /* Chữ mờ cho ô nhập liệu trên nền trắng */
+        [contenteditable]:empty:before {
+            content: attr(data-placeholder);
+            color: rgba(71, 85, 105, 0.5); /* Màu text xám nhạt */
+            pointer-events: none;
+            display: block;
         }
 
-        /* Khi bắt đầu thiền, bóp nhỏ ngôi sao */
-        .zen-active #zen-bubble {
-            transform: scale(0);
-            opacity: 0;
+        /* HIỆU ỨNG BAY VÀO VŨ TRỤ (Perspective 3D) */
+        .fly-away {
+            transform: translateZ(-2500px) scale(0) !important;
+            opacity: 0 !important;
+            filter: blur(20px);
         }
+
+        ::-webkit-scrollbar { display: none; }
     </style>
 
     <script is:inline>
-        // Tạo sao ngẫu nhiên
-        const createStars = (id, count, size) => {
-            const container = document.getElementById(id);
-            for(let i=0; i<count; i++){
-                const star = document.createElement('div');
-                star.style.cssText = `
-                    position: absolute;
-                    left: ${Math.random()*100}%;
-                    top: ${Math.random()*100}%;
-                    width: ${Math.random()*size}px;
-                    height: ${Math.random()*size}px;
-                    background: white;
-                    border-radius: 50%;
-                    opacity: ${Math.random()};
-                `;
-                container.appendChild(star);
-            }
-        }
-        createStars('stars', 200, 1.5);
-        createStars('stars2', 100, 2);
-
-        const btn = document.getElementById('start-btn');
-        const bubble = document.getElementById('zen-bubble');
-        const input = document.getElementById('thought-input');
-        const guide = document.getElementById('guide-text');
-        const audio = document.getElementById('zen-audio');
-
-        const scripts = [
-            "Hãy hít vào thật sâu...",
-            "Và thở ra thật chậm...",
-            "Hãy ngắm nhìn nỗi lo của bạn...",
-            "Nó đang dần trở nên nhỏ bé...",
-            "Thật bé nhỏ trong vũ trụ này...",
-            "Bởi vì bạn mạnh mẽ hơn bạn nghĩ...",
-            "Hãy để nó tan biến mãi mãi...",
-            "Hít vào sự tự tin...",
-            "Thở ra mọi áp lực...",
-            "Bây giờ, bạn đã sẵn sàng. ✨"
-        ];
-
-        btn.addEventListener('click', () => {
-            if(!input.value.trim()) return;
+        // ==========================================
+        // KHU VỰC CẤU HÌNH (SẾP TÙY CHỈNH TẠI ĐÂY)
+        // ==========================================
+        const ZEN_CONFIG = {
+            // Sếp dán link MP3 vào đây cho 2 chế độ
+            audio: {
+                joy: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_33a0050cd6.mp3?filename=uplifting-day-110034.mp3", // Nhạc tươi sáng
+                sad: "https://cdn.pixabay.com/download/audio/2021/11/25/audio_91b32e02f9.mp3?filename=ambient-piano-amp-strings-10711.mp3"  // Nhạc sâu lắng
+            },
             
+            // Lời dẫn ban đầu
+            prompt: {
+                joy: "Điều tuyệt vời gì vừa đến với bạn?",
+                sad: "Điều gì đang làm bạn bận lòng?"
+            },
+
+            // Kịch bản (Hệ thống sẽ TỰ ĐỘNG chia đều số câu cho 60 giây)
+            // {thought} sẽ tự động biến thành câu học viên vừa gõ.
+            scripts: {
+                joy: [
+                    "Thật tuyệt vời...",
+                    "Hãy lưu giữ cảm xúc này...",
+                    "Thành công với \"{thought}\" không phải là ngẫu nhiên...",
+                    "Đó là kết quả của sự nỗ lực...",
+                    "Hãy để nguồn năng lượng này lan tỏa...",
+                    "Vũ trụ đang ghi nhận sự cố gắng của bạn...",
+                    "Hãy mang niềm vui này vào bài học tiếp theo...",
+                    "Bạn đã sẵn sàng cho những đỉnh cao mới! ✨"
+                ],
+                sad: [
+                    "Hãy hít vào một hơi thật sâu...",
+                    "Và thở ra thật chậm...",
+                    "Bạn đang bận tâm về \"{thought}\"...",
+                    "Nhưng hãy nhìn xem...",
+                    "Nó đang dần xa rời bạn...",
+                    "Bay vào tận sâu trong vũ trụ...",
+                    "Trở nên thật nhỏ bé...",
+                    "Bạn luôn lớn lao hơn \"{thought}\" rất nhiều...",
+                    "Hãy để màn đêm cuốn trôi nó đi...",
+                    "Bây giờ, tâm trí bạn đã tĩnh lặng. ✨"
+                ]
+            }
+        };
+        // ==========================================
+
+        let currentMode = 'sad';
+
+        // --- 1. CHỌN CHẾ ĐỘ ---
+        function selectMode(mode) {
+            currentMode = mode;
+            
+            // Mở khóa Audio bằng tương tác người dùng
+            const audio = document.getElementById('zen-audio');
+            audio.src = ZEN_CONFIG.audio[mode];
+            audio.load();
+
+            // Chuyển màn hình
+            document.getElementById('screen-selection').style.opacity = '0';
+            document.getElementById('screen-selection').style.pointerEvents = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('screen-zen').style.opacity = '1';
+                document.getElementById('screen-zen').style.pointerEvents = 'auto';
+                document.getElementById('guide-text').innerText = ZEN_CONFIG.prompt[mode];
+                document.getElementById('thought-input').focus();
+            }, 800);
+        }
+
+        // --- 2. VŨ TRỤ ĐỘNG ---
+        const canvas = document.getElementById('universe');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+        let stars = [];
+        let speed = 0.005;
+
+        for(let i = 0; i < 600; i++) stars.push({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1, z: Math.random() });
+
+        function animateUniverse() {
+            ctx.fillStyle = currentMode === 'joy' ? 'rgba(10, 15, 30, 0.3)' : 'rgba(3, 3, 5, 0.3)';
+            ctx.fillRect(0, 0, width, height);
+            stars.forEach(s => {
+                s.z -= speed;
+                if(s.z <= 0) { s.x = Math.random() * 2 - 1; s.y = Math.random() * 2 - 1; s.z = 1; }
+                let px = (s.x / s.z) * (width/2) + width/2;
+                let py = (s.y / s.z) * (height/2) + height/2;
+                let size = (1 - s.z) * 2.5;
+                let alpha = 1 - s.z;
+                // Màu sao theo chế độ
+                let r = currentMode === 'joy' ? 255 : 255;
+                let g = currentMode === 'joy' ? 250 : 255;
+                let b = currentMode === 'joy' ? 200 : 255;
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                ctx.beginPath(); ctx.arc(px, py, size, 0, Math.PI*2); ctx.fill();
+            });
+            requestAnimationFrame(animateUniverse);
+        }
+        animateUniverse();
+        window.addEventListener('resize', () => { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; });
+
+        // --- 3. LOGIC GÕ & THẢ TRÔI BẰNG PHÍM ENTER ---
+        const input = document.getElementById('thought-input');
+        input.addEventListener('input', function() {
+            const len = this.innerText.length;
+            let newSize = Math.max(16, 28 - (len * 0.25));
+            this.style.fontSize = newSize + 'px';
+        });
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Chặn xuống dòng
+                startZenAnimation();
+            }
+        });
+
+        function startZenAnimation() {
+            let userThought = input.innerText.trim();
+            if(!userThought) {
+                input.setAttribute('data-placeholder', "Viết gì đó rồi ấn Enter nhé...");
+                return;
+            }
+
+            if (userThought.length > 35) userThought = userThought.substring(0, 35) + "...";
+            userThought = userThought.toLowerCase();
+            
+            // Xử lý Audio mượt mà
+            const audio = document.getElementById('zen-audio');
             audio.volume = 0;
             audio.play();
             let vol = 0;
             const fadeIn = setInterval(() => {
-                if(vol < 0.4) { vol += 0.05; audio.volume = vol; }
+                if(vol < 0.6) { vol += 0.05; audio.volume = vol; }
                 else clearInterval(fadeIn);
             }, 200);
 
-            btn.style.opacity = '0';
-            input.style.opacity = '0';
-            setTimeout(() => btn.classList.add('hidden'), 500);
+            // Bắt đầu bay vào không gian
+            speed = 0.002; // Tăng tốc độ sao rơi vùn vụt
+            input.setAttribute('contenteditable', 'false');
+            document.getElementById('enter-hint').style.opacity = '0';
+            
+            // Add class để thu nhỏ & bay về phía trước
+            document.getElementById('zen-bubble').classList.add('fly-away');
 
-            // Kích hoạt thu nhỏ trong 60s
-            bubble.classList.add('duration-[60000ms]');
-            document.body.classList.add('zen-active');
+            const currentScripts = ZEN_CONFIG.scripts[currentMode];
+            const timePerLine = 60000 / currentScripts.length; // Tự động chia đều cho 60 giây
+            const guide = document.getElementById('guide-text');
 
             let index = 0;
             const textFlow = setInterval(() => {
-                guide.style.opacity = '0';
+                guide.style.opacity = '0'; 
+                
                 setTimeout(() => {
-                    if(index < scripts.length) {
-                        guide.innerText = scripts[index];
+                    if(index < currentScripts.length) {
+                        let textToShow = currentScripts[index].replace(`{thought}`, `<span class="text-white font-bold italic">"${userThought}"</span>`);
+                        guide.innerHTML = textToShow;
                         guide.style.opacity = '1';
                         index++;
                     } else {
+                        // KẾT THÚC
                         clearInterval(textFlow);
-                        guide.innerText = "Tâm trí bạn đã tĩnh lặng.";
+                        speed = 0.0005; // Chậm lại
+                        
+                        guide.innerHTML = currentMode === 'joy' ? "Niềm vui đã được lan tỏa." : "Tâm trí bạn đã tĩnh lặng.";
                         guide.style.opacity = '1';
-                        // Hiện nút quay lại trang chủ rực rỡ
-                        btn.innerText = "QUAY LẠI HỌC TẬP";
-                        btn.style.opacity = '1';
-                        btn.classList.remove('hidden', 'text-white/50');
-                        btn.classList.add('bg-teal-500', 'text-white', 'border-none', 'shadow-lg');
-                        btn.onclick = () => window.location.href = '/';
+                        
+                        // Hiện nút quay lại
+                        const finishBtn = document.getElementById('finish-btn-container');
+                        finishBtn.style.opacity = '1';
+                        finishBtn.style.pointerEvents = 'auto';
+                        
+                        let v = 0.6;
+                        const fadeOut = setInterval(() => {
+                            if(v > 0) { v -= 0.05; audio.volume = Math.max(0, v); }
+                            else { clearInterval(fadeOut); audio.pause(); }
+                        }, 200);
                     }
-                }, 1000);
-            }, 6000);
-        });
+                }, 1000); 
+            }, timePerLine); 
+        }
     </script>
 </body>
 </html>

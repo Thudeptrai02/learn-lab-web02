@@ -1,11 +1,15 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
-import { getSheetData } from '../../../../lib/googleSheets.js';
 
-const SHEET_ID = '1J77QG5Fh63Kk0cYnK_eGy_RuMuQu0Nzs4qxetC3k0O8'; 
-const allCards = await getSheetData(SHEET_ID, 'Flashcards');
+// THUẬT TOÁN HÚT TOÀN BỘ FILE JSON (Quét xuyên thấu mọi thư mục con trong data)
+const jsonFiles = import.meta.glob('../../../../data/**/*.json', { eager: true });
 
-// Thuật toán tự động gom nhóm chủ đề từ Cột F
+let allCards = [];
+Object.values(jsonFiles).forEach(file => {
+  allCards = [...allCards, ...(file.default || [])];
+});
+
+// TỰ ĐỘNG GOM NHÓM THEO CỘT "TOPIC"
 const topicsMap = {};
 allCards.forEach(card => {
   const t = card.topic || 'chua-phan-loai';
@@ -13,6 +17,7 @@ allCards.forEach(card => {
   topicsMap[t]++;
 });
 
+// Biến đổi object thành array để render ra giao diện
 const topics = Object.keys(topicsMap).map(key => ({
   slug: key,
   name: key.replace(/-/g, ' ').toUpperCase(), 
@@ -25,8 +30,8 @@ const topics = Object.keys(topicsMap).map(key => ({
     <section class="mx-auto max-w-4xl">
       <div class="mb-10 text-center sm:text-left">
         <p class="text-xs font-bold uppercase tracking-widest text-teal-600">Vocabulary Center</p>
-        <h1 class="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Chọn Chủ Đề Học</h1>
-        <p class="mt-2 text-sm text-slate-500">Hệ thống tự động cập nhật từ Google Sheets của Giám đốc</p>
+        <h1 class="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Kho Từ Vựng TOEIC</h1>
+        <p class="mt-2 text-sm text-slate-500">Hệ thống nạp dữ liệu nội bộ siêu tốc - Học mọi lúc mọi nơi</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -43,7 +48,7 @@ const topics = Object.keys(topicsMap).map(key => ({
                   </svg>
                 </div>
               </div>
-              <h3 class="mt-5 text-xl font-extrabold text-slate-900 group-hover:text-teal-600 transition-colors">{topic.name}</h3>
+              <h3 class="mt-5 text-xl font-extrabold text-slate-900 group-hover:text-teal-600 transition-colors leading-tight">{topic.name}</h3>
             </div>
             <div class="mt-6 border-t border-slate-100 pt-4">
               <span class="text-sm font-semibold text-teal-600 flex items-center gap-1">
