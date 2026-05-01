@@ -1,64 +1,132 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 
-// THUẬT TOÁN HÚT TOÀN BỘ FILE JSON (Quét xuyên thấu mọi thư mục con trong data)
+// 1. HÚT DỮ LIỆU & BỘ LỌC KIM CƯƠNG
 const jsonFiles = import.meta.glob('../../../../data/**/*.json', { eager: true });
 
 let allCards = [];
 Object.values(jsonFiles).forEach(file => {
-  allCards = [...allCards, ...(file.default || [])];
+  const fileData = file.default || [];
+  const validCards = fileData.filter(c => 
+    c.word && String(c.word).trim() !== '' && 
+    c.topic && String(c.topic).trim() !== ''
+  );
+  allCards = [...allCards, ...validCards];
 });
 
-// TỰ ĐỘNG GOM NHÓM THEO CỘT "TOPIC"
-const topicsMap = {};
+// 2. THUẬT TOÁN GOM NHÓM 2 CẤP (DAY -> TOPIC)
+const groupedData = {};
+
 allCards.forEach(card => {
-  const t = card.topic || 'chua-phan-loai';
-  if(!topicsMap[t]) topicsMap[t] = 0;
-  topicsMap[t]++;
+  const rawTopic = String(card.topic).trim(); 
+  
+  // Trích xuất "hacker-day-xx" làm Nhóm Cha
+  const dayMatch = rawTopic.match(/(hacker-day-\d+)/i);
+  const parentGroup = dayMatch ? dayMatch[1].toUpperCase().replace(/-/g, ' ') : 'CHỦ ĐỀ KHÁC';
+
+  // Cắt bỏ phần "HACKER DAY XX" ở tên Thẻ Con cho gọn
+  let subName = rawTopic.toUpperCase().replace(/-/g, ' ');
+  if (dayMatch) {
+      subName = subName.replace(parentGroup, '').trim();
+  }
+  if (subName === '') subName = 'TỪ VỰNG TỔNG HỢP';
+
+  // Khởi tạo nhóm nếu chưa có
+  if (!groupedData[parentGroup]) {
+    groupedData[parentGroup] = {};
+  }
+
+  // Khởi tạo thẻ con nếu chưa có và đếm số từ
+  if (!groupedData[parentGroup][rawTopic]) {
+    groupedData[parentGroup][rawTopic] = {
+      slug: rawTopic,
+      name: subName,
+      count: 0
+    };
+  }
+  groupedData[parentGroup][rawTopic].count++;
 });
 
-// Biến đổi object thành array để render ra giao diện
-const topics = Object.keys(topicsMap).map(key => ({
-  slug: key,
-  name: key.replace(/-/g, ' ').toUpperCase(), 
-  count: topicsMap[key]
-}));
+// Chuyển object thành array và sắp xếp theo tên Ngày
+const daysArray = Object.keys(groupedData).map(day => ({
+  dayName: day,
+  topics: Object.values(groupedData[day])
+})).sort((a, b) => a.dayName.localeCompare(b.dayName)); 
 ---
 
 <Layout title="Chủ đề Flashcards | Learn Lab">
   <main class="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
     <section class="mx-auto max-w-4xl">
+      
+      <!-- TIÊU ĐỀ TRANG -->
       <div class="mb-10 text-center sm:text-left">
         <p class="text-xs font-bold uppercase tracking-widest text-teal-600">Vocabulary Center</p>
         <h1 class="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Kho Từ Vựng TOEIC</h1>
         <p class="mt-2 text-sm text-slate-500">Hệ thống nạp dữ liệu nội bộ siêu tốc - Học mọi lúc mọi nơi</p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {topics.map(topic => (
-          <a href={`/english-lab/toeic/flashcards/${topic.slug}`} class="group relative flex flex-col justify-between rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:ring-teal-500 cursor-pointer">
-            <div>
-              <div class="flex items-center justify-between">
-                <span class="inline-flex items-center rounded-full bg-teal-50 px-3 py-1 text-xs font-bold text-teal-700">
-                  {topic.count} từ vựng
+      <!-- DANH SÁCH ACCORDION (NHÓM THEO NGÀY) -->
+      <div class="space-y-6">
+        {daysArray.map((dayGroup, index) => (
+          
+          /* Native Accordion HTML (Không cần Javascript) - Ngày đầu tiên tự động mở (open) */
+          <details class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" open={index === 0}>
+            
+            <summary class="flex items-center justify-between p-6 cursor-pointer list-none bg-white hover:bg-slate-50 transition-colors [&::-webkit-details-marker]:hidden">
+              <h2 class="text-xl font-extrabold text-slate-900">{dayGroup.dayName}</h2>
+              <div class="flex items-center gap-4">
+                <span class="hidden sm:inline-block text-sm font-semibold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">
+                  {dayGroup.topics.length} bộ thẻ
                 </span>
-                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 group-hover:bg-teal-50 transition-colors">
-                  <svg class="h-4 w-4 text-slate-400 group-hover:text-teal-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                <span class="transition-transform duration-300 group-open:-rotate-180 text-slate-400">
+                  <!-- Icon Mũi tên -->
+                  <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                   </svg>
-                </div>
+                </span>
               </div>
-              <h3 class="mt-5 text-xl font-extrabold text-slate-900 group-hover:text-teal-600 transition-colors leading-tight">{topic.name}</h3>
+            </summary>
+
+            <!-- LƯỚI THẺ CON BÊN TRONG -->
+            <div class="p-6 pt-2 border-t border-slate-100 bg-slate-50/50">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {dayGroup.topics.map(topic => (
+                  <a href={`/english-lab/toeic/flashcards/${topic.slug}`} class="group/card relative flex flex-col justify-between rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:ring-teal-500 cursor-pointer">
+                    <div>
+                      <div class="flex items-center justify-between mb-3">
+                        <span class="inline-flex items-center text-xs font-bold text-slate-500">
+                          {topic.count} từ vựng
+                        </span>
+                        <div class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 group-hover/card:bg-teal-50 transition-colors">
+                          <svg class="h-3 w-3 text-slate-400 group-hover/card:text-teal-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                      <h3 class="text-lg font-extrabold text-slate-800 group-hover/card:text-teal-600 transition-colors leading-tight">
+                        {topic.name}
+                      </h3>
+                    </div>
+                  </a>
+                ))}
+              </div>
             </div>
-            <div class="mt-6 border-t border-slate-100 pt-4">
-              <span class="text-sm font-semibold text-teal-600 flex items-center gap-1">
-                Bắt đầu học 
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-              </span>
-            </div>
-          </a>
+            
+          </details>
+
         ))}
       </div>
+
     </section>
   </main>
 </Layout>
+
+<style>
+  /* Ẩn mũi tên mặc định của thẻ details trên Safari/Chrome cũ */
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+</style>

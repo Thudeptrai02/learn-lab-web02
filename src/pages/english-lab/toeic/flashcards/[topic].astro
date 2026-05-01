@@ -1,29 +1,38 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 
-// Quét tất cả file JSON để Astro biết có bao nhiêu trang cần tạo
+// 1. DÀNH CHO SSG
 export async function getStaticPaths() {
   const jsonFilesPaths = import.meta.glob('../../../../data/**/*.json', { eager: true });
   let cardsData = [];
   Object.values(jsonFilesPaths).forEach(file => {
-    cardsData = [...cardsData, ...(file.default || [])];
+    const fileData = file.default || [];
+    const validCards = fileData.filter(c => c.word && String(c.word).trim() !== '' && c.topic && String(c.topic).trim() !== '');
+    cardsData = [...cardsData, ...validCards];
   });
 
-  const uniqueTopics = [...new Set(cardsData.map(c => c.topic || 'chua-phan-loai'))];
+  const uniqueTopics = [...new Set(cardsData.map(c => String(c.topic).trim()))];
   
-  return uniqueTopics.map(topic => {
-    const filteredCards = cardsData.filter(c => (c.topic || 'chua-phan-loai') === topic);
-    return {
-      params: { topic: topic },
-      props: { 
-        cards: filteredCards, 
-        topicName: topic.replace(/-/g, ' ').toUpperCase() 
-      },
-    };
+  return uniqueTopics.map(t => {
+    return { params: { topic: t } };
   });
 }
 
-let { cards, topicName } = Astro.props;
+// 2. LOGIC LẤY DATA DÀNH CHO SSR 
+const { topic } = Astro.params;
+
+const jsonFiles = import.meta.glob('../../../../data/**/*.json', { eager: true });
+let allCards = [];
+Object.values(jsonFiles).forEach(file => {
+  const fileData = file.default || [];
+  const validCards = fileData.filter(c => c.word && String(c.word).trim() !== '' && c.topic && String(c.topic).trim() !== '');
+  allCards = [...allCards, ...validCards];
+});
+
+const decodedTopic = decodeURIComponent(topic);
+let cards = allCards.filter(c => String(c.topic).trim() === decodedTopic);
+
+let topicName = decodedTopic.replace(/-/g, ' ').toUpperCase();
 
 if (!cards || cards.length === 0) {
   cards = [{ word: 'Trống', meaning: 'Chưa có dữ liệu', partOfSpeech: '-', example: '', synonyms: '' }];
