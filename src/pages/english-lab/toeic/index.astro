@@ -9,7 +9,8 @@ const practiceTools = [
   { title: "Ôn từ vựng", icon: "📔", link: "/english-lab/toeic/flashcards", color: "text-blue-500" },
   { title: "Luyện nghe", icon: "🎧", link: "/english-lab/toeic/dictation", color: "text-purple-500" },
   { title: "Khóa học", icon: "🎓", link: "#", color: "text-rose-500" },
-  { title: "Thi thử", icon: "🏆", link: "#kho-de-thi", color: "text-amber-500", hot: true },
+  { title: "Test JSON", icon: "🚀", link: "/english-lab/toeic/test-json", color: "text-emerald-500", hot: true },
+  { title: "Thi thử", icon: "🏆", link: "#kho-de-thi", color: "text-amber-500" },
 ];
 
 // Tự động phân loại đề theo Series và Năm
@@ -42,7 +43,8 @@ Object.entries(catalog).forEach(([id, data]) => {
           <div class="w-2 h-8 bg-teal-500 rounded-full"></div>
           <h2 class="text-2xl md:text-3xl font-black text-slate-800 uppercase tracking-tight">Khu Vực Ôn Luyện</h2>
         </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {practiceTools.map(t => (
             <a href={t.link} class="bg-white p-8 rounded-3xl text-center border border-slate-200 shadow-sm hover:border-teal-400 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group">
               {t.hot && <span class="absolute -top-3 -right-3 bg-rose-500 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-md animate-bounce">HOT</span>}
@@ -70,9 +72,7 @@ Object.entries(catalog).forEach(([id, data]) => {
               <div class="space-y-6">
                 {Object.entries(yearsGroup).map(([year, tests]) => (
                   
-                  /* 🟢 BẮT ĐẦU: FOLDER CHỨA ĐỀ THI GỌN GÀNG */
                   <details class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-teal-100 overflow-hidden transition-all duration-300 [&_summary::-webkit-details-marker]:hidden">
-                    
                     <summary class="flex items-center justify-between p-5 md:p-6 cursor-pointer select-none outline-none hover:bg-slate-50 transition-colors list-none">
                       <div class="flex items-center gap-5">
                         <div class="w-14 h-14 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center group-open:bg-teal-50 group-open:text-teal-500 transition-colors">
@@ -106,7 +106,6 @@ Object.entries(catalog).forEach(([id, data]) => {
                     </div>
 
                   </details>
-                  /* 🟢 KẾT THÚC FOLDER */
 
                 ))}
               </div>
