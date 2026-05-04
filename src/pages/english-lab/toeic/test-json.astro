@@ -1,7 +1,7 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
 
-// Tự động quét file JSON (Dùng import.meta.glob của Vite siêu ổn định)
+// 🚀 Tự động quét file JSON
 const jsonModules = import.meta.glob('../../../data/*.json', { eager: true });
 const jsonFiles = Object.values(jsonModules);
 const rawData = jsonFiles.length > 0 ? (jsonFiles[0].default || jsonFiles[0]) : [];
@@ -14,7 +14,7 @@ const examData = {
 let groupedSets = [];
 let currentGroup = null;
 
-// 🚀 BỘ PARSER MỚI: Bóc tách thông minh, bắt trọn Dẫn chứng tiếng Anh để làm Highlight
+// 🚀 BỘ PARSER V16: Bóc tách đỉnh cao, không trượt chữ nào
 function parseExp(html, part) {
     if (!html) return null;
     let res = { dichCauHoi: '', dichScript: '', giai: '', tu: [], danChung: '' };
@@ -24,32 +24,33 @@ function parseExp(html, part) {
         if (p.includes('👉 Giải thích:')) {
             let content = p.replace('<b>👉 Giải thích:</b>', '').trim();
             
-            // THUẬT TOÁN BẮT "DẪN CHỨNG" ĐỂ HIGHLIGHT SCRIPT
+            // BẮT DẪN CHỨNG
             let dcMatch = content.match(/Dẫn chứng:\s*(?:"([^"]+)"|([^\(]+))/);
             if (dcMatch) {
                 let dcText = (dcMatch[1] || dcMatch[2]).trim();
-                // Cắt bỏ dấu chấm lửng nếu có để so khớp chính xác hơn
-                dcText = dcText.replace(/\.{3,}$/g, '').trim();
-                if (dcText.includes('...')) dcText = dcText.split('...')[0].trim();
+                dcText = dcText.replace(/\.{3,}$/g, '').trim(); 
+                if (dcText.includes('...')) dcText = dcText.split('...')[0].trim(); 
                 res.danChung = dcText;
             }
 
-            // Trang điểm lại Dẫn chứng & Paraphrase (Tone Indigo & Emerald)
-            content = content.replace(/Dẫn chứng:/g, '<span class="inline-block text-indigo-700 font-bold text-[13.5px] mr-1">Script:</span>');
-            content = content.replace(/Paraphrase:/g, '<br><span class="inline-block mt-2 text-emerald-700 font-bold text-[13px] mr-1 bg-emerald-100 px-2 py-0.5 rounded shadow-sm">Paraphrase:</span>');
+            content = content.replace(/Dẫn chứng:/g, '<span class="inline-block text-indigo-700 font-bold text-[13px] mr-1">Script/Passage:</span>');
+            content = content.replace(/Paraphrase:/g, '<br><span class="inline-block mt-2 text-emerald-700 font-bold text-[13px] mr-1 bg-emerald-50 px-2 py-0.5 rounded shadow-sm border border-emerald-100">Paraphrase:</span>');
             res.giai = content;
+            
         } else if (p.includes('🌎 Dịch nghĩa:')) {
             let content = p.replace('<b>🌎 Dịch nghĩa:</b><br>', '').trim();
-            // Nếu là Part 3, 4, 7 -> Nội dung này thường là Dịch Script. Còn lại là Dịch Câu hỏi
             if (part >= 3 && part !== 5) res.dichScript = content;
             else res.dichCauHoi = content;
+            
         } else if (p.includes('📚 Từ vựng:')) {
-            let content = p.replace('<b>📚 Từ vựng:</b><br>', '').replace(/<b>📚 Từ vựng:<\/b>/, '').trim();
-            // Chặt từ vựng bằng thẻ <br> HOẶC dấu chấm phẩy (;)
-            let items = content.split(/<br>|;/);
+            let content = p.replace(/<b>📚 Từ vựng:<\/b>(<br>)?/g, '').trim();
+            // Regex chia từ vựng chuẩn xác 100%
+            let items = content.split(/<br>|;|\s+(?=[a-zA-Z-']+(?:\s+[a-zA-Z-']+){0,3}\s*\((?:n|v|adj|adv|prep|conj|phr|v\/n|n\/v)\))/i);
+            
             items.forEach(item => {
-                let text = item.replace(/&nbsp;/g, ' ').trim();
+                let text = item.replace(/&nbsp;/g, ' ').replace(/<\/?[^>]+(>|$)/g, "").trim(); 
                 if(!text) return;
+                
                 let word = text; let meaning = "";
                 if(text.indexOf(':') !== -1) {
                     let tvParts = text.split(':');
@@ -57,8 +58,9 @@ function parseExp(html, part) {
                 } else if(text.indexOf(')') !== -1) {
                     let idx = text.indexOf(')') + 1;
                     word = text.substring(0, idx).trim(); meaning = text.substring(idx+1).trim();
-                } else {
-                    word = text;
+                } else if(text.indexOf('-') !== -1) {
+                    let tvParts = text.split('-');
+                    word = tvParts[0].trim(); meaning = tvParts.slice(1).join('-').trim();
                 }
                 if (word) res.tu.push({ w: word, m: meaning });
             });
@@ -101,7 +103,6 @@ const toeicParts = [
 
 <Layout title={examData.title}>
   
-  {/* HEADER TONE SLATE-900 CHUẨN DOANH NGHIỆP */}
   <header class="fixed top-0 left-0 right-0 h-14 md:h-16 bg-slate-900 flex items-center justify-between px-2 md:px-6 z-50 shadow-md">
     <div class="flex items-center gap-2 md:gap-3">
       <a href="/english-lab/toeic" class="inline-flex items-center text-sm font-semibold text-slate-300 hover:bg-slate-800 h-8 md:h-9 px-2 md:px-3 rounded-md transition-colors">
@@ -112,11 +113,11 @@ const toeicParts = [
 
     <div class="flex flex-col items-center">
       <h1 class="text-white text-base md:text-lg font-bold hidden sm:block tracking-wide">{examData.title}</h1>
-      <span class="text-indigo-400 text-xs font-semibold">CÂU <span id="header-q-range">1</span> / 200</span>
+      <span class="text-indigo-400 text-xs font-semibold uppercase tracking-widest mt-0.5">CÂU <span id="header-q-range">1</span> / {totalQuestions}</span>
     </div>
 
     <div class="flex items-center gap-2 md:gap-3">
-      <div class="hidden sm:flex items-center gap-1.5 h-8 md:h-9 px-3 rounded-md bg-slate-800 text-emerald-400 text-sm font-mono font-bold shadow-inner">
+      <div class="hidden sm:flex items-center gap-1.5 h-8 md:h-9 px-3 rounded-md bg-slate-800 text-emerald-400 text-[15px] font-mono font-bold shadow-inner border border-slate-700">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
         <span id="timer">{examData.duration}:00</span>
       </div>
@@ -130,29 +131,29 @@ const toeicParts = [
          const hasMedia = Boolean(set.audio || set.image || set.passageHtml || set.transcript);
          const isCenterFocus = !hasMedia; 
          
-         let instructionText = "Read the texts and answer the questions.";
-         if (set.part === 1) instructionText = "Select the statement that best describes what you see in the picture.";
-         else if (set.part >= 2 && set.part <= 4) instructionText = "Select the best response to each question.";
-
+         let instructionText = "SELECT THE BEST RESPONSE TO EACH QUESTION.";
+         
          const qsInGroup = set.questions.map(q => q.questionNumber);
          const qRangeStr = qsInGroup.length > 1 ? (qsInGroup[0] + "-" + qsInGroup[qsInGroup.length-1]) : String(qsInGroup[0]);
+         const firstQ = set.questions[0];
+         const hasExtraData = firstQ && firstQ.parsedExp && (firstQ.parsedExp.dichScript || firstQ.parsedExp.tu.length > 0);
 
          return (
         <div id={"group-" + idx} class={"question-group w-full h-full overflow-y-auto custom-scrollbar p-4 md:p-6 lg:p-8 animate-fade-in " + (idx === 0 ? 'block' : 'hidden')}>
           
           <div class={"w-full flex h-full " + (isCenterFocus ? 'flex-col items-center max-w-3xl mx-auto' : 'flex-col lg:flex-row gap-8')}>
               
-              {/* 🛑 CỘT TRÁI: ĐỌC/NGHE & LỜI THOẠI */}
+              {/* 🛑 CỘT TRÁI: FIXED STICKY ĐỂ KHÔNG PHẢI CUỘN - TÍCH HỢP TABS */}
               {hasMedia && (
-              <div class="w-full lg:w-[48%] flex flex-col lg:border-r border-slate-200 lg:pr-8 h-fit lg:max-h-full lg:overflow-y-auto custom-scrollbar pb-10">
+              <div class="w-full lg:w-[48%] flex flex-col lg:border-r border-slate-200 lg:pr-8 h-fit lg:max-h-[calc(100vh-140px)] lg:sticky lg:top-4 lg:overflow-y-auto custom-scrollbar pb-10">
                  
-                 <p class="text-indigo-600 text-[15px] font-bold mb-6 tracking-wide uppercase">
+                 <p class="text-blue-700 text-[14px] font-bold mb-5 tracking-wide uppercase">
                     {instructionText}
                  </p>
 
                  {set.audio && (
                   <div class="rounded-xl bg-white border border-slate-200 mb-6 p-2 flex items-center shadow-sm">
-                    <audio controls class="w-full h-10 outline-none bg-transparent">
+                    <audio controls class="w-full h-10 outline-none bg-transparent auto-play-audio">
                       <source src={set.audio}/>
                     </audio>
                   </div>
@@ -164,30 +165,73 @@ const toeicParts = [
                    </div>
                  )}
 
-                 {set.passageHtml && (
-                   <div class="min-w-0 max-w-none leading-relaxed break-words text-[15px] text-slate-800 dau-toeic-passage" set:html={set.passageHtml}></div>
+                 {/* 🚀 CHỨC NĂNG TAB ĐỈNH CAO: Gọn gàng, mượt mà */}
+                 {hasExtraData && (
+                     <div class="review-mode-only mb-4 border-b border-gray-200 flex gap-4">
+                         <button class="tab-btn active pb-3 text-[13px] font-bold uppercase tracking-wider text-blue-600 border-b-2 border-blue-600 transition-colors" data-target={`tab-script-${idx}`}>Audio Script</button>
+                         {firstQ.parsedExp.dichScript && <button class="tab-btn pb-3 text-[13px] font-bold uppercase tracking-wider text-gray-400 hover:text-gray-700 border-b-2 border-transparent transition-colors" data-target={`tab-dich-${idx}`}>Dịch Bài Đọc</button>}
+                         {firstQ.parsedExp.tu.length > 0 && <button class="tab-btn pb-3 text-[13px] font-bold uppercase tracking-wider text-gray-400 hover:text-gray-700 border-b-2 border-transparent transition-colors" data-target={`tab-vocab-${idx}`}>Từ Vựng</button>}
+                     </div>
                  )}
 
-                 {/* 🚀 LỜI THOẠI TRANSCRIPT GỐC: KHÔNG ĐỤNG HÀNG */}
-                 {set.transcript && (
-                   <div class="review-mode-only animate-fade-in pb-10">
-                      <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm min-w-0 overflow-hidden relative overflow-visible mt-2">
-                         <div class="absolute -top-3 left-6 bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded shadow-md flex items-center gap-1.5">
-                            <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg> Audio Script
+                 {/* TAB 1: SCRIPT (Luôn hiện lúc thi, hoặc làm Tab mặc định lúc Review) */}
+                 <div id={`tab-script-${idx}`} class="tab-content block animate-fade-in">
+                     {set.passageHtml && (
+                       <div class="min-w-0 max-w-none leading-relaxed break-words text-[15px] text-slate-800 dau-toeic-passage highlight-target mb-6" data-group={qRangeStr} set:html={set.passageHtml}></div>
+                     )}
+
+                     {set.transcript && (
+                       <div class="review-mode-only pb-6 pt-2">
+                          <div class="p-6 pt-7 rounded-xl bg-white border border-gray-200 shadow-sm min-w-0 overflow-hidden relative">
+                             <div class="absolute -top-1 left-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded shadow flex items-center gap-1.5">
+                                <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg> Audio Script
+                             </div>
+                             <div class="text-gray-600 text-[15px] mt-2 leading-[1.8] break-words whitespace-pre-wrap highlight-target italic" data-group={qRangeStr} set:html={set.transcript}></div>
+                          </div>
+                       </div>
+                     )}
+                 </div>
+
+                 {/* TAB 2: DỊCH BÀI ĐỌC */}
+                 {firstQ && firstQ.parsedExp.dichScript && (
+                     <div id={`tab-dich-${idx}`} class="tab-content hidden review-mode-only animate-fade-in pb-6 pt-2">
+                         <div class="p-5 rounded-xl bg-[#f0f7ff] border border-[#cce3fd] relative overflow-hidden">
+                            <div class="absolute left-0 top-0 bottom-0 w-[5px] bg-blue-500"></div>
+                            <p class="text-[13px] font-bold text-blue-600 mb-3 uppercase tracking-wide flex items-center gap-2 ml-2">
+                               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg> Dịch bài đọc / Hội thoại
+                            </p>
+                            <div class="text-[15px] leading-relaxed text-gray-700 ml-2" set:html={firstQ.parsedExp.dichScript}></div>
                          </div>
-                         <div class="text-slate-600 text-[15px] mt-2 leading-[1.8] break-words whitespace-pre-wrap transcript-content italic" set:html={set.transcript}></div>
-                      </div>
-                   </div>
+                     </div>
+                 )}
+
+                 {/* TAB 3: TỪ VỰNG */}
+                 {firstQ && firstQ.parsedExp.tu.length > 0 && (
+                     <div id={`tab-vocab-${idx}`} class="tab-content hidden review-mode-only animate-fade-in pb-6 pt-2">
+                         <div class="p-6 rounded-xl bg-[#fffbeb] border border-[#fef08a]">
+                            <p class="text-[13px] font-bold text-rose-500 mb-5 uppercase tracking-widest flex items-center gap-1.5">
+                               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0-3.332.477-4.5 1.253"></path></svg> Focus Vocabulary
+                            </p>
+                            <div class="flex flex-wrap gap-3">
+                               {firstQ.parsedExp.tu.map((tv) => (
+                                  <div class="inline-flex items-baseline gap-1.5 px-4 py-2 rounded-full bg-white border border-[#fde047] text-[13.5px] shadow-sm hover:shadow-md transition-shadow cursor-default">
+                                     <span class="font-bold text-amber-900">{tv.w}</span>
+                                     {tv.m && <span class="text-gray-600">— {tv.m}</span>}
+                                  </div>
+                               ))}
+                            </div>
+                         </div>
+                     </div>
                  )}
               </div>
               )}
 
-              {/* 🛑 CỘT PHẢI: CÂU HỎI VÀ ĐÁP ÁN (UI MỚI 100%) */}
+              {/* 🛑 CỘT PHẢI: CHỈ CHỨA CÂU HỎI VÀ GIẢI THÍCH CHI TIẾT */}
               <div class={"w-full flex flex-col " + (isCenterFocus ? 'w-full' : 'lg:w-[52%] lg:pl-2 h-fit lg:max-h-full lg:overflow-y-auto custom-scrollbar pb-24')}>
                  
                  {!isCenterFocus && (
-                    <div class="text-[13px] text-slate-500 flex items-center gap-3 mb-6 border-b border-slate-200 pb-3 hidden lg:flex">
-                        <span class="px-2.5 py-1 rounded bg-slate-200 font-bold text-slate-700 uppercase tracking-wide">Nhóm {qRangeStr}</span>
+                    <div class="text-[13px] text-slate-500 flex items-center gap-3 mb-6 hidden lg:flex">
+                        <span class="px-2.5 py-1 rounded bg-slate-200 font-bold text-slate-700">Nhóm câu {qRangeStr}</span>
                         <span class="text-slate-400 font-medium">({qsInGroup.length} câu hỏi)</span>
                     </div>
                  )}
@@ -201,106 +245,76 @@ const toeicParts = [
                      return (
                      <div id={"q-container-" + qNum} class="transition-all relative p-5 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md">
                         
-                        {/* Biến ẩn chứa Dẫn chứng để Client JS truy xuất */}
                         <input type="hidden" class="q-danchung" data-qnum={qNum} value={q.parsedExp?.danChung || ""} />
 
-                        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
                            <span class="font-black text-slate-900 text-lg flex items-center gap-2">
-                               <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-sm shadow-inner">{qNum}</div>
+                               <div class="w-8 h-8 rounded bg-indigo-50 text-indigo-700 flex items-center justify-center text-[15px] shadow-inner">{qNum}</div>
                            </span>
-                           <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 text-[11px] font-bold uppercase tracking-wider status-badge">Chưa chọn</span>
+                           <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 text-[11px] font-bold uppercase tracking-wider status-badge">Bỏ qua</span>
                         </div>
                         
-                        {/* Nội dung câu hỏi */}
                         {!isListeningNoText && q.question && (
                            <div class="mb-5 pl-1">
                               <p class="font-semibold text-slate-800 text-[15.5px] leading-snug" set:html={q.question}></p>
                            </div>
                         )}
 
-                        {/* UI NÚT CHỌN ĐÁP ÁN ĐỈNH CAO: BỌC TOÀN BỘ, ICON Ở GÓC PHẢI */}
+                        {/* UI ĐÁP ÁN: VÒNG TRÒN, DẤU TÍCH GÓC PHẢI KHÔNG BỊ XÔ LỆCH */}
                         <div class="space-y-2.5 mb-2">
                            {optionsArray.map((letter) => {
                              const optText = q.options[letter];
                              if (!isListeningNoText && !optText) return null; 
                              
                              return (
-                             <label class="relative flex items-center justify-between p-3.5 rounded-xl border-2 border-slate-100 bg-slate-50 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition-all duration-200 option-label group" data-letter={letter}>
+                             <label class="relative flex items-center justify-between p-3.5 rounded-xl border-2 border-transparent bg-slate-50 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition-all duration-200 option-label group" data-letter={letter}>
                                 <input type="radio" name={"q-" + qNum} value={letter} class="answer-radio hidden" data-qnum={qNum} />
                                 
                                 <div class="flex items-center gap-3 flex-1">
-                                   <strong class="font-bold text-slate-400 group-hover:text-indigo-600 transition-colors option-letter-display">({letter})</strong>
+                                   <div class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full bg-white border border-slate-200 shadow-sm group-hover:border-indigo-400 transition-colors letter-box">
+                                       <span class="font-bold text-slate-500 text-[13px] option-letter-display">{letter}</span>
+                                   </div>
                                    {!isListeningNoText && optText && (
-                                      <span class="option-text text-slate-700 font-medium" set:html={optText}></span>
+                                      <span class="option-text text-slate-700 font-medium text-[15px]" set:html={optText}></span>
                                    )}
                                 </div>
                                 
-                                {/* 🚀 Icon Tích/X xuất hiện siêu đẹp ở góc phải */}
-                                <div class="w-6 h-6 flex items-center justify-center flex-shrink-0">
-                                   <svg class="hidden w-5 h-5 text-emerald-500 correct-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                                   <svg class="hidden w-5 h-5 text-rose-500 wrong-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                <div class="w-6 h-6 flex items-center justify-center flex-shrink-0 icon-container hidden">
+                                   <svg class="w-5 h-5 text-emerald-500 correct-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                   <svg class="w-5 h-5 text-rose-500 wrong-icon hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
                                 </div>
                              </label>
                              )
                            })}
                         </div>
 
-                        {/* 🚀 KHU VỰC REVIEW: TONE MÀU SANG TRỌNG */}
+                        {/* GIẢI THÍCH CHI TIẾT RIÊNG LẺ */}
                         {q.parsedExp && (
                            <div class="review-mode-only mt-6 pt-5 border-t border-dashed border-slate-200 animate-fade-in">
                               
-                              {/* 1. DỊCH CÂU HỎI (Tone Cyan) */}
                               {q.parsedExp.dichCauHoi && (
-                                 <div class="p-4 rounded-xl bg-cyan-50 border border-cyan-100 mb-3">
-                                    <p class="text-[13px] font-bold text-cyan-800 mb-2 uppercase tracking-wide flex items-center gap-1.5">
+                                 <div class="p-4 rounded-xl bg-[#f0f7ff] border border-[#cce3fd] mb-3 shadow-sm">
+                                    <p class="text-[13px] font-bold text-[#0284c7] mb-2 flex items-center gap-1.5">
                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8l6 6M4 14l6-6 2-3M2 5h12M7 2h1M22 22l-5-10-5 10M14 18h6"></path></svg> Dịch câu hỏi
                                     </p>
                                     <div class="text-[14px] leading-relaxed text-slate-700 parsed-dich-content" data-dich={q.parsedExp.dichCauHoi} data-correct={q.correctAnswer}></div>
                                  </div>
                               )}
 
-                              {/* 2. GIẢI THÍCH CHI TIẾT (Tone Indigo) */}
                               {q.parsedExp.giai && (
-                                 <div class="p-4 rounded-xl bg-indigo-50 border border-indigo-100 mb-3">
-                                    <p class="text-[13px] font-bold text-indigo-800 mb-2 uppercase tracking-wide flex items-center gap-1.5">
-                                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg> Giải thích chi tiết
+                                 <div class="p-4 rounded-xl bg-[#fbf5ff] border border-[#eaddff] mb-1 shadow-sm">
+                                    <p class="text-[12px] font-bold text-[#9333ea] mb-3 uppercase tracking-wide flex items-center gap-1.5">
+                                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.937 15.5A2 2 0 008.5 14.063l-6.135-1.582a.5.5 0 010-.962L8.5 9.936A2 2 0 009.937 8.5l1.582-6.135a.5.5 0 01.963 0L14.063 8.5A2 2 0 0015.5 9.937l6.135 1.581a.5.5 0 010 .964L15.5 14.063a2 2 0 00-1.437 1.437l-1.582 6.135a.5.5 0 01-.963 0zM20 3v4M22 5h-4M4 17v2M5 18H3"></path></svg> Giải thích chi tiết
                                     </p>
                                     <div class="text-slate-700 text-[14.5px] leading-relaxed" set:html={q.parsedExp.giai}></div>
                                  </div>
                               )}
-
-                              {/* 3. DỊCH NGHĨA SCRIPT (Tone Slate) */}
-                              {q.parsedExp.dichScript && (
-                                 <div class="p-4 rounded-xl bg-slate-100 border border-slate-200">
-                                    <p class="text-[13px] font-bold text-slate-700 mb-2 uppercase tracking-wide flex items-center gap-1.5">
-                                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg> Dịch bài đọc / Hội thoại
-                                    </p>
-                                    <div class="text-[14.5px] leading-relaxed text-slate-700" set:html={q.parsedExp.dichScript}></div>
-                                 </div>
-                              )}
-
-                              {/* 4. TỪ VỰNG (Tone Rose xinh xắn) */}
-                              {q.parsedExp.tu && q.parsedExp.tu.length > 0 && (
-                                 <div class="pt-4 mt-2">
-                                    <p class="text-[12px] font-bold text-rose-500 mb-3 uppercase tracking-widest flex items-center gap-1.5">
-                                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0-3.332.477-4.5 1.253"></path></svg> Focus Vocabulary
-                                    </p>
-                                    <div class="flex flex-wrap gap-2">
-                                       {q.parsedExp.tu.map(tv => (
-                                          <div class="inline-flex items-baseline gap-1.5 px-3 py-1.5 rounded-full bg-white border border-rose-200 text-[13px] shadow-sm hover:border-rose-400 transition-colors">
-                                             <span class="font-bold text-rose-700">{tv.w}</span>
-                                             {tv.m && <span class="text-slate-600">— {tv.m}</span>}
-                                          </div>
-                                       ))}
-                                    </div>
-                                 </div>
-                              )}
-                              
                            </div>
                         )}
                      </div>
                    )})}
                  </div>
+
               </div>
 
           </div>
@@ -308,15 +322,15 @@ const toeicParts = [
       )})}
     </div>
     
-    <!-- 🛑 BOTTOM BAR: HIỆN ĐẠI, GỌN GÀNG -->
+    <!-- 🛑 BOTTOM BAR MỚI -->
     <div class="fixed bottom-0 left-0 right-0 h-[64px] bg-white border-t border-slate-200 flex items-center justify-between px-3 md:px-6 z-40 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.05)]">
         
         <div class="flex items-center gap-2">
-            <button class="hidden sm:inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors" title="Báo lỗi">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <button class="hidden md:inline-flex items-center gap-2 text-sm border-2 h-10 px-4 rounded-xl bg-white border-slate-200 text-slate-700 font-bold hover:border-indigo-500 hover:text-indigo-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> Báo lỗi
             </button>
             <button id="btn-open-menu" class="inline-flex items-center gap-2 text-sm border-2 h-10 px-4 rounded-xl bg-white border-slate-200 text-slate-700 font-bold hover:border-indigo-500 hover:text-indigo-600 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg> Bảng Câu Hỏi
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg> <span class="hidden sm:inline">Bảng Câu Hỏi</span>
             </button>
         </div>
 
@@ -330,19 +344,17 @@ const toeicParts = [
             <button id="btn-next" class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 18l6-6-6-6"></path></svg>
             </button>
-            <button id="btn-submit" class="inline-flex items-center gap-2 text-sm h-10 px-6 rounded-xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition-colors ml-2 shadow-md hover:shadow-lg hover:-translate-y-0.5">
+            <button id="btn-pre-submit" class="inline-flex items-center gap-2 text-sm h-10 px-6 rounded-xl bg-emerald-500 text-white font-bold hover:bg-emerald-600 transition-colors ml-2 shadow-md hover:-translate-y-0.5">
                 Nộp Bài
             </button>
         </div>
     </div>
 
-    <!-- MODAL MENU CÂU HỎI -->
+    <!-- 🌟 MODAL BẢNG CÂU HỎI -->
     <div id="q-menu-modal" class="fixed inset-0 bg-slate-900/60 z-[100] hidden items-center justify-center backdrop-blur-sm transition-opacity opacity-0">
        <div class="bg-white rounded-3xl shadow-2xl w-[95%] max-w-5xl max-h-[85vh] flex flex-col transform scale-95 transition-transform duration-300" id="q-menu-content">
           <div class="flex items-center justify-between p-5 border-b border-slate-100">
-             <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">
-                OVERVIEW
-             </h2>
+             <h2 class="text-xl font-black text-slate-800 flex items-center gap-2">OVERVIEW</h2>
              <button id="btn-close-menu" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 hover:bg-rose-100 hover:text-rose-600 text-slate-500 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
              </button>
@@ -376,18 +388,56 @@ const toeicParts = [
        </div>
     </div>
 
+    <!-- 🌟 MODAL XÁC NHẬN NỘP BÀI -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 z-[110] hidden items-center justify-center backdrop-blur-sm transition-opacity opacity-0">
+       <div class="bg-white rounded-3xl shadow-2xl w-[90%] max-w-sm p-8 text-center transform scale-95 transition-transform duration-300" id="confirm-content">
+           <div class="w-16 h-16 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+           </div>
+           <h3 class="text-xl font-black text-slate-800 mb-2">Chốt nộp bài?</h3>
+           <p class="text-slate-500 text-[15px] mb-8 leading-relaxed">Bạn sẽ không thể thay đổi đáp án sau khi nộp.</p>
+           <div class="flex gap-3">
+               <button id="btn-cancel-submit" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3.5 rounded-xl transition-colors">Quay Lại</button>
+               <button id="btn-confirm-submit" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-colors shadow-md">Nộp Bài Ngay</button>
+           </div>
+       </div>
+    </div>
+
+    <!-- 🌟 MODAL KẾT QUẢ -->
+    <div id="result-modal" class="fixed inset-0 bg-slate-900/80 z-[120] hidden items-center justify-center backdrop-blur-lg transition-opacity opacity-0">
+       <div class="bg-white rounded-[2rem] shadow-2xl w-[90%] max-w-md p-10 text-center transform scale-95 transition-transform duration-300" id="result-content">
+           <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Trophy" class="w-28 h-28 mx-auto mb-6 drop-shadow-lg animate-bounce" />
+           <h3 class="text-2xl font-black text-slate-800 mb-2 uppercase">KẾT QUẢ BÀI THI</h3>
+           <p class="text-slate-500 text-sm mb-6">Bạn đã hoàn thành bài thi TOEIC!</p>
+           
+           <div class="bg-slate-50 border border-slate-100 rounded-2xl p-5 mb-8 grid grid-cols-2 gap-4 shadow-inner">
+              <div>
+                 <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Số Câu Đúng</p>
+                 <p class="text-4xl font-black text-indigo-600"><span id="res-score">0</span><span class="text-lg text-slate-400">/200</span></p>
+              </div>
+              <div>
+                 <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">Thời Gian</p>
+                 <p class="text-2xl font-black text-emerald-500 mt-2" id="res-time">00:00</p>
+              </div>
+           </div>
+
+           <button id="btn-close-result" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:-translate-y-1">
+               Xem Giải Thích Chi Tiết
+           </button>
+       </div>
+    </div>
+
   </main>
 
-  <script define:vars={{ groupedSets, totalQuestions }}>
+  <script define:vars={{ groupedSets, totalQuestions, durationMinutes: examData.duration }}>
     document.addEventListener('DOMContentLoaded', () => {
       let timerInterval;
-      let timeLeft;
+      let timeLeft = durationMinutes * 60;
       let currentGroupIdx = 0;
       const totalGroups = groupedSets.length;
       let isReviewMode = false;
+      let finalScore = 0;
 
-      const durationMin = parseInt(document.getElementById('exam-main').dataset.duration) || 120;
-      timeLeft = durationMin * 60; 
       const timerEl = document.getElementById('timer');
   
       timerInterval = setInterval(() => {
@@ -398,8 +448,7 @@ const toeicParts = [
           if(timerEl) timerEl.textContent = m + ":" + s;
         } else {
           clearInterval(timerInterval);
-          alert("⏰ Đã hết thời gian làm bài! Hệ thống đang tự động nộp bài.");
-          processSubmit();
+          processSubmit(); 
         }
       }, 1000);
 
@@ -413,17 +462,46 @@ const toeicParts = [
 
           document.querySelectorAll('.question-group').forEach((el, idx) => {
               if (idx === currentGroupIdx) {
-                  el.classList.remove('hidden');
-                  el.classList.add('block');
+                  el.classList.remove('hidden'); el.classList.add('block');
               } else {
-                  el.classList.add('hidden');
-                  el.classList.remove('block');
+                  el.classList.add('hidden'); el.classList.remove('block');
               }
           });
 
           document.getElementById('btn-prev').disabled = currentGroupIdx === 0;
           document.getElementById('btn-next').disabled = currentGroupIdx === totalGroups - 1;
           document.getElementById('scroll-container').scrollTo({ top: 0, behavior: 'smooth' });
+
+          // 🚀 TỰ ĐỘNG CHẠY AUDIO & CHUYỂN TRANG
+          if (!isReviewMode) {
+              document.querySelectorAll('.auto-play-audio').forEach(a => a.pause());
+              const currentAudio = document.querySelector(`#group-${currentGroupIdx} .auto-play-audio`);
+              if (currentAudio) {
+                  currentAudio.currentTime = 0;
+                  currentAudio.play().catch(e => console.log("Cần click chuột vào trang trước khi Autoplay hoạt động."));
+                  currentAudio.onended = function() {
+                      if (currentGroupIdx < totalGroups - 1 && !isReviewMode) {
+                          currentGroupIdx++;
+                          updateNavigation();
+                      }
+                  };
+              }
+          }
+          
+          // Reset Hệ thống Tab về Tab 1 (Bản Gốc)
+          document.querySelectorAll('.tab-btn').forEach(b => {
+              if(b.dataset.target && b.dataset.target.includes('script')) {
+                  b.classList.add('text-blue-600', 'border-blue-600', 'active'); 
+                  b.classList.remove('text-gray-400', 'border-transparent');
+              } else {
+                  b.classList.remove('text-blue-600', 'border-blue-600', 'active'); 
+                  b.classList.add('text-gray-400', 'border-transparent');
+              }
+          });
+          document.querySelectorAll('.tab-content').forEach(c => {
+              if(c.id && c.id.includes('script')) { c.classList.remove('hidden'); c.classList.add('block'); } 
+              else { c.classList.remove('block'); c.classList.add('hidden'); }
+          });
       }
       
       updateNavigation();
@@ -435,28 +513,39 @@ const toeicParts = [
           if (currentGroupIdx < totalGroups - 1) { currentGroupIdx++; updateNavigation(); }
       });
 
-      const modal = document.getElementById('q-menu-modal');
-      const modalContent = document.getElementById('q-menu-content');
+      // LÔGIC CHUYỂN TAB CỘT TRÁI
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const targetId = e.currentTarget.dataset.target;
+              const groupContainer = e.currentTarget.closest('.lg\\:w-\\[48\\%\\]');
+              
+              groupContainer.querySelectorAll('.tab-btn').forEach(b => {
+                  b.classList.remove('text-blue-600', 'border-blue-600', 'active'); 
+                  b.classList.add('text-gray-400', 'border-transparent');
+              });
+              groupContainer.querySelectorAll('.tab-content').forEach(c => {
+                  c.classList.remove('block'); c.classList.add('hidden');
+              });
+              
+              e.currentTarget.classList.add('text-blue-600', 'border-blue-600', 'active');
+              e.currentTarget.classList.remove('text-gray-400', 'border-transparent');
+              const targetContent = document.getElementById(targetId);
+              if(targetContent) { targetContent.classList.remove('hidden'); targetContent.classList.add('block'); }
+          });
+      });
+
+      // MODAL MENU
+      const modalMenu = document.getElementById('q-menu-modal');
+      const modalMenuContent = document.getElementById('q-menu-content');
       document.getElementById('btn-open-menu')?.addEventListener('click', () => {
-          modal.classList.remove('hidden');
-          modal.classList.add('flex');
-          setTimeout(() => {
-              modal.classList.remove('opacity-0');
-              modalContent.classList.remove('scale-95');
-              modalContent.classList.add('scale-100');
-          }, 10);
+          modalMenu.classList.remove('hidden'); modalMenu.classList.add('flex');
+          setTimeout(() => { modalMenu.classList.remove('opacity-0'); modalMenuContent.classList.remove('scale-95'); modalMenuContent.classList.add('scale-100'); }, 10);
       });
       document.getElementById('btn-close-menu')?.addEventListener('click', closeMenu);
-      modal.addEventListener('click', (e) => { if(e.target === modal) closeMenu(); });
-
+      modalMenu.addEventListener('click', (e) => { if(e.target === modalMenu) closeMenu(); });
       function closeMenu() {
-          modal.classList.add('opacity-0');
-          modalContent.classList.remove('scale-100');
-          modalContent.classList.add('scale-95');
-          setTimeout(() => {
-              modal.classList.remove('flex');
-              modal.classList.add('hidden');
-          }, 300);
+          modalMenu.classList.add('opacity-0'); modalMenuContent.classList.remove('scale-100'); modalMenuContent.classList.add('scale-95');
+          setTimeout(() => { modalMenu.classList.remove('flex'); modalMenu.classList.add('hidden'); }, 300);
       }
 
       document.querySelectorAll('.palette-btn').forEach(btn => {
@@ -470,6 +559,7 @@ const toeicParts = [
         });
       });
 
+      // UI CHỌN ĐÁP ÁN (VÒNG TRÒN KHÔNG LỆCH LAYOUT)
       document.querySelectorAll('.answer-radio').forEach(radio => {
         radio.addEventListener('change', (e) => {
           if(isReviewMode) return;
@@ -478,24 +568,30 @@ const toeicParts = [
           const container = document.getElementById("q-container-" + qNum);
           
           container.querySelectorAll('.option-label').forEach(lbl => {
-             // Reset UI (Bỏ viền màu, trả về xám nhạt)
-             lbl.classList.remove('border-indigo-500', 'bg-indigo-50/30', 'shadow-sm');
-             lbl.classList.add('border-slate-100', 'bg-slate-50');
+             lbl.classList.remove('border-indigo-400', 'bg-indigo-50/50');
+             lbl.classList.add('border-transparent', 'bg-slate-50');
+             const lBox = lbl.querySelector('.letter-box');
+             if(lBox) { lBox.classList.remove('border-indigo-400'); lBox.classList.add('border-slate-200'); }
              const lDisp = lbl.querySelector('.option-letter-display');
-             if(lDisp) { lDisp.classList.remove('text-indigo-600'); lDisp.classList.add('text-slate-400'); }
+             if(lDisp) { lDisp.classList.remove('text-indigo-600'); lDisp.classList.add('text-slate-500'); }
           });
 
           const selectedLabel = e.target.closest('.option-label');
-          // Set UI Đã chọn (Viền Chàm cực sang)
-          selectedLabel.classList.remove('border-slate-100', 'bg-slate-50');
-          selectedLabel.classList.add('border-indigo-500', 'bg-indigo-50/30', 'shadow-sm');
+          selectedLabel.classList.remove('border-transparent', 'bg-slate-50');
+          selectedLabel.classList.add('border-indigo-400', 'bg-indigo-50/50');
+          
+          const selLBox = selectedLabel.querySelector('.letter-box');
+          if(selLBox) { selLBox.classList.remove('border-slate-200'); selLBox.classList.add('border-indigo-400'); }
           const selLDisp = selectedLabel.querySelector('.option-letter-display');
-          if(selLDisp) { selLDisp.classList.remove('text-slate-400'); selLDisp.classList.add('text-indigo-600'); }
+          if(selLDisp) { selLDisp.classList.remove('text-slate-500'); selLDisp.classList.add('text-indigo-600'); }
 
           const badge = container.querySelector('.status-badge');
           badge.textContent = "Đã chọn";
           badge.classList.replace('bg-slate-100', 'bg-indigo-100');
           badge.classList.replace('text-slate-500', 'text-indigo-700');
+
+          const isFirstTime = !e.target.dataset.answered;
+          if (isFirstTime) e.target.dataset.answered = "true";
 
           const pBtn = document.getElementById("palette-btn-" + qNum);
           if (pBtn && !pBtn.classList.contains('bg-indigo-500')) {
@@ -506,50 +602,71 @@ const toeicParts = [
         });
       });
 
-      const submitBtn = document.getElementById('btn-submit');
-      submitBtn?.addEventListener('click', () => {
-        if (!isReviewMode) {
-            if (confirm("Xác nhận nộp bài?")) processSubmit();
-        } else {
-            window.location.href = "/english-lab/toeic";
-        }
+      // MODAL NỘP BÀI POPUP XỊN
+      const confirmModal = document.getElementById('confirm-modal');
+      const confirmContent = document.getElementById('confirm-content');
+      document.getElementById('btn-pre-submit')?.addEventListener('click', () => {
+          if (isReviewMode) { window.location.href = "/english-lab/toeic"; return; }
+          confirmModal.classList.remove('hidden'); confirmModal.classList.add('flex');
+          setTimeout(() => { confirmModal.classList.remove('opacity-0'); confirmContent.classList.remove('scale-95'); confirmContent.classList.add('scale-100'); }, 10);
+      });
+      document.getElementById('btn-cancel-submit')?.addEventListener('click', () => {
+          confirmModal.classList.add('opacity-0'); confirmContent.classList.remove('scale-100'); confirmContent.classList.add('scale-95');
+          setTimeout(() => { confirmModal.classList.remove('flex'); confirmModal.classList.add('hidden'); }, 300);
+      });
+      document.getElementById('btn-confirm-submit')?.addEventListener('click', () => {
+          confirmModal.classList.add('opacity-0');
+          setTimeout(() => { confirmModal.classList.remove('flex'); confirmModal.classList.add('hidden'); processSubmit(); }, 300);
       });
 
       function processSubmit() {
         clearInterval(timerInterval);
         isReviewMode = true;
         document.body.classList.add('review-mode'); 
+        document.querySelectorAll('.auto-play-audio').forEach(a => a.pause());
 
+        const submitBtn = document.getElementById('btn-pre-submit');
         submitBtn.innerHTML = "Thoát & Lưu";
         submitBtn.classList.replace('bg-emerald-500', 'bg-slate-800');
         submitBtn.classList.replace('hover:bg-emerald-600', 'hover:bg-slate-900');
         
-        // 🚀 MA THUẬT HIGHLIGHT: TÌM "DẪN CHỨNG" ĐỂ BÔI MÀU TRONG SCRIPT
-        document.querySelectorAll('.transcript-content').forEach(el => {
+        // 🚀 MA THUẬT HIGHLIGHT ĐỔ MÀU: ÁP DỤNG CHO CẢ SCRIPT VÀ BÀI ĐỌC PASSAGE
+        const highlightColors = [
+            'bg-amber-100 border-l-4 border-amber-400',     
+            'bg-sky-100 border-l-4 border-sky-400',         
+            'bg-emerald-100 border-l-4 border-emerald-400', 
+            'bg-purple-100 border-l-4 border-purple-400',   
+            'bg-rose-100 border-l-4 border-rose-400'        
+        ];
+
+        document.querySelectorAll('.highlight-target').forEach(el => {
             let html = el.innerHTML;
             let groupQStr = el.dataset.group; 
             if (groupQStr) {
                 let range = groupQStr.split('-');
                 let min = parseInt(range[0]);
                 let max = range.length > 1 ? parseInt(range[1]) : min;
+                
                 for (let i = min; i <= max; i++) {
-                    // Lấy câu Dẫn chứng đã được Astro tách sẵn nhét vào input hidden
                     let dcInput = document.querySelector(`.q-danchung[data-qnum="${i}"]`);
                     if (dcInput && dcInput.value && dcInput.value.length > 5) {
                         let danChung = dcInput.value;
-                        // Escape regex
-                        let escapedDc = danChung.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-                        let regex = new RegExp("(" + escapedDc + ")", "gi");
+                        // FUZZY MATCH TỐI ƯU: Cắt bỏ các ký tự đặc biệt, lấy tối đa 8 từ đầu tiên
+                        let words = danChung.replace(/[.,!?\"'”’“‘]/g, '').trim().split(/\s+/);
+                        if (words.length > 3) words = words.slice(0, 8); 
                         
-                        // Chèn Cục Badge [Số câu] màu vàng và bôi nền vàng cho câu dẫn chứng
-                        html = html.replace(regex, `<mark class="bg-amber-100 text-slate-800 rounded px-1.5 py-0.5 mx-1 shadow-sm leading-relaxed"><span class="inline-flex items-center justify-center w-5 h-5 rounded-md bg-amber-400 text-slate-900 text-[11px] font-black mr-1.5 shadow-sm">${i}</span>$1</mark>`);
+                        let fuzzyPattern = words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('(?:\\s|<[^>]+>|&nbsp;)+');
+                        let regex = new RegExp("(" + fuzzyPattern + "(?:[^<]*?(?:<[^>]+>[^<]*?)*?[.,!?\"'”’“‘]*)?)", "i");
+                        
+                        let colorStr = highlightColors[(i - min) % highlightColors.length];
+                        html = html.replace(regex, `<mark class="${colorStr} rounded-r-md px-2 py-1 shadow-sm inline-block leading-relaxed my-1"><span class="inline-flex items-center justify-center min-w-[20px] h-[20px] px-1 rounded-sm bg-slate-900 text-white text-[10px] font-black mr-2 transform -translate-y-px shadow-sm">${i}</span>$1</mark>`);
                     }
                 }
             }
             el.innerHTML = html;
         });
 
-        // TÔ MÀU XANH ĐÁP ÁN ĐÚNG TRONG DỊCH CÂU HỎI
+        // BÔI MÀU ĐÁP ÁN ĐÚNG TRONG DỊCH CÂU HỎI
         document.querySelectorAll('.parsed-dich-content').forEach(el => {
             let content = el.dataset.dich;
             let correct = el.dataset.correct;
@@ -561,9 +678,11 @@ const toeicParts = [
                 let letterRegex = new RegExp("\\(" + letter + "\\)", "g");
                 finalHtml = finalHtml.replace(letterRegex, `<br><span class="${colorClass} mt-1 block">(${letter})</span>`);
             });
+            finalHtml = finalHtml.replace(/\)\.<\/span>/g, ')</span>'); 
             el.innerHTML = finalHtml;
         });
 
+        // CHẤM ĐIỂM
         groupedSets.forEach(set => {
           set.questions.forEach(q => {
             const qNum = q.questionNumber;
@@ -583,33 +702,39 @@ const toeicParts = [
                 const optText = lbl.querySelector('.option-text');
                 const iconCorrect = lbl.querySelector('.correct-icon');
                 const iconWrong = lbl.querySelector('.wrong-icon');
+                const lBox = lbl.querySelector('.letter-box');
+                const iconContainer = lbl.querySelector('.icon-container');
 
-                lbl.classList.remove('border-indigo-500', 'bg-indigo-50/30', 'border-slate-100', 'bg-slate-50', 'hover:bg-slate-100', 'cursor-pointer', 'hover:border-indigo-300');
+                lbl.classList.remove('border-indigo-400', 'bg-indigo-50/50', 'hover:bg-indigo-50/50', 'cursor-pointer', 'border-transparent', 'bg-slate-50');
                 lbl.classList.add('cursor-default', 'border-transparent', 'bg-white'); 
+                lBox.classList.remove('border-indigo-400');
+                optLetter.classList.remove('text-white');
+                iconContainer.classList.remove('hidden'); // Hiển thị ô chứa Icon
                 
-                // 🚀 LÕI HIỂN THỊ ĐÁP ÁN (GIỮ NGUYÊN (A), (B) VÀ HIỆN ICON BÊN PHẢI)
                 if (letter === q.correctAnswer) {
                     lbl.classList.replace('border-transparent', 'border-emerald-500');
                     lbl.classList.replace('bg-white', 'bg-emerald-50');
+                    lBox.classList.add('bg-emerald-500', 'border-emerald-500');
+                    optLetter.classList.add('hidden');
                     iconCorrect.classList.remove('hidden');
                     if (optText) optText.classList.add('text-emerald-700', 'font-bold');
-                    if (optLetter) optLetter.classList.replace('text-slate-400', 'text-emerald-600');
                 } else if (letter === userChoice && userChoice !== q.correctAnswer) {
                     lbl.classList.replace('border-transparent', 'border-rose-300');
                     lbl.classList.replace('bg-white', 'bg-rose-50');
+                    lBox.classList.add('bg-rose-500', 'border-rose-500');
+                    optLetter.classList.add('hidden');
                     iconWrong.classList.remove('hidden');
                     if (optText) optText.classList.add('text-rose-700', 'font-bold');
-                    if (optLetter) optLetter.classList.replace('text-slate-400', 'text-rose-500');
                 } else {
-                    lbl.classList.add('opacity-50'); // Làm mờ các đáp án không liên quan
+                    lbl.classList.add('opacity-40'); 
                 }
             });
 
             const badge = container.querySelector('.status-badge');
             const pBtn = document.getElementById("palette-btn-" + qNum);
             
-            // Trang trí lại Badge và Palette khi Review
             if (userChoice === q.correctAnswer) {
+                finalScore++;
                 badge.innerHTML = 'Đúng';
                 badge.classList.replace('bg-indigo-100', 'bg-emerald-100');
                 badge.classList.replace('text-indigo-700', 'text-emerald-700');
@@ -620,15 +745,31 @@ const toeicParts = [
                 badge.classList.replace('text-indigo-700', 'text-rose-700');
                 if(pBtn) { pBtn.className = "palette-btn w-full aspect-square flex items-center justify-center rounded-xl border-2 border-rose-500 bg-rose-500 text-white text-[13px] font-bold shadow-md"; }
             } else {
-                badge.textContent = "Bỏ qua";
+                badge.innerHTML = 'Bỏ qua';
                 if(pBtn) { pBtn.className = "palette-btn w-full aspect-square flex items-center justify-center rounded-xl border-2 border-slate-200 bg-slate-100 text-slate-400 text-[13px] font-bold"; }
             }
           });
         });
 
-        alert("🎉 Nộp bài thành công! Hệ thống đã mở khóa Chế độ Review chi tiết.");
-        currentGroupIdx = 0; 
-        updateNavigation();
+        // HIỂN THỊ MODAL BẢNG ĐIỂM
+        const timeUsed = (durationMinutes * 60) - timeLeft;
+        const mUsed = Math.floor(timeUsed/60).toString().padStart(2,'0');
+        const sUsed = (timeUsed%60).toString().padStart(2,'0');
+        
+        document.getElementById('res-score').innerText = finalScore;
+        document.getElementById('res-time').innerText = `${mUsed}:${sUsed}`;
+
+        const resultModal = document.getElementById('result-modal');
+        const resultContent = document.getElementById('result-content');
+        resultModal.classList.remove('hidden'); resultModal.classList.add('flex');
+        setTimeout(() => { resultModal.classList.remove('opacity-0'); resultContent.classList.remove('scale-95'); resultContent.classList.add('scale-100'); }, 10);
+
+        document.getElementById('btn-close-result')?.addEventListener('click', () => {
+            resultModal.classList.add('opacity-0'); resultContent.classList.remove('scale-100'); resultContent.classList.add('scale-95');
+            setTimeout(() => { resultModal.classList.remove('flex'); resultModal.classList.add('hidden'); }, 300);
+            currentGroupIdx = 0; 
+            updateNavigation();
+        });
       }
     });
   </script>
@@ -646,8 +787,7 @@ const toeicParts = [
     .dau-toeic-passage th { background-color: #f8fafc; font-weight: 700; color: #334155; }
     .dau-toeic-passage p { margin-bottom: 14px; line-height: 1.8; }
 
-    .transcript-content mark {
-       background-color: transparent !important; /* Xóa bg mặc định của thẻ mark trong file cào nếu có */
+    .transcript-content mark, .dau-toeic-passage mark {
        color: inherit;
     }
     
