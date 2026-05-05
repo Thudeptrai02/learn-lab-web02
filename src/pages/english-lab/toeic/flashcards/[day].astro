@@ -1,0 +1,204 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  // 🚀 ĐƯỜNG DẪN CHUẨN 4 CẤP + ĐÚNG TÊN THƯ MỤC
+  const jsonFiles = import.meta.glob('../../../../data/TOEIC_FLASH CARD/*.json', { eager: true });
+  
+  return Object.keys(jsonFiles).map(path => {
+    const fileName = path.split('/').pop().replace('.json', '');
+    const dayNumber = fileName.match(/\d+/)?.[0] || '1';
+    return { params: { day: dayNumber } };
+  });
+}
+
+const { day } = Astro.params;
+
+// 🚀 ĐƯỜNG DẪN CHUẨN 4 CẤP + ĐÚNG TÊN THƯ MỤC
+const jsonFiles = import.meta.glob('../../../../data/TOEIC_FLASH CARD/*.json', { eager: true });
+const targetKey = Object.keys(jsonFiles).find(key => key.includes(`Day ${day}.json`));
+const cards = targetKey ? (jsonFiles[targetKey].default || jsonFiles[targetKey]) : [];
+
+const dayTitle = `HACKER TOEIC - DAY ${day}`;
+---
+
+<Layout title={`${dayTitle} | Learn Lab`}>
+  <main class="min-h-screen bg-slate-50 px-4 py-8 md:py-12">
+    <section class="mx-auto max-w-4xl rounded-[2.5rem] bg-white p-6 md:p-12 shadow-sm border border-slate-200 relative overflow-hidden">
+      
+      <!-- HEADER PHÒNG HỌC -->
+      <div class="flex justify-between items-center mb-10">
+        <a href="/english-lab/toeic/flashcards" class="text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-teal-600 transition-colors flex items-center gap-2">
+           &larr; Kho từ vựng
+        </a>
+        <div class="px-5 py-2.5 rounded-2xl bg-slate-900 text-white font-bold text-sm shadow-lg flex items-center gap-2">
+           <span class="text-[10px] text-teal-400 uppercase tracking-widest">Tiến độ</span>
+           <span id="progress-text" class="font-mono text-white">0/0</span>
+        </div>
+      </div>
+      
+      <div class="text-center mb-8">
+         <h1 class="text-3xl font-black text-slate-900 uppercase tracking-tight">{dayTitle}</h1>
+      </div>
+
+      <!-- KHU VỰC THẺ 3D -->
+      <div id="flashcards-view" class="relative">
+        <div id="card-stage" class="relative mx-auto max-w-md h-[400px] transition-all duration-500">
+          
+          <div class="absolute inset-x-6 -bottom-4 h-full rounded-[3rem] bg-teal-50 -z-10 scale-95 border border-teal-100"></div>
+          
+          <div id="flashcard" class="relative w-full h-full cursor-pointer [perspective:1500px]">
+            <div id="flashcard-inner" class="relative w-full h-full rounded-[2.5rem] transition-transform duration-700 [transform-style:preserve-3d] shadow-xl hover:shadow-2xl">
+              
+              <!-- MẶT TRƯỚC (ANH) -->
+              <div class="absolute inset-0 w-full h-full flex flex-col rounded-[2.5rem] bg-white p-10 border-2 border-slate-100 [backface-visibility:hidden]">
+                <div class="flex-1 flex flex-col items-center justify-center text-center">
+                  <span id="card-pos-front" class="px-4 py-1.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest mb-6">POS</span>
+                  <h2 id="card-word" class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4">Word</h2>
+                  <p id="card-ipa" class="text-lg text-teal-600 font-medium font-serif italic">/ipa/</p>
+                </div>
+                <div class="text-center">
+                  <p id="card-example" class="text-[15px] text-slate-500 font-medium leading-relaxed italic mb-8 px-4">"Example"</p>
+                  <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest animate-pulse">Chạm để xem nghĩa</p>
+                </div>
+              </div>
+
+              <!-- MẶT SAU (VIỆT) -->
+              <div class="absolute inset-0 w-full h-full flex flex-col rounded-[2.5rem] bg-slate-900 p-10 [backface-visibility:hidden] [transform:rotateY(180deg)] text-white">
+                <div class="flex-1 flex flex-col items-center justify-center text-center">
+                  <span id="card-pos-back" class="px-4 py-1.5 rounded-full bg-white/10 text-teal-400 text-[10px] font-black uppercase tracking-widest mb-6">POS</span>
+                  <h3 id="card-meaning" class="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">Meaning</h3>
+                  
+                  <div id="synonyms-box" class="mt-8 w-full p-5 rounded-2xl bg-white/5 border border-white/10 hidden">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Đồng nghĩa</p>
+                    <div id="card-synonyms" class="flex flex-wrap gap-2 justify-center"></div>
+                  </div>
+                </div>
+                <p class="text-center text-[10px] font-black text-slate-500 uppercase tracking-widest">Chạm để quay lại</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- NÚT ĐIỀU KHIỂN -->
+        <div id="study-actions" class="mt-14 mx-auto flex max-w-md gap-4">
+          <button id="not-known" class="flex-1 h-16 rounded-2xl border-2 border-rose-200 bg-white text-rose-500 font-black text-[13px] uppercase tracking-wider hover:bg-rose-50 transition-all">Chưa thuộc</button>
+          <button id="known" class="flex-1 h-16 rounded-2xl bg-teal-500 text-white font-black text-[13px] uppercase tracking-wider hover:bg-teal-600 shadow-lg shadow-teal-200 transition-all hover:-translate-y-1">Đã thuộc</button>
+        </div>
+
+        <!-- MÀN HÌNH HOÀN THÀNH -->
+        <div id="done-box" class="mt-10 hidden mx-auto max-w-md rounded-[2.5rem] bg-white p-12 text-center shadow-xl border border-teal-100 animate-fade-in">
+          <div class="text-7xl mb-6">🏆</div>
+          <h3 class="text-2xl font-black text-slate-900 uppercase tracking-tight">Hoàn thành xuất sắc!</h3>
+          <p class="mt-3 text-slate-500 font-medium mb-10 text-[15px]">Bạn đã chinh phục toàn bộ từ vựng của ngày hôm nay.</p>
+          <a href="/english-lab/toeic/flashcards" class="block w-full py-4 rounded-xl bg-slate-900 text-white font-black uppercase tracking-widest text-[13px] shadow-xl hover:-translate-y-1 transition-transform">
+            Học ngày khác
+          </a>
+        </div>
+
+      </div>
+    </section>
+  </main>
+</Layout>
+
+<script define:vars={{ cards }}>
+  let queue = [...cards]; 
+  let currentIdx = 0;
+  let busy = false;
+  let flipped = false;
+
+  const flashInner = document.getElementById('flashcard-inner');
+  const cardStage = document.getElementById('card-stage');
+  const progressText = document.getElementById('progress-text');
+  const synBox = document.getElementById('synonyms-box');
+  const synCont = document.getElementById('card-synonyms');
+
+  function render() {
+    const data = queue[currentIdx]; 
+    if(!data) return;
+    
+    progressText.textContent = `${currentIdx + 1} / ${queue.length}`;
+    
+    document.getElementById('card-word').textContent = data.word || '';
+    document.getElementById('card-ipa').textContent = data.ipa || '';
+    document.getElementById('card-example').textContent = data.example ? `"${data.example}"` : '';
+    document.getElementById('card-meaning').textContent = data.meaning || '';
+    document.getElementById('card-pos-front').textContent = data.partOfSpeech || '-';
+    document.getElementById('card-pos-back').textContent = data.partOfSpeech || '-';
+    
+    if(data.synonyms && String(data.synonyms).trim() !== '') {
+      synCont.innerHTML = ''; 
+      const list = typeof data.synonyms === 'string' ? data.synonyms.split(',') : data.synonyms;
+      if(list.length > 0) { 
+        synBox.classList.remove('hidden'); 
+        list.forEach(s => { 
+            const span = document.createElement('span'); 
+            span.className = 'px-3 py-1 bg-white/10 rounded-lg text-[12px] font-bold text-teal-300 border border-white/10 shadow-inner'; 
+            span.textContent = s.trim(); 
+            synCont.appendChild(span); 
+        }); 
+      } else synBox.classList.add('hidden');
+    } else {
+        synBox.classList.add('hidden');
+    }
+    
+    flipped = false; 
+    flashInner.style.transform = 'rotateY(0deg)';
+  }
+
+  function handleAction(known) {
+    if(busy) return; 
+    busy = true;
+    
+    cardStage.style.opacity = '0'; 
+    cardStage.style.transform = known ? 'translateX(100px) rotate(10deg)' : 'translateX(-100px) rotate(-10deg)';
+    
+    setTimeout(() => {
+      if(!known) { 
+          const item = queue.splice(currentIdx, 1)[0]; 
+          queue.push(item); 
+      } else { 
+          currentIdx++; 
+      }
+
+      if(currentIdx >= queue.length) { 
+          document.getElementById('flashcard').classList.add('hidden'); 
+          document.getElementById('study-actions').classList.add('hidden'); 
+          document.getElementById('done-box').classList.remove('hidden'); 
+      } else { 
+          render(); 
+          cardStage.style.transform = 'scale(0.9) translateY(20px)'; 
+          setTimeout(() => { 
+              cardStage.style.opacity = '1'; 
+              cardStage.style.transform = 'scale(1) translateY(0)'; 
+              busy = false; 
+          }, 50); 
+      }
+    }, 300);
+  }
+
+  document.getElementById('flashcard').onclick = () => { 
+      if(busy) return; 
+      flipped = !flipped; 
+      flashInner.style.transform = flipped ? 'rotateY(180deg)' : 'rotateY(0deg)'; 
+      
+      if(flipped && 'speechSynthesis' in window) { 
+          window.speechSynthesis.cancel();
+          let u = new SpeechSynthesisUtterance(queue[currentIdx].word); 
+          u.lang='en-US'; 
+          u.rate=0.9;
+          speechSynthesis.speak(u); 
+      } 
+  };
+
+  document.getElementById('known').onclick = () => handleAction(true);
+  document.getElementById('not-known').onclick = () => handleAction(false);
+
+  render();
+</script>
+
+<style>
+  .animate-fade-in { animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+</style>

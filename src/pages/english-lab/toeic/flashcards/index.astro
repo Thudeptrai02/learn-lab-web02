@@ -1,132 +1,75 @@
 ---
 import Layout from '../../../../layouts/Layout.astro';
 
-// 1. HÚT DỮ LIỆU & BỘ LỌC KIM CƯƠNG
-const jsonFiles = import.meta.glob('../../../../data/**/*.json', { eager: true });
+// 🚀 ĐƯỜNG DẪN 5 CẤP: Đảm bảo tìm đúng thư mục data ở thư mục gốc
+const flashcardModules = import.meta.glob('../../../../../data/TOEIC_FLASH CARD/*.json', { eager: true });
 
-let allCards = [];
-Object.values(jsonFiles).forEach(file => {
-  const fileData = file.default || [];
-  const validCards = fileData.filter(c => 
-    c.word && String(c.word).trim() !== '' && 
-    c.topic && String(c.topic).trim() !== ''
-  );
-  allCards = [...allCards, ...validCards];
-});
-
-// 2. THUẬT TOÁN GOM NHÓM 2 CẤP (DAY -> TOPIC)
-const groupedData = {};
-
-allCards.forEach(card => {
-  const rawTopic = String(card.topic).trim(); 
+// Xử lý dữ liệu và lấy số để sắp xếp
+const allDays = Object.entries(flashcardModules).map(([path, module]) => {
+  const fileName = path.split('/').pop().replace('.json', '');
+  const dayNumber = parseInt(fileName.match(/\d+/)?.[0] || '0');
   
-  // Trích xuất "hacker-day-xx" làm Nhóm Cha
-  const dayMatch = rawTopic.match(/(hacker-day-\d+)/i);
-  const parentGroup = dayMatch ? dayMatch[1].toUpperCase().replace(/-/g, ' ') : 'CHỦ ĐỀ KHÁC';
-
-  // Cắt bỏ phần "HACKER DAY XX" ở tên Thẻ Con cho gọn
-  let subName = rawTopic.toUpperCase().replace(/-/g, ' ');
-  if (dayMatch) {
-      subName = subName.replace(parentGroup, '').trim();
-  }
-  if (subName === '') subName = 'TỪ VỰNG TỔNG HỢP';
-
-  // Khởi tạo nhóm nếu chưa có
-  if (!groupedData[parentGroup]) {
-    groupedData[parentGroup] = {};
-  }
-
-  // Khởi tạo thẻ con nếu chưa có và đếm số từ
-  if (!groupedData[parentGroup][rawTopic]) {
-    groupedData[parentGroup][rawTopic] = {
-      slug: rawTopic,
-      name: subName,
-      count: 0
-    };
-  }
-  groupedData[parentGroup][rawTopic].count++;
+  return { 
+    name: fileName.toUpperCase(), 
+    order: dayNumber, 
+    count: (module.default || module).length || 0 
+  };
 });
 
-// Chuyển object thành array và sắp xếp theo tên Ngày
-const daysArray = Object.keys(groupedData).map(day => ({
-  dayName: day,
-  topics: Object.values(groupedData[day])
-})).sort((a, b) => a.dayName.localeCompare(b.dayName)); 
+// Sắp xếp tự nhiên (1, 2, 3... thay vì 1, 10, 11)
+allDays.sort((a, b) => a.order - b.order);
+
+// Gom nhóm 10 ngày / chặng
+const chunks = [];
+for (let i = 0; i < allDays.length; i += 10) {
+  chunks.push({
+    title: `CHẶNG ${chunks.length + 1}`,
+    range: `Ngày ${i + 1} - ${Math.min(i + 10, allDays.length)}`,
+    days: allDays.slice(i, i + 10)
+  });
+}
 ---
 
-<Layout title="Chủ đề Flashcards | Learn Lab">
-  <main class="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
-    <section class="mx-auto max-w-4xl">
-      
-      <!-- TIÊU ĐỀ TRANG -->
-      <div class="mb-10 text-center sm:text-left">
-        <p class="text-xs font-bold uppercase tracking-widest text-teal-600">Vocabulary Center</p>
-        <h1 class="mt-2 text-3xl font-extrabold text-slate-900 sm:text-4xl">Kho Từ Vựng TOEIC</h1>
-        <p class="mt-2 text-sm text-slate-500">Hệ thống nạp dữ liệu nội bộ siêu tốc - Học mọi lúc mọi nơi</p>
-      </div>
+<Layout title="TOEIC Flashcards - Hacker Series">
+  <div class="max-w-5xl mx-auto p-6 bg-slate-50 min-h-screen font-sans">
+    <div class="mb-10 text-center">
+      <h1 class="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-2">
+        Hacker TOEIC Vocabulary
+      </h1>
+      <p class="text-slate-500 font-medium">30 ngày chinh phục từ vựng mục tiêu 800+</p>
+    </div>
 
-      <!-- DANH SÁCH ACCORDION (NHÓM THEO NGÀY) -->
-      <div class="space-y-6">
-        {daysArray.map((dayGroup, index) => (
+    <div class="space-y-8">
+      {chunks.map((chunk, idx) => (
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           
-          /* Native Accordion HTML (Không cần Javascript) - Ngày đầu tiên tự động mở (open) */
-          <details class="group bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden" open={index === 0}>
-            
-            <summary class="flex items-center justify-between p-6 cursor-pointer list-none bg-white hover:bg-slate-50 transition-colors [&::-webkit-details-marker]:hidden">
-              <h2 class="text-xl font-extrabold text-slate-900">{dayGroup.dayName}</h2>
-              <div class="flex items-center gap-4">
-                <span class="hidden sm:inline-block text-sm font-semibold text-teal-600 bg-teal-50 px-3 py-1 rounded-full">
-                  {dayGroup.topics.length} bộ thẻ
-                </span>
-                <span class="transition-transform duration-300 group-open:-rotate-180 text-slate-400">
-                  <!-- Icon Mũi tên -->
-                  <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </span>
-              </div>
-            </summary>
-
-            <!-- LƯỚI THẺ CON BÊN TRONG -->
-            <div class="p-6 pt-2 border-t border-slate-100 bg-slate-50/50">
-              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {dayGroup.topics.map(topic => (
-                  <a href={`/english-lab/toeic/flashcards/${topic.slug}`} class="group/card relative flex flex-col justify-between rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-md hover:ring-teal-500 cursor-pointer">
-                    <div>
-                      <div class="flex items-center justify-between mb-3">
-                        <span class="inline-flex items-center text-xs font-bold text-slate-500">
-                          {topic.count} từ vựng
-                        </span>
-                        <div class="flex h-7 w-7 items-center justify-center rounded-full bg-slate-50 group-hover/card:bg-teal-50 transition-colors">
-                          <svg class="h-3 w-3 text-slate-400 group-hover/card:text-teal-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </div>
-                      <h3 class="text-lg font-extrabold text-slate-800 group-hover/card:text-teal-600 transition-colors leading-tight">
-                        {topic.name}
-                      </h3>
-                    </div>
-                  </a>
-                ))}
-              </div>
+          <div class="p-6 bg-slate-900 flex justify-between items-center text-white">
+            <div>
+              <h2 class="font-black text-xl tracking-tight">{chunk.title}</h2>
+              <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">{chunk.range}</p>
             </div>
-            
-          </details>
-
-        ))}
-      </div>
-
-    </section>
-  </main>
+            <div class="w-12 h-12 rounded-2xl bg-teal-500 flex items-center justify-center font-black text-lg shadow-inner">
+              0{idx + 1}
+            </div>
+          </div>
+          
+          <div class="p-6 grid grid-cols-2 sm:grid-cols-5 gap-4">
+            {chunk.days.map((day) => (
+              <a 
+                href={`/english-lab/toeic/flashcards/${day.order}`} 
+                class="flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-slate-50 bg-slate-50 hover:border-teal-500 hover:bg-white hover:shadow-xl transition-all group text-center"
+              >
+                <span class="text-[10px] font-black text-slate-400 group-hover:text-teal-500 uppercase tracking-widest mb-1">Day</span>
+                <span class="text-3xl font-black text-slate-800 group-hover:text-teal-600 leading-none mb-3">{day.order}</span>
+                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-500 group-hover:bg-teal-100 group-hover:text-teal-700 transition-colors">
+                  {day.count} từ
+                </span>
+              </a>
+            ))}
+          </div>
+          
+        </div>
+      ))}
+    </div>
+  </div>
 </Layout>
-
-<style>
-  /* Ẩn mũi tên mặc định của thẻ details trên Safari/Chrome cũ */
-  details > summary {
-    list-style: none;
-  }
-  details > summary::-webkit-details-marker {
-    display: none;
-  }
-</style>
