@@ -9,7 +9,7 @@ import Layout from '../layouts/Layout.astro';
     <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-200 border-t-teal-600"></div>
   </div>
 
-  {/* PHẦN 1: MÀN HÌNH CHÀO KHÁCH (Đã bỏ cái Nav rác của tôi, giữ nguyên Layout của sếp) */}
+  {/* PHẦN 1: MÀN HÌNH CHÀO KHÁCH */}
   <div class="relative pt-12 pb-20 overflow-hidden">
     <div class="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-teal-50/50 to-transparent -z-10"></div>
     <div class="max-w-5xl mx-auto px-6 text-center">
@@ -89,26 +89,14 @@ import Layout from '../layouts/Layout.astro';
 </Layout>
 
 <script>
-  import { supabase } from '../lib/supabase.js';
-
-  const loader = document.getElementById('page-loader');
-  const dashUsername = document.getElementById('dash-username');
-
-  async function initPage() {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    // Tắt loading
+  // Đoạn code an toàn: Tự động tắt loading sau 300ms mà không gọi Supabase
+  document.addEventListener('DOMContentLoaded', () => {
+    const loader = document.getElementById('page-loader');
     if (loader) {
       loader.classList.add('opacity-0');
-      setTimeout(() => loader.classList.add('hidden'), 300);
+      setTimeout(() => {
+        loader.classList.add('hidden');
+      }, 300);
     }
-
-    if (session) {
-      // Đã login thì đổi chữ "bạn nhé" thành Tên học viên
-      const name = session.user.user_metadata?.fullname || session.user.email.split('@')[0];
-      if (dashUsername) dashUsername.textContent = name;
-    }
-  }
-
-  initPage();
+  });
 </script>
