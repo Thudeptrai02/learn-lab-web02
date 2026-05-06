@@ -1,75 +1,134 @@
 ---
-import Layout from '../../../../layouts/Layout.astro';
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
 
-// 🚀 ĐƯỜNG DẪN 5 CẤP: Đảm bảo tìm đúng thư mục data ở thư mục gốc
-const flashcardModules = import.meta.glob('../../../../../data/TOEIC_FLASH CARD/*.json', { eager: true });
+// 🚀 HÚT BÀI VIẾT (Có thêm || [] để nếu chưa có bài nào web cũng không sập)
+const allFiles = (await getCollection('blog')) || [];
 
-// Xử lý dữ liệu và lấy số để sắp xếp
-const allDays = Object.entries(flashcardModules).map(([path, module]) => {
-  const fileName = path.split('/').pop().replace('.json', '');
-  const dayNumber = parseInt(fileName.match(/\d+/)?.[0] || '0');
-  
-  return { 
-    name: fileName.toUpperCase(), 
-    order: dayNumber, 
-    count: (module.default || module).length || 0 
-  };
+// Sắp xếp bài mới nhất lên đầu
+const sortedPosts = allFiles.sort((a, b) => {
+  const dateA = new Date(a.data.pubDate || a.data.date || new Date()).valueOf();
+  const dateB = new Date(b.data.pubDate || b.data.date || new Date()).valueOf();
+  return dateB - dateA;
 });
 
-// Sắp xếp tự nhiên (1, 2, 3... thay vì 1, 10, 11)
-allDays.sort((a, b) => a.order - b.order);
+// Phân tách bài nổi bật và bài thường
+const featuredPost = sortedPosts.length > 0 ? sortedPosts[0] : null;
+const regularPosts = sortedPosts.length > 1 ? sortedPosts.slice(1) : [];
 
-// Gom nhóm 10 ngày / chặng
-const chunks = [];
-for (let i = 0; i < allDays.length; i += 10) {
-  chunks.push({
-    title: `CHẶNG ${chunks.length + 1}`,
-    range: `Ngày ${i + 1} - ${Math.min(i + 10, allDays.length)}`,
-    days: allDays.slice(i, i + 10)
-  });
-}
+const categories = ['Tất cả', 'Tài liệu', 'Kiến thức', 'Tâm sự', 'Kinh nghiệm'];
 ---
 
-<Layout title="TOEIC Flashcards - Hacker Series">
-  <div class="max-w-5xl mx-auto p-6 bg-slate-50 min-h-screen font-sans">
-    <div class="mb-10 text-center">
-      <h1 class="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-2">
-        Hacker TOEIC Vocabulary
-      </h1>
-      <p class="text-slate-500 font-medium">30 ngày chinh phục từ vựng mục tiêu 800+</p>
-    </div>
+<Layout title="Blog & Chia sẻ | Learn Lab">
+  <main class="min-h-screen bg-slate-50 pt-8 pb-20 font-sans">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- HEADER -->
+      <div class="text-center py-10 md:py-16">
+        <h1 class="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4">
+          Learn Lab <span class="text-teal-600">Blog</span>
+        </h1>
+        <p class="text-slate-500 text-lg max-w-2xl mx-auto font-medium">
+          Góc nhỏ chia sẻ tài liệu mật, kinh nghiệm học tập và dăm ba câu chuyện phiếm của Admin.
+        </p>
+      </div>
 
-    <div class="space-y-8">
-      {chunks.map((chunk, idx) => (
-        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-          
-          <div class="p-6 bg-slate-900 flex justify-between items-center text-white">
-            <div>
-              <h2 class="font-black text-xl tracking-tight">{chunk.title}</h2>
-              <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mt-1">{chunk.range}</p>
-            </div>
-            <div class="w-12 h-12 rounded-2xl bg-teal-500 flex items-center justify-center font-black text-lg shadow-inner">
-              0{idx + 1}
-            </div>
-          </div>
-          
-          <div class="p-6 grid grid-cols-2 sm:grid-cols-5 gap-4">
-            {chunk.days.map((day) => (
-              <a 
-                href={`/english-lab/toeic/flashcards/${day.order}`} 
-                class="flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-slate-50 bg-slate-50 hover:border-teal-500 hover:bg-white hover:shadow-xl transition-all group text-center"
-              >
-                <span class="text-[10px] font-black text-slate-400 group-hover:text-teal-500 uppercase tracking-widest mb-1">Day</span>
-                <span class="text-3xl font-black text-slate-800 group-hover:text-teal-600 leading-none mb-3">{day.order}</span>
-                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-200 text-slate-500 group-hover:bg-teal-100 group-hover:text-teal-700 transition-colors">
-                  {day.count} từ
-                </span>
-              </a>
-            ))}
-          </div>
-          
+      <!-- NẾU CHƯA CÓ BÀI VIẾT NÀO -->
+      {sortedPosts.length === 0 && (
+        <div class="text-center py-20 bg-white rounded-3xl border border-slate-200 shadow-sm max-w-2xl mx-auto">
+          <div class="text-6xl mb-4">📝</div>
+          <h2 class="text-2xl font-black text-slate-800 mb-2">Kho Blog đang trống!</h2>
+          <p class="text-slate-500 mb-6 font-medium">Sếp hãy vào trang quản trị Sveltia CMS (/admin) để đăng bài viết đầu tiên nhé.</p>
+          <a href="/admin" class="inline-flex px-6 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors">
+            Đăng bài ngay
+          </a>
         </div>
-      ))}
+      )}
+
+      <!-- BÀI VIẾT NỔI BẬT -->
+      {featuredPost && (
+      <section class="mb-16">
+        <a href={`/blog/${featuredPost.slug}`} class="group block relative rounded-[2.5rem] overflow-hidden bg-white shadow-sm border border-slate-200 hover:shadow-xl transition-all duration-500">
+          <div class="flex flex-col md:flex-row h-full">
+            <div class="md:w-3/5 h-64 md:h-auto relative overflow-hidden bg-slate-100 flex items-center justify-center">
+              {featuredPost.data.image ? (
+                <img src={featuredPost.data.image} alt={featuredPost.data.title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+              ) : (
+                <span class="text-slate-300 font-black text-5xl select-none">LL</span>
+              )}
+              <div class="absolute inset-0 bg-gradient-to-r from-slate-900/40 to-transparent"></div>
+            </div>
+            <div class="md:w-2/5 p-8 md:p-12 flex flex-col justify-center">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="px-3 py-1 rounded-full bg-teal-100 text-teal-700 text-[11px] font-black uppercase tracking-widest">
+                  {featuredPost.data.category || 'Chia sẻ'}
+                </span>
+                <span class="text-slate-400 text-xs font-bold">
+                  {new Date(featuredPost.data.pubDate || new Date()).toLocaleDateString('vi-VN')}
+                </span>
+              </div>
+              <h2 class="text-2xl md:text-3xl font-black text-slate-900 mb-4 group-hover:text-teal-600 transition-colors leading-tight line-clamp-3">
+                {featuredPost.data.title}
+              </h2>
+              <p class="text-slate-600 leading-relaxed font-medium mb-6 line-clamp-3">
+                {featuredPost.data.description || 'Bấm vào để đọc chi tiết bài viết này nhé...'}
+              </p>
+              <div class="flex items-center text-teal-600 font-bold text-sm tracking-wide group-hover:translate-x-2 transition-transform">
+                Đọc tiếp &rarr;
+              </div>
+            </div>
+          </div>
+        </a>
+      </section>
+      )}
+
+      <!-- BỘ LỌC CHUYÊN MỤC -->
+      {sortedPosts.length > 0 && (
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-10">
+        {categories.map((cat, i) => (
+          <button class={`px-5 py-2 rounded-full text-sm font-bold transition-all ${i === 0 ? 'bg-slate-900 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-500 hover:bg-slate-100 hover:text-slate-800'}`}>
+            {cat}
+          </button>
+        ))}
+      </div>
+      )}
+
+      <!-- LƯỚI CÁC BÀI VIẾT CŨ HƠN -->
+      {regularPosts.length > 0 && (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {regularPosts.map((post) => (
+          <a href={`/blog/${post.slug}`} class="group flex flex-col rounded-3xl bg-white border border-slate-200 overflow-hidden hover:shadow-xl hover:shadow-teal-100/50 hover:-translate-y-1 transition-all duration-300">
+            <div class="h-48 relative overflow-hidden bg-slate-100 flex items-center justify-center">
+              {post.data.image ? (
+                <img src={post.data.image} alt={post.data.title} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              ) : (
+                <span class="text-slate-300 font-black text-3xl select-none">LL</span>
+              )}
+            </div>
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="flex items-center gap-3 mb-3">
+                <span class="text-teal-600 text-[10px] font-black uppercase tracking-widest">{post.data.category || 'Chia sẻ'}</span>
+                <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                <span class="text-slate-400 text-[11px] font-bold">
+                  {new Date(post.data.pubDate || new Date()).toLocaleDateString('vi-VN')}
+                </span>
+              </div>
+              <h3 class="text-xl font-black text-slate-900 mb-3 group-hover:text-teal-600 transition-colors leading-snug line-clamp-2">
+                {post.data.title}
+              </h3>
+              <p class="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-3 flex-1">
+                {post.data.description || 'Bấm vào để xem nội dung chi tiết...'}
+              </p>
+              <div class="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+                <span class="text-teal-600 font-bold text-sm">Đọc tiếp</span>
+                <svg class="w-5 h-5 text-slate-300 group-hover:text-teal-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+      )}
+
     </div>
-  </div>
+  </main>
 </Layout>

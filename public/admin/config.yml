@@ -8,7 +8,7 @@ media_folder: "public/images"
 public_folder: "/images"
 
 collections:
-  # ----------------------------------------
+# ----------------------------------------
   # 1. QUẢN LÝ BLOG
   # ----------------------------------------
   - name: "blog"
@@ -19,16 +19,23 @@ collections:
     fields:
       - {label: "Tiêu đề bài viết", name: "title", widget: "string"}
       - {label: "Tóm tắt (SEO)", name: "description", widget: "string"}
-      - {label: "Chuyên mục", name: "category", widget: "select", options: ["Kiến thức", "Niềm tin", "Dòng thời gian"], default: "Kiến thức"}
+      
+      # 🚀 ĐÃ THÊM CÁC CHUYÊN MỤC MỚI ĐỂ SẾP CHIA SẺ TÀI LIỆU, TÂM SỰ
+      - {label: "Chuyên mục", name: "category", widget: "select", options: ["Kiến thức", "Tài liệu", "Kinh nghiệm", "Tâm sự", "Dòng thời gian", "Niềm tin"], default: "Tài liệu"}
+      
       - {label: "Ngày đăng", name: "pubDate", widget: "datetime", format: "YYYY-MM-DD"}
       - {label: "Ảnh bìa", name: "image", widget: "image", required: false}
       - label: "Nội dung bài viết"
         name: "body"
         widget: "markdown"
         default: |
-          ## 1. Nội dung chính
+          ## Lời mở đầu
           
-          ## 2. Kết luận
+          Chào anh em, hôm nay đổi gió chia sẻ chút tài liệu hay...
+          
+          ## Nội dung chính
+          
+          Link tải tài liệu ở đây nhé: [Link Google Drive](#)
           
           ---
           *Chúc các em học tập tốt!*
