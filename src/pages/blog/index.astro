@@ -1,208 +1,105 @@
 ---
-import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
 
-// 1. Kéo dữ liệu thật từ Markdown của sếp
-const posts = await getCollection('blog');
+// 1. Lấy toàn bộ bài viết và sắp xếp theo ngày mới nhất
+const allPosts = await getCollection('blog');
+const posts = allPosts.sort((a, b) => 
+  new Date(b.data.pubDate || 0).getTime() - new Date(a.data.pubDate || 0).getTime()
+);
 
-// 2. Sắp xếp bài mới nhất lên đầu
-const sortedPosts = posts.sort((a, b) => new Date(b.data.date || b.data.pubDate || new Date()).getTime() - new Date(a.data.date || a.data.pubDate || new Date()).getTime());
-
-// 3. CỐ ĐỊNH DANH SÁCH BỘ LỌC CHUẨN (Thay vì tự quét bài cũ)
-const categories = [
-  { name: "Tất cả", slug: "all" },
-  { name: "Kiến thức", slug: "kiến-thức" },
-  { name: "Niềm tin", slug: "niềm-tin" },
-  { name: "Dòng thời gian", slug: "dòng-thời-gian" }
-];
-
-// 4. Hàm tự động cấp màu sắc theo chủ đề mới
-const getCategoryColor = (cat) => {
-  if (!cat) return 'slate';
-  const lowerCat = cat.toLowerCase();
-  if (lowerCat.includes('kiến thức')) return 'teal';
-  if (lowerCat.includes('niềm tin')) return 'rose';
-  if (lowerCat.includes('thời gian')) return 'amber';
-  return 'indigo'; // Màu mặc định cho các chủ đề khác
-};
+// 2. Danh sách chuyên mục chuẩn của sếp
+const categories = ["Trải nghiệm", "Kiến thức", "Niềm tin", "Tài liệu"];
 ---
 
-<Layout title="Góc Chia Sẻ | Learn Lab - Cùng bạn chinh phục Tiếng Anh">
-  <main class="min-h-screen bg-[#fcfdfd] font-sans pb-24">
-    
-    <section class="bg-white border-b border-slate-200 pt-20 pb-16 px-6 relative overflow-hidden">
-      <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-teal-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-      <div class="max-w-6xl mx-auto relative z-10 text-center">
-        <span class="text-teal-600 font-bold tracking-widest uppercase text-xs bg-teal-50 px-4 py-1.5 rounded-full">Knowledge Base</span>
-        <h1 class="text-4xl md:text-6xl font-black text-slate-800 mt-6 mb-6 tracking-tight">
-          Học Tiếng Anh <span class="text-teal-600">Thú Vị Hơn</span>
-        </h1>
-        <p class="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
-          Nơi mình lưu giữ những bài giảng tâm huyết, vài mẩu nhật ký vu vơ và những trải nghiệm thực tế trên hành trình phát triển bản thân.
+<Layout title="Blog | Learn Lab">
+  <main class="pt-20 pb-24 bg-slate-50 min-h-screen">
+    <div class="max-w-6xl mx-auto px-6">
+      
+      {/* Tiêu đề trang */}
+      <div class="text-center mb-16">
+        <span class="text-teal-600 font-bold text-sm tracking-widest uppercase mb-4 block">Knowledge Base</span>
+        <h1 class="text-5xl font-black text-slate-900 mb-6">Học Tiếng Anh <span class="text-teal-600">Thú Vị Hơn</span></h1>
+        <p class="text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
+          Nơi mình lưu giữ những bài giảng tâm huyết, vài mẫu nhật ký vu vơ và những trải nghiệm thực tế trên hành trình phát triển bản thân.
         </p>
       </div>
-    </section>
 
-    <section class="sticky top-[64px] z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 py-4 shadow-sm">
-      <div class="max-w-6xl mx-auto px-4 md:px-6">
-        <div class="flex items-center justify-start md:justify-center gap-3 overflow-x-auto no-scrollbar py-1">
-          {categories.map((cat, index) => (
-            <button 
-              class={`filter-btn whitespace-nowrap px-6 py-2.5 rounded-full font-bold text-sm transition-all duration-300 ${index === 0 ? 'bg-slate-800 text-white shadow-md' : 'bg-white text-slate-500 border border-slate-200 hover:border-slate-300 hover:bg-slate-50'}`}
-              data-filter={cat.slug}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
+      {/* Bộ lọc chuyên mục */}
+      <div class="flex flex-wrap gap-3 justify-center mb-16">
+        <button class="category-btn active px-7 py-2.5 rounded-full bg-slate-900 text-white font-bold text-sm shadow-lg shadow-slate-200 transition-all" data-category="all">
+          Tất cả
+        </button>
+        {categories.map(cat => (
+          <button class="category-btn px-7 py-2.5 rounded-full bg-white border border-slate-200 text-slate-600 font-bold text-sm hover:border-teal-500 hover:text-teal-600 transition-all shadow-sm" data-category={cat}>
+            {cat}
+          </button>
+        ))}
       </div>
-    </section>
 
-    <section class="max-w-6xl mx-auto px-4 md:px-6 mt-12">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="blog-grid">
-        
-        {sortedPosts.map((post, index) => {
-          // Xử lý lại tên chuyên mục mặc định và slug
-          const catName = post.data.category || 'Kiến thức';
-          const catSlug = catName.toLowerCase().replace(/\s+/g, '-');
-          const color = getCategoryColor(catName);
-          const isFeatured = index === 0; // Bài đầu tiên cho bự ra
-
-          return (
-            <article 
-              class={`blog-card group cursor-pointer bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2 flex flex-col ${isFeatured ? 'md:col-span-2 lg:col-span-2 flex-col md:flex-row' : ''}`} 
-              data-category={catSlug}
-            >
-              <a href={`/blog/${post.id || post.slug}`} class={`flex w-full h-full ${isFeatured ? 'flex-col md:flex-row' : 'flex-col'}`}>
-                
-                <div class={`relative overflow-hidden ${isFeatured ? 'md:w-1/2 w-full h-64 md:h-auto' : 'w-full h-56 shrink-0'} bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center`}>
-                  {post.data.image ? (
-                    <img src={post.data.image} alt={post.data.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" />
-                  ) : (
-                    <span class="text-slate-300 font-black text-5xl select-none group-hover:scale-110 transition-transform duration-700">LL</span>
-                  )}
-                  
-                  <div class="absolute top-4 left-4">
-                    <span class={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white shadow-sm backdrop-blur-sm
-                      ${color === 'teal' ? 'bg-teal-500/90' : color === 'rose' ? 'bg-rose-500/90' : color === 'amber' ? 'bg-amber-500/90' : 'bg-indigo-500/90'}
-                    `}>
-                      {catName}
-                    </span>
-                  </div>
-                </div>
-
-                <div class={`p-8 flex flex-col justify-between flex-1 ${isFeatured ? 'md:w-1/2' : ''}`}>
-                  <div>
-                    <p class="text-xs font-bold text-slate-400 mb-3 flex items-center gap-2">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                      {new Date(post.data.date || post.data.pubDate || new Date()).toLocaleDateString('vi-VN', { day: '2-digit', month: 'long', year: 'numeric' })}
-                    </p>
-                    <h3 class={`font-black text-slate-800 leading-snug mb-4 transition-colors line-clamp-2 
-                      ${color === 'teal' ? 'group-hover:text-teal-600' : color === 'rose' ? 'group-hover:text-rose-600' : color === 'amber' ? 'group-hover:text-amber-600' : 'group-hover:text-indigo-600'}
-                      ${isFeatured ? 'text-2xl md:text-3xl' : 'text-xl'}
-                    `}>
-                      {post.data.title}
-                    </h3>
-                    <p class="text-slate-500 leading-relaxed text-sm line-clamp-3">
-                      {post.data.description || "Khám phá những bí quyết học tập độc đáo chỉ có tại Learn Lab giúp bạn tiến bộ vượt bậc..."}
-                    </p>
-                  </div>
-                  
-                  <div class="mt-8 pt-6 border-t border-slate-100">
-                    <span class="inline-flex items-center gap-2 text-sm font-bold text-slate-700 group-hover:gap-3 transition-all">
-                      Đọc tiếp <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-                    </span>
-                  </div>
-                </div>
-              </a>
-            </article>
-          );
-        })}
-
-        {posts.length === 0 && (
-          <div class="col-span-full text-center py-20">
-            <div class="inline-block p-8 bg-white rounded-3xl shadow-sm border border-slate-100">
-              <div class="text-5xl mb-4">✍️</div>
-              <h3 class="text-xl font-bold text-slate-800 mb-2">Đang ấp ủ nội dung</h3>
-              <p class="text-slate-500 font-medium">Sếp đang chuẩn bị những bài viết chất lượng, quay lại sau nhé!</p>
+      {/* Danh sách bài viết */}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="post-grid">
+        {posts.map(post => (
+          <article class="post-card group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all flex flex-col" data-category={post.data.category}>
+            <div class="aspect-video bg-slate-100 relative overflow-hidden">
+              {post.data.image ? (
+                <img src={post.data.image} alt={post.data.title} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+              ) : (
+                <div class="w-full h-full flex items-center justify-center text-slate-300 font-black text-4xl">LL</div>
+              )}
+              <span class="absolute top-4 left-4 px-3 py-1 bg-teal-500 text-white text-[10px] font-black uppercase rounded-lg shadow-lg">
+                {post.data.category || 'Chưa phân loại'}
+              </span>
             </div>
-          </div>
-        )}
-
-        <div id="empty-filter-state" class="hidden col-span-full py-20 text-center">
-          <div class="text-5xl mb-4">📭</div>
-          <h3 class="text-xl font-bold text-slate-800 mb-2">Không tìm thấy bài viết</h3>
-          <p class="text-slate-500">Chưa có bài viết nào trong chủ đề này.</p>
-        </div>
-
+            
+            <div class="p-8 flex flex-col flex-grow">
+              <div class="flex items-center gap-2 text-slate-400 text-[11px] font-bold mb-4 uppercase">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                {new Date(post.data.pubDate || '').toLocaleDateString('vi-VN', { day: '2-digit', month: 'long', year: 'numeric' })}
+              </div>
+              <h2 class="text-xl font-bold text-slate-900 mb-3 group-hover:text-teal-600 transition-colors line-clamp-2">
+                <a href={`/blog/${post.slug}`}>{post.data.title}</a>
+              </h2>
+              <p class="text-slate-500 text-sm leading-relaxed mb-6 line-clamp-3 font-medium italic">
+                {post.data.description || 'XIN CHÀO...'}
+              </p>
+              <div class="mt-auto pt-6 border-t border-slate-50">
+                <a href={`/blog/${post.slug}`} class="text-slate-900 font-black text-xs uppercase tracking-widest flex items-center gap-2 group-hover:gap-3 transition-all">
+                  Đọc tiếp <svg class="w-4 h-4 text-teal-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </a>
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
-    </section>
-
+    </div>
   </main>
 </Layout>
 
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', () => {
-    const filterBtns = document.querySelectorAll('.filter-btn');
-    const cards = document.querySelectorAll('.blog-card');
-    const emptyFilterState = document.getElementById('empty-filter-state');
+<script>
+  // Logic lọc bài viết bằng JavaScript (nhanh & mượt)
+  const buttons = document.querySelectorAll('.category-btn');
+  const cards = document.querySelectorAll('.post-card');
 
-    filterBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        // 1. Cập nhật giao diện nút Active
-        filterBtns.forEach(b => {
-          b.classList.remove('bg-slate-800', 'text-white', 'shadow-md');
-          b.classList.add('bg-white', 'text-slate-500');
-        });
-        btn.classList.remove('bg-white', 'text-slate-500');
-        btn.classList.add('bg-slate-800', 'text-white', 'shadow-md');
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
 
-        // 2. Logic Lọc bài viết mượt mà
-        const filterValue = btn.getAttribute('data-filter');
-        let visibleCount = 0;
+      // Đổi trạng thái active của nút
+      buttons.forEach(b => b.classList.remove('bg-slate-900', 'text-white', 'active'));
+      buttons.forEach(b => b.classList.add('bg-white', 'text-slate-600'));
+      btn.classList.add('bg-slate-900', 'text-white', 'active');
+      btn.classList.remove('bg-white', 'text-slate-600');
 
-        cards.forEach(card => {
-          card.style.opacity = '0';
-          card.style.transform = 'scale(0.95)';
-          
-          setTimeout(() => {
-            if (filterValue === 'all' || card.getAttribute('data-category') === filterValue) {
-              card.style.display = 'flex';
-              visibleCount++;
-              setTimeout(() => {
-                card.style.opacity = '1';
-                card.style.transform = 'scale(1)';
-              }, 50);
-            } else {
-              card.style.display = 'none';
-            }
-            
-            if (visibleCount === 0 && emptyFilterState) {
-              emptyFilterState.classList.remove('hidden');
-            } else if (emptyFilterState) {
-              emptyFilterState.classList.add('hidden');
-            }
-          }, 300);
-        });
+      // Ẩn/Hiện bài viết
+      cards.forEach(card => {
+        const cardCat = (card as HTMLElement).getAttribute('data-category');
+        if (category === 'all' || cardCat === category) {
+          (card as HTMLElement).style.display = 'flex';
+        } else {
+          (card as HTMLElement).style.display = 'none';
+        }
       });
     });
   });
 </script>
-
-<style is:global>
-  h1, h2, h3, h4 {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-  
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  
-  .blog-card {
-    transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.5s ease;
-  }
-</style>

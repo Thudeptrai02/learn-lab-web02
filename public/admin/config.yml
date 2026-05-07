@@ -8,7 +8,7 @@ media_folder: "public/images"
 public_folder: "/images"
 
 collections:
-# ----------------------------------------
+  # ----------------------------------------
   # 1. QUẢN LÝ BLOG
   # ----------------------------------------
   - name: "blog"
@@ -20,8 +20,12 @@ collections:
       - {label: "Tiêu đề bài viết", name: "title", widget: "string"}
       - {label: "Tóm tắt (SEO)", name: "description", widget: "string"}
       
-      # 🚀 ĐÃ THÊM CÁC CHUYÊN MỤC MỚI ĐỂ SẾP CHIA SẺ TÀI LIỆU, TÂM SỰ
-      - {label: "Chuyên mục", name: "category", widget: "select", options: ["Kiến thức", "Tài liệu", "Kinh nghiệm", "Tâm sự", "Dòng thời gian", "Niềm tin"], default: "Tài liệu"}
+      # 🚀 ĐÃ CẬP NHẬT 4 CHUYÊN MỤC CHUẨN THEO Ý SẾP
+      - label: "Chuyên mục"
+        name: "category"
+        widget: "select"
+        options: ["Trải nghiệm", "Kiến thức", "Niềm tin", "Tài liệu"]
+        default: "Kiến thức"
       
       - {label: "Ngày đăng", name: "pubDate", widget: "datetime", format: "YYYY-MM-DD"}
       - {label: "Ảnh bìa", name: "image", widget: "image", required: false}

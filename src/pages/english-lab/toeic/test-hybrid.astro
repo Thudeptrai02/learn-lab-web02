@@ -1,0 +1,180 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import PDFViewer from '../../../components/PDFViewer.astro';
+import Part7Questions from '../../../components/Part7Questions.astro';
+
+// Dữ liệu câu hỏi Part 7 (lấy từ file JSON của bạn)
+// Ở đây mình lấy mẫu từ PDF bạn đã gửi
+const part7Questions = [
+  {
+    question: "Where is the information most likely found?",
+    options: {
+      A: "On a door",
+      B: "On a receipt",
+      C: "In a box",
+      D: "On a Web site"
+    },
+    correctAnswer: "C",
+    explanation: "Dẫn chứng: 'Thank you for purchasing this item... As you do the unpacking...' → thông tin nằm trong hộp sản phẩm."
+  },
+  {
+    question: "What kind of item is most likely discussed?",
+    options: {
+      A: "A desktop computer",
+      B: "A piece of furniture",
+      C: "A household appliance",
+      D: "A power tool"
+    },
+    correctAnswer: "B",
+    explanation: "Dẫn chứng: 'overtighten any screws or bolts, or you may damage the wood or cushioning' → đề cập đến gỗ và đệm → đồ nội thất."
+  },
+  // Thêm các câu hỏi Part 7 khác từ PDF...
+];
+
+const pdfUrl = '/pdfs/TEST_1_RC.pdf';
+---
+
+<Layout title="TOEIC Reading - TEST 1 (Hybrid Mode)">
+  <div class="h-screen flex flex-col overflow-hidden">
+    
+    {/* HEADER */}
+    <header class="bg-slate-900 text-white px-4 md:px-6 py-3 flex items-center justify-between shrink-0">
+      <a href="/english-lab/toeic" class="hover:text-indigo-300 transition-colors flex items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Quay lại
+      </a>
+      <h1 class="text-base md:text-lg font-semibold">TEST 1 - Reading Comprehension</h1>
+      <button id="submit-btn" class="bg-emerald-500 hover:bg-emerald-600 px-4 py-1.5 rounded-lg text-sm font-semibold transition-colors">
+        Nộp bài
+      </button>
+    </header>
+
+    {/* MAIN CONTENT: 2 CỘT */}
+    <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+      
+      {/* CỘT TRÁI: PDF PASSAGE */}
+      <div class="w-full md:w-1/2 border-r border-slate-200 bg-gray-50 overflow-hidden flex flex-col">
+        <div class="bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600 border-b border-slate-200 shrink-0">
+          📄 Bài đọc (giữ nguyên format PDF)
+        </div>
+        <div class="flex-1 overflow-auto">
+          <PDFViewer pdfUrl={pdfUrl} />
+        </div>
+      </div>
+
+      {/* CỘT PHẢI: CÂU HỎI */}
+      <div class="w-full md:w-1/2 bg-white overflow-hidden flex flex-col">
+        <div class="bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 border-b border-indigo-100 shrink-0 flex justify-between items-center">
+          <span>📝 Câu hỏi trắc nghiệm</span>
+          <span class="text-xs bg-indigo-100 px-2 py-0.5 rounded-full">Part 7</span>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+          <Part7Questions questions={part7Questions} startNumber={147} />
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <style is:global>
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Ẩn giải thích ban đầu, chỉ hiện sau khi nộp bài */
+    body.review-mode .review-mode-only {
+      display: block !important;
+    }
+    .review-mode-only {
+      display: none;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      let isSubmitted = false;
+      let userAnswers = {};
+      let score = 0;
+      
+      const submitBtn = document.getElementById('submit-btn');
+      const allQuestions = document.querySelectorAll('.part7-question');
+      
+      // Lưu đáp án người dùng
+      document.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+          const name = e.target.name;
+          const value = e.target.value;
+          userAnswers[name] = value;
+        });
+      });
+      
+      // Xử lý nộp bài
+      submitBtn.addEventListener('click', () => {
+        if (isSubmitted) {
+          // Nếu đã nộp, reload page hoặc reset
+          location.reload();
+          return;
+        }
+        
+        isSubmitted = true;
+        document.body.classList.add('review-mode');
+        
+        // Tính điểm và hiển thị đáp án đúng
+        const allQuestionsData = document.querySelectorAll('.part7-question');
+        
+        allQuestionsData.forEach((qContainer, idx) => {
+          const qNum = 147 + idx;
+          const correctAnswer = qContainer.dataset.correct;
+          const userChoice = userAnswers[`q${qNum}`];
+          const explanationDiv = qContainer.querySelector('.review-mode-only');
+          
+          if (explanationDiv) {
+            explanationDiv.classList.remove('hidden');
+          }
+          
+          // Đánh dấu đáp án đúng/sai trong UI
+          const options = qContainer.querySelectorAll('.option-label');
+          options.forEach(opt => {
+            const letter = opt.querySelector('input').value;
+            const labelDiv = opt;
+            
+            if (letter === correctAnswer) {
+              // Tô xanh đáp án đúng
+              labelDiv.classList.add('border-green-500', 'bg-green-50');
+              const strongEl = labelDiv.querySelector('strong');
+              if (strongEl) strongEl.classList.add('text-green-600');
+            }
+            
+            if (userChoice === letter && userChoice !== correctAnswer) {
+              // Tô đỏ đáp án sai do user chọn
+              labelDiv.classList.add('border-red-300', 'bg-red-50');
+            }
+          });
+          
+          if (userChoice === correctAnswer) {
+            score++;
+          }
+        });
+        
+        // Hiển thị điểm
+        submitBtn.textContent = `Điểm: ${score}/${allQuestionsData.length}`;
+        submitBtn.classList.remove('bg-emerald-500', 'hover:bg-emerald-600');
+        submitBtn.classList.add('bg-slate-600', 'cursor-default');
+        
+        // Scroll lên đầu để xem điểm
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+  </script>
+</Layout>
