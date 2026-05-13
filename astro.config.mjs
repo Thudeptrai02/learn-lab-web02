@@ -2,6 +2,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import vercel from '@astrojs/vercel'; // <--- Kiểm tra dòng này
+import remarkBtnLink from './remark-btn-link.mjs';
 
 export default defineConfig({
   site: 'https://learnlab.vn',
@@ -10,5 +11,8 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()]
   },
-  integrations: [sitemap()]
+  integrations: [sitemap()],
+  markdown: {
+    remarkPlugins: [remarkBtnLink],
+  },
 });

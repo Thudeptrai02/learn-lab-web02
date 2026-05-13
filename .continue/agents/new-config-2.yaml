@@ -1,0 +1,21 @@
+name: 9vs
+version: 1.0.0
+schema: v1
+
+models:
+  - name: 9Router Free
+    provider: openai
+    model: free
+    apiBase: http://localhost:20128/v1
+    apiKey: sk-63eaf75d01d4ac9c-ezl48h-cf0c26bd
+    roles:
+      - chat
+      - edit
+      - apply
+      - autocomplete
+
+context:
+  - provider: file
+  - provider: code
+  - provider: diff
+  - provider: terminal

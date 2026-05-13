@@ -19,6 +19,12 @@ collections:
     fields:
       - {label: "Tiêu đề bài viết", name: "title", widget: "string"}
       - {label: "Tóm tắt (SEO)", name: "description", widget: "string"}
+      - {label: "Tác giả", name: "author", widget: "string", required: false, default: "Learn Lab Edu"}
+      - label: "Thẻ (Tags)"
+        name: "tags"
+        widget: "list"
+        field: {label: "Thẻ", name: "tag", widget: "string"}
+        required: false
       
       # 🚀 ĐÃ CẬP NHẬT 4 CHUYÊN MỤC CHUẨN THEO Ý SẾP
       - label: "Chuyên mục"
@@ -29,20 +35,18 @@ collections:
       
       - {label: "Ngày đăng", name: "pubDate", widget: "datetime", format: "YYYY-MM-DD"}
       - {label: "Ảnh bìa", name: "image", widget: "image", required: false}
+      
+      - label: "Loại bài viết"
+        name: "writingType"
+        widget: "select"
+        options:
+          - {label: "Bài viết này được viết bởi Admin 🧑‍💻", value: "admin"}
+          - {label: "Bài viết này có sự hỗ trợ của AI 🤖", value: "ai-assisted"}
+        default: "admin"
+
       - label: "Nội dung bài viết"
         name: "body"
         widget: "markdown"
-        default: |
-          ## Lời mở đầu
-          
-          Chào anh em, hôm nay đổi gió chia sẻ chút tài liệu hay...
-          
-          ## Nội dung chính
-          
-          Link tải tài liệu ở đây nhé: [Link Google Drive](#)
-          
-          ---
-          *Chúc các em học tập tốt!*
 
   # ----------------------------------------
   # 2. QUẢN LÝ FLASHCARDS

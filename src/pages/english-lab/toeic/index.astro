@@ -18,11 +18,12 @@ const groupedExams = {};
 Object.entries(catalog).forEach(([id, data]) => {
   const series = data.series || 'KHÁC';
   const year = data.year || 'Tổng hợp';
+  const pdfFile = data.pdfFile || `${id}.pdf`; // Tự động lấy tên PDF nếu không có
   
   if (!groupedExams[series]) groupedExams[series] = {};
   if (!groupedExams[series][year]) groupedExams[series][year] = [];
   
-  groupedExams[series][year].push({ id, ...data });
+  groupedExams[series][year].push({ id, pdfFile, ...data });
 });
 ---
 
@@ -94,7 +95,10 @@ Object.entries(catalog).forEach(([id, data]) => {
                     <div class="p-6 md:p-8 pt-2 border-t border-slate-100 bg-slate-50/50">
                       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5 mt-4">
                         {tests.map(test => (
-                          <a href={`/english-lab/toeic/${test.id}`} class="group/btn flex flex-col items-center justify-center bg-white border-2 border-slate-200 p-6 rounded-2xl hover:bg-teal-50 hover:border-teal-400 hover:-translate-y-1 hover:shadow-lg transition-all duration-300">
+                          <a 
+                            href={`/english-lab/toeic/pdf-viewer?file=${encodeURIComponent(test.pdfFile)}&title=${encodeURIComponent(test.title)}`}
+                            class="group/btn flex flex-col items-center justify-center bg-white border-2 border-slate-200 p-6 rounded-2xl hover:bg-teal-50 hover:border-teal-400 hover:-translate-y-1 hover:shadow-lg transition-all duration-300"
+                          >
                             <div class="w-12 h-12 bg-slate-50 rounded-full shadow-inner flex items-center justify-center text-slate-400 group-hover/btn:bg-white group-hover/btn:text-teal-500 transition-all mb-4">
                               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                             </div>
