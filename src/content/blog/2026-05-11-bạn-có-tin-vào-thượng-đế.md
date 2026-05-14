@@ -3,7 +3,7 @@ title: Bạn có tin vào Thượng đế?
 description: Bài viết này sẽ chia sẻ câu chuyện của cá nhân mình về góc nhìn đối với Thượng đế trong cuộc đời của mỗi con người. Tấ nhiên có người tin, có người không tin, có người tin mình được hoá từ kiếp trước và sẽ trông  chờ vào kiếp sau, có người lại cho rằng cuộc đời này qua đi là chấm hết...
 category: Niềm tin
 pubDate: 2026-05-12
-image: ''
+image: /images/337d0bbc-7f5c-4895-b23f-22d8c8218123.png
 author: Xuân Thụ
 tags: []
 writingType: admin
