@@ -1346,17 +1346,18 @@ function adjustAlpha(constructKey, delta) {
     if (mean === 0) continue;
     const step = delta > 0 ? 1 : -1;
     idxMap.forEach((ci, ii) => {
-      let val = Number(row[ci]);
+      const colName = colHeaders[ci];
+      let val = Number(row[colName]);
       if (isNaN(val) || val <= 0) return;
-      const dir = val >= mean ? 1 : -1; // above or below mean
+      const dir = val >= mean ? 1 : -1;
       const oldVal = val;
       val = Math.round(val + step * dir);
       val = Math.max(scaleMin, Math.min(scaleMax, val));
       if (val !== oldVal) {
-        row[ci] = val;
+        row[colName] = val;
         if (!window._changedCells) window._changedCells = {};
         if (!window._changedCells[r]) window._changedCells[r] = {};
-        window._changedCells[r][colHeaders[ci]] = { oldVal: oldVal, newVal: val };
+        window._changedCells[r][colName] = { oldVal: oldVal, newVal: val };
       }
     });
   }
@@ -1397,7 +1398,8 @@ function adjustConstructLoading(constructKey, delta) {
     const comp = composites[r];
     if (comp === 0) continue;
     idxMap.forEach((ci) => {
-      let val = Number(row[ci]);
+      const colName = colHeaders[ci];
+      let val = Number(row[colName]);
       if (isNaN(val) || val <= 0) return;
       const oldVal = val;
       if (delta > 0) {
@@ -1407,10 +1409,10 @@ function adjustConstructLoading(constructKey, delta) {
       }
       val = Math.max(scaleMin, Math.min(scaleMax, val));
       if (val !== oldVal) {
-        row[ci] = val;
+        row[colName] = val;
         if (!window._changedCells) window._changedCells = {};
         if (!window._changedCells[r]) window._changedCells[r] = {};
-        window._changedCells[r][colHeaders[ci]] = { oldVal: oldVal, newVal: val };
+        window._changedCells[r][colName] = { oldVal: oldVal, newVal: val };
       }
     });
   }
@@ -1466,7 +1468,8 @@ function adjustRSqByKeys(ivKey, dvKey, delta) {
     const iv = ivComposites[r];
     if (iv === 0) continue;
     dvIdx.forEach((ci) => {
-      let val = Number(row[ci]);
+      const colName = colHeaders[ci];
+      let val = Number(row[colName]);
       if (isNaN(val) || val <= 0) return;
       const oldVal = val;
       if (delta > 0) {
@@ -1477,10 +1480,10 @@ function adjustRSqByKeys(ivKey, dvKey, delta) {
       }
       val = Math.max(scaleMin, Math.min(scaleMax, val));
       if (val !== oldVal) {
-        row[ci] = val;
+        row[colName] = val;
         if (!window._changedCells) window._changedCells = {};
         if (!window._changedCells[r]) window._changedCells[r] = {};
-        window._changedCells[r][colHeaders[ci]] = { oldVal: oldVal, newVal: val };
+        window._changedCells[r][colName] = { oldVal: oldVal, newVal: val };
       }
     });
   }

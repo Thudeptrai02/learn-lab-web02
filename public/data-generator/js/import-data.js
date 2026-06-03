@@ -579,8 +579,7 @@ function renderDataTable(rows, colNames, container, infoEl) {
         if (newVal !== currentVal) {
           const rowObj = generatedData.rawRows || rows;
           if (Array.isArray(rowObj) && rowObj[rowIdx]) {
-            rowObj[rowIdx][colIdx] = newVal;
-            if (rowObj[rowIdx][colName] !== undefined) rowObj[rowIdx][colName] = newVal;
+            rowObj[rowIdx][colName] = newVal;
             if (!window._changedCells) window._changedCells = {};
             if (!window._changedCells[rowIdx]) window._changedCells[rowIdx] = {};
             window._changedCells[rowIdx][colName] = { oldVal: currentVal, newVal: newVal };
