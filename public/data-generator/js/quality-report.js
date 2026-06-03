@@ -1319,15 +1319,11 @@ function exportReport() {
 
 function adjustAlpha(constructKey, delta) {
   if (!generatedData?.rawRows) return;
-  const sorted = generatedData.constructs || generatedData.constructQualities;
-  if (!sorted) return;
-  const items = Object.entries(sorted)
-    .filter(([k]) => k === constructKey)
-    .flatMap(([,v]) => Array.isArray(v) ? v : v.items || []);
-  if (!items.length) return;
+  const constructs = generatedData.constructs || {};
+  const items = constructs[constructKey];
+  if (!items || !items.length) return;
 
-  // Build a map of column indices for this construct's items
-  const colHeaders = generatedData.columnHeaders || generatedData.colHeaders || [];
+  const colHeaders = generatedData.colNames || [];
   const idxMap = items.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
   if (idxMap.length < 2) return;
   const nRows = generatedData.rawRows.length;
@@ -1373,19 +1369,16 @@ function adjustAlpha(constructKey, delta) {
     const c = generatedData?.constructs || {};
     showQualityReport(generatedData.rawRows || [], c, (generatedData.rawRows || []).length);
   }
-  if (typeof renderDataTable === 'function') renderDataTable();
+  if (typeof showImportData === 'function') showImportData();
 }
 
 function adjustConstructLoading(constructKey, delta) {
   if (!generatedData?.rawRows) return;
-  const sorted = generatedData.constructs || generatedData.constructQualities;
-  if (!sorted) return;
-  const items = Object.entries(sorted)
-    .filter(([k]) => k === constructKey)
-    .flatMap(([,v]) => Array.isArray(v) ? v : v.items || []);
-  if (!items.length) return;
+  const constructs = generatedData.constructs || {};
+  const items = constructs[constructKey];
+  if (!items || !items.length) return;
 
-  const colHeaders = generatedData.columnHeaders || generatedData.colHeaders || [];
+  const colHeaders = generatedData.colNames || [];
   const idxMap = items.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
   if (idxMap.length < 2) return;
   const nRows = generatedData.rawRows.length;
@@ -1428,7 +1421,7 @@ function adjustConstructLoading(constructKey, delta) {
     const c = generatedData?.constructs || {};
     showQualityReport(generatedData.rawRows || [], c, (generatedData.rawRows || []).length);
   }
-  if (typeof renderDataTable === 'function') renderDataTable();
+  if (typeof showImportData === 'function') showImportData();
 }
 
 function adjustRSq(delta) {
@@ -1449,12 +1442,11 @@ function adjustRSq(delta) {
 }
 
 function adjustRSqByKeys(ivKey, dvKey, delta) {
-  const sorted = generatedData.constructs || generatedData.constructQualities;
-  if (!sorted) return;
-  const ivItems = (sorted[ivKey] ? (Array.isArray(sorted[ivKey]) ? sorted[ivKey] : sorted[ivKey].items || []) : []);
-  const dvItems = (sorted[dvKey] ? (Array.isArray(sorted[dvKey]) ? sorted[dvKey] : sorted[dvKey].items || []) : []);
+  const constructs = generatedData.constructs || {};
+  const ivItems = constructs[ivKey] || [];
+  const dvItems = constructs[dvKey] || [];
 
-  const colHeaders = generatedData.columnHeaders || generatedData.colHeaders || [];
+  const colHeaders = generatedData.colNames || [];
   const ivIdx = ivItems.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
   const dvIdx = dvItems.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
   if (!ivIdx.length || !dvIdx.length) return;
@@ -1499,5 +1491,5 @@ function adjustRSqByKeys(ivKey, dvKey, delta) {
     const c = generatedData?.constructs || {};
     showQualityReport(generatedData.rawRows || [], c, (generatedData.rawRows || []).length);
   }
-  if (typeof renderDataTable === 'function') renderDataTable();
+  if (typeof showImportData === 'function') showImportData();
 }

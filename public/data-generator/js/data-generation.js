@@ -459,7 +459,7 @@ function generateDataCore(n, missingPct, targetAlpha, minLoading, minRSq, corrMi
     addHeteroscedasticity(rawRows, colNames, n, _noiseLevel * 0.3);
   }
 
-  generatedData = { rawRows, labelRows, colNames, colLabels: colNames, n };
+  generatedData = { rawRows, labelRows, colNames, colLabels: colNames, n, constructs };
   updatePreview(rawRows, colNames);
   updateDownloadButtons();
   document.getElementById('gen-status').textContent = `🎯 Đã tạo ${n} dòng × ${variables.length} biến (α∈[0.70;0.95], λ∈[0.50;0.96], R²∈[0.25;0.85])`;
