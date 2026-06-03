@@ -65,13 +65,13 @@ tr:hover td { background: var(--gray-50); }
 td.cell-edited { background: #fef3c7 !important; box-shadow: inset 0 0 0 2px #f59e0b; }
 td.cell-editing { cursor: pointer; }
 td.cell-editing:hover { outline: 2px solid var(--primary); outline-offset: -2px; }
-.cell-adjust-btn { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border:none; border-radius:4px; cursor:pointer; font-size:12px; line-height:1; margin:0 2px; transition:all .1s; }
-.cell-adjust-btn:hover { transform:scale(1.15); }
+.cell-adjust-btn { display:inline-flex !important; align-items:center; justify-content:center; width:28px; height:26px; border:1px solid rgba(0,0,0,0.15); border-radius:4px; cursor:pointer; font-size:15px; font-weight:700; line-height:1; margin:0 3px; transition:all .1s; vertical-align:middle; }
+.cell-adjust-btn:hover { transform:scale(1.2); box-shadow:0 2px 8px rgba(0,0,0,0.15); }
 .cell-adjust-btn.up { background:#d1fae5; color:#065f46; }
 .cell-adjust-btn.up:hover { background:#a7f3d0; }
 .cell-adjust-btn.down { background:#fee2e2; color:#991b1b; }
 .cell-adjust-btn.down:hover { background:#fecaca; }
-.adjust-group { display:inline-flex; align-items:center; gap:2px; margin-left:6px; vertical-align:middle; }
+.adjust-group { display:inline-flex !important; align-items:center; gap:2px; margin-left:8px; vertical-align:middle; }
 .toast {
   position: fixed; bottom: 2rem; right: 2rem; padding: .75rem 1.25rem; border-radius: var(--radius);
   color: #fff; font-size: .9rem; font-weight: 500; box-shadow: var(--shadow-md);

@@ -381,7 +381,7 @@ function showQualityReport(rawRows, constructs, n) {
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-top:.5rem">
         <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
           <div style="font-size:1.25rem;font-weight:700;color:${clr(alpha,0.80,0.95,0.60,0.95)}">${alpha.toFixed(3)}
-            <span class="adjust-group"><button class="cell-adjust-btn up" data-adjust="alpha" data-key="${key}" data-delta="0.03" title="Tăng α">▲</button><button class="cell-adjust-btn down" data-adjust="alpha" data-key="${key}" data-delta="-0.03" title="Giảm α">▼</button></span>
+            <span class="adjust-group"><button class="cell-adjust-btn up" data-adjust="alpha" data-key="${key}" data-delta="0.03" title="Tăng α">+</button><button class="cell-adjust-btn down" data-adjust="alpha" data-key="${key}" data-delta="-0.03" title="Giảm α">−</button></span>
           </div>
           <div style="font-size:.7rem;color:var(--gray-500)">α Cronbach ≥ 0.6</div>
         </div>
@@ -391,7 +391,7 @@ function showQualityReport(rawRows, constructs, n) {
         </div>
         <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
           <div style="font-size:1.25rem;font-weight:700;color:${clr(avgLoading,0.50,0.95,0.50,0.95)}">${avgLoading.toFixed(3)}
-            <span class="adjust-group"><button class="cell-adjust-btn up" data-adjust="loading" data-key="${key}" data-delta="0.04" title="Tăng loading">▲</button><button class="cell-adjust-btn down" data-adjust="loading" data-key="${key}" data-delta="-0.04" title="Giảm loading">▼</button></span>
+            <span class="adjust-group"><button class="cell-adjust-btn up" data-adjust="loading" data-key="${key}" data-delta="0.04" title="Tăng loading">+</button><button class="cell-adjust-btn down" data-adjust="loading" data-key="${key}" data-delta="-0.04" title="Giảm loading">−</button></span>
           </div>
           <div style="font-size:.7rem;color:var(--gray-500)">λ̅ Loading ≥ 0.5</div>
         </div>
@@ -765,7 +765,7 @@ function showQualityReport(rawRows, constructs, n) {
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:.4rem">
           <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
             <div style="font-size:1.25rem;font-weight:700;color:${clr(rSquared,0.50,1.0,0.50,1.0)}">${rSquared.toFixed(3)}
-              <span class="adjust-group"><button class="cell-adjust-btn up" data-adjust="rsq" data-delta="0.03" title="Tăng R²">▲</button><button class="cell-adjust-btn down" data-adjust="rsq" data-delta="-0.03" title="Giảm R²">▼</button></span>
+              <span class="adjust-group"><button class="cell-adjust-btn up" data-adjust="rsq" data-delta="0.03" title="Tăng R²">+</button><button class="cell-adjust-btn down" data-adjust="rsq" data-delta="-0.03" title="Giảm R²">−</button></span>
             </div>
             <div style="font-size:.7rem;color:var(--gray-500)">R² ≥ 0.50</div>
           </div>

@@ -404,4 +404,24 @@
 <!-- Toast -->
 <div id="toast" class="toast"></div>
 
+<!-- Debug adjust button -->
+<button id="debug-adjust" style="position:fixed;bottom:10px;right:10px;z-index:9999;background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.25)">🧪 Test Adjust</button>
+<script is:inline>
+document.getElementById('debug-adjust')?.addEventListener('click', function() {
+  showToast('DEBUG: checking adjustAlpha','success');
+  if (typeof adjustAlpha === 'function') {
+    showToast('adjustAlpha exists!','success');
+  } else {
+    showToast('adjustAlpha NOT FOUND','error');
+  }
+  if (typeof showQualityReport === 'function') showToast('showQualityReport exists!','success');
+  else showToast('showQualityReport NOT FOUND','error');
+  if (typeof generatedData !== 'undefined' && generatedData) {
+    showToast('generatedData: '+(generatedData.constructs ? Object.keys(generatedData.constructs).join(',') : 'no constructs'),'success');
+  } else {
+    showToast('generatedData is null','error');
+  }
+});
+</script>
+
 </body></html>
