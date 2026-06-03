@@ -17,6 +17,15 @@ if (isPart7) {
     cleanPassage = cleanPassage.replace(/\[?Picture\s*\d\s*[:.-].*?\]?/gi, '').replace(/\n{2,}/g, '\n\n').trim();
 }
 
+const imageUrls = isPart7 && q.Image_URL
+  ? q.Image_URL.split('|').map(u => u.trim()).filter(u => u.length > 0 && u.startsWith('http'))
+  : [];
+
+const proxyUrl = (u) => {
+  if (!u || !u.startsWith('http')) return u;
+  return `/api/proxy-image?url=${encodeURIComponent(u)}`;
+};
+
 if (isPart6) {
     const lines = cleanPassage.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     lines.forEach((line, index) => {
@@ -44,17 +53,29 @@ if (isPart6) {
 
   {isPart7 && (
     <div class="mb-10">
-      <div class="rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-md bg-slate-100 mb-6 flex flex-col items-center justify-center min-h-[250px] relative group">
-         {q.Image_URL ? (
-            <img src={q.Image_URL} alt="Writing Prompt" class="w-full object-contain max-h-[400px]" />
-         ) : (
-            <div class="text-slate-400 font-bold flex flex-col items-center gap-2">
-               <svg class="w-10 h-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-               [Chèn link ảnh Part 7 vào đây]
+      {imageUrls.length >= 3 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          {imageUrls.slice(0, 3).map((url, i) => (
+            <div class="rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-50 shadow-sm group relative">
+              <img src={proxyUrl(url)} alt={`Picture ${i + 1}`} class="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500 auto-crop-img" />
+              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                <span class="text-white text-xs font-black uppercase tracking-widest">Picture {i + 1}</span>
+              </div>
             </div>
-         )}
-         <div class="absolute bottom-0 w-full p-2 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest bg-white/90 backdrop-blur-sm border-t border-slate-200">Look at the pictures and write the story</div>
-      </div>
+          ))}
+        </div>
+      ) : imageUrls.length === 1 ? (
+        <div class="rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-md bg-slate-100 mb-6 flex items-center justify-center min-h-[250px] relative group">
+          <img src={proxyUrl(imageUrls[0])} alt="Writing Prompt" class="w-full object-contain max-h-[400px] auto-crop-img" />
+        </div>
+      ) : (
+        <div class="rounded-[2rem] overflow-hidden border-4 border-slate-50 shadow-md bg-slate-100 mb-6 flex flex-col items-center justify-center min-h-[250px] relative group">
+          <div class="text-slate-400 font-bold flex flex-col items-center gap-2">
+            <svg class="w-10 h-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            Dán link ảnh 3 tranh vào Image_URL (phân cách bằng dấu |)
+          </div>
+        </div>
+      )}
       <p class="text-slate-800 font-serif text-[1.15rem] leading-8 text-justify border-l-[5px] border-teal-400 pl-5 bg-teal-50/40 py-4 pr-4 rounded-r-2xl" set:html={cleanPassage.replace(/\n/g, '<br/>')}></p>
     </div>
   )}
@@ -111,6 +132,30 @@ if (isPart6) {
            <p class="text-emerald-800/80 text-sm font-bold leading-relaxed">{q.Explanation}</p>
         </div>
      )}
+
+     <div class="ai-grading hidden mt-6 p-6 bg-gradient-to-br from-indigo-50 to-purple-50/80 backdrop-blur-md rounded-2xl border border-indigo-200 shadow-inner animate-in fade-in slide-in-from-top-4">
+        <h5 class="text-indigo-700 font-black text-sm uppercase tracking-[0.2em] mb-5 flex items-center gap-2">
+           <span class="bg-indigo-600 text-white px-2.5 py-1 rounded-lg text-[10px]">AI</span>
+           Chấm điểm tự động
+        </h5>
+        <div class="grid grid-cols-3 gap-4 mb-5">
+           <div class="bg-white/80 border border-indigo-100 rounded-2xl p-4 text-center shadow-sm">
+              <div class="text-2xl font-black text-indigo-600 ai-content-score">-</div>
+              <div class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-1">Nội dung /5</div>
+           </div>
+           <div class="bg-white/80 border border-indigo-100 rounded-2xl p-4 text-center shadow-sm">
+              <div class="text-2xl font-black text-indigo-600 ai-org-score">-</div>
+              <div class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-1">Bố cục /5</div>
+           </div>
+           <div class="bg-white/80 border border-indigo-100 rounded-2xl p-4 text-center shadow-sm">
+              <div class="text-2xl font-black text-indigo-600 ai-lang-score">-</div>
+              <div class="text-[10px] font-black text-indigo-400 uppercase tracking-widest mt-1">Ngôn ngữ /5</div>
+           </div>
+        </div>
+        <div class="bg-white/90 p-5 rounded-2xl border border-indigo-100 shadow-sm">
+           <p class="text-indigo-900 font-medium leading-relaxed ai-feedback-text"></p>
+        </div>
+     </div>
   </div>
 </div>
 
@@ -120,6 +165,54 @@ if (isPart6) {
 </style>
 
 <script>
+  // AUTO-CROP ẢNH: cắt bỏ khoảng trắng viền
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.auto-crop-img').forEach(img => {
+      let cropped = false;
+      img.addEventListener('load', () => {
+        if (cropped) return;
+        if (!img.naturalWidth || !img.naturalHeight) return;
+        try {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          let w = img.naturalWidth, h = img.naturalHeight;
+          canvas.width = w; canvas.height = h;
+          ctx.drawImage(img, 0, 0);
+
+          const imageData = ctx.getImageData(0, 0, w, h);
+          const data = imageData.data;
+          const threshold = 250;
+
+          function isWhite(x, y) {
+            const i = (y * w + x) * 4;
+            return data[i] >= threshold && data[i+1] >= threshold && data[i+2] >= threshold;
+          }
+
+          let top = 0;
+          for (let y = 0; y < h; y++) { let all = true; for (let x = 0; x < w; x++) { if (!isWhite(x, y)) { all = false; break; } } if (!all) { top = y; break; } }
+          let bottom = h - 1;
+          for (let y = h - 1; y >= top; y--) { let all = true; for (let x = 0; x < w; x++) { if (!isWhite(x, y)) { all = false; break; } } if (!all) { bottom = y; break; } }
+          let left = 0;
+          for (let x = 0; x < w; x++) { let all = true; for (let y = top; y <= bottom; y++) { if (!isWhite(x, y)) { all = false; break; } } if (!all) { left = x; break; } }
+          let right = w - 1;
+          for (let x = w - 1; x >= left; x--) { let all = true; for (let y = top; y <= bottom; y++) { if (!isWhite(x, y)) { all = false; break; } } if (!all) { right = x; break; } }
+
+          if (top < bottom && left < right) {
+            const cw = right - left + 1, ch = bottom - top + 1;
+            if (cw < w || ch < h) {
+              cropped = true;
+              const croppedCanvas = document.createElement('canvas');
+              croppedCanvas.width = cw; croppedCanvas.height = ch;
+              croppedCanvas.getContext('2d').drawImage(canvas, left, top, cw, ch, 0, 0, cw, ch);
+              img.src = croppedCanvas.toDataURL();
+            }
+          }
+        } catch (e) { /* ignore CORS/security errors */ }
+      });
+      if (img.complete) img.dispatchEvent(new Event('load'));
+    });
+  });
+
   // LOGIC ĐẾM TỪ & ĐỔI MÀU THÔNG MINH
   document.querySelectorAll('.writing-ta').forEach(ta => {
      ta.addEventListener('input', function() {

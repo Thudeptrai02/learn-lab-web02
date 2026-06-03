@@ -2,58 +2,8 @@
 import Layout from '../../layouts/Layout.astro';
 ---
 
-<Layout title="Learn Lab | Nền tảng luyện thi TOEIC, IELTS & Cambridge thông minh">
+<Layout title="Learn Lab | Nen tang luyen thi TOEIC, IELTS &amp; Cambridge thong minh">
   
-  <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200/50 shadow-sm">
-    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-      
-      <a href="/" class="flex items-center gap-2 group">
-        <div class="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center group-hover:rotate-6 transition-transform">
-          <span class="text-white font-bold text-sm">L</span>
-        </div>
-        <span class="text-xl font-black text-slate-800 tracking-tight">Learn<span class="text-teal-600">Lab</span></span>
-      </a>
-
-      <div>
-        <div id="auth-logged-out" class="flex items-center gap-3 hidden">
-          <a href="/login" class="text-sm font-bold text-slate-600 hover:text-teal-600 transition-colors px-3 py-2">Đăng nhập</a>
-          <a href="/register" class="text-sm font-bold bg-slate-900 text-white px-5 py-2 rounded-full hover:bg-slate-800 transition-colors shadow-md">Đăng ký ngay</a>
-        </div>
-
-        <div id="auth-logged-in" class="relative hidden">
-          <button id="user-menu-btn" class="flex items-center gap-2 hover:bg-slate-100 p-1.5 pr-4 rounded-full transition-all border border-slate-200 bg-white shadow-sm focus:ring-2 focus:ring-teal-100">
-            <div id="avatar-initial" class="w-7 h-7 bg-gradient-to-br from-teal-400 to-emerald-500 text-white font-bold rounded-full flex items-center justify-center text-xs shadow-inner">
-              U
-            </div>
-            <span id="nav-user-name" class="text-sm font-bold text-slate-700 max-w-[100px] truncate">Học viên</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
-          </button>
-
-          <div id="user-dropdown" class="hidden absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden transform origin-top-right transition-all">
-            <div class="px-4 py-3 bg-slate-50 border-b border-slate-100">
-              <p class="text-xs font-medium text-slate-500 mb-0.5">Đăng nhập với email:</p>
-              <p id="dropdown-email" class="text-sm font-bold text-slate-800 truncate">email@example.com</p>
-            </div>
-            <div class="p-2 space-y-1">
-              <a href="/profile" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-teal-50 hover:text-teal-700 rounded-xl transition-colors">
-                <span class="text-lg">👤</span> Hồ sơ & Cài đặt AI
-              </a>
-              <a href="/lego" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-amber-50 hover:text-amber-700 rounded-xl transition-colors">
-                <span class="text-lg">🧱</span> Chơi xếp hình Lego
-              </a>
-            </div>
-            <div class="p-2 border-t border-slate-100">
-              <button id="logout-btn" class="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
-                <span class="text-lg">🚪</span> Đăng xuất
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </header>
-
   <main class="w-full overflow-hidden font-sans">
     
     <section class="relative pt-32 pb-20 lg:pt-40 lg:pb-28">
@@ -62,23 +12,21 @@ import Layout from '../../layouts/Layout.astro';
       <div class="max-w-7xl mx-auto px-6 text-center">
         <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-100 bg-teal-50/50 px-4 py-2 text-sm font-bold text-teal-700 shadow-sm backdrop-blur-sm">
           <span class="flex h-2 w-2 rounded-full bg-teal-500 animate-pulse"></span>
-          Cập nhật thuật toán Flashcard 2.0
+          Cap nhat thuat toan Flashcard 2.0
         </div>
 
-        <h1 class="mx-auto max-w-4xl text-5xl font-black tracking-tight text-slate-900 sm:text-6xl lg:text-7xl leading-[1.15]">
-          Làm chủ tiếng Anh <br class="hidden sm:block" />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-emerald-500">
-            dễ dàng hơn bao giờ hết.
-          </span>
+        <h1 class="mx-auto max-w-4xl text-4xl font-black tracking-tight text-slate-900 sm:text-5xl lg:text-6xl leading-[1.1]">
+          Lam chu tieng Anh
+          <span class="text-teal-600">de dang hon bao gio het.</span>
         </h1>
 
-        <p class="mx-auto mt-8 max-w-2xl text-lg font-medium leading-relaxed text-slate-600 sm:text-xl">
-          Nền tảng luyện thi TOEIC, IELTS ứng dụng <strong class="text-slate-900">Spaced Repetition</strong> và <strong class="text-slate-900">AI Dictation</strong>. Tối ưu thời gian, tăng điểm thần tốc.
+        <p class="mx-auto mt-8 max-w-2xl text-lg font-medium leading-relaxed text-slate-600">
+          Nen tang luyen thi TOEIC, IELTS ung dung <strong class="text-slate-900">Spaced Repetition</strong> va <strong class="text-slate-900">AI Dictation</strong>. Toi uu thoi gian, tang diem than toc.
         </p>
 
         <div class="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <a id="hero-main-btn" href="/login" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-teal-600 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-teal-200 transition-all hover:-translate-y-1 hover:bg-teal-700 active:scale-95 sm:w-auto">
-            Bắt đầu học ngay
+          <a id="hero-main-btn" href="/login" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-teal-200 transition-all hover:-translate-y-1 hover:bg-teal-700 active:scale-[0.97] sm:w-auto">
+            Bat dau hoc ngay
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
           </a>
         </div>
@@ -89,42 +37,42 @@ import Layout from '../../layouts/Layout.astro';
       <div class="max-w-7xl mx-auto px-6">
         
         <div class="text-center max-w-3xl mx-auto mb-16">
-          <h2 class="text-3xl font-black text-slate-900 sm:text-4xl">Hệ sinh thái English Lab</h2>
-          <p class="mt-4 text-lg text-slate-600 font-medium">Bốn trụ cột giúp bạn phát triển toàn diện cả Từ vựng, Ngữ pháp, Kỹ năng Nghe và Chiến thuật làm bài.</p>
+          <h2 class="text-3xl font-black text-slate-900">He sinh thai English Lab</h2>
+          <p class="mt-4 text-lg text-slate-500">Bon tru cot giup ban phat trien toan dien ca Tu vung, Ngu phap, Ky nang Nghe va Chien thuat lam bai.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           
-          <a href="/english-lab/toeic/flashcards" class="group relative rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-2 hover:shadow-xl hover:shadow-teal-100 overflow-hidden text-left block">
+          <a href="/english-lab/toeic/flashcards" class="group relative bg-white rounded-3xl p-8 border border-slate-200 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-teal-100/40">
             <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 00.495-7.467 5.99 5.99 0 00-1.925 3.546 5.974 5.974 0 01-2.133-1A3.75 3.75 0 0012 18z" /></svg>
             </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-teal-600 transition-colors">Smart Flashcards</h3>
-            <p class="text-slate-600 leading-relaxed text-sm font-medium mb-4">Học từ vựng lặp lại ngắt quãng giúp nhớ lâu gấp 3 lần.</p>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Smart Flashcards</h3>
+            <p class="text-slate-500 leading-relaxed">Hoc tu vung lap lai ngat quang giup nho lau gap 3 lan.</p>
           </a>
 
-          <a href="/lego" class="group relative rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-2 hover:shadow-xl hover:shadow-amber-100 overflow-hidden text-left block">
-            <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+          <a href="/lego" class="group relative bg-teal-50 rounded-3xl p-8 border border-teal-100 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-teal-200/40">
+            <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-100 text-teal-700 group-hover:bg-teal-700 group-hover:text-white transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" /></svg>
             </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-amber-600 transition-colors">Lego Grammar 🧱</h3>
-            <p class="text-slate-600 leading-relaxed text-sm font-medium mb-4">Học ngữ pháp trực quan. Lắp ghép khối màu thành câu chuẩn.</p>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Lego Grammar</h3>
+            <p class="text-slate-600 leading-relaxed">Hoc ngu phap truc quan. Lap ghep khoi mau thanh cau chuan S-V-O.</p>
           </a>
 
-          <a href="/english-lab/toeic/dictation" class="group relative rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-2 hover:shadow-xl hover:shadow-sky-100 overflow-hidden text-left block">
-            <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-50 text-sky-600 group-hover:bg-sky-600 group-hover:text-white transition-colors">
+          <a href="/english-lab/toeic/dictation" class="group relative bg-white rounded-3xl p-8 border border-slate-200 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-teal-100/40">
+            <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" /></svg>
             </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-sky-600 transition-colors">Pro Dictation</h3>
-            <p class="text-slate-600 leading-relaxed text-sm font-medium mb-4">Nghe chép chính tả với hệ thống check lỗi ngay khi gõ.</p>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Pro Dictation</h3>
+            <p class="text-slate-500 leading-relaxed">Nghe chep chinh ta voi he thong check loi ngay khi go.</p>
           </a>
 
-          <a href="#" class="group relative rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-2 hover:shadow-xl hover:shadow-emerald-100 overflow-hidden text-left block">
-            <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+          <a href="#" class="group relative bg-teal-50 rounded-3xl p-8 border border-teal-100 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-teal-200/40">
+            <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-100 text-teal-700 group-hover:bg-teal-700 group-hover:text-white transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" /></svg>
             </div>
-            <h3 class="text-xl font-bold text-slate-900 mb-2 group-hover:text-emerald-600 transition-colors">Mock Exams</h3>
-            <p class="text-slate-600 leading-relaxed text-sm font-medium mb-4">Kho đề thi thử cập nhật mới. Giải thích đáp án chi tiết.</p>
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Mock Exams</h3>
+            <p class="text-slate-600 leading-relaxed">Kho de thi thu cap nhat moi. Giai thich dap an chi tiet.</p>
           </a>
 
         </div>
@@ -170,12 +118,10 @@ import Layout from '../../layouts/Layout.astro';
       // Tiện tay đổi luôn cái nút "Bắt đầu học ngay" thành nút "Tiếp tục học"
       if (heroMainBtn) {
         heroMainBtn.href = "#ecosystem"; // Bấm vào trượt xuống khu học tập
-        heroMainBtn.innerHTML = `Tiếp tục học tập <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-5 w-5 ml-1"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>`;
+        heroMainBtn.innerHTML = `Tiep tuc hoc tap <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-5 w-5 ml-1"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>`;
       }
 
     } else {
-      // ❌ NẾU CHƯA ĐĂNG NHẬP:
-      // Bật 2 nút Đăng ký/Đăng nhập lên
       loggedOutView.classList.remove('hidden');
       loggedInView.classList.add('hidden');
     }

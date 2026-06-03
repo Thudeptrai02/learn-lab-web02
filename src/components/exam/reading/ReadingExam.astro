@@ -311,10 +311,42 @@ const parts = [1, 2, 3, 4, 5, 6, 7].map(num => {
        const partNum = parseInt(q.Part);
        let isCorrect = false, userAnswer = null;
 
-       if (partNum >= 6) { 
-           const wBlock = document.getElementById(`q-${q.ID}`); 
-           if(wBlock) wBlock.querySelector('.explanation-box')?.classList.remove('hidden'); 
-           return; 
+       if (partNum >= 6) {
+           const wBlock = document.getElementById(`q-${q.ID}`);
+           if (wBlock) {
+               wBlock.querySelector('.explanation-box')?.classList.remove('hidden');
+               const textarea = wBlock.querySelector('textarea.writing-ta');
+               const studentAnswer = textarea ? textarea.value.trim() : '';
+               const aiBox = wBlock.querySelector('.ai-grading');
+               if (studentAnswer && aiBox) {
+                   aiBox.classList.remove('hidden');
+                   aiBox.querySelector('.ai-content-score').textContent = '...';
+                   aiBox.querySelector('.ai-org-score').textContent = '...';
+                   aiBox.querySelector('.ai-lang-score').textContent = '...';
+                   aiBox.querySelector('.ai-feedback-text').textContent = 'Đang chấm...';
+                     fetch('/api/grade-writing', {
+                         method: 'POST',
+                         headers: { 'Content-Type': 'application/json' },
+                         body: JSON.stringify({
+                             studentAnswer,
+                             taskPrompt: q.Passage || '',
+                             partNumber: partNum,
+                             pictureStory: q.Picture_Story || null
+                         })
+                     })
+                   .then(r => r.json())
+                   .then(data => {
+                       aiBox.querySelector('.ai-content-score').textContent = data.content ?? '?';
+                       aiBox.querySelector('.ai-org-score').textContent = data.organisation ?? '?';
+                       aiBox.querySelector('.ai-lang-score').textContent = data.language ?? '?';
+                       aiBox.querySelector('.ai-feedback-text').textContent = data.feedback_vn ?? '';
+                   })
+                   .catch(err => {
+                       aiBox.querySelector('.ai-feedback-text').textContent = 'Lỗi AI: ' + err.message;
+                   });
+               }
+           }
+           return;
        }
 
        if (partNum === 4) {

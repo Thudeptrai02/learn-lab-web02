@@ -11,6 +11,7 @@ const blog = defineCollection({
     category: z.string().optional(),
     pubDate: z.coerce.date().optional(), // Ép kiểu ngày tháng để không lỗi
     image: z.string().optional(),
+    slug: z.string().optional(), // Thêm slug tùy chỉnh để khắc phục lỗi tiếng Việt
   })
 });
 
