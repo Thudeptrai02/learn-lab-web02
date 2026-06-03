@@ -1318,10 +1318,11 @@ function exportReport() {
 /* ---- Adjust functions: modify raw data to improve quality metrics ---- */
 
 function adjustAlpha(constructKey, delta) {
-  if (!generatedData?.rawRows) return;
+  try {
+  if (!generatedData?.rawRows) { showToast('adjustAlpha: no rawRows','error'); return; }
   const constructs = generatedData.constructs || {};
   const items = constructs[constructKey];
-  if (!items || !items.length) return;
+  if (!items || !items.length) { showToast('adjustAlpha: no items for '+constructKey,'error'); return; }
 
   const colHeaders = generatedData.colNames || [];
   const idxMap = items.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
@@ -1368,6 +1369,7 @@ function adjustAlpha(constructKey, delta) {
     showQualityReport(generatedData.rawRows || [], c, (generatedData.rawRows || []).length);
   }
   if (typeof showImportData === 'function') showImportData();
+  } catch(e) { showToast('adjustAlpha: '+e.message,'error'); console.error(e); }
 }
 
 function adjustConstructLoading(constructKey, delta) {
