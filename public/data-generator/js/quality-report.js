@@ -337,6 +337,10 @@ function showQualityReport(rawRows, constructs, n) {
     for (let i = 0; i < k; i++) for (let j = 0; j < k; j++) totalVar += covM[i][j];
     const alpha = totalVar > 0 ? (k / (k - 1)) * (1 - sumVar / totalVar) : 0;
 
+    if (typeof showToast === 'function' && constructKeys.indexOf(key) === 0) {
+      showToast('📐 α('+key+') = '+alpha.toFixed(4), 'success', 2000);
+    }
+
     const itemTotalCorr = items.map((name, idx) => {
       const itemScores = validRows.map(ri => scoreMatrix[idx][ri]);
       const totalScores = validRows.map(ri => items.reduce((a, n, j) => a + (j===idx?0:scoreMatrix[j][ri]||0), 0));
