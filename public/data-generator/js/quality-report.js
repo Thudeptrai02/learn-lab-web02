@@ -977,19 +977,6 @@ function showQualityReport(rawRows, constructs, n) {
   html += '</div>';
   content.innerHTML = html;
 
-  // Event delegation for adjust buttons
-  content.addEventListener('click', function(e) {
-    const btn = e.target.closest('[data-adjust]');
-    if (!btn) return;
-    const type = btn.dataset.adjust;
-    const key = btn.dataset.key;
-    const delta = parseFloat(btn.dataset.delta);
-    if (isNaN(delta)) return;
-    if (type === 'alpha') adjustAlpha(key, delta);
-    else if (type === 'loading') adjustConstructLoading(key, delta);
-    else if (type === 'rsq') adjustRSq(delta);
-  });
-
   const badge = document.getElementById('quality-badge');
   badge.textContent = `${constructKeys.length} nhân tố · ${warnings.length === 0 ? '✅ Đạt' : warnings.length + ' ⚠️'}`;
 }
