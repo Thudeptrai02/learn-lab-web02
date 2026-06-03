@@ -1333,13 +1333,10 @@ function adjustAlpha(constructKey, delta) {
 
   // Collect row means for these items to compute per-row target
   const rowMeans = generatedData.rawRows.map(r => {
-    const vals = idxMap.map(i => Number(r[i])).filter(v => !isNaN(v) && v > 0);
+    const vals = idxMap.map(i => Number(r[colHeaders[i]])).filter(v => !isNaN(v) && v > 0);
     return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
   });
 
-  // Adjust each row's item values toward (delta>0) or away from (delta<0) the row mean
-  // delta>0: increase internal consistency (= higher alpha)
-  // delta<0: decrease consistency (= lower alpha)
   for (let r = 0; r < nRows; r++) {
     const row = generatedData.rawRows[r];
     const mean = rowMeans[r];
@@ -1386,7 +1383,7 @@ function adjustConstructLoading(constructKey, delta) {
 
   // Compute construct composite (person-mean across all items)
   const composites = generatedData.rawRows.map(r => {
-    const vals = idxMap.map(i => Number(r[i])).filter(v => !isNaN(v) && v > 0);
+    const vals = idxMap.map(i => Number(r[colHeaders[i]])).filter(v => !isNaN(v) && v > 0);
     return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
   });
 
@@ -1459,7 +1456,7 @@ function adjustRSqByKeys(ivKey, dvKey, delta) {
 
   // Compute IV composite per row
   const ivComposites = generatedData.rawRows.map(r => {
-    const vals = ivIdx.map(i => Number(r[i])).filter(v => !isNaN(v) && v > 0);
+    const vals = ivIdx.map(i => Number(r[colHeaders[i]])).filter(v => !isNaN(v) && v > 0);
     return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
   });
 
