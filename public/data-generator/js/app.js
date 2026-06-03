@@ -180,7 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ---- Adjust functions for quality report buttons ---- */
 function adjustAlpha(constructKey, delta) {
-  showToast('adjustAlpha: '+constructKey+' '+delta,'success');
   try {
   if (!generatedData?.rawRows) { showToast('adjustAlpha: no rawRows','error'); return; }
   const constructs = generatedData.constructs || {};
@@ -195,11 +194,12 @@ function adjustAlpha(constructKey, delta) {
     const vals = idxMap.map(i => Number(r[colHeaders[i]])).filter(v => !isNaN(v) && v > 0);
     return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
   });
+  let changed = 0;
   for (let r = 0; r < nRows; r++) {
     const row = generatedData.rawRows[r];
     const mean = rowMeans[r];
     if (mean === 0) continue;
-    const step = delta > 0 ? 1 : -1;
+    const step = (delta > 0 ? 1 : -1) * 2;
     idxMap.forEach(ci => {
       const colName = colHeaders[ci];
       let val = Number(row[colName]);
@@ -210,12 +210,14 @@ function adjustAlpha(constructKey, delta) {
       val = Math.max(scaleMin, Math.min(scaleMax, val));
       if (val !== oldVal) {
         row[colName] = val;
+        changed++;
         if (!window._changedCells) window._changedCells = {};
         if (!window._changedCells[r]) window._changedCells[r] = {};
         window._changedCells[r][colName] = { oldVal: oldVal, newVal: val };
       }
     });
   }
+  showToast('Alpha adjust: đã sửa '+changed+' ô','success');
   if (generatedData.constructQualities) delete generatedData.constructQualities;
   if (generatedData.regressionCache) delete generatedData.regressionCache;
   const qc = document.getElementById('qualityContent');
@@ -251,8 +253,8 @@ function adjustConstructLoading(constructKey, delta) {
       let val = Number(row[colName]);
       if (isNaN(val) || val <= 0) return;
       const oldVal = val;
-      if (delta > 0) { val += val < comp ? 1 : -1; }
-      else { val += val <= comp ? -1 : 1; }
+      if (delta > 0) { val += val < comp ? 2 : -2; }
+      else { val += val <= comp ? -2 : 2; }
       val = Math.max(scaleMin, Math.min(scaleMax, val));
       if (val !== oldVal) {
         row[colName] = val;
@@ -308,8 +310,8 @@ function adjustRSqByKeys(ivKey, dvKey, delta) {
       let val = Number(row[colName]);
       if (isNaN(val) || val <= 0) return;
       const oldVal = val;
-      if (delta > 0) { val += val < iv ? 1 : val > iv ? -1 : 0; }
-      else { if (val <= iv) val = Math.max(scaleMin, val - 1); else val = Math.min(scaleMax, val + 1); }
+      if (delta > 0) { val += val < iv ? 2 : val > iv ? -2 : 0; }
+      else { if (val <= iv) val = Math.max(scaleMin, val - 2); else val = Math.min(scaleMax, val + 2); }
       val = Math.max(scaleMin, Math.min(scaleMax, val));
       if (val !== oldVal) {
         row[colName] = val;
