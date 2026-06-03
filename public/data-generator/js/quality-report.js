@@ -380,7 +380,9 @@ function showQualityReport(rawRows, constructs, n) {
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-top:.5rem">
         <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
-          <div style="font-size:1.25rem;font-weight:700;color:${clr(alpha,0.80,0.95,0.60,0.95)}">${alpha.toFixed(3)}</div>
+          <div style="font-size:1.25rem;font-weight:700;color:${clr(alpha,0.80,0.95,0.60,0.95)}">${alpha.toFixed(3)}
+            <span class="adjust-group"><button class="cell-adjust-btn up" onclick="adjustAlpha('${key}',0.03)" title="Tăng α">▲</button><button class="cell-adjust-btn down" onclick="adjustAlpha('${key}',-0.03)" title="Giảm α">▼</button></span>
+          </div>
           <div style="font-size:.7rem;color:var(--gray-500)">α Cronbach ≥ 0.6</div>
         </div>
         <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
@@ -388,7 +390,9 @@ function showQualityReport(rawRows, constructs, n) {
           <div style="font-size:.7rem;color:var(--gray-500)">r̅ Inter-item [0.20;0.88]</div>
         </div>
         <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
-          <div style="font-size:1.25rem;font-weight:700;color:${clr(avgLoading,0.50,0.95,0.50,0.95)}">${avgLoading.toFixed(3)}</div>
+          <div style="font-size:1.25rem;font-weight:700;color:${clr(avgLoading,0.50,0.95,0.50,0.95)}">${avgLoading.toFixed(3)}
+            <span class="adjust-group"><button class="cell-adjust-btn up" onclick="adjustConstructLoading('${key}',0.04)" title="Tăng loading">▲</button><button class="cell-adjust-btn down" onclick="adjustConstructLoading('${key}',-0.04)" title="Giảm loading">▼</button></span>
+          </div>
           <div style="font-size:.7rem;color:var(--gray-500)">λ̅ Loading ≥ 0.5</div>
         </div>
         <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
@@ -760,7 +764,9 @@ function showQualityReport(rawRows, constructs, n) {
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-bottom:.4rem">
           <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
-            <div style="font-size:1.25rem;font-weight:700;color:${clr(rSquared,0.50,1.0,0.50,1.0)}">${rSquared.toFixed(3)}</div>
+            <div style="font-size:1.25rem;font-weight:700;color:${clr(rSquared,0.50,1.0,0.50,1.0)}">${rSquared.toFixed(3)}
+              <span class="adjust-group"><button class="cell-adjust-btn up" onclick="adjustRSq(0.03)" title="Tăng R²">▲</button><button class="cell-adjust-btn down" onclick="adjustRSq(-0.03)" title="Giảm R²">▼</button></span>
+            </div>
             <div style="font-size:.7rem;color:var(--gray-500)">R² ≥ 0.50</div>
           </div>
           <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
@@ -1307,4 +1313,191 @@ function exportReport() {
   win.document.close();
   win.focus();
   setTimeout(() => { win.print(); }, 500);
+}
+
+/* ---- Adjust functions: modify raw data to improve quality metrics ---- */
+
+function adjustAlpha(constructKey, delta) {
+  if (!generatedData?.rawRows) return;
+  const sorted = generatedData.constructs || generatedData.constructQualities;
+  if (!sorted) return;
+  const items = Object.entries(sorted)
+    .filter(([k]) => k === constructKey)
+    .flatMap(([,v]) => Array.isArray(v) ? v : v.items || []);
+  if (!items.length) return;
+
+  // Build a map of column indices for this construct's items
+  const colHeaders = generatedData.columnHeaders || generatedData.colHeaders || [];
+  const idxMap = items.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
+  if (idxMap.length < 2) return;
+  const nRows = generatedData.rawRows.length;
+
+  // Clamp: Likert scale bounds
+  const scaleMin = 1, scaleMax = 7;
+
+  // Collect row means for these items to compute per-row target
+  const rowMeans = generatedData.rawRows.map(r => {
+    const vals = idxMap.map(i => Number(r[i])).filter(v => !isNaN(v) && v > 0);
+    return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
+  });
+
+  // Adjust each row's item values toward (delta>0) or away from (delta<0) the row mean
+  // delta>0: increase internal consistency (= higher alpha)
+  // delta<0: decrease consistency (= lower alpha)
+  for (let r = 0; r < nRows; r++) {
+    const row = generatedData.rawRows[r];
+    const mean = rowMeans[r];
+    if (mean === 0) continue;
+    const step = delta > 0 ? 1 : -1;
+    idxMap.forEach((ci, ii) => {
+      let val = Number(row[ci]);
+      if (isNaN(val) || val <= 0) return;
+      const dir = val >= mean ? 1 : -1; // above or below mean
+      const oldVal = val;
+      val = Math.round(val + step * dir);
+      val = Math.max(scaleMin, Math.min(scaleMax, val));
+      if (val !== oldVal) {
+        row[ci] = val;
+        if (!window._changedCells) window._changedCells = {};
+        if (!window._changedCells[r]) window._changedCells[r] = {};
+        window._changedCells[r][colHeaders[ci]] = { oldVal: oldVal, newVal: val };
+      }
+    });
+  }
+  if (generatedData.constructQualities) delete generatedData.constructQualities;
+  if (generatedData.regressionCache) delete generatedData.regressionCache;
+
+  // Update quality report container
+  const qc = document.getElementById('qualityContent');
+  if (qc) {
+    const c = generatedData?.constructs || {};
+    showQualityReport(generatedData.rawRows || [], c, (generatedData.rawRows || []).length);
+  }
+  if (typeof renderDataTable === 'function') renderDataTable();
+}
+
+function adjustConstructLoading(constructKey, delta) {
+  if (!generatedData?.rawRows) return;
+  const sorted = generatedData.constructs || generatedData.constructQualities;
+  if (!sorted) return;
+  const items = Object.entries(sorted)
+    .filter(([k]) => k === constructKey)
+    .flatMap(([,v]) => Array.isArray(v) ? v : v.items || []);
+  if (!items.length) return;
+
+  const colHeaders = generatedData.columnHeaders || generatedData.colHeaders || [];
+  const idxMap = items.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
+  if (idxMap.length < 2) return;
+  const nRows = generatedData.rawRows.length;
+
+  // Compute construct composite (person-mean across all items)
+  const composites = generatedData.rawRows.map(r => {
+    const vals = idxMap.map(i => Number(r[i])).filter(v => !isNaN(v) && v > 0);
+    return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
+  });
+
+  const scaleMin = 1, scaleMax = 7;
+  const step = delta > 0 ? 1 : -1;
+
+  for (let r = 0; r < nRows; r++) {
+    const row = generatedData.rawRows[r];
+    const comp = composites[r];
+    if (comp === 0) continue;
+    idxMap.forEach((ci) => {
+      let val = Number(row[ci]);
+      if (isNaN(val) || val <= 0) return;
+      const oldVal = val;
+      if (delta > 0) {
+        val += val < comp ? 1 : -1;
+      } else {
+        val += val <= comp ? -1 : 1;
+      }
+      val = Math.max(scaleMin, Math.min(scaleMax, val));
+      if (val !== oldVal) {
+        row[ci] = val;
+        if (!window._changedCells) window._changedCells = {};
+        if (!window._changedCells[r]) window._changedCells[r] = {};
+        window._changedCells[r][colHeaders[ci]] = { oldVal: oldVal, newVal: val };
+      }
+    });
+  }
+  if (generatedData.constructQualities) delete generatedData.constructQualities;
+  if (generatedData.regressionCache) delete generatedData.regressionCache;
+  const qc = document.getElementById('qualityContent');
+  if (qc) {
+    const c = generatedData?.constructs || {};
+    showQualityReport(generatedData.rawRows || [], c, (generatedData.rawRows || []).length);
+  }
+  if (typeof renderDataTable === 'function') renderDataTable();
+}
+
+function adjustRSq(delta) {
+  if (!generatedData?.rawRows) return;
+  // Find IV construct(s) and DV construct from the most recent regression
+  const regInfo = generatedData?.regressionInput || generatedData?.lastRegression;
+  if (!regInfo) {
+    // Fallback: find constructs with 2+ items as IV, 1+ items as DV
+    const sorted = generatedData.constructs || generatedData.constructQualities;
+    if (!sorted) return;
+    const keys = Object.keys(sorted);
+    if (keys.length < 2) return;
+    const ivKey = keys[0], dvKey = keys[keys.length - 1];
+    adjustRSqByKeys(ivKey, dvKey, delta);
+  } else {
+    adjustRSqByKeys(regInfo.ivKey, regInfo.dvKey, delta);
+  }
+}
+
+function adjustRSqByKeys(ivKey, dvKey, delta) {
+  const sorted = generatedData.constructs || generatedData.constructQualities;
+  if (!sorted) return;
+  const ivItems = (sorted[ivKey] ? (Array.isArray(sorted[ivKey]) ? sorted[ivKey] : sorted[ivKey].items || []) : []);
+  const dvItems = (sorted[dvKey] ? (Array.isArray(sorted[dvKey]) ? sorted[dvKey] : sorted[dvKey].items || []) : []);
+
+  const colHeaders = generatedData.columnHeaders || generatedData.colHeaders || [];
+  const ivIdx = ivItems.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
+  const dvIdx = dvItems.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
+  if (!ivIdx.length || !dvIdx.length) return;
+
+  const nRows = generatedData.rawRows.length;
+  const scaleMin = 1, scaleMax = 7;
+  const step = delta > 0 ? 1 : -1;
+
+  // Compute IV composite per row
+  const ivComposites = generatedData.rawRows.map(r => {
+    const vals = ivIdx.map(i => Number(r[i])).filter(v => !isNaN(v) && v > 0);
+    return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
+  });
+
+  for (let r = 0; r < nRows; r++) {
+    const row = generatedData.rawRows[r];
+    const iv = ivComposites[r];
+    if (iv === 0) continue;
+    dvIdx.forEach((ci) => {
+      let val = Number(row[ci]);
+      if (isNaN(val) || val <= 0) return;
+      const oldVal = val;
+      if (delta > 0) {
+        val += val < iv ? 1 : val > iv ? -1 : 0;
+      } else {
+        if (val <= iv) val = Math.max(scaleMin, val - 1);
+        else val = Math.min(scaleMax, val + 1);
+      }
+      val = Math.max(scaleMin, Math.min(scaleMax, val));
+      if (val !== oldVal) {
+        row[ci] = val;
+        if (!window._changedCells) window._changedCells = {};
+        if (!window._changedCells[r]) window._changedCells[r] = {};
+        window._changedCells[r][colHeaders[ci]] = { oldVal: oldVal, newVal: val };
+      }
+    });
+  }
+  if (generatedData.constructQualities) delete generatedData.constructQualities;
+  if (generatedData.regressionCache) delete generatedData.regressionCache;
+  const qc = document.getElementById('qualityContent');
+  if (qc) {
+    const c = generatedData?.constructs || {};
+    showQualityReport(generatedData.rawRows || [], c, (generatedData.rawRows || []).length);
+  }
+  if (typeof renderDataTable === 'function') renderDataTable();
 }
