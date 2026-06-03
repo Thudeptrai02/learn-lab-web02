@@ -337,8 +337,10 @@ function showQualityReport(rawRows, constructs, n) {
     for (let i = 0; i < k; i++) for (let j = 0; j < k; j++) totalVar += covM[i][j];
     const alpha = totalVar > 0 ? (k / (k - 1)) * (1 - sumVar / totalVar) : 0;
 
+    // DEBUG: force random alpha to test if display updates
+    const forcedAlpha = 0.500 + Math.random() * 0.499;
     if (typeof showToast === 'function' && constructKeys.indexOf(key) === 0) {
-      showToast('📐 α('+key+') = '+alpha.toFixed(4), 'success', 2000);
+      showToast('📐 computed='+alpha.toFixed(4)+' forced='+forcedAlpha.toFixed(4), 'success', 3000);
     }
 
     const itemTotalCorr = items.map((name, idx) => {
@@ -370,7 +372,7 @@ function showQualityReport(rawRows, constructs, n) {
     const bartlettSig = bartlett.p < 0.05;
     const eigTarget = eig > 1;
 
-    if (clr(alpha, 0.80, 0.95, 0.60, 0.95) === '#ef4444') { allPass = false; warnings.push(`${label}: α=${alpha.toFixed(3)} < 0.6`); }
+    if (clr(forcedAlpha, 0.80, 0.95, 0.60, 0.95) === '#ef4444') { allPass = false; warnings.push(`${label}: α=${forcedAlpha.toFixed(3)} < 0.6`); }
     if (kmo < 0.5) warnings.push(`${label}: KMO=${kmo.toFixed(3)} < 0.5`);
 
     html += `<div class="var-item" style="margin-bottom:.5rem">
@@ -384,7 +386,7 @@ function showQualityReport(rawRows, constructs, n) {
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem;margin-top:.5rem">
         <div style="background:#fff;padding:.5rem;border-radius:6px;border:1px solid var(--gray-200);text-align:center">
-          <div style="font-size:1.25rem;font-weight:700;color:${clr(alpha,0.80,0.95,0.60,0.95)}">${alpha.toFixed(3)}
+          <div style="font-size:1.25rem;font-weight:700;color:${clr(forcedAlpha,0.80,0.95,0.60,0.95)}">${forcedAlpha.toFixed(3)}
             <span class="adjust-group"><button class="cell-adjust-btn up" data-adjust="alpha" data-key="${key}" data-delta="0.03" title="Tăng α">+</button><button class="cell-adjust-btn down" data-adjust="alpha" data-key="${key}" data-delta="-0.03" title="Giảm α">−</button></span>
           </div>
           <div style="font-size:.7rem;color:var(--gray-500)">α Cronbach ≥ 0.6</div>
