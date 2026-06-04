@@ -17,8 +17,7 @@ const { data: surveys } = await supabaseAdmin
     {!surveys || surveys.length === 0 ? (
       <div class="text-center py-16 bg-white rounded-2xl border border-slate-200">
         <div class="text-4xl mb-3">📭</div>
-        <p class="text-slate-500">Chưa có khảo sát nào. Tạo từ Data Generator.</p>
-        <a href="/data-generator" class="mt-4 inline-block px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm">Đi tới Data Generator</a>
+        <p class="text-slate-500">Chưa có khảo sát nào.</p>
       </div>
     ) : (
       <div class="grid gap-3">
