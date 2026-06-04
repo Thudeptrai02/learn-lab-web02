@@ -2,7 +2,14 @@ import { supabaseAdmin } from '../../../lib/supabase-admin';
 
 export const prerender = false;
 
+function noClient() {
+  return new Response(JSON.stringify({ ok: false, error: 'Supabase admin chưa được cấu hình' }), {
+    status: 500, headers: { 'Content-Type': 'application/json' }
+  });
+}
+
 export async function GET({ url }) {
+  if (!supabaseAdmin) return noClient();
   const surveyId = url.searchParams.get('survey_id');
   if (!surveyId) {
     return new Response(JSON.stringify({ ok: false, error: 'Missing survey_id' }), {
@@ -26,6 +33,7 @@ export async function GET({ url }) {
 }
 
 export async function POST({ request }) {
+  if (!supabaseAdmin) return noClient();
   try {
     const body = await request.json();
     const { data, error } = await supabaseAdmin

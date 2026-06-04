@@ -2,7 +2,14 @@ import { supabaseAdmin } from '../../../lib/supabase-admin';
 
 export const prerender = false;
 
+function noClient() {
+  return new Response(JSON.stringify({ ok: false, error: 'Supabase admin chưa được cấu hình' }), {
+    status: 500, headers: { 'Content-Type': 'application/json' }
+  });
+}
+
 export async function GET({ params }) {
+  if (!supabaseAdmin) return noClient();
   const { data, error } = await supabaseAdmin
     .from('surveys')
     .select('*')
@@ -20,6 +27,7 @@ export async function GET({ params }) {
 }
 
 export async function PUT({ request, params }) {
+  if (!supabaseAdmin) return noClient();
   try {
     const body = await request.json();
     const updates = {};
@@ -47,6 +55,7 @@ export async function PUT({ request, params }) {
 }
 
 export async function DELETE({ params }) {
+  if (!supabaseAdmin) return noClient();
   const { error } = await supabaseAdmin
     .from('surveys')
     .delete()

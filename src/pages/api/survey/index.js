@@ -2,7 +2,14 @@ import { supabaseAdmin } from '../../../lib/supabase-admin';
 
 export const prerender = false;
 
+function noClient() {
+  return new Response(JSON.stringify({ ok: false, error: 'Supabase admin chưa được cấu hình. Vui lòng thêm SUPABASE_SERVICE_ROLE_KEY vào Vercel env.' }), {
+    status: 500, headers: { 'Content-Type': 'application/json' }
+  });
+}
+
 export async function GET() {
+  if (!supabaseAdmin) return noClient();
   const { data, error } = await supabaseAdmin
     .from('surveys')
     .select('id, title, description, created_at, updated_at')
@@ -19,6 +26,7 @@ export async function GET() {
 }
 
 export async function POST({ request }) {
+  if (!supabaseAdmin) return noClient();
   try {
     const body = await request.json();
     const { data, error } = await supabaseAdmin

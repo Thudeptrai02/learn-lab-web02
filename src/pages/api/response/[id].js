@@ -2,7 +2,14 @@ import { supabaseAdmin } from '../../../lib/supabase-admin';
 
 export const prerender = false;
 
+function noClient() {
+  return new Response(JSON.stringify({ ok: false, error: 'Supabase admin chưa được cấu hình' }), {
+    status: 500, headers: { 'Content-Type': 'application/json' }
+  });
+}
+
 export async function DELETE({ params }) {
+  if (!supabaseAdmin) return noClient();
   const { error } = await supabaseAdmin
     .from('survey_responses')
     .delete()
@@ -19,6 +26,7 @@ export async function DELETE({ params }) {
 }
 
 export async function PUT({ request, params }) {
+  if (!supabaseAdmin) return noClient();
   try {
     const body = await request.json();
     const updates = {};
