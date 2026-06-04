@@ -178,155 +178,160 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-/* ---- Adjust functions for quality report buttons ---- */
+/* ---- Adjust functions using AI engine ---- */
+function _adjustRefresh(constructsFromVariables) {
+  if (generatedData.constructQualities) delete generatedData.constructQualities;
+  if (generatedData.regressionCache) delete generatedData.regressionCache;
+  showQualityReport(generatedData.rawRows, constructsFromVariables, generatedData.rawRows.length);
+  if (typeof showImportData === 'function') showImportData();
+}
+function _buildConstructsFromVars() {
+  const cs = {};
+  variables.forEach(v => { if (v.construct) { if (!cs[v.construct]) cs[v.construct] = []; cs[v.construct].push(v); } });
+  return cs;
+}
+function _snapshotAndDiff(newRows) {
+  window._changedCells = {};
+  const oldRows = window.__adjustSnapshot;
+  if (!oldRows) return;
+  newRows.forEach((row, ri) => {
+    const old = oldRows[ri];
+    if (!old) return;
+    generatedData.colNames.forEach(c => {
+      if (JSON.stringify(old[c]) !== JSON.stringify(row[c])) {
+        if (!window._changedCells[ri]) window._changedCells[ri] = {};
+        window._changedCells[ri][c] = { oldVal: old[c], newVal: row[c] };
+      }
+    });
+  });
+  window.__adjustSnapshot = null;
+}
+
 function adjustAlpha(constructKey, delta) {
   try {
-  if (!generatedData?.rawRows) { showToast('adjustAlpha: no rawRows','error'); return; }
-  const constructs = generatedData.constructs || {};
-  const items = constructs[constructKey];
-  if (!items || !items.length) { showToast('adjustAlpha: no items for '+constructKey,'error'); return; }
-  const colHeaders = generatedData.colNames || [];
-  const idxMap = items.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
-  if (idxMap.length < 2) { showToast('adjustAlpha: <2 items mapped','error'); return; }
-  const nRows = generatedData.rawRows.length;
-  const scaleMin = 1, scaleMax = 7;
-  const rowMeans = generatedData.rawRows.map(r => {
-    const vals = idxMap.map(i => Number(r[colHeaders[i]])).filter(v => !isNaN(v) && v > 0);
-    return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
-  });
-  let changed = 0;
-  for (let r = 0; r < nRows; r++) {
-    const row = generatedData.rawRows[r];
-    const mean = rowMeans[r];
-    if (mean === 0) continue;
-    const step = (delta > 0 ? 1 : -1) * 2;
-    idxMap.forEach(ci => {
-      const colName = colHeaders[ci];
-      let val = Number(row[colName]);
-      if (isNaN(val) || val <= 0) return;
-      const dir = val >= mean ? 1 : -1;
-      const oldVal = val;
-      val = Math.round(val + step * dir);
-      val = Math.max(scaleMin, Math.min(scaleMax, val));
-      if (val !== oldVal) {
-        row[colName] = val;
-        changed++;
-        if (!window._changedCells) window._changedCells = {};
-        if (!window._changedCells[r]) window._changedCells[r] = {};
-        window._changedCells[r][colName] = { oldVal: oldVal, newVal: val };
-      }
-    });
-  }
-  showToast('Alpha adjust: đã sửa '+changed+' ô','success');
-  if (generatedData.constructQualities) delete generatedData.constructQualities;
-  if (generatedData.regressionCache) delete generatedData.regressionCache;
-  const qc = document.getElementById('qualityContent');
-  if (qc) {
-    const c = generatedData?.constructs || {};
-    showQualityReport(generatedData.rawRows || [], c, (generatedData.rawRows || []).length);
-  }
-  if (typeof showImportData === 'function') showImportData();
+    if (!generatedData?.rawRows) { showToast('adjustAlpha: chưa có dữ liệu','error'); return; }
+    const items = variables.filter(v => v.construct === constructKey).map(v => v.name);
+    if (items.length < 2) { showToast('Cần ≥2 items để tính alpha','error'); return; }
+    const rows = generatedData.rawRows;
+    const validRows = [];
+    for (let i = 0; i < rows.length; i++) if (items.every(n => typeof rows[i][n] === 'number' && !isNaN(rows[i][n]))) validRows.push(i);
+    const m = validRows.length;
+    if (m < 5) { showToast('Quá ít mẫu hợp lệ','error'); return; }
+    const scores = items.map(n => validRows.map(i => rows[i][n]));
+    const means = scores.map(v => v.reduce((a,b)=>a+b,0)/m);
+    const vars = scores.map((v,i) => v.reduce((a,b)=>a+(b-means[i])**2,0)/m);
+    const sumVar = vars.reduce((a,b)=>a+b,0);
+    let totalVar = 0;
+    for (let i = 0; i < items.length; i++) for (let j = 0; j < items.length; j++)
+      totalVar += scores[i].reduce((a,b,ri) => a+(b-means[i])*(scores[j][ri]-means[j]),0)/m;
+    const currentAlpha = totalVar > 0 ? (items.length/(items.length-1)) * (1 - sumVar/totalVar) : 0;
+    if (currentAlpha <= 0) { showToast('Không thể tính alpha','error'); return; }
+    const targetAlpha = Math.min(0.98, Math.max(0.30, currentAlpha + delta));
+    window.__adjustSnapshot = rows.map(r => ({...r}));
+    aiAdjustAlphaDirect(constructKey, targetAlpha);
+    _snapshotAndDiff(rows);
+    const cs = _buildConstructsFromVars();
+    _adjustRefresh(cs);
+    const cnt = Object.values(window._changedCells || {}).reduce((s,cols) => s+Object.keys(cols).length, 0);
+    showToast('α ' + constructKey + ': ' + currentAlpha.toFixed(3) + ' → ' + targetAlpha.toFixed(3) + ' (đã sửa ' + cnt + ' ô)', 'success');
   } catch(e) { showToast('adjustAlpha: '+e.message,'error'); console.error(e); }
 }
+
 function adjustConstructLoading(constructKey, delta) {
-  showToast('adjustLoading: '+constructKey+' '+delta,'success');
   try {
-  if (!generatedData?.rawRows) return;
-  const constructs = generatedData.constructs || {};
-  const items = constructs[constructKey];
-  if (!items || !items.length) return;
-  const colHeaders = generatedData.colNames || [];
-  const idxMap = items.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
-  if (idxMap.length < 2) return;
-  const nRows = generatedData.rawRows.length;
-  const composites = generatedData.rawRows.map(r => {
-    const vals = idxMap.map(i => Number(r[colHeaders[i]])).filter(v => !isNaN(v) && v > 0);
-    return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
-  });
-  const scaleMin = 1, scaleMax = 7;
-  for (let r = 0; r < nRows; r++) {
-    const row = generatedData.rawRows[r];
-    const comp = composites[r];
-    if (comp === 0) continue;
-    idxMap.forEach(ci => {
-      const colName = colHeaders[ci];
-      let val = Number(row[colName]);
-      if (isNaN(val) || val <= 0) return;
-      const oldVal = val;
-      if (delta > 0) { val += val < comp ? 2 : -2; }
-      else { val += val <= comp ? -2 : 2; }
-      val = Math.max(scaleMin, Math.min(scaleMax, val));
-      if (val !== oldVal) {
-        row[colName] = val;
-        if (!window._changedCells) window._changedCells = {};
-        if (!window._changedCells[r]) window._changedCells[r] = {};
-        window._changedCells[r][colName] = { oldVal: oldVal, newVal: val };
-      }
-    });
-  }
-  if (generatedData.constructQualities) delete generatedData.constructQualities;
-  if (generatedData.regressionCache) delete generatedData.regressionCache;
-  const qc = document.getElementById('qualityContent');
-  if (qc) showQualityReport(generatedData.rawRows || [], generatedData.constructs || {}, (generatedData.rawRows || []).length);
-  if (typeof showImportData === 'function') showImportData();
+    if (!generatedData?.rawRows) { showToast('adjustLoading: chưa có dữ liệu','error'); return; }
+    const items = variables.filter(v => v.construct === constructKey).map(v => v.name);
+    if (items.length < 2) return;
+    const rows = generatedData.rawRows;
+    const validRows = [];
+    for (let i = 0; i < rows.length; i++) if (items.every(n => typeof rows[i][n] === 'number' && !isNaN(rows[i][n]))) validRows.push(i);
+    const m = validRows.length;
+    if (m < 5) return;
+    const scores = items.map(n => validRows.map(i => rows[i][n]));
+    const means = scores.map(v => v.reduce((a,b)=>a+b,0)/m);
+    const vars = scores.map((v,i) => v.reduce((a,b)=>a+(b-means[i])**2,0)/m);
+    const sumVar = vars.reduce((a,b)=>a+b,0);
+    let totalVar = 0;
+    for (let i = 0; i < items.length; i++) for (let j = 0; j < items.length; j++)
+      totalVar += scores[i].reduce((a,b,ri) => a+(b-means[i])*(scores[j][ri]-means[j]),0)/m;
+    const currentAlpha = totalVar > 0 ? (items.length/(items.length-1)) * (1 - sumVar/totalVar) : 0;
+    if (currentAlpha <= 0) { showToast('Không thể tính alpha cho loading','error'); return; }
+    const alphaDelta = delta * 0.5;
+    const targetAlpha = Math.min(0.98, Math.max(0.30, currentAlpha + alphaDelta));
+    window.__adjustSnapshot = rows.map(r => ({...r}));
+    aiAdjustAlphaDirect(constructKey, targetAlpha);
+    _snapshotAndDiff(rows);
+    const cs = _buildConstructsFromVars();
+    _adjustRefresh(cs);
+    const cnt = Object.values(window._changedCells || {}).reduce((s,cols) => s+Object.keys(cols).length, 0);
+    showToast('Loading ' + constructKey + ': đã điều chỉnh (sửa ' + cnt + ' ô)', 'success');
   } catch(e) { showToast('adjustLoading: '+e.message,'error'); console.error(e); }
 }
+
 function adjustRSq(delta) {
-  showToast('adjustRSq: '+delta,'success');
   try {
-  if (!generatedData?.rawRows) return;
-  const regInfo = generatedData?.regressionInput || generatedData?.lastRegression;
-  if (!regInfo) {
-    const cs = generatedData.constructs || {};
-    const keys = Object.keys(cs);
-    if (keys.length < 2) return;
-    adjustRSqByKeys(keys[0], keys[keys.length - 1], delta);
-  } else {
-    adjustRSqByKeys(regInfo.ivKey, regInfo.dvKey, delta);
-  }
+    if (!generatedData?.rawRows) { showToast('adjustRSq: chưa có dữ liệu','error'); return; }
+    const regInfo = generatedData?.regressionInput || generatedData?.lastRegression;
+    let dvKey;
+    if (regInfo?.dvKey) {
+      dvKey = regInfo.dvKey;
+    } else {
+      const allVars = variables.filter(v => v.construct);
+      const allCons = [...new Set(allVars.map(v => v.construct))];
+      const dvs = allCons.filter(k => allVars.find(v => v.construct === k)?.role === 'dependent');
+      dvKey = dvs.length > 0 ? dvs[0] : allCons[allCons.length - 1];
+    }
+    if (!dvKey) { showToast('Không xác định được biến phụ thuộc','error'); return; }
+    adjustRSqByKey(dvKey, delta);
   } catch(e) { showToast('adjustRSq: '+e.message,'error'); console.error(e); }
 }
-function adjustRSqByKeys(ivKey, dvKey, delta) {
+function adjustRSqByKey(dvKey, delta) {
   try {
-  const constructs = generatedData.constructs || {};
-  const ivItems = constructs[ivKey] || [];
-  const dvItems = constructs[dvKey] || [];
-  const colHeaders = generatedData.colNames || [];
-  const ivIdx = ivItems.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
-  const dvIdx = dvItems.map(item => colHeaders.indexOf(item.name || item)).filter(i => i >= 0);
-  if (!ivIdx.length || !dvIdx.length) return;
-  const nRows = generatedData.rawRows.length;
-  const scaleMin = 1, scaleMax = 7;
-  const ivComposites = generatedData.rawRows.map(r => {
-    const vals = ivIdx.map(i => Number(r[colHeaders[i]])).filter(v => !isNaN(v) && v > 0);
-    return vals.length ? vals.reduce((a,b) => a + b, 0) / vals.length : 0;
-  });
-  for (let r = 0; r < nRows; r++) {
-    const row = generatedData.rawRows[r];
-    const iv = ivComposites[r];
-    if (iv === 0) continue;
-    dvIdx.forEach(ci => {
-      const colName = colHeaders[ci];
-      let val = Number(row[colName]);
-      if (isNaN(val) || val <= 0) return;
-      const oldVal = val;
-      if (delta > 0) { val += val < iv ? 2 : val > iv ? -2 : 0; }
-      else { if (val <= iv) val = Math.max(scaleMin, val - 2); else val = Math.min(scaleMax, val + 2); }
-      val = Math.max(scaleMin, Math.min(scaleMax, val));
-      if (val !== oldVal) {
-        row[colName] = val;
-        if (!window._changedCells) window._changedCells = {};
-        if (!window._changedCells[r]) window._changedCells[r] = {};
-        window._changedCells[r][colName] = { oldVal: oldVal, newVal: val };
-      }
+    if (!generatedData?.rawRows) return;
+    const rows = generatedData.rawRows;
+    const allVars = variables.filter(v => v.construct);
+    const predictors = [...new Set(allVars.map(v => v.construct))]
+      .filter(k => k !== dvKey && allVars.find(v => v.construct === k)?.role !== 'moderating');
+    if (predictors.length === 0) { showToast('Không có biến độc lập','error'); return; }
+    const comp = {};
+    [...predictors, dvKey].forEach(k => {
+      const its = variables.filter(v => v.construct === k).map(v => v.name);
+      comp[k] = rows.map(r => {
+        let s=0,c=0; its.forEach(n=>{const v=r[n];if(typeof v==='number'&&!isNaN(v)){s+=v;c++;}}); return c>0?s/c:null;
+      });
     });
-  }
-  if (generatedData.constructQualities) delete generatedData.constructQualities;
-  if (generatedData.regressionCache) delete generatedData.regressionCache;
-  const qc = document.getElementById('qualityContent');
-  if (qc) showQualityReport(generatedData.rawRows || [], generatedData.constructs || {}, (generatedData.rawRows || []).length);
-  if (typeof showImportData === 'function') showImportData();
-  } catch(e) { showToast('adjustRSqByKeys: '+e.message,'error'); console.error(e); }
+    const valid = [];
+    for (let i = 0; i < rows.length; i++)
+      if (comp[dvKey][i] !== null && predictors.every(p => comp[p][i] !== null)) valid.push(i);
+    const n = valid.length;
+    if (n < 10) { showToast('Quá ít mẫu','error'); return; }
+    const y = valid.map(i => comp[dvKey][i]);
+    const yMean = y.reduce((a,b)=>a+b,0)/n;
+    const ySd = Math.sqrt(y.reduce((a,b)=>a+(b-yMean)**2,0)/n) || 1;
+    const Z = predictors.map(p => {
+      const x = valid.map(i => comp[p][i]);
+      const m = x.reduce((a,b)=>a+b,0)/n;
+      const s = Math.sqrt(x.reduce((a,b)=>a+(b-m)**2,0)/n) || 1;
+      return x.map(v => (v - m) / s);
+    });
+    const zY = y.map(v => (v - yMean) / ySd);
+    const k = predictors.length;
+    const ZtZinv = matInverse(Array.from({length:k},(_,i)=>Array.from({length:k},(_,j)=>{
+      let s=0; for(let ri=0; ri<n; ri++) s += Z[i][ri] * Z[j][ri]; return s/n;
+    }));
+    if (!ZtZinv) { showToast('Không thể tính R²','error'); return; }
+    const Zty = predictors.map((_,i)=>{let s=0;for(let ri=0;ri<n;ri++)s+=Z[i][ri]*zY[ri];return s/n;});
+    const beta = ZtZinv.map(r => r.reduce((a,v,j) => a+v*Zty[j], 0));
+    const currentR2 = Math.max(0.01, Math.min(0.99, beta.reduce((a,b,j) => a+b*Zty[j], 0)));
+    const targetR2 = Math.min(0.95, Math.max(0.03, currentR2 + delta));
+    window.__adjustSnapshot = rows.map(r => ({...r}));
+    aiSetRSquaredDirect(dvKey, targetR2);
+    _snapshotAndDiff(rows);
+    const cs = _buildConstructsFromVars();
+    _adjustRefresh(cs);
+    const cnt = Object.values(window._changedCells || {}).reduce((s,cols) => s+Object.keys(cols).length, 0);
+    showToast('R² ' + dvKey + ': ' + currentR2.toFixed(3) + ' → ' + targetR2.toFixed(3) + ' (sửa ' + cnt + ' ô)', 'success');
+  } catch(e) { showToast('adjustRSq: '+e.message,'error'); console.error(e); }
 }
 
 /* ---- Document-level delegation for adjust buttons ---- */
