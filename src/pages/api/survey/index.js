@@ -23,7 +23,11 @@ export async function POST({ request }) {
     const body = await request.json();
     const { data, error } = await supabaseAdmin
       .from('surveys')
-      .insert({ title: body.title || 'Khảo sát mới', description: body.description || '', questions: body.questions || [] })
+      .insert({
+        title: body.title || 'Khảo sát mới',
+        description: body.description || '',
+        questions: body.questions || []
+      })
       .select()
       .single();
 

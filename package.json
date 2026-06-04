@@ -22,7 +22,11 @@
     "csv-writer": "^1.6.0",
     "papaparse": "^5.5.3",
     "pdfjs-dist": "^5.7.284",
+    "pg": "^8.21.0",
     "sortablejs": "^1.15.7",
     "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "supabase": "^2.105.0"
   }
 }
