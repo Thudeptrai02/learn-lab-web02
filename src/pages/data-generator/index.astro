@@ -249,6 +249,43 @@
       </div>
     </div>
 
+    <!-- LearnLab Survey -->
+    <div class="card" id="ll-survey-card">
+      <div class="card-title" style="justify-content:space-between">
+        <span>📋 LearnLab Survey</span>
+        <span class="badge" id="ll-badge" style="display:none">Chưa tạo</span>
+      </div>
+      <div id="ll-survey-body">
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin-bottom:.5rem">
+          <button class="btn btn-primary" onclick="createLearnLabSurvey()" id="btn-ll-create" style="background:#0f172a;font-size:.85rem">📋 Tạo khảo sát từ mô hình</button>
+          <span id="ll-survey-link" style="font-size:.8rem;color:var(--gray-400)"></span>
+        </div>
+        <div id="ll-auto-fill" style="display:none">
+          <div style="border-top:1px solid var(--gray-200);padding-top:.5rem;margin-top:.5rem">
+            <div style="font-size:.8rem;font-weight:600;margin-bottom:.35rem">🚀 Tự động điền dữ liệu vào khảo sát</div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+              <label style="font-size:.8rem">Từ ngày: <input type="date" id="ll-date-start" style="padding:.25rem;border:1px solid var(--gray-300);border-radius:4px;font-size:.8rem"></label>
+              <label style="font-size:.8rem">→ <input type="date" id="ll-date-end" style="padding:.25rem;border:1px solid var(--gray-300);border-radius:4px;font-size:.8rem"></label>
+              <label style="font-size:.8rem;display:flex;align-items:center;gap:.2rem">
+                Giờ: <select id="ll-hour-start" style="padding:.25rem;border:1px solid var(--gray-300);border-radius:4px;font-size:.8rem"></select>
+                <span>→</span>
+                <select id="ll-hour-end" style="padding:.25rem;border:1px solid var(--gray-300);border-radius:4px;font-size:.8rem"></select>
+              </label>
+              <label style="font-size:.8rem;display:flex;align-items:center;gap:.2rem">
+                Đơn/giờ:
+                <input type="number" id="ll-rate-min" value="2" min="1" max="20" style="width:45px;padding:.25rem;border:1px solid var(--gray-300);border-radius:4px;font-size:.8rem">
+                <span>→</span>
+                <input type="number" id="ll-rate-max" value="5" min="1" max="20" style="width:45px;padding:.25rem;border:1px solid var(--gray-300);border-radius:4px;font-size:.8rem">
+              </label>
+              <button class="btn btn-success" onclick="autoFillLearnLabSurvey()" id="btn-ll-fill" style="background:#0f172a;color:#fff;font-size:.85rem">🚀 Tự động điền</button>
+              <span id="ll-status" style="font-size:.75rem;color:var(--gray-400)"></span>
+            </div>
+            <div id="ll-progress" style="margin-top:.35rem;font-size:.8rem;display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Google Form Auto-Fill -->
     <div class="card" id="gf-card">
       <div class="card-title" style="justify-content:space-between">
@@ -364,6 +401,7 @@
 <script is:inline src="/data-generator/js/import-data.js"></script>
 <script is:inline src="/data-generator/js/google-form.js"></script>
 <script is:inline src="/data-generator/js/ai-chat.js"></script>
+<script is:inline src="/data-generator/js/survey-bridge.js"></script>
 
 <!-- AI Chat -->
 <button id="ai-btn" onclick="toggleAiChat()" title="Trợ lý AI">

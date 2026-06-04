@@ -1,0 +1,41 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { supabaseAdmin } from '../../lib/supabase-admin';
+
+export const prerender = false;
+
+const { data: surveys } = await supabaseAdmin
+  .from('surveys')
+  .select('*')
+  .order('created_at', { ascending: false });
+---
+
+<Layout title="Quản lý khảo sát - Admin">
+  <div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-black mb-6">📋 Quản lý khảo sát</h1>
+
+    {!surveys || surveys.length === 0 ? (
+      <div class="text-center py-16 bg-white rounded-2xl border border-slate-200">
+        <div class="text-4xl mb-3">📭</div>
+        <p class="text-slate-500">Chưa có khảo sát nào. Tạo từ Data Generator.</p>
+        <a href="/data-generator" class="mt-4 inline-block px-6 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm">Đi tới Data Generator</a>
+      </div>
+    ) : (
+      <div class="grid gap-3">
+        {surveys.map(s => (
+          <a href={'/admin/survey/' + s.slug} class="block bg-white rounded-2xl border border-slate-200 p-5 hover:border-slate-300 transition-colors">
+            <div class="flex items-start justify-between">
+              <div>
+                <h2 class="font-bold text-slate-900 mb-1">{s.title}</h2>
+                <p class="text-xs text-slate-400">Slug: <code class="bg-slate-100 px-1.5 py-0.5 rounded">{s.slug}</code> · {new Date(s.created_at).toLocaleDateString('vi-VN')}</p>
+              </div>
+              <div class="flex gap-2">
+                <span class={`text-[11px] px-2.5 py-1 rounded-full font-medium ${s.is_active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>{s.is_active ? 'Đang mở' : 'Đã đóng'}</span>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</Layout>

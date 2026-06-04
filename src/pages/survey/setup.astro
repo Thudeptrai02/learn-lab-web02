@@ -1,0 +1,88 @@
+---
+export const prerender = false;
+---
+
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Survey Database</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f8fafc; color: #0f172a; max-width: 640px; margin: 0 auto; padding: 2rem 1rem; }
+    h1 { font-size: 1.5rem; font-weight: 800; margin-bottom: .5rem; }
+    .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; }
+    .btn { display: inline-block; padding: .75rem 1.5rem; background: #0f172a; color: #fff; border-radius: .75rem; font-weight: 700; font-size: .9rem; cursor: pointer; border: none; text-decoration: none; }
+    .btn:hover { background: #1e293b; }
+    .success { color: #15803d; background: #f0fdf4; padding: .75rem; border-radius: .5rem; font-weight: 600; }
+    .error { color: #dc2626; background: #fef2f2; padding: .75rem; border-radius: .5rem; }
+    pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: .5rem; overflow-x: auto; font-size: .75rem; max-height: 400px; }
+    #result { margin-top: 1rem; }
+    .hidden { display: none; }
+    .loading { opacity: .6; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <h1>⚙️ Setup Survey Database</h1>
+  <p style="color:#64748b;margin-bottom:1.5rem">Tạo bảng surveys, survey_questions, survey_responses, survey_answers trên Supabase.</p>
+
+  <div class="card">
+    <button id="btn-setup" class="btn" onclick="runSetup()">🚀 Chạy setup tự động</button>
+    <div id="result"></div>
+  </div>
+
+  <div class="card">
+    <p style="font-weight:600;margin-bottom:.5rem">📋 Cách thủ công:</p>
+    <p style="font-size:.85rem;color:#64748b;margin-bottom:.75rem">Nếu auto fail, click nút dưới đây để mở Supabase SQL Editor, paste code, chạy.</p>
+    <a id="sql-link" href="#" target="_blank" class="btn" style="background:#2563eb">📝 Mở SQL Editor</a>
+    <button class="btn" style="background:#475569;margin-top:.5rem" onclick="copySQL()">📋 Copy SQL</button>
+    <pre id="sql-block">Đang tải...</pre>
+  </div>
+
+  <script>
+    async function runSetup() {
+      const btn = document.getElementById('btn-setup');
+      const result = document.getElementById('result');
+      btn.classList.add('loading');
+      btn.textContent = '⏳ Đang chạy...';
+      result.innerHTML = '';
+
+      try {
+        const res = await fetch('/api/survey/setup-db');
+        const data = await res.json();
+
+        const sqlBlock = document.getElementById('sql-block');
+        sqlBlock.textContent = data.sql;
+
+        const sqlLink = document.getElementById('sql-link');
+        sqlLink.href = data.sqlEditorUrl;
+
+        if (data.apiResult?.success) {
+          result.innerHTML = '<div class="success">✅ ' + data.apiResult.message + '</div>';
+        } else {
+          result.innerHTML = '<div class="error">❌ Auto setup failed: ' + (data.apiResult?.message || 'Unknown') + '</div>';
+          result.innerHTML += '<p style="font-size:.85rem;color:#64748b;margin-top:.5rem">Dùng cách thủ công bên dưới để chạy SQL.</p>';
+        }
+      } catch (e) {
+        result.innerHTML = '<div class="error">❌ Lỗi: ' + e.message + '</div>';
+      }
+
+      btn.classList.remove('loading');
+      btn.textContent = '🚀 Chạy lại';
+    }
+
+    async function copySQL() {
+      const sql = document.getElementById('sql-block').textContent;
+      try {
+        await navigator.clipboard.writeText(sql);
+        alert('✅ Đã copy SQL!');
+      } catch {
+        alert('Copy thủ công: bôi đen → Ctrl+C');
+      }
+    }
+
+    // Auto-run on page load
+    runSetup();
+  </script>
+</body>
+</html>
