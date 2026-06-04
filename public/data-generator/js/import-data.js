@@ -528,7 +528,7 @@ function renderDataTable(rows, colNames, container, infoEl) {
   const allR = rows.length;
   const allC = colNames.length;
   let h = '<div style="max-height:520px;overflow:auto;border:1px solid var(--gray-200);border-radius:var(--radius)">';
-  h += '<table id="dataViewerTable" style="border-collapse:collapse;font-size:.72rem"><thead><tr style="background:#eef2ff;position:sticky;top:0;z-index:2">';
+  h += '<table style="border-collapse:collapse;font-size:.72rem"><thead><tr style="background:#eef2ff;position:sticky;top:0;z-index:2">';
   for (let ci = 0; ci < allC; ci++) {
     h += '<th style="padding:3px 6px;border:1px solid #d1d5db;white-space:nowrap;font-weight:600">' + colNames[ci] + '</th>';
   }
@@ -537,70 +537,12 @@ function renderDataTable(rows, colNames, container, infoEl) {
     h += '<tr' + (ri % 2 === 0 ? '' : ' style="background:#f9fafb"') + '>';
     for (let ci = 0; ci < allC; ci++) {
       const val = rows[ri][colNames[ci]];
-      const colName = colNames[ci];
-      const edited = window._changedCells && window._changedCells[ri] && window._changedCells[ri][colName];
-      const num = Number(val);
-      const isLikert = !isNaN(num) && num >= 1 && num <= 7 && val !== '';
-      let cls = '';
-      let extra = '';
-      if (edited) { cls = ' cell-edited'; }
-      if (isLikert) { cls += ' cell-editing'; extra = ' data-row="' + ri + '" data-col="' + ci + '"'; }
-      h += '<td class="' + cls.trim() + '" style="padding:2px 6px;border:1px solid #e5e7eb;text-align:center;white-space:nowrap"' + extra + '>' + (val === null || val === undefined ? '' : val) + '</td>';
+      h += '<td style="padding:2px 6px;border:1px solid #e5e7eb;text-align:center;white-space:nowrap">' + (val === null || val === undefined ? '' : val) + '</td>';
     }
     h += '</tr>';
   }
   h += '</tbody></table></div>';
-  h += '<div style="margin-top:6px;font-size:.8rem;color:var(--gray-500)">Tổng: ' + allR + ' dòng × ' + allC + ' cột. Click ô Likert (1-7) để sửa trực tiếp.</div>';
+  h += '<div style="margin-top:6px;font-size:.8rem;color:var(--gray-500)">Tổng: ' + allR + ' dòng × ' + allC + ' cột. Dùng chuột kéo thanh cuộn để xem hết.</div>';
   container.innerHTML = h;
   if (infoEl) infoEl.textContent = allR + ' dòng × ' + allC + ' cột';
-  // Bind click-to-edit on Likert cells
-  container.querySelectorAll('td.cell-editing').forEach(td => {
-    td.addEventListener('click', function(e) {
-      e.stopPropagation();
-      // If already editing, skip
-      if (this.querySelector('select')) return;
-      const rowIdx = parseInt(this.dataset.row);
-      const colIdx = parseInt(this.dataset.col);
-      const colName = colNames[colIdx];
-      const currentVal = parseInt(this.textContent.trim());
-      if (isNaN(currentVal)) return;
-      const sel = document.createElement('select');
-      sel.style.width = '48px';
-      sel.style.fontSize = '.72rem';
-      for (let v = 1; v <= 7; v++) {
-        const opt = document.createElement('option');
-        opt.value = v;
-        opt.textContent = v;
-        if (v === currentVal) opt.selected = true;
-        sel.appendChild(opt);
-      }
-      sel.addEventListener('change', function() {
-        const newVal = parseInt(this.value);
-        if (newVal !== currentVal) {
-          const rowObj = generatedData.rawRows || rows;
-          if (Array.isArray(rowObj) && rowObj[rowIdx]) {
-            rowObj[rowIdx][colName] = newVal;
-            if (!window._changedCells) window._changedCells = {};
-            if (!window._changedCells[rowIdx]) window._changedCells[rowIdx] = {};
-            window._changedCells[rowIdx][colName] = { oldVal: currentVal, newVal: newVal };
-            if (generatedData) {
-              if (generatedData.constructQualities) delete generatedData.constructQualities;
-              if (generatedData.regressionCache) delete generatedData.regressionCache;
-            }
-            if (typeof renderDataTable === 'function') renderDataTable(rows, colNames, container, infoEl);
-            const qc = document.getElementById('qualityContent');
-            if (qc && typeof showQualityReport === 'function') {
-              const c = generatedData?.constructs || {};
-              showQualityReport(generatedData.rawRows || [], c, (generatedData.rawRows || []).length);
-            }
-          }
-        } else {
-          this.parentElement.textContent = currentVal;
-        }
-      });
-      this.textContent = '';
-      this.appendChild(sel);
-      sel.focus();
-    });
-  });
 }
