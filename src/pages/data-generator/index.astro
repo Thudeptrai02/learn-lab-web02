@@ -241,17 +241,17 @@
     <div class="card">
       <div class="card-title">🚀 Tạo dữ liệu</div>
       <div class="row" style="gap:.75rem">
-        <button class="btn btn-accent btn-lg" onclick="smartGenerate()">🎯 Tạo dữ liệu</button>
+        <button class="btn" onclick="smartGenerate()" style="background:#7c3aed;color:#fff;font-weight:600">🎯 Tạo dữ liệu</button>
         <button class="btn btn-primary" onclick="downloadExcel()" id="btn-download" disabled>⬇️ Tải Excel</button>
         <button class="btn btn-outline" onclick="downloadCSV()" id="btn-csv" disabled>⬇️ Tải CSV</button>
         <button class="btn btn-outline" onclick="resetAll()">🗑️ Xóa tất cả</button>
-        <span class="text-muted text-sm" style="margin-left:auto" id="gen-status">Chưa tạo dữ liệu</span>
+        <span style="margin-left:auto;color:var(--gray-400);font-size:.85rem" id="gen-status">Chưa tạo dữ liệu</span>
       </div>
     </div>
 
     <!-- LearnLab Survey -->
     <div class="card" id="ll-survey-card">
-      <div class="card-title" class="flex-between">
+      <div class="card-title flex-between">
         <span>📋 LearnLab Survey</span>
         <span class="badge" id="ll-badge" style="display:none">Chưa tạo</span>
       </div>
@@ -288,7 +288,7 @@
 
     <!-- Google Form Auto-Fill -->
     <div class="card" id="gf-card">
-      <div class="card-title" class="flex-between">
+      <div class="card-title flex-between">
         <span>📋 Google Form Auto-Fill</span>
         <span class="badge" id="gf-badge" style="display:none">0 response</span>
       </div>
@@ -351,7 +351,7 @@
 
     <!-- Preview -->
     <div class="card" id="preview-card">
-      <div class="card-title" class="flex-between">
+      <div class="card-title flex-between">
         <span>📊 Preview dữ liệu</span>
         <span class="badge" id="preview-info">0 dòng</span>
       </div>
@@ -364,7 +364,7 @@
 
   <!-- Shared: Data Viewer -->
   <div class="card" id="data-viewer-card">
-    <div class="card-title" class="flex-between">
+    <div class="card-title flex-between">
       <span>📊 Xem dữ liệu</span>
       <span class="badge" id="data-viewer-info">0 dòng</span>
     </div>
@@ -375,7 +375,7 @@
 
   <!-- Shared: Quality Report -->
   <div class="card" id="quality-card" style="display:none">
-    <div class="card-title" class="flex-between">
+    <div class="card-title flex-between">
       <span>✅ Kiểm định chất lượng dữ liệu</span>
       <div style="display:flex;gap:.35rem;align-items:center;flex-wrap:wrap">
         <button class="btn btn-outline btn-sm" onclick="showQuestionnaireIntelligence()" style="font-size:.7rem">🔍 Kiểm tra bảng hỏi</button>
