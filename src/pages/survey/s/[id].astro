@@ -1,0 +1,185 @@
+---
+export const prerender = false;
+const { id } = Astro.params;
+const surveyId = id;
+---
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Khảo sát</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f8; color: #1e293b; min-height: 100vh; display: flex; flex-direction: column; }
+  .header { background: #6366f1; color: #fff; padding: 2rem 1.5rem; text-align: center; }
+  .header h1 { font-size: 1.5rem; font-weight: 700; }
+  .header p { margin-top: .35rem; opacity: .85; font-size: .9rem; }
+  .container { max-width: 700px; margin: 0 auto; padding: 1.5rem 1rem; flex: 1; width: 100%; }
+  .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); padding: 1.25rem 1.5rem; margin-bottom: 1rem; border: 1px solid #e2e8f0; }
+  .q-title { font-weight: 600; font-size: .95rem; margin-bottom: .5rem; display: flex; gap: .25rem; }
+  .q-required { color: #ef4444; }
+  .q-desc { font-size: .8rem; color: #94a3b8; margin-bottom: .75rem; }
+  .likert-row { display: flex; gap: .25rem; margin-top: .5rem; }
+  .likert-row label { flex: 1; text-align: center; font-size: .75rem; color: #475569; cursor: pointer; }
+  .likert-row label input { display: block; margin: .25rem auto 0; }
+  .likert-row label span { display: block; margin-top: .2rem; }
+  .option-row { display: flex; flex-direction: column; gap: .4rem; margin-top: .5rem; }
+  .option-row label { display: flex; align-items: center; gap: .5rem; font-size: .9rem; cursor: pointer; padding: .4rem .5rem; border-radius: 8px; border: 1px solid #e2e8f0; transition: all .15s; }
+  .option-row label:hover { background: #f8fafc; border-color: #c7d2fe; }
+  .option-row label input { width: auto; }
+  .text-input { width: 100%; padding: .6rem .75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: .9rem; font-family: inherit; margin-top: .5rem; }
+  .text-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+  .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .7rem 1.5rem; border: none; border-radius: 10px; font-size: .95rem; font-weight: 600; cursor: pointer; transition: all .15s; font-family: inherit; }
+  .btn-primary { background: #6366f1; color: #fff; width: 100%; justify-content: center; }
+  .btn-primary:hover { background: #4f46e5; }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .footer { text-align: center; padding: 1rem; font-size: .75rem; color: #94a3b8; }
+  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); padding: .75rem 1.5rem; border-radius: 10px; color: #fff; font-size: .85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,.15); opacity: 0; transition: all .3s; z-index: 999; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .toast-success { background: #10b981; }
+  .toast-error { background: #ef4444; }
+  .thankyou { text-align: center; padding: 3rem 1rem; }
+  .thankyou h2 { font-size: 1.5rem; margin-bottom: .5rem; }
+  .thankyou p { color: #64748b; }
+  @media (max-width: 640px) { .header { padding: 1.25rem 1rem; } .header h1 { font-size: 1.2rem; } .container { padding: 1rem .75rem; } .card { padding: 1rem; } .likert-row { flex-direction: column; gap: .3rem; } .likert-row label { display: flex; align-items: center; gap: .5rem; } .likert-row label input { margin: 0; } }
+</style>
+</head>
+<body>
+
+<div class="header" id="form-header" style="display:none">
+  <h1 id="survey-title-display">...</h1>
+  <p id="survey-desc-display">...</p>
+</div>
+
+<div class="container" id="form-container">
+  <div class="card" style="text-align:center;padding:3rem">
+    <div style="font-size:2rem;margin-bottom:1rem">⏳</div>
+    <p style="color:#64748b">Đang tải khảo sát...</p>
+  </div>
+</div>
+
+<div class="footer">
+  <p>Powered by LearnLab</p>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  const SURVEY_ID = '{surveyId}';
+
+  function showToast(msg, type) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast toast-' + type;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  function escHtml(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
+  async function loadSurvey() {
+    try {
+      const r = await fetch('/api/survey/' + SURVEY_ID);
+      const json = await r.json();
+      if (!json.ok || !json.data) throw new Error(json.error || 'Không tìm thấy khảo sát');
+
+      const survey = json.data;
+      document.getElementById('survey-title-display').textContent = survey.title || 'Khảo sát';
+      document.getElementById('survey-desc-display').textContent = survey.description || '';
+      document.getElementById('form-header').style.display = 'block';
+      renderForm(survey);
+    } catch (e) {
+      document.getElementById('form-container').innerHTML = `<div class="card" style="text-align:center;padding:3rem">
+        <div style="font-size:2rem;margin-bottom:1rem">😅</div>
+        <h2 style="font-size:1.2rem;margin-bottom:.5rem">Khảo sát không tồn tại</h2>
+        <p style="color:#64748b;font-size:.9rem">${escHtml(e.message)}</p>
+      </div>`;
+    }
+  }
+
+  function renderForm(survey) {
+    const qs = survey.questions || [];
+    if (qs.length === 0) {
+      document.getElementById('form-container').innerHTML = `<div class="card" style="text-align:center;padding:2rem"><p style="color:#94a3b8">Khảo sát này chưa có câu hỏi.</p></div>`;
+      return;
+    }
+
+    let html = `<form id="survey-form" onsubmit="submitForm(event)">`;
+    qs.forEach((q, i) => {
+      html += `<div class="card">
+        <div class="q-title">${i+1}. ${escHtml(q.title)} ${q.required ? '<span class="q-required">*</span>' : ''}</div>`;
+
+      if (q.type === 'likert5' || q.type === 'likert7') {
+        html += `<div class="likert-row" id="q_${i}">`;
+        (q.options || []).forEach((opt, oi) => {
+          const val = q.type === 'likert7' ? (oi + 1) : (oi + 1);
+          html += `<label><input type="radio" name="q_${i}" value="${val}" ${q.required ? 'required' : ''}><span>${escHtml(opt)}</span></label>`;
+        });
+        html += `</div>`;
+      } else if (q.type === 'multiple_choice') {
+        html += `<div class="option-row">`;
+        (q.labels || ['Lựa chọn 1', 'Lựa chọn 2']).forEach((l, li) => {
+          html += `<label><input type="radio" name="q_${i}" value="${li + 1}" ${q.required ? 'required' : ''}> ${escHtml(l || 'Lựa chọn ' + (li+1))}</label>`;
+        });
+        html += `</div>`;
+      } else if (q.type === 'text') {
+        html += `<textarea class="text-input" name="q_${i}" rows="3" placeholder="Nhập câu trả lời..." ${q.required ? 'required' : ''}></textarea>`;
+      } else if (q.type === 'rating') {
+        html += `<div class="likert-row" id="q_${i}">`;
+        [1,2,3,4,5].forEach(v => {
+          html += `<label><input type="radio" name="q_${i}" value="${v}" ${q.required ? 'required' : ''}><span>${v} ⭐</span></label>`;
+        });
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+    });
+
+    html += `<button type="submit" class="btn btn-primary" id="submit-btn">📤 Gửi khảo sát</button>`;
+    html += `</form>`;
+
+    document.getElementById('form-container').innerHTML = html;
+  }
+
+  async function submitForm(e) {
+    e.preventDefault();
+    const form = document.getElementById('survey-form');
+    const formData = new FormData(form);
+    const answers = {};
+
+    const surveyQuestions = (await (await fetch('/api/survey/' + SURVEY_ID)).json()).data?.questions || [];
+
+    surveyQuestions.forEach((q, i) => {
+      const val = formData.get('q_' + i);
+      if (val !== null) {
+        answers[q.id] = q.type === 'text' ? val : Number(val);
+      }
+    });
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true; btn.textContent = '⏳ Đang gửi...';
+
+    try {
+      const r = await fetch('/api/response', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ survey_id: SURVEY_ID, answers, submitted_at: new Date().toISOString() })
+      });
+      const json = await r.json();
+      if (!json.ok) throw new Error(json.error);
+
+      document.getElementById('form-container').innerHTML = `<div class="thanhyou">
+        <div style="font-size:3rem;margin-bottom:1rem">✅</div>
+        <h2>Hoàn thành khảo sát</h2>
+        <p>Cảm ơn bạn đã tham gia khảo sát. Câu trả lời của bạn đã được ghi nhận.</p>
+      </div>`;
+    } catch (e) {
+      showToast('❌ Lỗi: ' + e.message, 'error');
+      btn.disabled = false; btn.textContent = '📤 Gửi khảo sát';
+    }
+  }
+
+  loadSurvey();
+</script>
+</body></html>
