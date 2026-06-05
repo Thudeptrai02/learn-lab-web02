@@ -5,87 +5,72 @@ const { id } = Astro.params;
 const surveyId = id;
 ---
 <Layout title="Khảo sát - LearnLab">
-<div class="survey-form-wrap" style="flex:1;display:flex;flex-direction:column;background:linear-gradient(135deg,#e8e0f0 0%,#f0eef4 50%,#e0e8f0 100%)">
+<div class="survey-form-wrap" style="flex:1;display:flex;flex-direction:column;background:#f0ebf8;font-family:'Google Sans','Roboto',system-ui,-apple-system,sans-serif">
 <style is:global>
-  .survey-form-wrap .header-bar {
-    background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 24px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .survey-form-wrap .header-bar svg { width: 20px; height: 20px; color: #5f6368; }
-  .survey-form-wrap .header-bar span { font-size: 13px; color: #5f6368; font-weight: 500; letter-spacing: .3px; }
   .survey-form-wrap .container { max-width: 640px; margin: 0 auto; padding: 24px 16px 80px; flex: 1; width: 100%; }
-  .survey-form-wrap .survey-header {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-radius: 12px;
-    padding: 28px 24px 24px; margin-bottom: 20px; color: #fff; box-shadow: 0 4px 24px rgba(124,58,237,.25);
-  }
-  .survey-form-wrap .survey-header h1 { font-size: 24px; font-weight: 700; line-height: 1.3; }
-  .survey-form-wrap .survey-header p { margin-top: 6px; font-size: 14px; opacity: .85; line-height: 1.5; }
-  .survey-form-wrap .survey-header .required-note { margin-top: 12px; font-size: 12px; opacity: .7; }
-  .survey-form-wrap .card { background: #fff; border-radius: 12px; padding: 20px 24px; margin-bottom: 12px; border: 1px solid #e0e0e0; }
-  .survey-form-wrap .q-title { font-size: 14px; font-weight: 600; color: #202124; line-height: 1.5; margin-bottom: 12px; display: flex; gap: 4px; }
-  .survey-form-wrap .q-required { color: #d93025; }
-  .survey-form-wrap .likert-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .survey-form-wrap .survey-header { background: #fff; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .survey-form-wrap .survey-header .bar { height: 10px; background: #673ab7; }
+  .survey-form-wrap .survey-header .inner { padding: 20px 24px 24px; }
+  .survey-form-wrap .survey-header h1 { font-size: 28px; font-weight: 400; color: #202124; line-height: 1.3; margin: 0; }
+  .survey-form-wrap .survey-header p { margin: 8px 0 0; font-size: 14px; color: #5f6368; line-height: 1.5; }
+  .survey-form-wrap .survey-header .required-note { margin-top: 14px; font-size: 13px; color: #5f6368; }
+  .survey-form-wrap .survey-header .required-note span { color: #d93025; }
+  .survey-form-wrap .card { background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08); }
+  .survey-form-wrap .q-title { font-size: 16px; font-weight: 500; color: #202124; line-height: 1.4; margin-bottom: 14px; display: flex; gap: 4px; }
+  .survey-form-wrap .q-required { color: #d93025; font-size: 18px; }
+  .survey-form-wrap .choice-option { display: flex; align-items: center; gap: 12px; padding: 8px 0; cursor: pointer; font-size: 14px; color: #202124; user-select: none; }
+  .survey-form-wrap .choice-option .radio-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #5f6368; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
+  .survey-form-wrap .choice-option.selected .radio-circle { border-color: #673ab7; }
+  .survey-form-wrap .choice-option.selected .radio-circle::after { content:''; width: 10px; height: 10px; border-radius:50%; background:#673ab7; }
+  .survey-form-wrap .likert-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin-top: 8px; }
   .survey-form-wrap .likert-grid.likert7 { grid-template-columns: repeat(7, 1fr); }
-  .survey-form-wrap .likert-option {
-    padding: 10px 4px; border: 1px solid #dadce0; border-radius: 8px; cursor: pointer;
-    font-size: 11px; font-weight: 500; color: #5f6368; transition: all .15s;
-    text-align: center; line-height: 1.3; user-select: none;
-  }
-  .survey-form-wrap .likert-option:hover { border-color: #7c3aed; background: #f5f0ff; }
-  .survey-form-wrap .likert-option.selected { border-color: #7c3aed; background: #ede7f6; color: #7c3aed; font-weight: 600; box-shadow: 0 0 0 1px #7c3aed; }
-  .survey-form-wrap .choice-option { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #dadce0; border-radius: 8px; cursor: pointer; font-size: 14px; color: #202124; transition: all .15s; user-select: none; }
-  .survey-form-wrap .choice-option:hover { border-color: #7c3aed; background: #f5f0ff; }
-  .survey-form-wrap .choice-option.selected { border-color: #7c3aed; background: #ede7f6; box-shadow: 0 0 0 1px #7c3aed; }
-  .survey-form-wrap .choice-option .radio-circle { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #5f6368; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
-  .survey-form-wrap .choice-option.selected .radio-circle { border-color: #7c3aed; background: #7c3aed; box-shadow: inset 0 0 0 3px #fff; }
-  .survey-form-wrap .text-input { width: 100%; padding: 10px 0; border: none; border-bottom: 1px solid #dadce0; font-size: 14px; font-family: inherit; outline: none; background: transparent; }
-  .survey-form-wrap .text-input:focus { border-bottom-color: #7c3aed; border-bottom-width: 2px; }
+  .survey-form-wrap .likert-grid .col-label { text-align: center; font-size: 12px; color: #5f6368; padding: 8px 4px; font-weight: 500; }
+  .survey-form-wrap .likert-option { text-align: center; padding: 10px 4px; cursor: pointer; border: 1px solid transparent; border-radius: 0; border-bottom: 1px solid #e0e0e0; transition: none; user-select: none; }
+  .survey-form-wrap .likert-option .circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #5f6368; margin: 0 auto; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+  .survey-form-wrap .likert-option:hover .circle { border-color: #673ab7; background: #f5f0ff; }
+  .survey-form-wrap .likert-option.selected .circle { border-color: #673ab7; }
+  .survey-form-wrap .likert-option.selected .circle::after { content:''; width: 12px; height: 12px; border-radius:50%; background:#673ab7; }
+  .survey-form-wrap .text-input { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #dadce0; font-size: 14px; font-family: inherit; outline: none; background: transparent; min-height: 40px; resize: vertical; }
+  .survey-form-wrap .text-input:focus { border-bottom-color: #673ab7; border-bottom-width: 2px; }
   .survey-form-wrap .text-input::placeholder { color: #9aa0a6; }
-  .survey-form-wrap .rating-group { display: flex; gap: 8px; flex-wrap: wrap; }
-  .survey-form-wrap .rating-btn { width: 44px; height: 44px; border-radius: 50%; border: 1px solid #dadce0; cursor: pointer; font-size: 16px; font-weight: 600; color: #5f6368; background: #fff; transition: all .15s; display: flex; align-items: center; justify-content: center; user-select: none; }
-  .survey-form-wrap .rating-btn:hover { border-color: #7c3aed; color: #7c3aed; }
-  .survey-form-wrap .rating-btn.selected { border-color: #7c3aed; background: #7c3aed; color: #fff; box-shadow: 0 2px 8px rgba(124,58,237,.3); }
-  .survey-form-wrap .submit-area { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e0e0e0; padding: 12px 16px; display: flex; align-items: center; gap: 12px; z-index: 100; }
+  .survey-form-wrap .rating-group { display: flex; gap: 12px; flex-wrap: wrap; }
+  .survey-form-wrap .rating-btn { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #dadce0; cursor: pointer; font-size: 18px; font-weight: 500; color: #5f6368; background: #fff; transition: all .15s; display: flex; align-items: center; justify-content: center; user-select: none; }
+  .survey-form-wrap .rating-btn:hover { border-color: #673ab7; color: #673ab7; }
+  .survey-form-wrap .rating-btn.selected { border-color: #673ab7; background: #673ab7; color: #fff; }
+  .survey-form-wrap .submit-area { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e0e0e0; padding: 12px 24px; display: flex; align-items: center; gap: 16px; z-index: 100; }
   .survey-form-wrap .submit-area .progress-container { flex: 1; }
   .survey-form-wrap .submit-area .progress-bar { height: 4px; background: #e0e0e0; border-radius: 2px; overflow: hidden; }
-  .survey-form-wrap .submit-area .progress-fill { height: 100%; background: linear-gradient(90deg, #7c3aed, #a78bfa); border-radius: 2px; transition: width .3s ease; width: 0%; }
-  .survey-form-wrap .submit-area .progress-text { font-size: 11px; color: #5f6368; margin-top: 2px; }
-  .survey-form-wrap .btn-submit { background: #7c3aed; color: #fff; border: none; padding: 10px 28px; border-radius: 8px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all .15s; white-space: nowrap; }
-  .survey-form-wrap .btn-submit:hover { background: #6d28d9; box-shadow: 0 2px 12px rgba(124,58,237,.3); }
-  .survey-form-wrap .btn-submit:disabled { opacity: .5; cursor: not-allowed; box-shadow: none; }
-  .survey-form-wrap .thankyou-screen { text-align: center; padding: 48px 24px; }
-  .survey-form-wrap .thankyou-screen .check-icon { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #a78bfa); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 28px; color: #fff; box-shadow: 0 4px 20px rgba(124,58,237,.3); }
-  .survey-form-wrap .thankyou-screen h2 { font-size: 22px; font-weight: 700; color: #202124; margin-bottom: 8px; }
+  .survey-form-wrap .submit-area .progress-fill { height: 100%; background: #673ab7; border-radius: 2px; transition: width .3s ease; width: 0%; }
+  .survey-form-wrap .submit-area .progress-text { font-size: 12px; color: #5f6368; margin-top: 2px; }
+  .survey-form-wrap .btn-submit { background: #673ab7; color: #fff; border: none; padding: 10px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; transition: none; white-space: nowrap; }
+  .survey-form-wrap .btn-submit:hover { background: #5e35b1; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .survey-form-wrap .btn-submit:disabled { opacity: .4; cursor: default; box-shadow: none; }
+  .survey-form-wrap .thankyou-screen { text-align: center; padding: 60px 24px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  .survey-form-wrap .thankyou-screen .check-icon { width: 48px; height: 48px; border-radius: 50%; background: #673ab7; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px; color: #fff; }
+  .survey-form-wrap .thankyou-screen h2 { font-size: 24px; font-weight: 400; color: #202124; margin-bottom: 8px; }
   .survey-form-wrap .thankyou-screen p { font-size: 14px; color: #5f6368; line-height: 1.6; }
-  .survey-form-wrap .loader { text-align: center; padding: 64px 24px; }
-  .survey-form-wrap .loader .spinner { width: 40px; height: 40px; border: 3px solid #e0e0e0; border-top-color: #7c3aed; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
-  .survey-form-wrap .loader p { color: #5f6368; font-size: 14px; }
-  .survey-form-wrap .error-screen { text-align: center; padding: 64px 24px; }
-  .survey-form-wrap .error-screen .error-icon { width: 64px; height: 64px; border-radius: 50%; background: #fce8e6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px; }
-  .survey-form-wrap .error-screen h2 { font-size: 18px; font-weight: 600; color: #202124; margin-bottom: 6px; }
+  .survey-form-wrap .loader { text-align: center; padding: 80px 24px; color: #5f6368; font-size: 14px; }
+  .survey-form-wrap .loader .spinner { width: 32px; height: 32px; border: 3px solid #e0e0e0; border-top-color: #673ab7; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+  .survey-form-wrap .error-screen { text-align: center; padding: 60px 24px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  .survey-form-wrap .error-screen .error-icon { width: 48px; height: 48px; border-radius: 50%; background: #fce8e6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px; }
+  .survey-form-wrap .error-screen h2 { font-size: 18px; font-weight: 500; color: #202124; margin-bottom: 6px; }
   .survey-form-wrap .error-screen p { font-size: 13px; color: #5f6368; }
-  .survey-form-wrap .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); padding: 10px 20px; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,.15); transition: transform .3s ease; z-index: 999; white-space: nowrap; }
+  .survey-form-wrap .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); padding: 10px 20px; border-radius: 4px; color: #fff; font-size: 13px; font-weight: 500; box-shadow: 0 2px 6px rgba(0,0,0,.15); transition: transform .3s ease; z-index: 999; white-space: nowrap; }
   .survey-form-wrap .toast.show { transform: translateX(-50%) translateY(0); }
   .survey-form-wrap .toast-success { background: #188038; }
   .survey-form-wrap .toast-error { background: #d93025; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
   @media (max-width: 640px) {
-    .survey-form-wrap .container { padding: 16px 12px 80px; }
-    .survey-form-wrap .survey-header { padding: 20px 16px; border-radius: 8px; }
-    .survey-form-wrap .survey-header h1 { font-size: 20px; }
-    .survey-form-wrap .card { padding: 16px; border-radius: 8px; }
-    .survey-form-wrap .likert-grid { gap: 4px; }
-    .survey-form-wrap .likert-option { padding: 8px 2px; font-size: 10px; }
-    .survey-form-wrap .submit-area { padding: 10px 12px; }
-    .survey-form-wrap .btn-submit { padding: 10px 20px; font-size: 13px; }
+    .survey-form-wrap .container { padding: 12px 8px 80px; }
+    .survey-form-wrap .survey-header .inner { padding: 16px; }
+    .survey-form-wrap .survey-header h1 { font-size: 22px; }
+    .survey-form-wrap .card { padding: 16px; }
+    .survey-form-wrap .q-title { font-size: 14px; }
+    .survey-form-wrap .likert-grid .col-label { font-size: 10px; padding: 6px 2px; }
+    .survey-form-wrap .likert-option { padding: 8px 2px; }
+    .survey-form-wrap .submit-area { padding: 10px 16px; }
   }
 </style>
-
-<div class="header-bar">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-  <span>LearnLab · Khảo sát</span>
-</div>
 
 <div class="container" id="app">
   <div class="loader" id="loader">
@@ -166,9 +151,9 @@ const surveyId = id;
       byId('app').innerHTML = '<div class="error-screen"><div class="error-icon">📝</div><h2>Khảo sát trống</h2><p>Khảo sát này chưa có câu hỏi.</p></div>';
       return;
     }
-    let html = '<div class="survey-header"><h1>' + escHtml(survey.title || 'Khảo sát') + '</h1>' +
+    let html = '<div class="survey-header"><div class="bar"></div><div class="inner"><h1>' + escHtml(survey.title || 'Khảo sát') + '</h1>' +
       (survey.description ? '<p>' + escHtml(survey.description) + '</p>' : '') +
-      '<div class="required-note">* Bắt buộc</div></div>';
+      '<div class="required-note"><span>*</span> Bắt buộc</div></div></div>';
     qs.forEach((q, i) => {
       html += '<div class="card"><div class="q-title">' + (i+1) + '. ' + escHtml(q.title) +
         (q.required ? '<span class="q-required">*</span>' : '') + '</div><div id="q_' + i + '">';
@@ -177,11 +162,12 @@ const surveyId = id;
         (q.options || []).forEach(function(opt, oi) {
           var val = oi + 1;
           var sel = state['q_' + i] === val ? ' selected' : '';
-          html += '<div class="likert-option' + sel + '" data-q="' + i + '" data-v="' + val + '" onclick="setAnswer(' + i + ',' + val + ')">' + escHtml(opt) + '</div>';
+          html += '<div class="likert-option' + sel + '" data-q="' + i + '" data-v="' + val + '" onclick="setAnswer(' + i + ',' + val + ')">' +
+            '<div class="circle"></div><div style="font-size:10px;color:#5f6368;margin-top:4px">' + escHtml(opt) + '</div></div>';
         });
         html += '</div>';
       } else if (q.type === 'multiple_choice') {
-        html += '<div style="display:flex;flex-direction:column;gap:6px">';
+        html += '<div style="display:flex;flex-direction:column;gap:2px">';
         (q.labels || []).forEach(function(l, li) {
           var val = li + 1;
           var sel = state['q_' + i] === val ? ' selected' : '';
