@@ -3,7 +3,6 @@ import Layout from '../../../layouts/Layout.astro';
 export const prerender = false;
 const { id: surveyId } = Astro.params;
 ---
-
 <Layout title="Kết quả khảo sát - LearnLab">
   <div class="mx-auto max-w-6xl w-full px-4 py-8">
     <div class="flex items-center justify-between mb-6">
@@ -50,6 +49,8 @@ const { id: surveyId } = Astro.params;
   let responses = [];
   let questions = [];
 
+  function escHtml(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+
   async function loadResults() {
     try {
       const [surveyRes, respRes] = await Promise.all([
@@ -75,7 +76,8 @@ const { id: surveyId } = Astro.params;
   function updateStats() {
     const total = responses.length;
     const now = new Date();
-    const today = responses.filter(r => new Date(r.submitted_at).toDateString() === now.toDateString()).length;
+    const todayStr = now.toDateString();
+    const today = responses.filter(r => new Date(r.submitted_at).toDateString() === todayStr).length;
     const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
     const weekCount = responses.filter(r => new Date(r.submitted_at) >= weekAgo).length;
 
@@ -89,7 +91,7 @@ const { id: surveyId } = Astro.params;
     document.getElementById('stat-total').textContent = total;
     document.getElementById('stat-today').textContent = today;
     document.getElementById('stat-week').textContent = weekCount;
-    document.getElementById('stat-avg').textContent = count > 0 ? (sum / count).toFixed(1) : '0.0';
+    document.getElementById('stat-avg').textContent = count > 0 ? (sum / count).toFixed(1) : '—';
   }
 
   function renderResponses() {
@@ -145,9 +147,7 @@ const { id: surveyId } = Astro.params;
     XLSX.writeFile(wb, `Khao_sat_${SURVEY_ID.slice(0,8)}_${new Date().toISOString().slice(0,10)}.xlsx`);
   }
 
-  function escHtml(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
-
-  // Load SheetJS
+  // Load SheetJS then load results
   const s = document.createElement('script');
   s.src = 'https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js';
   s.onload = loadResults;

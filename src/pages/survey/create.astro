@@ -1,117 +1,286 @@
-<script is:inline>
-// Generated: 2026-06-05
-</script>
-
+---
+export const prerender = false;
+---
 <!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tạo khảo sát</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f8; color: #1e293b; min-height: 100vh; }
-  .topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: .75rem 1.5rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-  .topbar h1 { font-size: 1.15rem; font-weight: 700; }
-  .container { max-width: 800px; margin: 0 auto; padding: 1.5rem 1rem; }
-  .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #e2e8f0; }
-  .card-title { font-size: 1rem; font-weight: 600; margin-bottom: .75rem; }
-  input[type="text"], textarea { width: 100%; padding: .6rem .75rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: .9rem; font-family: inherit; transition: border-color .15s; }
-  input:focus, textarea:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
-  textarea { resize: vertical; min-height: 60px; }
-  .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1rem; border: none; border-radius: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: all .15s; text-decoration: none; font-family: inherit; }
-  .btn-primary { background: #6366f1; color: #fff; }
-  .btn-primary:hover { background: #4f46e5; }
-  .btn-outline { background: transparent; color: #64748b; border: 1px solid #cbd5e1; }
-  .btn-outline:hover { background: #f8fafc; }
-  .btn-sm { padding: .35rem .65rem; font-size: .78rem; }
-  .btn-success { background: #10b981; color: #fff; }
-  .btn-success:hover { background: #059669; }
-  .btn-danger { background: #ef4444; color: #fff; }
-  .btn-danger:hover { background: #dc2626; }
-  .q-item { border: 1px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: .75rem; background: #fafbfc; }
-  .q-item:hover { border-color: #c7d2fe; }
-  .q-head { display: flex; gap: .5rem; align-items: start; margin-bottom: .5rem; }
-  .q-num { font-weight: 700; color: #6366f1; font-size: .85rem; min-width: 28px; padding-top: .35rem; }
-  .q-title-input { flex: 1; }
-  .q-type { padding: .35rem .5rem; border: 1px solid #cbd5e1; border-radius: 6px; font-size: .8rem; background: #fff; }
-  .q-actions { display: flex; gap: .25rem; }
-  .q-actions button { background: none; border: none; cursor: pointer; color: #94a3b8; padding: .25rem .35rem; border-radius: 4px; font-size: .85rem; }
-  .q-actions button:hover { background: #e2e8f0; color: #475569; }
-  .q-required { display: flex; align-items: center; gap: .3rem; font-size: .78rem; color: #64748b; cursor: pointer; }
-  .q-required input { width: auto; }
-  .q-likert-preview { margin-top: .5rem; display: flex; gap: .25rem; font-size: .75rem; color: #94a3b8; }
-  .q-likert-preview span { flex: 1; text-align: center; padding: .3rem .25rem; background: #f1f5f9; border-radius: 4px; }
-  .q-options { margin-top: .5rem; display: flex; flex-direction: column; gap: .35rem; }
-  .q-option { display: flex; gap: .35rem; align-items: center; }
-  .q-option input { flex: 1; padding: .35rem .5rem; border: 1px solid #e2e8f0; border-radius: 6px; font-size: .8rem; }
-  .q-option button { background: none; border: none; cursor: pointer; color: #ef4444; font-size: .85rem; padding: .25rem; }
-  .empty-state { text-align: center; padding: 2rem; color: #94a3b8; }
-  .toast { position: fixed; bottom: 2rem; right: 2rem; padding: .75rem 1.25rem; border-radius: 10px; color: #fff; font-size: .85rem; font-weight: 500; box-shadow: 0 4px 20px rgba(0,0,0,.15); transform: translateY(100px); opacity: 0; transition: all .3s; z-index: 999; }
-  .toast.show { transform: translateY(0); opacity: 1; }
-  .toast-success { background: #10b981; }
-  .toast-error { background: #ef4444; }
-  @media (max-width: 640px) { .container { padding: 1rem .75rem; } .card { padding: 1rem; } }
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #e8e0f0 0%, #f0eef4 50%, #e0e8f0 100%);
+    color: #202124;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .topbar-left h1 { font-size: 16px; font-weight: 700; color: #202124; }
+  .topbar-right { display: flex; gap: 8px; align-items: center; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 18px; border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600; font-family: inherit;
+    cursor: pointer; transition: all .15s; text-decoration: none;
+  }
+  .btn-outline {
+    background: transparent; color: #5f6368; border: 1px solid #dadce0;
+  }
+  .btn-outline:hover { background: #f8f9fa; border-color: #bdc1c6; }
+  .btn-primary { background: #7c3aed; color: #fff; }
+  .btn-primary:hover { background: #6d28d9; box-shadow: 0 2px 8px rgba(124,58,237,.3); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-teal { background: #0d9488; color: #fff; }
+  .btn-teal:hover { background: #0f766e; }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 20px 16px 40px; }
+
+  .survey-meta {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    border: 1px solid #e0e0e0;
+  }
+  .survey-meta input, .survey-meta textarea {
+    width: 100%; border: none; outline: none;
+    font-family: inherit; background: transparent;
+  }
+  .survey-meta input { font-size: 20px; font-weight: 700; color: #202124; padding: 2px 0; }
+  .survey-meta input::placeholder { color: #9aa0a6; }
+  .survey-meta textarea {
+    font-size: 13px; color: #5f6368; resize: vertical; min-height: 32px;
+    padding: 2px 0; margin-top: 4px; line-height: 1.5;
+  }
+  .survey-meta textarea::placeholder { color: #9aa0a6; }
+
+  .q-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 10px;
+    border: 1px solid #e0e0e0;
+    transition: box-shadow .15s;
+    position: relative;
+  }
+  .q-card:hover { box-shadow: 0 1px 6px rgba(0,0,0,.06); }
+  .q-card.active { border-color: #7c3aed; box-shadow: 0 0 0 1px #7c3aed; }
+
+  .q-head { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; }
+  .q-num {
+    font-size: 13px; font-weight: 700; color: #7c3aed;
+    min-width: 28px; padding-top: 10px; text-align: center;
+    background: #f5f0ff; border-radius: 6px; height: 36px; line-height: 18px;
+  }
+  .q-title-input {
+    flex: 1;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: #202124;
+    outline: none;
+    transition: border-color .15s, background .15s;
+    background: transparent;
+  }
+  .q-title-input:hover { background: #f8f9fa; }
+  .q-title-input:focus { border-color: #7c3aed; background: #fff; }
+  .q-title-input::placeholder { color: #9aa0a6; font-weight: 400; }
+
+  .q-type-select {
+    padding: 6px 10px;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: inherit;
+    background: #fff;
+    color: #5f6368;
+    cursor: pointer;
+    outline: none;
+  }
+  .q-type-select:focus { border-color: #7c3aed; }
+
+  .q-toolbar {
+    display: flex; gap: 4px; align-items: center;
+    padding: 6px 0 0;
+    border-top: 1px solid #f0f0f0;
+    margin-top: 10px;
+  }
+  .q-toolbar button {
+    background: none; border: none; cursor: pointer;
+    color: #5f6368; padding: 6px 8px; border-radius: 6px;
+    font-size: 13px; transition: all .1s;
+  }
+  .q-toolbar button:hover { background: #f0f0f0; color: #202124; }
+  .q-toolbar .spacer { flex: 1; }
+  .q-toolbar .required-toggle {
+    display: flex; align-items: center; gap: 4px;
+    font-size: 12px; color: #5f6368; cursor: pointer; user-select: none;
+  }
+  .q-toolbar .required-toggle input { width: auto; }
+
+  .likert-preview {
+    display: flex; gap: 4px; margin-top: 8px;
+  }
+  .likert-preview span {
+    flex: 1; text-align: center;
+    padding: 6px 2px;
+    background: #f5f5f5;
+    border-radius: 6px;
+    font-size: 11px;
+    color: #5f6368;
+  }
+
+  .option-list { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+  .option-row {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .option-row .drag { color: #dadce0; cursor: grab; font-size: 16px; }
+  .option-row input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+  }
+  .option-row input:focus { border-color: #7c3aed; }
+  .option-row .del-opt {
+    background: none; border: none; cursor: pointer;
+    color: #9aa0a6; font-size: 16px; padding: 4px;
+  }
+  .option-row .del-opt:hover { color: #d93025; }
+
+  .add-options {
+    background: none; border: none; cursor: pointer;
+    color: #7c3aed; font-size: 12px; font-weight: 600;
+    padding: 6px 0; margin-top: 4px;
+    font-family: inherit;
+  }
+  .add-options:hover { text-decoration: underline; }
+
+  .add-bar {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border: 1px dashed #dadce0;
+    display: flex; gap: 6px; justify-content: center;
+    flex-wrap: wrap;
+  }
+  .add-bar button {
+    padding: 8px 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    color: #5f6368;
+    transition: all .1s;
+  }
+  .add-bar button:hover {
+    border-color: #7c3aed;
+    color: #7c3aed;
+    background: #f5f0ff;
+  }
+
+  .empty-state {
+    text-align: center; padding: 40px 20px; color: #9aa0a6;
+  }
+  .empty-state p { font-size: 14px; margin-bottom: 4px; }
+
+  .toast {
+    position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px);
+    padding: 10px 20px; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0,0,0,.15); transition: transform .3s ease; z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast-success { background: #188038; }
+  .toast-error { background: #d93025; }
+
+  @media (max-width: 640px) {
+    .container { padding: 12px; }
+    .survey-meta { padding: 16px; }
+    .q-card { padding: 16px; }
+    .topbar { padding: 10px 16px; }
+    .topbar-left h1 { font-size: 14px; }
+    .add-bar button { font-size: 11px; padding: 6px 10px; }
+  }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <h1>📋 Tạo khảo sát</h1>
-  <div style="display:flex;gap:.5rem">
-    <a href="/survey" class="btn btn-outline">← Dashboard</a>
-    <button class="btn btn-success" onclick="saveSurvey()">💾 Lưu</button>
+  <div class="topbar-left">
+    <h1>📋 Tạo khảo sát</h1>
+  </div>
+  <div class="topbar-right">
+    <a href="/survey" class="btn btn-outline">← Quay lại</a>
+    <button class="btn btn-primary" onclick="saveSurvey()">💾 Lưu</button>
   </div>
 </div>
 
 <div class="container">
-  <div class="card">
-    <div style="margin-bottom:.75rem">
-      <input type="text" id="survey-title" placeholder="Tiêu đề khảo sát (VD: Khảo sát hài lòng khách hàng)" style="font-size:1.25rem;font-weight:700;border:none;padding:.25rem 0">
-    </div>
-    <div>
-      <textarea id="survey-desc" placeholder="Mô tả khảo sát (hiển thị ở đầu form)" style="border:none;padding:.25rem 0;font-size:.9rem;color:#64748b"></textarea>
-    </div>
+  <div class="survey-meta">
+    <input type="text" id="survey-title" placeholder="Tiêu đề khảo sát (VD: Khảo sát hài lòng khách hàng)">
+    <textarea id="survey-desc" placeholder="Mô tả khảo sát (hiển thị ở đầu form)" rows="2"></textarea>
   </div>
 
   <div id="questions-container">
     <div class="empty-state" id="empty-state">
-      <p style="font-size:1.1rem;margin-bottom:.5rem">📝 Chưa có câu hỏi nào</p>
-      <p style="font-size:.85rem">Bấm nút bên dưới để thêm câu hỏi</p>
+      <div style="font-size:32px;margin-bottom:8px">📝</div>
+      <p>Chưa có câu hỏi nào</p>
+      <p style="font-size:12px">Bấm vào các nút bên dưới để thêm câu hỏi</p>
     </div>
   </div>
 
-  <div class="card" style="display:flex;gap:.5rem;flex-wrap:wrap">
-    <button class="btn btn-primary" onclick="addQuestion('likert5')">➕ Likert 5 mức</button>
-    <button class="btn btn-primary" onclick="addQuestion('likert7')">➕ Likert 7 mức</button>
-    <button class="btn btn-primary" onclick="addQuestion('multiple_choice')">➕ Trắc nghiệm</button>
-    <button class="btn btn-primary" onclick="addQuestion('text')">➕ Văn bản</button>
-    <button class="btn btn-primary" onclick="addQuestion('rating')">➕ Rating 1-5</button>
+  <div class="add-bar">
+    <button onclick="addQuestion('likert5')">➕ Likert 5</button>
+    <button onclick="addQuestion('likert7')">➕ Likert 7</button>
+    <button onclick="addQuestion('multiple_choice')">➕ Trắc nghiệm</button>
+    <button onclick="addQuestion('text')">➕ Văn bản</button>
+    <button onclick="addQuestion('rating')">➕ Rating</button>
   </div>
-
-  <a href="/survey" class="btn btn-outline" style="margin-top:.5rem;width:100%;justify-content:center">← Quay lại</a>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
   let questions = [];
-  let editingId = null;
   let qCounter = 0;
+  const editId = new URLSearchParams(window.location.search).get('edit');
+
+  function qs(s) { return document.querySelector(s); }
+  function byId(id) { return document.getElementById(id); }
 
   function showToast(msg, type) {
-    const t = document.getElementById('toast');
+    const t = byId('toast');
     t.textContent = msg; t.className = 'toast toast-' + type;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
-  }
-
-  function addQuestion(type, data) {
-    qCounter++;
-    const id = data?.id || 'q_' + Date.now() + '_' + qCounter;
-    const q = data || { id, title: '', type, required: true, options: getDefaultOptions(type), labels: [] };
-    questions.push(q);
-    renderQuestions();
+    requestAnimationFrame(() => t.classList.add('show'));
+    clearTimeout(t._hide);
+    t._hide = setTimeout(() => t.classList.remove('show'), 3000);
   }
 
   function getDefaultOptions(type) {
@@ -121,62 +290,14 @@
     return [];
   }
 
-  function renderQuestions() {
-    const container = document.getElementById('questions-container');
-    const empty = document.getElementById('empty-state');
-    empty.style.display = questions.length > 0 ? 'none' : 'block';
+  function escAttr(s) { return (s ?? '').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    if (questions.length === 0) { container.innerHTML = ''; container.appendChild(empty); return; }
-
-    let h = '';
-    questions.forEach((q, i) => {
-      const typeLabels = { likert5: 'Likert 5', likert7: 'Likert 7', multiple_choice: 'Trắc nghiệm', text: 'Văn bản', rating: 'Rating' };
-      h += `<div class="q-item" data-index="${i}">
-        <div class="q-head">
-          <div class="q-num">${i + 1}.</div>
-          <input class="q-title-input" type="text" value="${escAttr(q.title)}" placeholder="Nhập câu hỏi..." oninput="questions[${i}].title=this.value" style="font-weight:600;font-size:.95rem;border:none;padding:.35rem 0;background:transparent">
-          <select class="q-type" onchange="changeType(${i},this.value)">
-            <option value="likert5" ${q.type==='likert5'?'selected':''}>Likert 5</option>
-            <option value="likert7" ${q.type==='likert7'?'selected':''}>Likert 7</option>
-            <option value="multiple_choice" ${q.type==='multiple_choice'?'selected':''}>Trắc nghiệm</option>
-            <option value="text" ${q.type==='text'?'selected':''}>Văn bản</option>
-            <option value="rating" ${q.type==='rating'?'selected':''}>Rating</option>
-          </select>
-          <label class="q-required"><input type="checkbox" ${q.required?'checked':''} onchange="questions[${i}].required=this.checked"> Bắt buộc</label>
-          <div class="q-actions">
-            <button onclick="moveQuestion(${i},-1)" title="Lên">↑</button>
-            <button onclick="moveQuestion(${i},1)" title="Xuống">↓</button>
-            <button onclick="duplicateQuestion(${i})" title="Nhân bản">⧉</button>
-            <button onclick="deleteQuestion(${i})" title="Xóa" style="color:#ef4444">✕</button>
-          </div>
-        </div>`;
-
-      if (q.type === 'likert5' || q.type === 'likert7') {
-        h += `<div class="q-likert-preview">${q.options.map(o => `<span>${escHtml(o)}</span>`).join('')}</div>`;
-        h += `<div style="margin-top:.35rem;display:flex;gap:.25rem;flex-wrap:wrap">${q.options.map((o, oi) =>
-          `<input type="text" value="${escAttr(o)}" style="flex:1;min-width:60px;padding:.25rem;border:1px solid #e2e8f0;border-radius:4px;font-size:.72rem;text-align:center" onchange="questions[${i}].options[${oi}]=this.value;renderQuestions()">`
-        ).join('')}</div>`;
-      }
-
-      if (q.type === 'multiple_choice') {
-        h += `<div class="q-options">`;
-        (q.labels && q.labels.length ? q.labels : ['']).forEach((l, li) => {
-          h += `<div class="q-option"><input type="text" value="${escAttr(l)}" placeholder="Nhập lựa chọn..." onchange="questions[${i}].labels[${li}]=this.value">
-            <button onclick="removeOption(${i},${li})">✕</button></div>`;
-        });
-        h += `</div>`;
-        h += `<button class="btn btn-outline btn-sm" onclick="addOption(${i})" style="margin-top:.35rem">+ Thêm lựa chọn</button>`;
-      }
-
-      if (q.type === 'rating') {
-        h += `<div class="q-likert-preview">${q.options.map((o, oi) => `<span>${oi+1}</span>`).join('')}</div>`;
-      }
-
-      h += `</div>`;
-    });
-
-    container.innerHTML = h;
-    if (questions.length === 0) container.appendChild(empty);
+  function addQuestion(type, data) {
+    qCounter++;
+    const id = data?.id || 'q_' + Date.now() + '_' + qCounter;
+    const q = data || { id, title: '', type, required: true, options: getDefaultOptions(type), labels: [] };
+    questions.push(q);
+    renderQuestions();
   }
 
   function changeType(i, type) {
@@ -218,31 +339,92 @@
     renderQuestions();
   }
 
-  function escHtml(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
-  function escAttr(s) { return (s ?? '').replace(/"/g, '&quot;').replace(/'/g, '&#39;'); }
+  function renderQuestions() {
+    const container = byId('questions-container');
+    const empty = byId('empty-state');
+    empty.style.display = questions.length > 0 ? 'none' : 'block';
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const editId = urlParams.get('edit');
+    if (questions.length === 0) {
+      container.innerHTML = '<div class="empty-state" id="empty-state"><div style="font-size:32px;margin-bottom:8px">📝</div><p>Chưa có câu hỏi nào</p><p style="font-size:12px;color:#9aa0a6">Bấm vào các nút bên dưới để thêm câu hỏi</p></div>';
+      return;
+    }
+
+    let h = '';
+    questions.forEach((q, i) => {
+      const typeLabels = { likert5: 'Likert 5', likert7: 'Likert 7', multiple_choice: 'Trắc nghiệm', text: 'Văn bản', rating: 'Rating' };
+      h += `<div class="q-card" onclick="this.querySelector('.q-title-input')?.focus()">
+        <div class="q-head">
+          <div class="q-num">${i + 1}</div>
+          <input class="q-title-input" type="text" value="${escAttr(q.title)}" placeholder="Nhập câu hỏi..."
+            oninput="questions[${i}].title=this.value" onfocus="this.closest('.q-card').classList.add('active')" onblur="this.closest('.q-card').classList.remove('active')">
+          <select class="q-type-select" onchange="changeType(${i},this.value)">
+            <option value="likert5" ${q.type==='likert5'?'selected':''}>Likert 5</option>
+            <option value="likert7" ${q.type==='likert7'?'selected':''}>Likert 7</option>
+            <option value="multiple_choice" ${q.type==='multiple_choice'?'selected':''}>Trắc nghiệm</option>
+            <option value="text" ${q.type==='text'?'selected':''}>Văn bản</option>
+            <option value="rating" ${q.type==='rating'?'selected':''}>Rating</option>
+          </select>
+        </div>`;
+
+      if (q.type === 'likert5' || q.type === 'likert7') {
+        h += `<div class="likert-preview">`;
+        q.options.forEach((o, oi) => {
+          h += `<span><input type="text" value="${escAttr(o)}" style="width:100%;border:none;background:transparent;text-align:center;font-size:11px;font-family:inherit;outline:none;color:inherit"
+            onchange="questions[${i}].options[${oi}]=this.value"></span>`;
+        });
+        h += `</div>`;
+      }
+
+      if (q.type === 'multiple_choice') {
+        h += `<div class="option-list">`;
+        (q.labels && q.labels.length ? q.labels : ['']).forEach((l, li) => {
+          h += `<div class="option-row">
+            <span class="drag">≡</span>
+            <input type="text" value="${escAttr(l)}" placeholder="Nhập lựa chọn..." onchange="questions[${i}].labels[${li}]=this.value">
+            <button class="del-opt" onclick="removeOption(${i},${li})">✕</button>
+          </div>`;
+        });
+        h += `</div>`;
+        h += `<button class="add-options" onclick="addOption(${i})">+ Thêm lựa chọn</button>`;
+      }
+
+      if (q.type === 'rating') {
+        h += `<div class="likert-preview">${[1,2,3,4,5].map(v => `<span>${v} ⭐</span>`).join('')}</div>`;
+      }
+
+      if (q.type === 'text') {
+        h += `<div style="margin-top:8px;padding:8px 10px;background:#f5f5f5;border-radius:6px;font-size:12px;color:#9aa0a6">Câu trả lời dạng văn bản</div>`;
+      }
+
+      h += `<div class="q-toolbar">
+        <button onclick="moveQuestion(${i},-1)" title="Lên">↑</button>
+        <button onclick="moveQuestion(${i},1)" title="Xuống">↓</button>
+        <button onclick="duplicateQuestion(${i})" title="Nhân bản">⧉</button>
+        <button onclick="deleteQuestion(${i})" title="Xóa" style="color:#d93025">✕</button>
+        <span class="spacer"></span>
+        <label class="required-toggle">
+          <input type="checkbox" ${q.required?'checked':''} onchange="questions[${i}].required=this.checked"> Bắt buộc
+        </label>
+      </div>`;
+
+      h += `</div>`;
+    });
+
+    container.innerHTML = h;
+  }
 
   async function saveSurvey() {
-    const title = document.getElementById('survey-title').value.trim();
-    if (!title) { showToast('Vui lòng nhập tiêu đề khảo sát', 'error'); return; }
+    const title = byId('survey-title').value.trim();
+    if (!title) { showToast('Vui lòng nhập tiêu đề', 'error'); return; }
     if (questions.length === 0) { showToast('Thêm ít nhất 1 câu hỏi', 'error'); return; }
-
-    const payload = { title, description: document.getElementById('survey-desc').value.trim(), questions: JSON.stringify(questions) };
 
     try {
       let r;
+      const body = JSON.stringify({ title, description: byId('survey-desc').value.trim(), questions });
       if (editId) {
-        r = await fetch('/api/survey/' + editId, {
-          method: 'PUT', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description: payload.description, questions: questions })
-        });
+        r = await fetch('/api/survey/' + editId, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body });
       } else {
-        r = await fetch('/api/survey', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description: payload.description, questions })
-        });
+        r = await fetch('/api/survey', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
       }
       const json = await r.json();
       if (!json.ok) throw new Error(json.error);
@@ -250,23 +432,25 @@
       showToast('✅ Đã lưu!', 'success');
       setTimeout(() => { window.location.href = '/survey'; }, 1000);
     } catch (e) {
-      showToast('❌ Lỗi: ' + e.message, 'error');
+      showToast('❌ ' + e.message, 'error');
     }
   }
 
   if (editId) {
-    document.querySelector('.topbar h1').textContent = '✏️ Sửa khảo sát';
+    qs('.topbar-left h1').textContent = '✏️ Sửa khảo sát';
     (async () => {
-      const r = await fetch('/api/survey/' + editId);
-      const json = await r.json();
-      if (json.ok && json.data) {
-        const s = json.data;
-        document.getElementById('survey-title').value = s.title || '';
-        document.getElementById('survey-desc').value = s.description || '';
-        questions = s.questions || [];
-        qCounter = questions.length;
-        renderQuestions();
-      }
+      try {
+        const r = await fetch('/api/survey/' + editId);
+        const json = await r.json();
+        if (json.ok && json.data) {
+          const s = json.data;
+          byId('survey-title').value = s.title || '';
+          byId('survey-desc').value = s.description || '';
+          questions = s.questions || [];
+          qCounter = questions.length;
+          renderQuestions();
+        }
+      } catch (e) { showToast('❌ ' + e.message, 'error'); }
     })();
   }
 </script>
