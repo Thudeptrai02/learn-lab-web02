@@ -5,69 +5,74 @@ const { id } = Astro.params;
 const surveyId = id;
 ---
 <Layout title="Khảo sát - LearnLab">
-<div class="gf-wrap" style="flex:1;display:flex;flex-direction:column;background:#f0ebf8;font-family:'Google Sans','Roboto',system-ui,sans-serif">
+<div class="gf" style="flex:1;display:flex;flex-direction:column;background:#f0ebf8;font-family:'Google Sans','Roboto','Helvetica Neue',sans-serif;color:#222">
 <style is:global>
-.gf-wrap body { margin:0 }
-.gf-wrap .cnt { max-width:640px; margin:0 auto; padding:24px 16px 80px; flex:1; width:100%; }
-.gf-wrap .hdr { background:#fff; border-radius:8px; margin-bottom:12px; overflow:hidden; }
-.gf-wrap .hdr .bar { height:10px; background:#673ab7; }
-.gf-wrap .hdr .bd { padding:20px 24px 24px; }
-.gf-wrap .hdr h1 { font-size:28px; font-weight:400; color:#202124; margin:0; }
-.gf-wrap .hdr p { margin:8px 0 0; font-size:14px; color:#5f6368; }
-.gf-wrap .hdr .req { margin-top:14px; font-size:13px; color:#5f6368; }
-.gf-wrap .hdr .req span { color:#d93025; }
-.gf-wrap .card { background:#fff; border-radius:8px; padding:24px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.12); }
-.gf-wrap .qt { font-size:16px; font-weight:500; color:#202124; margin-bottom:14px; gap:4px; }
-.gf-wrap .qr { color:#d93025; font-size:18px; }
-.gf-wrap .co { display:flex; align-items:center; gap:12px; padding:8px 0; cursor:pointer; font-size:14px; color:#202124; user-select:none; }
-.gf-wrap .co .cir { width:20px; height:20px; border-radius:50%; border:2px solid #5f6368; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
-.gf-wrap .co.sel .cir { border-color:#673ab7; }
-.gf-wrap .co.sel .cir::after { content:''; width:10px; height:10px; border-radius:50%; background:#673ab7; }
-.gf-wrap .lk { display:grid; grid-template-columns:repeat(5,1fr); gap:0; margin-top:8px; }
-.gf-wrap .lk.l7 { grid-template-columns:repeat(7,1fr); }
-.gf-wrap .lo { text-align:center; padding:10px 4px; cursor:pointer; border:1px solid transparent; border-bottom:1px solid #e0e0e0; user-select:none; }
-.gf-wrap .lo .dot { width:24px; height:24px; border-radius:50%; border:2px solid #5f6368; margin:0 auto; display:flex; align-items:center; justify-content:center; }
-.gf-wrap .lo:hover .dot { border-color:#673ab7; background:#f5f0ff; }
-.gf-wrap .lo.sel .dot { border-color:#673ab7; }
-.gf-wrap .lo.sel .dot::after { content:''; width:12px; height:12px; border-radius:50%; background:#673ab7; }
-.gf-wrap .lo .lb { font-size:10px; color:#5f6368; margin-top:4px; }
-.gf-wrap .ti { width:100%; padding:12px 0; border:none; border-bottom:1px solid #dadce0; font-size:14px; font-family:inherit; outline:none; background:transparent; min-height:40px; resize:vertical; }
-.gf-wrap .ti:focus { border-bottom-color:#673ab7; border-bottom-width:2px; }
-.gf-wrap .rg { display:flex; gap:12px; flex-wrap:wrap; }
-.gf-wrap .rb { width:48px; height:48px; border-radius:50%; border:2px solid #dadce0; cursor:pointer; font-size:18px; font-weight:500; color:#5f6368; background:#fff; display:flex; align-items:center; justify-content:center; user-select:none; }
-.gf-wrap .rb:hover { border-color:#673ab7; color:#673ab7; }
-.gf-wrap .rb.sel { border-color:#673ab7; background:#673ab7; color:#fff; }
-.gf-wrap .sa { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid #e0e0e0; padding:12px 24px; display:flex; align-items:center; gap:16px; z-index:100; }
-.gf-wrap .pb { flex:1; }
-.gf-wrap .pb .tr { height:4px; background:#e0e0e0; border-radius:2px; overflow:hidden; }
-.gf-wrap .pb .fl { height:100%; background:#673ab7; width:0%; transition:width .3s; border-radius:2px; }
-.gf-wrap .pb .tx { font-size:12px; color:#5f6368; margin-top:2px; }
-.gf-wrap .btn { background:#673ab7; color:#fff; border:none; padding:10px 24px; border-radius:4px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer; }
-.gf-wrap .btn:hover { background:#5e35b1; box-shadow:0 1px 3px rgba(0,0,0,.2); }
-.gf-wrap .btn:disabled { opacity:.4; cursor:default; box-shadow:none; }
-.gf-wrap .ty { text-align:center; padding:60px 24px; background:#fff; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.12); }
-.gf-wrap .ty .ck { width:48px; height:48px; border-radius:50%; background:#673ab7; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:24px; color:#fff; }
-.gf-wrap .ty h2 { font-size:24px; font-weight:400; color:#202124; margin-bottom:8px; }
-.gf-wrap .ty p { font-size:14px; color:#5f6368; }
-.gf-wrap .ld { text-align:center; padding:80px 24px; color:#5f6368; font-size:14px; }
-.gf-wrap .ld .sp { width:32px; height:32px; border:3px solid #e0e0e0; border-top-color:#673ab7; border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
-.gf-wrap .er { text-align:center; padding:60px 24px; background:#fff; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.12); }
-.gf-wrap .er .ic { width:48px; height:48px; border-radius:50%; background:#fce8e6; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:24px; }
-.gf-wrap .er h2 { font-size:18px; font-weight:500; color:#202124; margin-bottom:6px; }
-.gf-wrap .er p { font-size:13px; color:#5f6368; }
-.gf-wrap .tt { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-80px); padding:10px 20px; border-radius:4px; color:#fff; font-size:13px; font-weight:500; box-shadow:0 2px 6px rgba(0,0,0,.15); transition:transform .3s; z-index:999; white-space:nowrap; }
-.gf-wrap .tt.sh { transform:translateX(-50%) translateY(0); }
-.gf-wrap .tt.ok { background:#188038; }
-.gf-wrap .tt.er { background:#d93025; }
+.gf .cnt { max-width:640px; margin:0 auto; padding:24px 16px 90px; flex:1; width:100%; }
+.gf .hdr { background:#fff; border-radius:8px; margin-bottom:12px; overflow:hidden; box-shadow:0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12); }
+.gf .hdr .bar { height:10px; background:#673ab7; }
+.gf .hdr .bd { padding:18px 24px 24px; }
+.gf .hdr h1 { font-size:28px; font-weight:400; margin:0; color:#222; line-height:1.3; }
+.gf .hdr p { margin:8px 0 0; font-size:14px; color:#666; line-height:1.5; }
+.gf .hdr .rq { margin-top:14px; font-size:13px; color:#666; }
+.gf .hdr .rq s { color:#d93025; }
+.gf .cd { background:#fff; border-radius:8px; padding:24px; margin-bottom:12px; box-shadow:0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12); }
+.gf .qt { font-size:16px; font-weight:500; color:#222; margin-bottom:14px; display:flex; gap:4px; line-height:1.4; }
+.gf .qr { color:#d93025; font-size:18px; }
+.gf .mc { padding:0; }
+.gf .mc .ch { display:flex; align-items:center; gap:14px; padding:8px 0; cursor:pointer; font-size:14px; color:#222; user-select:none; text-decoration:none; }
+.gf .mc .ch:hover { background:rgba(103,58,183,.04); margin:-2px -8px; padding:6px 8px; border-radius:32px; }
+.gf .mc .ch .cr { width:20px; height:20px; border-radius:50%; border:2px solid #666; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:border-color .15s; }
+.gf .mc .ch:hover .cr { border-color:#222; }
+.gf .mc .ch.sl .cr { border-color:#673ab7; }
+.gf .mc .ch.sl .cr::after { content:''; width:10px; height:10px; border-radius:50%; background:#673ab7; transform:scale(1); animation:dotIn .2s ease; }
+@keyframes dotIn { 0% { transform:scale(0) } 60% { transform:scale(1.15) } 100% { transform:scale(1) } }
+.gf .lk { display:grid; grid-template-columns:repeat(5,1fr); gap:0; margin-top:8px; }
+.gf .lk.l7 { grid-template-columns:repeat(7,1fr); }
+.gf .lk .lo { text-align:center; padding:10px 4px; cursor:pointer; user-select:none; }
+.gf .lk .lo .dt { width:24px; height:24px; border-radius:50%; border:2px solid #666; margin:0 auto; display:flex; align-items:center; justify-content:center; transition:border-color .15s,background .15s; }
+.gf .lk .lo:hover .dt { border-color:#222; background:rgba(103,58,183,.04); }
+.gf .lk .lo.sl .dt { border-color:#673ab7; }
+.gf .lk .lo.sl .dt::after { content:''; width:12px; height:12px; border-radius:50%; background:#673ab7; animation:dotIn .2s ease; }
+.gf .lk .lo .lb { font-size:10px; color:#666; margin-top:5px; line-height:1.3; }
+.gf .ti { width:100%; padding:14px 0; border:none; border-bottom:1px solid #ddd; font-size:14px; font-family:inherit; outline:none; background:transparent; min-height:42px; resize:vertical; }
+.gf .ti:focus { border-bottom-color:#673ab7; border-bottom-width:2px; }
+.gf .ti::placeholder { color:#999; }
+.gf .rg { display:flex; gap:10px; flex-wrap:wrap; padding:4px 0; }
+.gf .rg .rb { width:46px; height:46px; border-radius:50%; border:2px solid #ddd; cursor:pointer; font-size:18px; font-weight:500; color:#666; background:#fff; display:flex; align-items:center; justify-content:center; user-select:none; transition:border-color .15s,color .15s,background .15s; }
+.gf .rg .rb:hover { border-color:#673ab7; color:#673ab7; background:rgba(103,58,183,.04); }
+.gf .rg .rb.sl { border-color:#673ab7; background:#673ab7; color:#fff; }
+.gf .bt { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid #e0e0e0; padding:12px 24px; display:flex; align-items:center; gap:16px; z-index:100; box-shadow:0 -2px 4px rgba(0,0,0,.06); }
+.gf .bt .pb { flex:1; }
+.gf .bt .pb .tr { height:4px; background:#e0e0e0; border-radius:2px; overflow:hidden; }
+.gf .bt .pb .fl { height:100%; background:#673ab7; width:0%; transition:width .35s ease; border-radius:2px; }
+.gf .bt .pb .tx { font-size:12px; color:#666; margin-top:3px; }
+.gf .btn { background:#673ab7; color:#fff; border:none; padding:10px 24px; border-radius:4px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer; transition:box-shadow .2s; }
+.gf .btn:hover { box-shadow:0 2px 4px -1px rgba(0,0,0,.2),0 4px 5px 0 rgba(0,0,0,.14),0 1px 10px 0 rgba(0,0,0,.12); }
+.gf .btn:disabled { opacity:.35; cursor:default; box-shadow:none; }
+.gf .ty { text-align:center; padding:60px 24px; background:#fff; border-radius:8px; box-shadow:0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12); }
+.gf .ty .ck { width:52px; height:52px; border-radius:50%; background:#673ab7; display:flex; align-items:center; justify-content:center; margin:0 auto 18px; font-size:26px; color:#fff; }
+.gf .ty h2 { font-size:24px; font-weight:400; color:#222; margin:0 0 8px; }
+.gf .ty p { font-size:14px; color:#666; margin:0; line-height:1.6; }
+.gf .ld { text-align:center; padding:80px 24px; color:#666; font-size:14px; }
+.gf .ld .sp { width:32px; height:32px; border:3px solid #e0e0e0; border-top-color:#673ab7; border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 16px; }
+.gf .er { text-align:center; padding:60px 24px; background:#fff; border-radius:8px; box-shadow:0 2px 1px -1px rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 1px 3px 0 rgba(0,0,0,.12); }
+.gf .er .ic { width:52px; height:52px; border-radius:50%; background:#fce8e6; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:24px; }
+.gf .er h2 { font-size:18px; font-weight:500; color:#222; margin:0 0 6px; }
+.gf .er p { font-size:13px; color:#666; margin:0; }
+.gf .tt { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-80px); padding:10px 22px; border-radius:4px; color:#fff; font-size:13px; font-weight:500; box-shadow:0 3px 6px rgba(0,0,0,.16); transition:transform .3s ease; z-index:999; white-space:nowrap; }
+.gf .tt.sh { transform:translateX(-50%) translateY(0); }
+.gf .tt.gd { background:#188038; }
+.gf .tt.bd { background:#d93025; }
 @keyframes spin { to { transform:rotate(360deg) } }
 @media (max-width:640px) {
-  .gf-wrap .cnt { padding:12px 8px 80px; }
-  .gf-wrap .hdr .bd { padding:16px; }
-  .gf-wrap .hdr h1 { font-size:22px; }
-  .gf-wrap .card { padding:16px; }
-  .gf-wrap .qt { font-size:14px; }
-  .gf-wrap .lo { padding:8px 2px; }
-  .gf-wrap .sa { padding:10px 16px; }
+  .gf .cnt { padding:12px 8px 80px; }
+  .gf .hdr .bd { padding:14px 16px 18px; }
+  .gf .hdr h1 { font-size:22px; }
+  .gf .cd { padding:16px; border-radius:6px; }
+  .gf .qt { font-size:14px; }
+  .gf .lk .lo { padding:8px 2px; }
+  .gf .lk .lo .lb { font-size:9px; }
+  .gf .bt { padding:10px 16px; }
 }
 </style>
 
@@ -78,150 +83,109 @@ const surveyId = id;
   </div>
 </div>
 
-<div class="sa" id="sa" style="display:none">
+<div class="bt" id="bt" style="display:none">
   <div class="pb">
     <div class="tr"><div class="fl" id="pf"></div></div>
     <div class="tx" id="pt">0/0</div>
   </div>
-  <button class="btn" id="sb" onclick="gf_send()">Gửi</button>
+  <button class="btn" id="sb" onclick="gs()">Gửi</button>
 </div>
 
 <div class="tt" id="tt"></div>
 
 <script is:inline>
-(function() {
-  var SID = '{surveyId}';
-  var data = null;
-  var st = {};
-
-  function $(id) { return document.getElementById(id); }
-  function esc(s) { var d=document.createElement('div'); d.textContent=s??''; return d.innerHTML; }
-
-  function toast(msg, type) {
-    var t = $('tt');
-    t.textContent = msg;
-    t.className = 'tt ' + (type === 'error' ? 'er' : 'ok');
-    requestAnimationFrame(function() { t.classList.add('sh'); });
-    clearTimeout(t._h);
-    t._h = setTimeout(function() { t.classList.remove('sh'); }, 4000);
+(function(){
+  var sid='{surveyId}',data=null,st={};
+  function $(i){return document.getElementById(i)}
+  function es(s){var d=document.createElement('div');d.textContent=s??'';return d.innerHTML}
+  function tt(m,t){
+    var e=$('tt');e.textContent=m;e.className='tt '+(t=='e'?'bd':'gd');
+    requestAnimationFrame(function(){e.classList.add('sh')});
+    clearTimeout(e._h);e._h=setTimeout(function(){e.classList.remove('sh')},4000);
   }
-
-  function upd() {
-    if (!data) return;
-    var qs = data.questions || [];
-    var t = qs.length;
-    if (!t) return;
-    var a = 0;
-    for (var i = 0; i < t; i++) {
-      if (q[i].type === 'text') { if (st['q_'+i] && st['q_'+i].trim()) a++; }
-      else { if (st['q_'+i] !== undefined) a++; }
+  function up(){
+    if(!data)return;
+    var qs=data.questions||[],t=qs.length,a=0;
+    if(!t)return;
+    for(var i=0;i<t;i++){
+      if(qs[i].type==='text'){if(st['q_'+i]&&st['q_'+i].trim())a++}
+      else if(st['q_'+i]!==undefined)a++
     }
-    $('pf').style.width = Math.round(a/t*100) + '%';
-    $('pt').textContent = a + '/' + t;
+    $('pf').style.width=Math.round(a/t*100)+'%';
+    $('pt').textContent=a+'/'+t;
   }
-
-  function pick(qi, v) {
-    st['q_'+qi] = v;
-    upd();
-    var d = $('q_'+qi);
-    if (!d) return;
-    var els = d.querySelectorAll('.sel');
-    for (var j = 0; j < els.length; j++) els[j].classList.remove('sel');
-    var el = d.querySelector('[data-v="'+v+'"]');
-    if (el) el.classList.add('sel');
+  function pk(qi,v){
+    st['q_'+qi]=v;up();
+    var d=$('q_'+qi);if(!d)return;
+    var el=d.querySelectorAll('.sl');
+    for(var j=0;j<el.length;j++)el[j].classList.remove('sl');
+    var e=d.querySelector('[data-v="'+v+'"]');
+    if(e)e.classList.add('sl');
   }
-
-  function build(s) {
-    var qs = s.questions || [];
-    if (!qs.length) {
-      $('app').innerHTML = '<div class="er"><div class="ic">📝</div><h2>Khảo sát trống</h2><p>Khảo sát này chưa có câu hỏi.</p></div>';
-      return;
-    }
-    var h = '<div class="hdr"><div class="bar"></div><div class="bd"><h1>' + esc(s.title||'Khảo sát') + '</h1>' +
-      (s.description ? '<p>' + esc(s.description) + '</p>' : '') +
-      '<div class="req"><span>*</span> Bắt buộc</div></div></div>';
-    for (var i = 0; i < qs.length; i++) {
-      var q = qs[i];
-      h += '<div class="card"><div class="qt">' + (i+1) + '. ' + esc(q.title) + (q.required ? '<span class="qr">*</span>' : '') + '</div><div id="q_' + i + '">';
-      if (q.type === 'likert5' || q.type === 'likert7') {
-        h += '<div class="lk' + (q.type === 'likert7' ? ' l7' : '') + '">';
-        var opts = q.options || [];
-        for (var oi = 0; oi < opts.length; oi++) {
-          var v = oi + 1;
-          var sel = st['q_'+i] === v ? ' sel' : '';
-          h += '<div class="lo' + sel + '" onclick="gf_pick(' + i + ',' + v + ')"><div class="dot"></div><div class="lb">' + esc(opts[oi]) + '</div></div>';
+  function bd(s){
+    var qs=s.questions||[];
+    if(!qs.length){$('app').innerHTML='<div class="er"><div class="ic">📝</div><h2>Khảo sát trống</h2><p>Khảo sát này chưa có câu hỏi.</p></div>';return}
+    var h='<div class="hdr"><div class="bar"></div><div class="bd"><h1>'+es(s.title||'Khảo sát')+'</h1>'+(s.description?'<p>'+es(s.description)+'</p>':'')+'<div class="rq"><s>*</s> Bắt buộc</div></div></div>';
+    for(var i=0;i<qs.length;i++){
+      var q=qs[i];
+      h+='<div class="cd"><div class="qt">'+(i+1)+'. '+es(q.title)+(q.required?'<span class="qr">*</span>':'')+'</div><div id="q_'+i+'">';
+      if(q.type==='likert5'||q.type==='likert7'){
+        h+='<div class="lk'+(q.type==='likert7'?' l7':'')+'">';
+        var op=q.options||[];
+        for(var o=0;o<op.length;o++){
+          var v=o+1,sl=st['q_'+i]===v?' sl':'';
+          h+='<div class="lo'+sl+'" onclick="gp('+i+','+v+')"><div class="dt"></div><div class="lb">'+es(op[o])+'</div></div>';
         }
-        h += '</div>';
-      } else if (q.type === 'multiple_choice') {
-        var labels = q.labels || [];
-        for (var li = 0; li < labels.length; li++) {
-          var v = li + 1;
-          var sel = st['q_'+i] === v ? ' sel' : '';
-          h += '<div class="co' + sel + '" onclick="gf_pick(' + i + ',' + v + ')"><span class="cir"></span>' + esc(labels[li]||'Lựa chọn '+(li+1)) + '</div>';
+        h+='</div>';
+      }else if(q.type==='multiple_choice'){
+        h+='<div class="mc">';
+        var lb=q.labels||[];
+        for(var l=0;l<lb.length;l++){
+          var v=l+1,sl=st['q_'+i]===v?' sl':'';
+          h+='<div class="ch'+sl+'" onclick="gp('+i+','+v+')"><span class="cr"></span>'+es(lb[l]||'Lựa chọn '+(l+1))+'</div>';
         }
-      } else if (q.type === 'text') {
-        h += '<textarea class="ti" rows="2" placeholder="Câu trả lời của bạn" oninput="gf_txt(' + i + ',this.value)">' + (st['q_'+i]||'') + '</textarea>';
-      } else if (q.type === 'rating') {
-        h += '<div class="rg">';
-        for (var r = 1; r <= 5; r++) {
-          var sel = st['q_'+i] === r ? ' sel' : '';
-          h += '<div class="rb' + sel + '" onclick="gf_pick(' + i + ',' + r + ')">' + r + '</div>';
+        h+='</div>';
+      }else if(q.type==='text'){
+        h+='<textarea class="ti" rows="2" placeholder="Câu trả lời của bạn" oninput="gt('+i+',this.value)">'+(st['q_'+i]||'')+'</textarea>';
+      }else if(q.type==='rating'){
+        h+='<div class="rg">';
+        for(var r=1;r<=5;r++){
+          var sl=st['q_'+i]===r?' sl':'';
+          h+='<div class="rb'+sl+'" onclick="gp('+i+','+r+')">'+r+'</div>';
         }
-        h += '</div>';
+        h+='</div>';
       }
-      h += '</div></div>';
+      h+='</div></div>';
     }
-    $('app').innerHTML = h;
-    $('sa').style.display = 'flex';
-    upd();
+    $('app').innerHTML=h;
+    $('bt').style.display='flex';
+    up();
   }
-
-  function send() {
-    if (!data) return;
-    var qs = data.questions || [];
-    var btn = $('sb');
-    btn.disabled = true; btn.textContent = '⏳ Đang gửi...';
-    var ans = {};
-    var miss = false;
-    for (var i = 0; i < qs.length; i++) {
-      var q = qs[i];
-      if (q.required) {
-        if (q.type === 'text' && (!st['q_'+i] || !st['q_'+i].trim())) miss = true;
-        else if (q.type !== 'text' && st['q_'+i] === undefined) miss = true;
+  function gs(){
+    if(!data)return;
+    var qs=data.questions||[],btn=$('sb');btn.disabled=true;btn.textContent='⏳ Đang gửi...';
+    var ans={},miss=false;
+    for(var i=0;i<qs.length;i++){
+      var q=qs[i];
+      if(q.required){
+        if(q.type==='text'&&(!st['q_'+i]||!st['q_'+i].trim()))miss=true;
+        else if(q.type!=='text'&&st['q_'+i]===undefined)miss=true;
       }
-      if (st['q_'+i] !== undefined && st['q_'+i] !== '') {
-        ans[q.id] = q.type === 'text' ? st['q_'+i] : Number(st['q_'+i]);
-      }
+      if(st['q_'+i]!==undefined&&st['q_'+i]!=='')ans[q.id]=q.type==='text'?st['q_'+i]:Number(st['q_'+i]);
     }
-    if (miss) {
-      toast('⚠️ Vui lòng trả lời tất cả câu hỏi bắt buộc', 'error');
-      btn.disabled = false; btn.textContent = 'Gửi'; return;
-    }
-    fetch('/api/response', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({survey_id:SID, answers:ans, submitted_at:new Date().toISOString()})
-    }).then(function(r) { return r.json(); }).then(function(j) {
-      if (!j.ok) throw new Error(j.error);
-      $('app').innerHTML = '<div class="ty"><div class="ck">✓</div><h2>Hoàn thành khảo sát</h2><p>Cảm ơn bạn đã tham gia!<br>Câu trả lời đã được ghi nhận.</p></div>';
-      $('sa').style.display = 'none';
-    }).catch(function(e) {
-      toast('❌ ' + e.message, 'error');
-      btn.disabled = false; btn.textContent = 'Gửi';
-    });
+    if(miss){tt('⚠️ Vui lòng trả lời tất cả câu hỏi bắt buộc','e');btn.disabled=false;btn.textContent='Gửi';return}
+    fetch('/api/response',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({survey_id:sid,answers:ans,submitted_at:new Date().toISOString()})})
+    .then(function(r){return r.json()}).then(function(j){
+      if(!j.ok)throw new Error(j.error);
+      $('app').innerHTML='<div class="ty"><div class="ck">✓</div><h2>Hoàn thành khảo sát</h2><p>Cảm ơn bạn đã tham gia!<br>Câu trả lời đã được ghi nhận.</p></div>';
+      $('bt').style.display='none';
+    }).catch(function(e){tt('❌ '+e.message,'e');btn.disabled=false;btn.textContent='Gửi'});
   }
-
-  fetch('/api/survey/' + SID).then(function(r) { return r.json(); }).then(function(j) {
-    if (!j.ok || !j.data) throw new Error(j.error || 'Không tìm thấy khảo sát');
-    data = j.data;
-    build(data);
-  }).catch(function(e) {
-    $('app').innerHTML = '<div class="er"><div class="ic">😅</div><h2>Khảo sát không tồn tại</h2><p>' + esc(e.message) + '</p></div>';
-  });
-
-  window.gf_pick = pick;
-  window.gf_txt = function(i,v) { st['q_'+i]=v; upd(); };
-  window.gf_send = send;
+  fetch('/api/survey/'+sid).then(function(r){return r.json()}).then(function(j){
+    if(!j.ok||!j.data)throw new Error(j.error||'Không tìm thấy khảo sát');
+    data=j.data;bd(data);
+  }).catch(function(e){$('app').innerHTML='<div class="er"><div class="ic">😅</div><h2>Khảo sát không tồn tại</h2><p>'+es(e.message)+'</p></div>'});
+  window.gp=pk;window.gt=function(i,v){st['q_'+i]=v;up()};window.gs=gs;
 })();
 </script>
 </div>
