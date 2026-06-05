@@ -5,232 +5,224 @@ const { id } = Astro.params;
 const surveyId = id;
 ---
 <Layout title="Khảo sát - LearnLab">
-<div class="survey-form-wrap" style="flex:1;display:flex;flex-direction:column;background:#f0ebf8;font-family:'Google Sans','Roboto',system-ui,-apple-system,sans-serif">
+<div class="gf-wrap" style="flex:1;display:flex;flex-direction:column;background:#f0ebf8;font-family:'Google Sans','Roboto',system-ui,sans-serif">
 <style is:global>
-  .survey-form-wrap .container { max-width: 640px; margin: 0 auto; padding: 24px 16px 80px; flex: 1; width: 100%; }
-  .survey-form-wrap .survey-header { background: #fff; border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
-  .survey-form-wrap .survey-header .bar { height: 10px; background: #673ab7; }
-  .survey-form-wrap .survey-header .inner { padding: 20px 24px 24px; }
-  .survey-form-wrap .survey-header h1 { font-size: 28px; font-weight: 400; color: #202124; line-height: 1.3; margin: 0; }
-  .survey-form-wrap .survey-header p { margin: 8px 0 0; font-size: 14px; color: #5f6368; line-height: 1.5; }
-  .survey-form-wrap .survey-header .required-note { margin-top: 14px; font-size: 13px; color: #5f6368; }
-  .survey-form-wrap .survey-header .required-note span { color: #d93025; }
-  .survey-form-wrap .card { background: #fff; border-radius: 8px; padding: 24px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08); }
-  .survey-form-wrap .q-title { font-size: 16px; font-weight: 500; color: #202124; line-height: 1.4; margin-bottom: 14px; display: flex; gap: 4px; }
-  .survey-form-wrap .q-required { color: #d93025; font-size: 18px; }
-  .survey-form-wrap .choice-option { display: flex; align-items: center; gap: 12px; padding: 8px 0; cursor: pointer; font-size: 14px; color: #202124; user-select: none; }
-  .survey-form-wrap .choice-option .radio-circle { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #5f6368; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; }
-  .survey-form-wrap .choice-option.selected .radio-circle { border-color: #673ab7; }
-  .survey-form-wrap .choice-option.selected .radio-circle::after { content:''; width: 10px; height: 10px; border-radius:50%; background:#673ab7; }
-  .survey-form-wrap .likert-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; margin-top: 8px; }
-  .survey-form-wrap .likert-grid.likert7 { grid-template-columns: repeat(7, 1fr); }
-  .survey-form-wrap .likert-grid .col-label { text-align: center; font-size: 12px; color: #5f6368; padding: 8px 4px; font-weight: 500; }
-  .survey-form-wrap .likert-option { text-align: center; padding: 10px 4px; cursor: pointer; border: 1px solid transparent; border-radius: 0; border-bottom: 1px solid #e0e0e0; transition: none; user-select: none; }
-  .survey-form-wrap .likert-option .circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #5f6368; margin: 0 auto; display: flex; align-items: center; justify-content: center; transition: all .15s; }
-  .survey-form-wrap .likert-option:hover .circle { border-color: #673ab7; background: #f5f0ff; }
-  .survey-form-wrap .likert-option.selected .circle { border-color: #673ab7; }
-  .survey-form-wrap .likert-option.selected .circle::after { content:''; width: 12px; height: 12px; border-radius:50%; background:#673ab7; }
-  .survey-form-wrap .text-input { width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #dadce0; font-size: 14px; font-family: inherit; outline: none; background: transparent; min-height: 40px; resize: vertical; }
-  .survey-form-wrap .text-input:focus { border-bottom-color: #673ab7; border-bottom-width: 2px; }
-  .survey-form-wrap .text-input::placeholder { color: #9aa0a6; }
-  .survey-form-wrap .rating-group { display: flex; gap: 12px; flex-wrap: wrap; }
-  .survey-form-wrap .rating-btn { width: 48px; height: 48px; border-radius: 50%; border: 2px solid #dadce0; cursor: pointer; font-size: 18px; font-weight: 500; color: #5f6368; background: #fff; transition: all .15s; display: flex; align-items: center; justify-content: center; user-select: none; }
-  .survey-form-wrap .rating-btn:hover { border-color: #673ab7; color: #673ab7; }
-  .survey-form-wrap .rating-btn.selected { border-color: #673ab7; background: #673ab7; color: #fff; }
-  .survey-form-wrap .submit-area { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid #e0e0e0; padding: 12px 24px; display: flex; align-items: center; gap: 16px; z-index: 100; }
-  .survey-form-wrap .submit-area .progress-container { flex: 1; }
-  .survey-form-wrap .submit-area .progress-bar { height: 4px; background: #e0e0e0; border-radius: 2px; overflow: hidden; }
-  .survey-form-wrap .submit-area .progress-fill { height: 100%; background: #673ab7; border-radius: 2px; transition: width .3s ease; width: 0%; }
-  .survey-form-wrap .submit-area .progress-text { font-size: 12px; color: #5f6368; margin-top: 2px; }
-  .survey-form-wrap .btn-submit { background: #673ab7; color: #fff; border: none; padding: 10px 24px; border-radius: 4px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; transition: none; white-space: nowrap; }
-  .survey-form-wrap .btn-submit:hover { background: #5e35b1; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-  .survey-form-wrap .btn-submit:disabled { opacity: .4; cursor: default; box-shadow: none; }
-  .survey-form-wrap .thankyou-screen { text-align: center; padding: 60px 24px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-  .survey-form-wrap .thankyou-screen .check-icon { width: 48px; height: 48px; border-radius: 50%; background: #673ab7; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px; color: #fff; }
-  .survey-form-wrap .thankyou-screen h2 { font-size: 24px; font-weight: 400; color: #202124; margin-bottom: 8px; }
-  .survey-form-wrap .thankyou-screen p { font-size: 14px; color: #5f6368; line-height: 1.6; }
-  .survey-form-wrap .loader { text-align: center; padding: 80px 24px; color: #5f6368; font-size: 14px; }
-  .survey-form-wrap .loader .spinner { width: 32px; height: 32px; border: 3px solid #e0e0e0; border-top-color: #673ab7; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
-  .survey-form-wrap .error-screen { text-align: center; padding: 60px 24px; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-  .survey-form-wrap .error-screen .error-icon { width: 48px; height: 48px; border-radius: 50%; background: #fce8e6; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 24px; }
-  .survey-form-wrap .error-screen h2 { font-size: 18px; font-weight: 500; color: #202124; margin-bottom: 6px; }
-  .survey-form-wrap .error-screen p { font-size: 13px; color: #5f6368; }
-  .survey-form-wrap .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); padding: 10px 20px; border-radius: 4px; color: #fff; font-size: 13px; font-weight: 500; box-shadow: 0 2px 6px rgba(0,0,0,.15); transition: transform .3s ease; z-index: 999; white-space: nowrap; }
-  .survey-form-wrap .toast.show { transform: translateX(-50%) translateY(0); }
-  .survey-form-wrap .toast-success { background: #188038; }
-  .survey-form-wrap .toast-error { background: #d93025; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  @media (max-width: 640px) {
-    .survey-form-wrap .container { padding: 12px 8px 80px; }
-    .survey-form-wrap .survey-header .inner { padding: 16px; }
-    .survey-form-wrap .survey-header h1 { font-size: 22px; }
-    .survey-form-wrap .card { padding: 16px; }
-    .survey-form-wrap .q-title { font-size: 14px; }
-    .survey-form-wrap .likert-grid .col-label { font-size: 10px; padding: 6px 2px; }
-    .survey-form-wrap .likert-option { padding: 8px 2px; }
-    .survey-form-wrap .submit-area { padding: 10px 16px; }
-  }
+.gf-wrap body { margin:0 }
+.gf-wrap .cnt { max-width:640px; margin:0 auto; padding:24px 16px 80px; flex:1; width:100%; }
+.gf-wrap .hdr { background:#fff; border-radius:8px; margin-bottom:12px; overflow:hidden; }
+.gf-wrap .hdr .bar { height:10px; background:#673ab7; }
+.gf-wrap .hdr .bd { padding:20px 24px 24px; }
+.gf-wrap .hdr h1 { font-size:28px; font-weight:400; color:#202124; margin:0; }
+.gf-wrap .hdr p { margin:8px 0 0; font-size:14px; color:#5f6368; }
+.gf-wrap .hdr .req { margin-top:14px; font-size:13px; color:#5f6368; }
+.gf-wrap .hdr .req span { color:#d93025; }
+.gf-wrap .card { background:#fff; border-radius:8px; padding:24px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+.gf-wrap .qt { font-size:16px; font-weight:500; color:#202124; margin-bottom:14px; gap:4px; }
+.gf-wrap .qr { color:#d93025; font-size:18px; }
+.gf-wrap .co { display:flex; align-items:center; gap:12px; padding:8px 0; cursor:pointer; font-size:14px; color:#202124; user-select:none; }
+.gf-wrap .co .cir { width:20px; height:20px; border-radius:50%; border:2px solid #5f6368; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.gf-wrap .co.sel .cir { border-color:#673ab7; }
+.gf-wrap .co.sel .cir::after { content:''; width:10px; height:10px; border-radius:50%; background:#673ab7; }
+.gf-wrap .lk { display:grid; grid-template-columns:repeat(5,1fr); gap:0; margin-top:8px; }
+.gf-wrap .lk.l7 { grid-template-columns:repeat(7,1fr); }
+.gf-wrap .lo { text-align:center; padding:10px 4px; cursor:pointer; border:1px solid transparent; border-bottom:1px solid #e0e0e0; user-select:none; }
+.gf-wrap .lo .dot { width:24px; height:24px; border-radius:50%; border:2px solid #5f6368; margin:0 auto; display:flex; align-items:center; justify-content:center; }
+.gf-wrap .lo:hover .dot { border-color:#673ab7; background:#f5f0ff; }
+.gf-wrap .lo.sel .dot { border-color:#673ab7; }
+.gf-wrap .lo.sel .dot::after { content:''; width:12px; height:12px; border-radius:50%; background:#673ab7; }
+.gf-wrap .lo .lb { font-size:10px; color:#5f6368; margin-top:4px; }
+.gf-wrap .ti { width:100%; padding:12px 0; border:none; border-bottom:1px solid #dadce0; font-size:14px; font-family:inherit; outline:none; background:transparent; min-height:40px; resize:vertical; }
+.gf-wrap .ti:focus { border-bottom-color:#673ab7; border-bottom-width:2px; }
+.gf-wrap .rg { display:flex; gap:12px; flex-wrap:wrap; }
+.gf-wrap .rb { width:48px; height:48px; border-radius:50%; border:2px solid #dadce0; cursor:pointer; font-size:18px; font-weight:500; color:#5f6368; background:#fff; display:flex; align-items:center; justify-content:center; user-select:none; }
+.gf-wrap .rb:hover { border-color:#673ab7; color:#673ab7; }
+.gf-wrap .rb.sel { border-color:#673ab7; background:#673ab7; color:#fff; }
+.gf-wrap .sa { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid #e0e0e0; padding:12px 24px; display:flex; align-items:center; gap:16px; z-index:100; }
+.gf-wrap .pb { flex:1; }
+.gf-wrap .pb .tr { height:4px; background:#e0e0e0; border-radius:2px; overflow:hidden; }
+.gf-wrap .pb .fl { height:100%; background:#673ab7; width:0%; transition:width .3s; border-radius:2px; }
+.gf-wrap .pb .tx { font-size:12px; color:#5f6368; margin-top:2px; }
+.gf-wrap .btn { background:#673ab7; color:#fff; border:none; padding:10px 24px; border-radius:4px; font-size:14px; font-weight:500; font-family:inherit; cursor:pointer; }
+.gf-wrap .btn:hover { background:#5e35b1; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.gf-wrap .btn:disabled { opacity:.4; cursor:default; box-shadow:none; }
+.gf-wrap .ty { text-align:center; padding:60px 24px; background:#fff; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+.gf-wrap .ty .ck { width:48px; height:48px; border-radius:50%; background:#673ab7; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:24px; color:#fff; }
+.gf-wrap .ty h2 { font-size:24px; font-weight:400; color:#202124; margin-bottom:8px; }
+.gf-wrap .ty p { font-size:14px; color:#5f6368; }
+.gf-wrap .ld { text-align:center; padding:80px 24px; color:#5f6368; font-size:14px; }
+.gf-wrap .ld .sp { width:32px; height:32px; border:3px solid #e0e0e0; border-top-color:#673ab7; border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
+.gf-wrap .er { text-align:center; padding:60px 24px; background:#fff; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+.gf-wrap .er .ic { width:48px; height:48px; border-radius:50%; background:#fce8e6; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:24px; }
+.gf-wrap .er h2 { font-size:18px; font-weight:500; color:#202124; margin-bottom:6px; }
+.gf-wrap .er p { font-size:13px; color:#5f6368; }
+.gf-wrap .tt { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-80px); padding:10px 20px; border-radius:4px; color:#fff; font-size:13px; font-weight:500; box-shadow:0 2px 6px rgba(0,0,0,.15); transition:transform .3s; z-index:999; white-space:nowrap; }
+.gf-wrap .tt.sh { transform:translateX(-50%) translateY(0); }
+.gf-wrap .tt.ok { background:#188038; }
+.gf-wrap .tt.er { background:#d93025; }
+@keyframes spin { to { transform:rotate(360deg) } }
+@media (max-width:640px) {
+  .gf-wrap .cnt { padding:12px 8px 80px; }
+  .gf-wrap .hdr .bd { padding:16px; }
+  .gf-wrap .hdr h1 { font-size:22px; }
+  .gf-wrap .card { padding:16px; }
+  .gf-wrap .qt { font-size:14px; }
+  .gf-wrap .lo { padding:8px 2px; }
+  .gf-wrap .sa { padding:10px 16px; }
+}
 </style>
 
-<div class="container" id="app">
-  <div class="loader" id="loader">
-    <div class="spinner"></div>
+<div class="cnt" id="app">
+  <div class="ld" id="lod">
+    <div class="sp"></div>
     <p>Đang tải khảo sát...</p>
   </div>
 </div>
 
-<div class="submit-area" id="submit-area" style="display:none">
-  <div class="progress-container">
-    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-    <div class="progress-text" id="progress-text">0%</div>
+<div class="sa" id="sa" style="display:none">
+  <div class="pb">
+    <div class="tr"><div class="fl" id="pf"></div></div>
+    <div class="tx" id="pt">0/0</div>
   </div>
-  <button class="btn-submit" id="submit-btn" onclick="submitForm()">📨 Gửi</button>
+  <button class="btn" id="sb" onclick="gf_send()">Gửi</button>
 </div>
 
-<div id="toast" class="toast"></div>
+<div class="tt" id="tt"></div>
 
 <script is:inline>
-  const SURVEY_ID = '{surveyId}';
-  let surveyData = null;
-  const state = {};
+(function() {
+  var SID = '{surveyId}';
+  var data = null;
+  var st = {};
 
-  function qs(s) { return document.querySelector(s); }
-  function byId(id) { return document.getElementById(id); }
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { var d=document.createElement('div'); d.textContent=s??''; return d.innerHTML; }
 
-  function showToast(msg, type) {
-    const t = byId('toast');
-    t.textContent = msg; t.className = 'toast toast-' + type;
-    requestAnimationFrame(() => t.classList.add('show'));
-    clearTimeout(t._hide);
-    t._hide = setTimeout(() => t.classList.remove('show'), 4000);
+  function toast(msg, type) {
+    var t = $('tt');
+    t.textContent = msg;
+    t.className = 'tt ' + (type === 'error' ? 'er' : 'ok');
+    requestAnimationFrame(function() { t.classList.add('sh'); });
+    clearTimeout(t._h);
+    t._h = setTimeout(function() { t.classList.remove('sh'); }, 4000);
   }
 
-  function updateProgress() {
-    if (!surveyData) return;
-    const qs = surveyData.questions || [];
-    const total = qs.length;
-    if (total === 0) return;
-    let answered = 0;
-    qs.forEach((q, i) => {
-      if (q.type === 'text') {
-        if (state['q_' + i] && state['q_' + i].trim()) answered++;
-      } else {
-        if (state['q_' + i] !== undefined) answered++;
-      }
-    });
-    const pct = Math.round((answered / total) * 100);
-    byId('progress-fill').style.width = pct + '%';
-    byId('progress-text').textContent = answered + '/' + total;
-  }
-
-  async function loadSurvey() {
-    try {
-      const r = await fetch('/api/survey/' + SURVEY_ID);
-      const json = await r.json();
-      if (!json.ok || !json.data) throw new Error(json.error || 'Không tìm thấy khảo sát');
-      surveyData = json.data;
-      renderForm(surveyData);
-    } catch (e) {
-      byId('app').innerHTML = '<div class="error-screen"><div class="error-icon">😅</div><h2>Khảo sát không tồn tại</h2><p>' + escHtml(e.message) + '</p></div>';
+  function upd() {
+    if (!data) return;
+    var qs = data.questions || [];
+    var t = qs.length;
+    if (!t) return;
+    var a = 0;
+    for (var i = 0; i < t; i++) {
+      if (q[i].type === 'text') { if (st['q_'+i] && st['q_'+i].trim()) a++; }
+      else { if (st['q_'+i] !== undefined) a++; }
     }
+    $('pf').style.width = Math.round(a/t*100) + '%';
+    $('pt').textContent = a + '/' + t;
   }
 
-  function setAnswer(qIdx, value) {
-    state['q_' + qIdx] = value;
-    updateProgress();
-    const qDiv = document.getElementById('q_' + qIdx);
-    if (!qDiv) return;
-    qDiv.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
-    const selEl = qDiv.querySelector('[data-v="' + value + '"]');
-    if (selEl) selEl.classList.add('selected');
+  function pick(qi, v) {
+    st['q_'+qi] = v;
+    upd();
+    var d = $('q_'+qi);
+    if (!d) return;
+    var els = d.querySelectorAll('.sel');
+    for (var j = 0; j < els.length; j++) els[j].classList.remove('sel');
+    var el = d.querySelector('[data-v="'+v+'"]');
+    if (el) el.classList.add('sel');
   }
 
-  function renderForm(survey) {
-    const qs = survey.questions || [];
-    if (qs.length === 0) {
-      byId('app').innerHTML = '<div class="error-screen"><div class="error-icon">📝</div><h2>Khảo sát trống</h2><p>Khảo sát này chưa có câu hỏi.</p></div>';
+  function build(s) {
+    var qs = s.questions || [];
+    if (!qs.length) {
+      $('app').innerHTML = '<div class="er"><div class="ic">📝</div><h2>Khảo sát trống</h2><p>Khảo sát này chưa có câu hỏi.</p></div>';
       return;
     }
-    let html = '<div class="survey-header"><div class="bar"></div><div class="inner"><h1>' + escHtml(survey.title || 'Khảo sát') + '</h1>' +
-      (survey.description ? '<p>' + escHtml(survey.description) + '</p>' : '') +
-      '<div class="required-note"><span>*</span> Bắt buộc</div></div></div>';
-    qs.forEach((q, i) => {
-      html += '<div class="card"><div class="q-title">' + (i+1) + '. ' + escHtml(q.title) +
-        (q.required ? '<span class="q-required">*</span>' : '') + '</div><div id="q_' + i + '">';
+    var h = '<div class="hdr"><div class="bar"></div><div class="bd"><h1>' + esc(s.title||'Khảo sát') + '</h1>' +
+      (s.description ? '<p>' + esc(s.description) + '</p>' : '') +
+      '<div class="req"><span>*</span> Bắt buộc</div></div></div>';
+    for (var i = 0; i < qs.length; i++) {
+      var q = qs[i];
+      h += '<div class="card"><div class="qt">' + (i+1) + '. ' + esc(q.title) + (q.required ? '<span class="qr">*</span>' : '') + '</div><div id="q_' + i + '">';
       if (q.type === 'likert5' || q.type === 'likert7') {
-        html += '<div class="likert-grid' + (q.type === 'likert7' ? ' likert7' : '') + '">';
-        (q.options || []).forEach(function(opt, oi) {
-          var val = oi + 1;
-          var sel = state['q_' + i] === val ? ' selected' : '';
-          html += '<div class="likert-option' + sel + '" data-q="' + i + '" data-v="' + val + '" onclick="setAnswer(' + i + ',' + val + ')">' +
-            '<div class="circle"></div><div style="font-size:10px;color:#5f6368;margin-top:4px">' + escHtml(opt) + '</div></div>';
-        });
-        html += '</div>';
+        h += '<div class="lk' + (q.type === 'likert7' ? ' l7' : '') + '">';
+        var opts = q.options || [];
+        for (var oi = 0; oi < opts.length; oi++) {
+          var v = oi + 1;
+          var sel = st['q_'+i] === v ? ' sel' : '';
+          h += '<div class="lo' + sel + '" onclick="gf_pick(' + i + ',' + v + ')"><div class="dot"></div><div class="lb">' + esc(opts[oi]) + '</div></div>';
+        }
+        h += '</div>';
       } else if (q.type === 'multiple_choice') {
-        html += '<div style="display:flex;flex-direction:column;gap:2px">';
-        (q.labels || []).forEach(function(l, li) {
-          var val = li + 1;
-          var sel = state['q_' + i] === val ? ' selected' : '';
-          html += '<div class="choice-option' + sel + '" data-q="' + i + '" data-v="' + val + '" onclick="setAnswer(' + i + ',' + val + ')">' +
-            '<span class="radio-circle"></span>' + escHtml(l || 'Lựa chọn ' + (li+1)) + '</div>';
-        });
-        html += '</div>';
+        var labels = q.labels || [];
+        for (var li = 0; li < labels.length; li++) {
+          var v = li + 1;
+          var sel = st['q_'+i] === v ? ' sel' : '';
+          h += '<div class="co' + sel + '" onclick="gf_pick(' + i + ',' + v + ')"><span class="cir"></span>' + esc(labels[li]||'Lựa chọn '+(li+1)) + '</div>';
+        }
       } else if (q.type === 'text') {
-        html += '<textarea class="text-input" rows="2" placeholder="Nhập câu trả lời của bạn..." oninput="state[\'q_' + i + '\']=this.value;updateProgress()">' + (state['q_' + i] || '') + '</textarea>';
+        h += '<textarea class="ti" rows="2" placeholder="Câu trả lời của bạn" oninput="gf_txt(' + i + ',this.value)">' + (st['q_'+i]||'') + '</textarea>';
       } else if (q.type === 'rating') {
-        html += '<div class="rating-group">';
-        [1,2,3,4,5].forEach(function(v) {
-          var sel = state['q_' + i] === v ? ' selected' : '';
-          html += '<div class="rating-btn' + sel + '" data-q="' + i + '" data-v="' + v + '" onclick="setAnswer(' + i + ',' + v + ')">' + v + '</div>';
-        });
-        html += '</div>';
+        h += '<div class="rg">';
+        for (var r = 1; r <= 5; r++) {
+          var sel = st['q_'+i] === r ? ' sel' : '';
+          h += '<div class="rb' + sel + '" onclick="gf_pick(' + i + ',' + r + ')">' + r + '</div>';
+        }
+        h += '</div>';
       }
-      html += '</div></div>';
-    });
-    byId('app').innerHTML = html;
-    byId('submit-area').style.display = 'flex';
-    updateProgress();
+      h += '</div></div>';
+    }
+    $('app').innerHTML = h;
+    $('sa').style.display = 'flex';
+    upd();
   }
 
-  async function submitForm() {
-    if (!surveyData) return;
-    var qs = surveyData.questions || [];
-    var btn = byId('submit-btn');
+  function send() {
+    if (!data) return;
+    var qs = data.questions || [];
+    var btn = $('sb');
     btn.disabled = true; btn.textContent = '⏳ Đang gửi...';
-    var answers = {};
-    var missing = false;
-    qs.forEach(function(q, i) {
+    var ans = {};
+    var miss = false;
+    for (var i = 0; i < qs.length; i++) {
+      var q = qs[i];
       if (q.required) {
-        if (q.type === 'text' && (!state['q_' + i] || !state['q_' + i].trim())) missing = true;
-        else if (q.type !== 'text' && state['q_' + i] === undefined) missing = true;
+        if (q.type === 'text' && (!st['q_'+i] || !st['q_'+i].trim())) miss = true;
+        else if (q.type !== 'text' && st['q_'+i] === undefined) miss = true;
       }
-      if (state['q_' + i] !== undefined && state['q_' + i] !== '') {
-        answers[q.id] = q.type === 'text' ? state['q_' + i] : Number(state['q_' + i]);
+      if (st['q_'+i] !== undefined && st['q_'+i] !== '') {
+        ans[q.id] = q.type === 'text' ? st['q_'+i] : Number(st['q_'+i]);
       }
+    }
+    if (miss) {
+      toast('⚠️ Vui lòng trả lời tất cả câu hỏi bắt buộc', 'error');
+      btn.disabled = false; btn.textContent = 'Gửi'; return;
+    }
+    fetch('/api/response', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({survey_id:SID, answers:ans, submitted_at:new Date().toISOString()})
+    }).then(function(r) { return r.json(); }).then(function(j) {
+      if (!j.ok) throw new Error(j.error);
+      $('app').innerHTML = '<div class="ty"><div class="ck">✓</div><h2>Hoàn thành khảo sát</h2><p>Cảm ơn bạn đã tham gia!<br>Câu trả lời đã được ghi nhận.</p></div>';
+      $('sa').style.display = 'none';
+    }).catch(function(e) {
+      toast('❌ ' + e.message, 'error');
+      btn.disabled = false; btn.textContent = 'Gửi';
     });
-    if (missing) {
-      showToast('⚠️ Vui lòng trả lời tất cả câu hỏi bắt buộc', 'error');
-      btn.disabled = false; btn.textContent = '📨 Gửi'; return;
-    }
-    try {
-      var r = await fetch('/api/response', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ survey_id: SURVEY_ID, answers: answers, submitted_at: new Date().toISOString() })
-      });
-      var json = await r.json();
-      if (!json.ok) throw new Error(json.error);
-      byId('app').innerHTML = '<div class="thankyou-screen"><div class="check-icon">✓</div><h2>Hoàn thành khảo sát</h2><p>Cảm ơn bạn đã tham gia!<br>Câu trả lời của bạn đã được ghi nhận.</p></div>';
-      byId('submit-area').style.display = 'none';
-    } catch (e) {
-      showToast('❌ ' + e.message, 'error');
-      btn.disabled = false; btn.textContent = '📨 Gửi';
-    }
   }
 
-  function escHtml(s) { var d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+  fetch('/api/survey/' + SID).then(function(r) { return r.json(); }).then(function(j) {
+    if (!j.ok || !j.data) throw new Error(j.error || 'Không tìm thấy khảo sát');
+    data = j.data;
+    build(data);
+  }).catch(function(e) {
+    $('app').innerHTML = '<div class="er"><div class="ic">😅</div><h2>Khảo sát không tồn tại</h2><p>' + esc(e.message) + '</p></div>';
+  });
 
-  loadSurvey();
+  window.gf_pick = pick;
+  window.gf_txt = function(i,v) { st['q_'+i]=v; upd(); };
+  window.gf_send = send;
+})();
 </script>
 </div>
 </Layout>
