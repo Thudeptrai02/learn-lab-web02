@@ -311,7 +311,7 @@ const surveyId = id;
 
 <div id="toast" class="toast"></div>
 
-<script>
+<script is:inline>
   const SURVEY_ID = '{surveyId}';
   let surveyData = null;
   const state = {};
@@ -353,19 +353,6 @@ const surveyId = id;
 
       surveyData = json.data;
       renderForm(surveyData);
-
-      // Event delegation — avoids scoping issues with inline handlers
-      byId('app').addEventListener('click', function(e) {
-        const opt = e.target.closest('[data-q][data-v]');
-        if (!opt) return;
-        setAnswer(Number(opt.dataset.q), Number(opt.dataset.v));
-      });
-      byId('app').addEventListener('input', function(e) {
-        if (e.target.matches('textarea[data-q]')) {
-          state['q_' + e.target.dataset.q] = e.target.value;
-          updateProgress();
-        }
-      });
     } catch (e) {
       byId('app').innerHTML = `
         <div class="error-screen">
@@ -389,60 +376,53 @@ const surveyId = id;
   function renderForm(survey) {
     const qs = survey.questions || [];
     if (qs.length === 0) {
-      byId('app').innerHTML = `<div class="error-screen"><div class="error-icon">📝</div><h2>Khảo sát trống</h2><p>Khảo sát này chưa có câu hỏi.</p></div>`;
+      byId('app').innerHTML = '<div class="error-screen"><div class="error-icon">📝</div><h2>Khảo sát trống</h2><p>Khảo sát này chưa có câu hỏi.</p></div>';
       return;
     }
 
-    let html = `
-      <div class="survey-header" style="animation:fadeUp .4s ease">
-        <h1>${escHtml(survey.title || 'Khảo sát')}</h1>
-        ${survey.description ? '<p>' + escHtml(survey.description) + '</p>' : ''}
-        <div class="required-note">* Bắt buộc</div>
-      </div>`;
+    let html = '<div class="survey-header"><h1>' + escHtml(survey.title || 'Khảo sát') + '</h1>' +
+      (survey.description ? '<p>' + escHtml(survey.description) + '</p>' : '') +
+      '<div class="required-note">* Bắt buộc</div></div>';
 
     qs.forEach((q, i) => {
-      html += `<div class="card" style="animation:fadeUp .4s ease;animation-delay:${i * 0.03}s">
-        <div class="q-title">${i+1}. ${escHtml(q.title)} ${q.required ? '<span class="q-required">*</span>' : ''}</div>
-        <div id="q_${i}">`;
+      html += '<div class="card"><div class="q-title">' + (i+1) + '. ' + escHtml(q.title) +
+        (q.required ? '<span class="q-required">*</span>' : '') + '</div><div id="q_' + i + '">';
 
       if (q.type === 'likert5' || q.type === 'likert7') {
-        const colClass = q.type === 'likert7' ? 'likert7' : '';
-        html += `<div class="likert-grid ${colClass}">`;
-        (q.options || []).forEach((opt, oi) => {
-          const val = oi + 1;
-          const sel = state['q_' + i] === val ? ' selected' : '';
-          html += `<div class="likert-option${sel}" data-q="${i}" data-v="${val}">${escHtml(opt)}</div>`;
+        html += '<div class="likert-grid' + (q.type === 'likert7' ? ' likert7' : '') + '">';
+        (q.options || []).forEach(function(opt, oi) {
+          var val = oi + 1;
+          var sel = state['q_' + i] === val ? ' selected' : '';
+          html += '<div class="likert-option' + sel + '" data-q="' + i + '" data-v="' + val + '" onclick="setAnswer(' + i + ',' + val + ')">' + escHtml(opt) + '</div>';
         });
-        html += `</div>`;
+        html += '</div>';
       }
 
       else if (q.type === 'multiple_choice') {
-        html += `<div style="display:flex;flex-direction:column;gap:6px">`;
-        (q.labels || []).forEach((l, li) => {
-          const val = li + 1;
-          const sel = state['q_' + i] === val ? ' selected' : '';
-          html += `<div class="choice-option${sel}" data-q="${i}" data-v="${val}">
-            <span class="radio-circle"></span>
-            ${escHtml(l || 'Lựa chọn ' + (li+1))}
-          </div>`;
+        html += '<div style="display:flex;flex-direction:column;gap:6px">';
+        (q.labels || []).forEach(function(l, li) {
+          var val = li + 1;
+          var sel = state['q_' + i] === val ? ' selected' : '';
+          html += '<div class="choice-option' + sel + '" data-q="' + i + '" data-v="' + val + '" onclick="setAnswer(' + i + ',' + val + ')">' +
+            '<span class="radio-circle"></span>' + escHtml(l || 'Lựa chọn ' + (li+1)) + '</div>';
         });
-        html += `</div>`;
+        html += '</div>';
       }
 
       else if (q.type === 'text') {
-        html += `<textarea class="text-input" data-q="${i}" rows="2" placeholder="Nhập câu trả lời của bạn...">${state['q_' + i] || ''}</textarea>`;
+        html += '<textarea class="text-input" rows="2" placeholder="Nhập câu trả lời của bạn..." oninput="state[\'q_' + i + '\']=this.value;updateProgress()">' + (state['q_' + i] || '') + '</textarea>';
       }
 
       else if (q.type === 'rating') {
-        html += `<div class="rating-group">`;
-        [1,2,3,4,5].forEach(v => {
-          const sel = state['q_' + i] === v ? ' selected' : '';
-          html += `<div class="rating-btn${sel}" data-q="${i}" data-v="${v}">${v}</div>`;
+        html += '<div class="rating-group">';
+        [1,2,3,4,5].forEach(function(v) {
+          var sel = state['q_' + i] === v ? ' selected' : '';
+          html += '<div class="rating-btn' + sel + '" data-q="' + i + '" data-v="' + v + '" onclick="setAnswer(' + i + ',' + v + ')">' + v + '</div>';
         });
-        html += `</div>`;
+        html += '</div>';
       }
 
-      html += `</div></div>`;
+      html += '</div></div>';
     });
 
     byId('app').innerHTML = html;
@@ -452,14 +432,14 @@ const surveyId = id;
 
   async function submitForm() {
     if (!surveyData) return;
-    const qs = surveyData.questions || [];
-    const btn = byId('submit-btn');
+    var qs = surveyData.questions || [];
+    var btn = byId('submit-btn');
     btn.disabled = true; btn.textContent = '⏳ Đang gửi...';
 
-    const answers = {};
-    let missing = false;
+    var answers = {};
+    var missing = false;
 
-    qs.forEach((q, i) => {
+    qs.forEach(function(q, i) {
       if (q.required) {
         if (q.type === 'text' && (!state['q_' + i] || !state['q_' + i].trim())) missing = true;
         else if (q.type !== 'text' && state['q_' + i] === undefined) missing = true;
@@ -476,20 +456,15 @@ const surveyId = id;
     }
 
     try {
-      const r = await fetch('/api/response', {
+      var r = await fetch('/api/response', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ survey_id: SURVEY_ID, answers, submitted_at: new Date().toISOString() })
+        body: JSON.stringify({ survey_id: SURVEY_ID, answers: answers, submitted_at: new Date().toISOString() })
       });
-      const json = await r.json();
+      var json = await r.json();
       if (!json.ok) throw new Error(json.error);
 
-      byId('app').innerHTML = `
-        <div class="thankyou-screen">
-          <div class="check-icon">✓</div>
-          <h2>Hoàn thành khảo sát</h2>
-          <p>Cảm ơn bạn đã tham gia!<br>Câu trả lời của bạn đã được ghi nhận.</p>
-        </div>`;
+      byId('app').innerHTML = '<div class="thankyou-screen"><div class="check-icon">✓</div><h2>Hoàn thành khảo sát</h2><p>Cảm ơn bạn đã tham gia!<br>Câu trả lời của bạn đã được ghi nhận.</p></div>';
       byId('submit-area').style.display = 'none';
     } catch (e) {
       showToast('❌ ' + e.message, 'error');
@@ -497,7 +472,7 @@ const surveyId = id;
     }
   }
 
-  function escHtml(s) { const d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
+  function escHtml(s) { var d = document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; }
 
   loadSurvey();
 </script>
