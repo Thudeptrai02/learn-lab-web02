@@ -5,6 +5,7 @@
 - **Astro 6** (SSR via `@astrojs/vercel`), **Tailwind CSS v4** (Vite plugin).
 - **Supabase** auth + DB. Public client uses `PUBLIC_SUPABASE_ANON_KEY`; admin API uses `SUPABASE_SERVICE_ROLE_KEY`. Both in `.env`.
 - **Data source**: Google Sheets (fetched at runtime via `fetch` + `papaparse`). Sheet IDs hardcoded in `src/lib/`. No local DB migration needed.
+- **Google Sheets Export**: Survey responses can be exported to Google Sheets via `googleapis` + service account. Requires `GOOGLE_SHEETS_SERVICE_ACCOUNT` env var (JSON string of service account key).
 - **AI APIs**: Gemini (`GEMINI_API_KEY`) in `src/pages/api/generate.js`; Groq (`GROQ_API_KEY`) in `src/pages/api/grade-writing.js`.
 
 ## Commands
@@ -27,7 +28,7 @@ No lint, typecheck, or test scripts exist.
 | Layout | `src/layouts/Layout.astro` | Shared shell with Header (Supabase auth UI), Footer, SmartPopup. |
 | Exam data (JSON) | `src/data/exams/reading/`, `src/data/exams/listening/` | Auto-loaded by `test-json.astro` via `import.meta.glob`. |
 | Cambridge (MDX) | `src/content/exams/*.mdx` | Structured frontmatter with parts/questions. |
-| Shared libs | `src/lib/` | `supabase.js`, `loadExam.js`, `cambridge.js`, `loadIelts.js`, `googleSheets.js`. All fetch from remote CSV — no local DB. |
+| Shared libs | `src/lib/` | `supabase.js`, `loadExam.js`, `cambridge.js`, `loadIelts.js`, `googleSheets.js`, `sheetExport.js`. The latter writes via Google Sheets API + service account. |
 | TOEIC exam catalog | Fetched from Google Sheets Master Sheet (URL in `loadExam.js`). Exam URLs come from the catalog CSV. |
 | Flashcards / Dictation | Google Sheets → parsed in `googleSheets.js`. Pages at `english-lab/toeic/flashcards/[topic].astro`. |
 

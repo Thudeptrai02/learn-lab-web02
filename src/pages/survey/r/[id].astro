@@ -35,6 +35,28 @@ const { id: surveyId } = Astro.params;
       </div>
     </div>
 
+    <!-- Google Sheets Export -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-5 mb-6" id="sheet-export-card">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+          <svg class="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          Xuất sang Google Sheets
+        </h3>
+        <div class="flex gap-2 items-center">
+          <span id="sheet-status" class="text-xs text-slate-400"></span>
+        </div>
+      </div>
+      <div class="flex gap-3 items-end flex-wrap">
+        <div class="flex-1 min-w-[200px]">
+          <label class="text-xs text-slate-500 font-medium mb-1 block">Google Sheet ID</label>
+          <input type="text" id="sheet-id-input" placeholder="1BXi7sRkF5H..." class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono focus:border-violet-400 focus:ring-2 focus:ring-violet-100 outline-none transition-all">
+        </div>
+        <button class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all" onclick="verifySheet()">🔍 Kiểm tra</button>
+        <button class="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" id="export-sheet-btn" onclick="exportToSheet()">📤 Xuất</button>
+      </div>
+      <div id="sheet-info" class="mt-2 text-xs text-slate-400" style="display:none"></div>
+    </div>
+
     <div id="responses-container">
       <div class="text-center py-16 text-slate-400">
         <div class="text-5xl mb-4">⏳</div>
@@ -127,6 +149,78 @@ const { id: surveyId } = Astro.params;
     const json = await r.json();
     if (json.ok) { responses.splice(index, 1); renderResponses(); updateStats(); }
     else alert('Lỗi: ' + json.error);
+  }
+
+  // === Google Sheets Export ===
+  function getSheetId() {
+    return document.getElementById('sheet-id-input').value.trim();
+  }
+
+  function setSheetStatus(msg, ok) {
+    const el = document.getElementById('sheet-status');
+    el.textContent = msg;
+    el.style.color = ok ? '#16a34a' : '#dc2626';
+  }
+
+  function setSheetInfo(html) {
+    const el = document.getElementById('sheet-info');
+    el.innerHTML = html;
+    el.style.display = html ? 'block' : 'none';
+  }
+
+  async function verifySheet() {
+    const sheetId = getSheetId();
+    if (!sheetId) { setSheetStatus('Nhập Sheet ID trước', false); return; }
+    setSheetStatus('Đang kiểm tra...', true);
+    setSheetInfo('');
+    try {
+      const r = await fetch('/api/survey/export-sheet/' + SURVEY_ID, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheet_id: sheetId, verify_only: true })
+      });
+      const json = await r.json();
+      if (json.ok) {
+        setSheetStatus('✅ Kết nối thành công!', true);
+        let html = `<strong>${escHtml(json.title)}</strong> — `;
+        if (json.sheets?.length > 0) html += `Sheet đầu: "${escHtml(json.sheets[0])}" · `;
+        html += `${json.rowCount} responses sẵn sàng`;
+        setSheetInfo(html);
+      } else {
+        setSheetStatus('❌ ' + json.error, false);
+      }
+    } catch (e) {
+      setSheetStatus('❌ Lỗi kết nối: ' + e.message, false);
+    }
+  }
+
+  async function exportToSheet() {
+    const sheetId = getSheetId();
+    if (!sheetId) { alert('Nhập Google Sheet ID trước.'); return; }
+    const btn = document.getElementById('export-sheet-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Đang xuất...';
+    setSheetStatus('Đang ghi dữ liệu...', true);
+    setSheetInfo('');
+    try {
+      const r = await fetch('/api/survey/export-sheet/' + SURVEY_ID, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheet_id: sheetId })
+      });
+      const json = await r.json();
+      if (json.ok) {
+        setSheetStatus(`✅ Xuất ${json.rows} responses thành công!`, true);
+        setSheetInfo(`Sheet: <strong>${escHtml(json.surveyTitle)}</strong>`);
+      } else {
+        setSheetStatus('❌ ' + json.error, false);
+      }
+    } catch (e) {
+      setSheetStatus('❌ Lỗi: ' + e.message, false);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '📤 Xuất';
+    }
   }
 
   function exportXLSX() {
