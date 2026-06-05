@@ -1,24 +1,9 @@
 ---
+import Layout from '../../layouts/Layout.astro';
 export const prerender = false;
 ---
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tạo khảo sát</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<Layout title="Tạo khảo sát - LearnLab">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    background: linear-gradient(135deg, #e8e0f0 0%, #f0eef4 50%, #e0e8f0 100%);
-    color: #202124;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-  }
 
   .topbar {
     background: #fff;
@@ -229,8 +214,6 @@ export const prerender = false;
     .add-bar button { font-size: 11px; padding: 6px 10px; }
   }
 </style>
-</head>
-<body>
 
 <div class="topbar">
   <div class="topbar-left">
@@ -267,7 +250,7 @@ export const prerender = false;
 
 <div id="toast" class="toast"></div>
 
-<script>
+<script is:inline>
   let questions = [];
   let qCounter = 0;
   const editId = new URLSearchParams(window.location.search).get('edit');
@@ -437,7 +420,7 @@ export const prerender = false;
   }
 
   if (editId) {
-    qs('.topbar-left h1').textContent = '✏️ Sửa khảo sát';
+    setTimeout(function() { var el = document.querySelector('.topbar-left h1'); if (el) el.textContent = '✏️ Sửa khảo sát'; }, 0);
     (async () => {
       try {
         const r = await fetch('/api/survey/' + editId);
@@ -454,5 +437,4 @@ export const prerender = false;
     })();
   }
 </script>
-
-</body></html>
+</Layout>
