@@ -353,6 +353,19 @@ const surveyId = id;
 
       surveyData = json.data;
       renderForm(surveyData);
+
+      // Event delegation — avoids scoping issues with inline handlers
+      byId('app').addEventListener('click', function(e) {
+        const opt = e.target.closest('[data-q][data-v]');
+        if (!opt) return;
+        setAnswer(Number(opt.dataset.q), Number(opt.dataset.v));
+      });
+      byId('app').addEventListener('input', function(e) {
+        if (e.target.matches('textarea[data-q]')) {
+          state['q_' + e.target.dataset.q] = e.target.value;
+          updateProgress();
+        }
+      });
     } catch (e) {
       byId('app').innerHTML = `
         <div class="error-screen">
@@ -366,13 +379,11 @@ const surveyId = id;
   function setAnswer(qIdx, value) {
     state['q_' + qIdx] = value;
     updateProgress();
-    // Visual: clear all selected then mark this one
     const qDiv = document.getElementById('q_' + qIdx);
-    if (qDiv) {
-      qDiv.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
-      const selEl = qDiv.querySelector('[data-value="' + value + '"]');
-      if (selEl) selEl.classList.add('selected');
-    }
+    if (!qDiv) return;
+    qDiv.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+    const selEl = qDiv.querySelector('[data-v="' + value + '"]');
+    if (selEl) selEl.classList.add('selected');
   }
 
   function renderForm(survey) {
@@ -400,9 +411,7 @@ const surveyId = id;
         (q.options || []).forEach((opt, oi) => {
           const val = oi + 1;
           const sel = state['q_' + i] === val ? ' selected' : '';
-          html += `<div class="likert-option${sel}" data-value="${val}" onclick="setAnswer(${i},${val})">
-            ${escHtml(opt)}
-          </div>`;
+          html += `<div class="likert-option${sel}" data-q="${i}" data-v="${val}">${escHtml(opt)}</div>`;
         });
         html += `</div>`;
       }
@@ -412,7 +421,7 @@ const surveyId = id;
         (q.labels || []).forEach((l, li) => {
           const val = li + 1;
           const sel = state['q_' + i] === val ? ' selected' : '';
-          html += `<div class="choice-option${sel}" data-value="${val}" onclick="setAnswer(${i},${val})">
+          html += `<div class="choice-option${sel}" data-q="${i}" data-v="${val}">
             <span class="radio-circle"></span>
             ${escHtml(l || 'Lựa chọn ' + (li+1))}
           </div>`;
@@ -421,15 +430,14 @@ const surveyId = id;
       }
 
       else if (q.type === 'text') {
-        html += `<textarea class="text-input" name="q_${i}" rows="2" placeholder="Nhập câu trả lời của bạn..."
-          oninput="state['q_${i}']=this.value;updateProgress()">${state['q_' + i] || ''}</textarea>`;
+        html += `<textarea class="text-input" data-q="${i}" rows="2" placeholder="Nhập câu trả lời của bạn...">${state['q_' + i] || ''}</textarea>`;
       }
 
       else if (q.type === 'rating') {
         html += `<div class="rating-group">`;
         [1,2,3,4,5].forEach(v => {
           const sel = state['q_' + i] === v ? ' selected' : '';
-          html += `<div class="rating-btn${sel}" data-value="${v}" onclick="setAnswer(${i},${v})">${v}</div>`;
+          html += `<div class="rating-btn${sel}" data-q="${i}" data-v="${v}">${v}</div>`;
         });
         html += `</div>`;
       }
