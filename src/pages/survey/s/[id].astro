@@ -79,16 +79,6 @@ const surveyId = id;
   .likert-grid.likert7 { grid-template-columns: repeat(7, 1fr); }
 
   .likert-option {
-    position: relative;
-  }
-  .likert-option input {
-    position: absolute; opacity: 0; width: 0; height: 0;
-  }
-  .likert-option label {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
     padding: 10px 4px;
     border: 1px solid #dadce0;
     border-radius: 8px;
@@ -101,11 +91,11 @@ const surveyId = id;
     line-height: 1.3;
     user-select: none;
   }
-  .likert-option label:hover {
+  .likert-option:hover {
     border-color: #7c3aed;
     background: #f5f0ff;
   }
-  .likert-option input:checked + label {
+  .likert-option.selected {
     border-color: #7c3aed;
     background: #ede7f6;
     color: #7c3aed;
@@ -114,12 +104,6 @@ const surveyId = id;
   }
 
   .choice-option {
-    position: relative;
-  }
-  .choice-option input {
-    position: absolute; opacity: 0; width: 0; height: 0;
-  }
-  .choice-option label {
     display: flex;
     align-items: center;
     gap: 12px;
@@ -132,16 +116,16 @@ const surveyId = id;
     transition: all .15s;
     user-select: none;
   }
-  .choice-option label:hover {
+  .choice-option:hover {
     border-color: #7c3aed;
     background: #f5f0ff;
   }
-  .choice-option input:checked + label {
+  .choice-option.selected {
     border-color: #7c3aed;
     background: #ede7f6;
     box-shadow: 0 0 0 1px #7c3aed;
   }
-  .choice-option label .radio-circle {
+  .choice-option .radio-circle {
     width: 18px; height: 18px;
     border-radius: 50%;
     border: 2px solid #5f6368;
@@ -149,7 +133,7 @@ const surveyId = id;
     flex-shrink: 0;
     transition: all .15s;
   }
-  .choice-option input:checked + label .radio-circle {
+  .choice-option.selected .radio-circle {
     border-color: #7c3aed;
     background: #7c3aed;
     box-shadow: inset 0 0 0 3px #fff;
@@ -190,7 +174,6 @@ const surveyId = id;
     color: #fff;
     box-shadow: 0 2px 8px rgba(124,58,237,.3);
   }
-  .rating-btn input { display: none; }
 
   .submit-area {
     position: fixed;
@@ -380,6 +363,18 @@ const surveyId = id;
     }
   }
 
+  function setAnswer(qIdx, value) {
+    state['q_' + qIdx] = value;
+    updateProgress();
+    // Visual: clear all selected then mark this one
+    const qDiv = document.getElementById('q_' + qIdx);
+    if (qDiv) {
+      qDiv.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+      const selEl = qDiv.querySelector('[data-value="' + value + '"]');
+      if (selEl) selEl.classList.add('selected');
+    }
+  }
+
   function renderForm(survey) {
     const qs = survey.questions || [];
     if (qs.length === 0) {
@@ -396,17 +391,17 @@ const surveyId = id;
 
     qs.forEach((q, i) => {
       html += `<div class="card" style="animation:fadeUp .4s ease;animation-delay:${i * 0.03}s">
-        <div class="q-title">${i+1}. ${escHtml(q.title)} ${q.required ? '<span class="q-required">*</span>' : ''}</div>`;
+        <div class="q-title">${i+1}. ${escHtml(q.title)} ${q.required ? '<span class="q-required">*</span>' : ''}</div>
+        <div id="q_${i}">`;
 
       if (q.type === 'likert5' || q.type === 'likert7') {
         const colClass = q.type === 'likert7' ? 'likert7' : '';
         html += `<div class="likert-grid ${colClass}">`;
         (q.options || []).forEach((opt, oi) => {
           const val = oi + 1;
-          html += `<div class="likert-option">
-            <input type="radio" name="q_${i}" id="q_${i}_${oi}" value="${val}" ${q.required ? 'required' : ''}
-              onchange="state['q_${i}']=${val};updateProgress()">
-            <label for="q_${i}_${oi}">${escHtml(opt)}</label>
+          const sel = state['q_' + i] === val ? ' selected' : '';
+          html += `<div class="likert-option${sel}" data-value="${val}" onclick="setAnswer(${i},${val})">
+            ${escHtml(opt)}
           </div>`;
         });
         html += `</div>`;
@@ -416,13 +411,10 @@ const surveyId = id;
         html += `<div style="display:flex;flex-direction:column;gap:6px">`;
         (q.labels || []).forEach((l, li) => {
           const val = li + 1;
-          html += `<div class="choice-option">
-            <input type="radio" name="q_${i}" id="q_${i}_${li}" value="${val}" ${q.required ? 'required' : ''}
-              onchange="state['q_${i}']=${val};updateProgress()">
-            <label for="q_${i}_${li}">
-              <span class="radio-circle"></span>
-              ${escHtml(l || 'Lựa chọn ' + (li+1))}
-            </label>
+          const sel = state['q_' + i] === val ? ' selected' : '';
+          html += `<div class="choice-option${sel}" data-value="${val}" onclick="setAnswer(${i},${val})">
+            <span class="radio-circle"></span>
+            ${escHtml(l || 'Lựa chọn ' + (li+1))}
           </div>`;
         });
         html += `</div>`;
@@ -437,16 +429,12 @@ const surveyId = id;
         html += `<div class="rating-group">`;
         [1,2,3,4,5].forEach(v => {
           const sel = state['q_' + i] === v ? ' selected' : '';
-          html += `<label class="rating-btn${sel}">
-            <input type="radio" name="q_${i}" value="${v}" ${state['q_' + i] === v ? 'checked' : ''}
-              onchange="state['q_${i}']=${v};document.querySelectorAll('#q_${i}_group .rating-btn').forEach(b=>b.classList.remove('selected'));this.parentElement.classList.add('selected');updateProgress()">
-            ${v}
-          </label>`;
+          html += `<div class="rating-btn${sel}" data-value="${v}" onclick="setAnswer(${i},${v})">${v}</div>`;
         });
         html += `</div>`;
       }
 
-      html += `</div>`;
+      html += `</div></div>`;
     });
 
     byId('app').innerHTML = html;
