@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../../../../lib/supabase-admin';
-import { appendToSheet, verifyAccess } from '../../../../lib/sheetExport';
+import { exportToSheet } from '../../../../lib/sheetExport';
 
 export const prerender = false;
 
@@ -14,9 +14,9 @@ export async function POST({ request, params }) {
 
   try {
     const body = await request.json();
-    const sheetId = body.sheet_id?.trim();
-    if (!sheetId) {
-      return new Response(JSON.stringify({ ok: false, error: 'Thiếu sheet_id' }), {
+    const webhookUrl = body.webhook_url?.trim();
+    if (!webhookUrl) {
+      return new Response(JSON.stringify({ ok: false, error: 'Thiếu webhook_url' }), {
         status: 400, headers: { 'Content-Type': 'application/json' }
       });
     }
@@ -27,40 +27,37 @@ export async function POST({ request, params }) {
     ]);
 
     if (surveyRes.error) throw new Error('Không tìm thấy khảo sát');
-    if (respRes.error) throw new Error('Lỗi lấy dữ liệu responses');
+    if (respRes.error) throw new Error('Lỗi lấy responses');
 
     const survey = surveyRes.data;
     const responses = respRes.data || [];
     const questions = survey.questions || [];
 
     if (responses.length === 0) {
-      return new Response(JSON.stringify({ ok: false, error: 'Chưa có response nào để xuất' }), {
+      return new Response(JSON.stringify({ ok: false, error: 'Chưa có response nào' }), {
         status: 400, headers: { 'Content-Type': 'application/json' }
       });
     }
 
     const headers = questions.map(q => q.title || 'Câu hỏi ' + (questions.indexOf(q) + 1));
-
-    const rows = responses.map(r => ({
-      timestamp: new Date(r.submitted_at).toLocaleString('vi-VN'),
-      answers: questions.map(q => {
-        const val = r.answers?.[q.id];
-        return val !== undefined ? String(val) : '';
-      })
+    const rows = responses.map((r, i) => ({
+      stt: i + 1,
+      time: new Date(r.submitted_at).toLocaleString('vi-VN'),
+      answers: questions.map(q => r.answers?.[q.id] !== undefined ? String(r.answers[q.id]) : '')
     }));
 
-    if (body.verify_only) {
-      const info = await verifyAccess(sheetId);
-      return new Response(JSON.stringify({ ok: true, ...info, rowCount: rows.length, headers }), {
-        status: 200, headers: { 'Content-Type': 'application/json' }
-      });
-    }
+    const result = await exportToSheet(webhookUrl, {
+      title: survey.title,
+      survey_id: surveyId,
+      headers,
+      rows
+    });
 
-    const result = await appendToSheet(sheetId, headers, rows);
     return new Response(JSON.stringify({
       ok: true,
-      rows: result.rows,
-      surveyTitle: survey.title
+      rows: rows.length,
+      surveyTitle: survey.title,
+      result
     }), {
       status: 200, headers: { 'Content-Type': 'application/json' }
     });

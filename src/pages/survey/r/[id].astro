@@ -48,11 +48,12 @@ const { id: surveyId } = Astro.params;
       </div>
       <div class="flex gap-3 items-end flex-wrap">
         <div class="flex-1 min-w-[200px]">
-          <label class="text-xs text-slate-500 font-medium mb-1 block">Google Sheet ID</label>
-          <input type="text" id="sheet-id-input" placeholder="1BXi7sRkF5H..." class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono focus:border-violet-400 focus:ring-2 focus:ring-violet-100 outline-none transition-all">
+          <label class="text-xs text-slate-500 font-medium mb-1 block">
+            Webhook URL <button onclick="showSetupGuide()" class="text-violet-600 hover:text-violet-800 ml-1">(hướng dẫn)</button>
+          </label>
+          <input type="url" id="webhook-url-input" placeholder="https://script.google.com/macros/s/..." class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-mono focus:border-violet-400 focus:ring-2 focus:ring-violet-100 outline-none transition-all">
         </div>
-        <button class="rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-all" onclick="verifySheet()">🔍 Kiểm tra</button>
-        <button class="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" id="export-sheet-btn" onclick="exportToSheet()">📤 Xuất</button>
+        <button class="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" id="export-sheet-btn" onclick="exportToSheet()">📤 Xuất ngay</button>
       </div>
       <div id="sheet-info" class="mt-2 text-xs text-slate-400" style="display:none"></div>
     </div>
@@ -152,10 +153,6 @@ const { id: surveyId } = Astro.params;
   }
 
   // === Google Sheets Export ===
-  function getSheetId() {
-    return document.getElementById('sheet-id-input').value.trim();
-  }
-
   function setSheetStatus(msg, ok) {
     const el = document.getElementById('sheet-status');
     el.textContent = msg;
@@ -168,45 +165,23 @@ const { id: surveyId } = Astro.params;
     el.style.display = html ? 'block' : 'none';
   }
 
-  async function verifySheet() {
-    const sheetId = getSheetId();
-    if (!sheetId) { setSheetStatus('Nhập Sheet ID trước', false); return; }
-    setSheetStatus('Đang kiểm tra...', true);
-    setSheetInfo('');
-    try {
-      const r = await fetch('/api/survey/export-sheet/' + SURVEY_ID, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sheet_id: sheetId, verify_only: true })
-      });
-      const json = await r.json();
-      if (json.ok) {
-        setSheetStatus('✅ Kết nối thành công!', true);
-        let html = `<strong>${escHtml(json.title)}</strong> — `;
-        if (json.sheets?.length > 0) html += `Sheet đầu: "${escHtml(json.sheets[0])}" · `;
-        html += `${json.rowCount} responses sẵn sàng`;
-        setSheetInfo(html);
-      } else {
-        setSheetStatus('❌ ' + json.error, false);
-      }
-    } catch (e) {
-      setSheetStatus('❌ Lỗi kết nối: ' + e.message, false);
-    }
-  }
-
   async function exportToSheet() {
-    const sheetId = getSheetId();
-    if (!sheetId) { alert('Nhập Google Sheet ID trước.'); return; }
+    const url = document.getElementById('webhook-url-input').value.trim();
+    if (!url) { alert('Paste webhook URL trước.'); return; }
+    if (!url.startsWith('https://script.google.com/macros/s/')) {
+      alert('URL không hợp lệ. Làm theo hướng dẫn để có URL đúng.');
+      return;
+    }
     const btn = document.getElementById('export-sheet-btn');
     btn.disabled = true;
     btn.textContent = '⏳ Đang xuất...';
-    setSheetStatus('Đang ghi dữ liệu...', true);
+    setSheetStatus('Đang gửi dữ liệu...', true);
     setSheetInfo('');
     try {
       const r = await fetch('/api/survey/export-sheet/' + SURVEY_ID, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sheet_id: sheetId })
+        body: JSON.stringify({ webhook_url: url })
       });
       const json = await r.json();
       if (json.ok) {
@@ -219,9 +194,58 @@ const { id: surveyId } = Astro.params;
       setSheetStatus('❌ Lỗi: ' + e.message, false);
     } finally {
       btn.disabled = false;
-      btn.textContent = '📤 Xuất';
+      btn.textContent = '📤 Xuất ngay';
     }
   }
+
+  function showSetupGuide() {
+    const code = `function doPost(e) {
+  var data = JSON.parse(e.postData.contents);
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+
+  // Ghi header
+  var headers = ['STT', 'Thời gian'].concat(data.headers || []);
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold');
+
+  // Ghi dữ liệu
+  var rows = (data.rows || []).map(function(r) {
+    return [r.stt, r.time].concat(r.answers || []);
+  });
+  if (rows.length > 0) {
+    sheet.getRange(2, 1, rows.length, rows[0].length).setValues(rows);
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({ ok: true }));
+}
+
+function doGet() {
+  return ContentService.createTextOutput('OK');
+}`;
+
+    const html = `<div class="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs leading-relaxed">
+      <p class="font-bold text-slate-700 mb-2">📋 Cách setup — 3 bước:</p>
+      <ol class="list-decimal ml-4 space-y-1 text-slate-600">
+        <li>Mở Google Sheet của bạn → <strong>Extensions → Apps Script</strong></li>
+        <li>Xoá code cũ, paste code bên dưới → <strong>Deploy → New deployment</strong> → Chọn <strong>Web app</strong></li>
+        <li>Execute as: <strong>Me</strong>, Access: <strong>Anyone</strong> → Deploy → Copy URL → Paste vào ô trên → Nhấn <strong>Xuất</strong></li>
+      </ol>
+      <div class="mt-2 relative">
+        <button onclick="copyScriptCode()" class="absolute top-2 right-2 text-xs px-2 py-1 rounded bg-white border border-slate-200 hover:bg-slate-100 font-medium">📋 Copy</button>
+        <pre class="bg-slate-900 text-green-300 p-3 rounded-lg overflow-x-auto mt-1" style="font-size:10px;line-height:1.5">${escHtml(code)}</pre>
+      </div>
+    </div>`;
+    setSheetInfo(html);
+    window.sheetScriptCode = code;
+  }
+
+  window.copyScriptCode = function() {
+    if (window.sheetScriptCode && navigator.clipboard) {
+      navigator.clipboard.writeText(window.sheetScriptCode).then(function() {
+        alert('Đã copy code! Paste vào Apps Script editor.');
+      });
+    }
+  };
 
   function exportXLSX() {
     if (responses.length === 0) { alert('Chưa có response để xuất.'); return; }
