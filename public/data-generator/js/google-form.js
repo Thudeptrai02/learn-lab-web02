@@ -53,7 +53,18 @@ async function detectGoogleForm() {
   const html = await fetchFormHTML(fid);
   if (html) {
     const qlist = parseFormHTML(html);
-    if (qlist) { buildMappingTable(qlist, tbody, status, mappingDiv, url); return; }
+    if (qlist) {
+      // Luôn hiện entry codes dù có data variables hay không
+      showEntryCodesPopup(qlist);
+      const dataVars = getDataVariables();
+      if (dataVars.length > 0) {
+        buildMappingTable(qlist, tbody, status, mappingDiv, url);
+      } else {
+        status.innerHTML = '✅ Đã dò được <b>' + qlist.length + '</b> câu hỏi. Entry codes hiện bên dưới.';
+        mappingDiv.style.display = 'none';
+      }
+      return;
+    }
   }
   status.innerHTML = '⚠️ Không đọc được form. Nhập Entry ID thủ công.';
   showManualEntry(tbody, status, mappingDiv, url, fid);
@@ -61,6 +72,35 @@ async function detectGoogleForm() {
   const de = document.getElementById('gf-date-end');
   if (!ds.value) { const d = new Date(); d.setDate(d.getDate()-60); ds.value = d.toISOString().split('T')[0]; }
   if (!de.value) { de.value = new Date().toISOString().split('T')[0]; }
+}
+
+function showEntryCodesPopup(qlist) {
+  var old = document.getElementById('gf-entry-block');
+  if (old) old.remove();
+
+  var block = document.createElement('div');
+  block.id = 'gf-entry-block';
+  block.style.cssText = 'margin-top:.5rem;padding:.65rem .75rem;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius);font-size:.75rem';
+
+  var flatRow1 = qlist.map(function(q) { return 'entry.' + q.id; }).join('\t');
+  var mappingRef = qlist.map(function(q, i) { return (i+1) + '. entry.' + q.id + '  ← ' + q.text; }).join('\n');
+
+  block.innerHTML =
+    '<div style="font-weight:600;margin-bottom:.35rem;color:#15803d">📋 Entry codes — copy dán vào Hàng 1 của tab SPSS_Data:</div>' +
+    '<div style="display:flex;gap:.35rem;align-items:start;flex-wrap:wrap">' +
+    '<div style="flex:1;min-width:200px">' +
+    '<textarea id="gf-entry-flat" readonly style="width:100%;font-family:monospace;font-size:.7rem;padding:.35rem;border:1px solid var(--gray-300);border-radius:4px;background:#fff;resize:none;overflow:hidden" rows="1" onfocus="this.select()">' + flatRow1 + '</textarea>' +
+    '<div style="margin-top:.15rem;color:#15803d;font-size:.65rem">⬆️ Select all → Copy (Ctrl+C) → Paste vào Hàng 1 Sheets (tự động chia cột)</div>' +
+    '</div>' +
+    '<button class="btn btn-sm" onclick="var t=document.getElementById(\'gf-entry-flat\');t.select();navigator.clipboard.writeText(t.value);showToast(\'✅ Đã copy entry codes\',\'success\')" style="background:#15803d;color:#fff;white-space:nowrap;font-size:.7rem;padding:.35rem .6rem">📋 Copy</button>' +
+    '</div>' +
+    '<details style="margin-top:.35rem;font-size:.7rem">' +
+    '<summary style="cursor:pointer;color:#6b7280">📖 Xem mapping câu hỏi ⇢ entry code</summary>' +
+    '<pre style="margin:.25rem 0 0;padding:.35rem;background:#fff;border:1px solid var(--gray-200);border-radius:4px;font-size:.65rem;line-height:1.5;overflow-x:auto">' + mappingRef + '</pre>' +
+    '</details>';
+
+  var mappingDiv = document.getElementById('gf-mapping');
+  mappingDiv.parentNode.insertBefore(block, mappingDiv.nextSibling);
 }
 
 function showManualEntry(tbody, status, mappingDiv, url, fid) {
@@ -431,6 +471,35 @@ function generateFormScript() {
 
   const roleLabels = { independent:'Biến độc lập', dependent:'Biến phụ thuộc', mediating:'Biến trung gian', moderating:'Biến điều tiết' };
 
+  // Xác định thứ tự cột: construct items → demos → timestamp
+  var colOrder = [];
+  cKeys.forEach(function(k) { constructs[k].items.forEach(function(it) { colOrder.push(it.name); }); });
+  demos.forEach(function(d) { colOrder.push(d.name); });
+
+  // Lấy dữ liệu từ generatedData (nếu có) và chuyển thành mảng 2 chiều
+  var dataRows2d = [];
+  if (generatedData && generatedData.rawRows && generatedData.rawRows.length > 0) {
+    var maxSample = generatedData.rawRows.length;
+    var startDate = new Date();
+    startDate.setDate(startDate.getDate() - 60);
+    for (var ri = 0; ri < maxSample; ri++) {
+      var row = generatedData.rawRows[ri];
+      var rowVals = [];
+      colOrder.forEach(function(vname) {
+        var v = row[vname];
+        rowVals.push(v === null || v === undefined ? '' : String(v));
+      });
+      // Thêm timestamp (giả lập ngày trong 60 ngày qua, giờ hành chính)
+      var ts = new Date(startDate.getTime() + ri * Math.random() * 86400000);
+      ts.setHours(8 + Math.floor(Math.random() * 10));
+      ts.setMinutes(Math.floor(Math.random() * 60));
+      rowVals.push(ts.toLocaleDateString('vi-VN') + ' ' + ts.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }));
+      dataRows2d.push(rowVals);
+    }
+  }
+  var hasData = dataRows2d.length > 0;
+  var dataJson = hasData ? JSON.stringify(dataRows2d) : 'null';
+
   let script = `// === Google Form Generator - Script tạo form từ model ===
 // 📋 HƯỚNG DẪN:
 // 1. Vào https://script.google.com → + New project
@@ -440,10 +509,14 @@ function generateFormScript() {
 // 5. View > Logs để xem link Google Form
 
 function onOpen() {
-  const ui = FormApp.getUi();
-  ui.createMenu('📋 Khảo sát')
-    .addItem('🚀 Tạo Form từ Model', 'createSurveyForm')
-    .addToUi();
+  try {
+    const ui = FormApp.getUi();
+    ui.createMenu('📋 Khảo sát')
+      .addItem('🚀 Tạo Form từ Model', 'createSurveyForm')
+      .addToUi();
+  } catch(e) {
+    // Chạy dạng standalone — bỏ qua UI menu
+  }
 }
 
 function createSurveyForm() {
@@ -524,16 +597,60 @@ function createSurveyForm() {
   end.setTitle('Kết thúc');
   end.setHelpText('Cảm ơn bạn đã hoàn thành khảo sát!');
 
-  // Log entry IDs for auto-fill mapping
+  // === TẠO FILE SPREADSHEET "MỒI" CHỨA ENTRY ID ===
   const allItems = form.getItems();
+  var entryIds = [];
+  var questionTitles = [];
   for (let i = 0; i < allItems.length; i++) {
     const item = allItems[i];
     if (item.getType() === FormApp.ItemType.MULTIPLE_CHOICE || item.getType() === FormApp.ItemType.TEXT) {
+      entryIds.push(item.getId());
+      questionTitles.push(item.getTitle());
       Logger.log('Entry ID for "' + item.getTitle() + '": ' + item.getId());
     }
   }
 
-  Logger.log('=== COPY CÁC ENTRY ID TRÊN ĐỂ DÁN VÀO TOOL ===');
+  if (entryIds.length > 0) {
+    var sheetName = 'Bo_Chay_SPSS_' + new Date().toISOString().slice(0,10);
+    var ss = SpreadsheetApp.create(sheetName);
+    var sheet = ss.getActiveSheet();
+    sheet.setName('SPSS_Data');
+
+    // Hàng 1: entry.xxxx
+    var headerRow = entryIds.map(function(id) { return 'entry.' + id; });
+    sheet.getRange(1, 1, 1, headerRow.length).setValues([headerRow]);
+
+    // Hàng 2: tên câu hỏi
+    sheet.getRange(2, 1, 1, questionTitles.length).setValues([questionTitles]);
+
+    // Format Hàng 1 in đậm
+    sheet.getRange(1, 1, 1, headerRow.length).setFontWeight('bold');
+    sheet.getRange(2, 1, 1, questionTitles.length).setFontWeight('bold');
+    sheet.getRange(1, 1, 1, headerRow.length).setBackground('#f0fdf4');
+    sheet.getRange(2, 1, 1, questionTitles.length).setBackground('#f8fafc');
+
+    // Auto resize cột
+    for (var c = 1; c <= headerRow.length; c++) {
+      sheet.autoResizeColumn(c);
+    }
+
+    // Hàng 3+: dữ liệu mẫu (nếu có)
+    var sampleData = ${dataJson};
+    if (sampleData && sampleData.length > 0) {
+      var numRows = sampleData.length;
+      var dataRange = sheet.getRange(3, 1, numRows, sampleData[0].length);
+      dataRange.setValues(sampleData.slice(0, numRows));
+      Logger.log('Đã điền ' + numRows + ' dòng dữ liệu mẫu từ Hàng 3.');
+    }
+
+    Logger.log('=== FILE "MỒI" ĐÃ TẠO ===');
+    Logger.log('Sheet URL: ' + ss.getUrl());
+    Logger.log('Hàng 1: entry.xxxx đã được điền sẵn.');
+    Logger.log('Hàng 2: tên câu hỏi.');
+    Logger.log('Hàng 3+: dữ liệu mẫu (nếu có).');
+    Logger.log('👉 Dán dữ liệu SPSS thật vào thay thế Hàng 3 trở xuống.');
+  }
+
   Logger.log('Form URL: ' + form.getPublishedUrl());
   Logger.log('Edit URL: ' + form.getEditUrl());
 }
