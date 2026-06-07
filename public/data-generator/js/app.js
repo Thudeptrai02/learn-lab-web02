@@ -130,29 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sel) assignImportVar(sel.dataset.var, sel.value);
   });
 
-  const hourOpts = (sel, def) => {
-    for (let i = 0; i < 24; i++) {
-      const o = document.createElement('option');
-      o.value = i;
-      o.textContent = String(i).padStart(2, '0') + ':00';
-      if (i === def) o.selected = true;
-      sel.appendChild(o);
-    }
-  };
-  hourOpts(document.getElementById('gf-hour-start'), 7);
-  hourOpts(document.getElementById('gf-hour-end'), 23);
 
-  const ds = document.getElementById('gf-date-start');
-  const de = document.getElementById('gf-date-end');
-  if (ds && de) {
-    ds.value = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
-    de.value = new Date(Date.now() + 7 * 864e5).toISOString().slice(0, 10);
-  }
-
-  ['gf-date-start', 'gf-date-end', 'gf-hour-start', 'gf-hour-end', 'gf-rate-min', 'gf-rate-max'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener('change', function() {});
-  });
 
   if (typeof addDemoPctRow === 'function') {
     setTimeout(() => {

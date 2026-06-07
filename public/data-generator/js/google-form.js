@@ -159,6 +159,11 @@ function showManualEntry(tbody, status, mappingDiv, url, fid) {
   status.innerHTML = '✏️ Nhập Entry ID cho từng biến. Mở form → F12 → tìm "entry." trong HTML để lấy ID.';
   document.getElementById('gf-badge').style.display = 'inline-block';
   document.getElementById('gf-badge').textContent = dataVars.length + ' biến';
+  // Gán ngày mặc định cho các input còn lại
+  var ds = document.getElementById('gf-date-start');
+  var de = document.getElementById('gf-date-end');
+  if (ds && !ds.value) { var d = new Date(); d.setDate(d.getDate()-60); ds.value = d.toISOString().split('T')[0]; }
+  if (de && !de.value) { de.value = new Date().toISOString().split('T')[0]; }
 }
 
 function buildMappingTable(qlist, tbody, status, mappingDiv, url) {
@@ -224,9 +229,9 @@ function generatePrefilledLinks() {
   if (_gfEntryMap.length === 0) { showToast('Chưa có mapping. Bấm "Dò câu hỏi" trước.', 'error'); return; }
 
   const { rawRows, colNames } = generatedData;
-  const noisePct = parseFloat(document.getElementById('gf-noise').value) || 5;
-  const dateStart = new Date(document.getElementById('gf-date-start').value || Date.now() - 60*24*60*60000);
-  const dateEnd = new Date(document.getElementById('gf-date-end').value || Date.now());
+  const noisePct = 5;
+  const dateStart = new Date(Date.now() - 60*24*60*60000);
+  const dateEnd = new Date();
   const dateRange = dateEnd - dateStart;
 
   const base = `https://docs.google.com/forms/d/e/${fid}/viewform`;
@@ -876,12 +881,16 @@ function stopAutoSubmit() { xoaTatCaTrigger(); }
 }
 
 function generateTimestampScript() {
-  const ds = document.getElementById('gf-date-start').value;
-  const de = document.getElementById('gf-date-end').value;
-  const hStart = parseInt(document.getElementById('gf-hour-start').value) || 7;
-  const hEnd = parseInt(document.getElementById('gf-hour-end').value) || 23;
-  const rateMin = parseInt(document.getElementById('gf-rate-min').value) || 2;
-  const rateMax = parseInt(document.getElementById('gf-rate-max').value) || 5;
+  var ds = "";
+  var de = "";
+  var elDs = document.getElementById('gf-date-start');
+  var elDe = document.getElementById('gf-date-end');
+  if (elDs) ds = elDs.value;
+  if (elDe) de = elDe.value;
+  const hStart = 7;
+  const hEnd = 23;
+  const rateMin = 2;
+  const rateMax = 5;
 
   const script = `// === Fake Timestamp Script ===
 // 🕒 Script này sửa cột Timestamp (cột A) trong Google Sheet
