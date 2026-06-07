@@ -92,7 +92,7 @@ function superAutoSubmitApp() {
       if (!ec || ec === "EDIT_URL") continue;
       var eid = ec.replace("entry.", "");
       var val = dataRow[ci];
-      if (val === null || val === undefined || val === "") { skipped.push(eid); continue; }
+      if (val === null || val === undefined || val === "") { skipped.push(eid + "(blank)"); continue; }
 
       var item = idToItem[eid];
       if (!item) { skipped.push(eid + "(no item)"); continue; }
@@ -101,11 +101,8 @@ function superAutoSubmitApp() {
         var itemType = item.getType();
         if (itemType === FormApp.ItemType.MULTIPLE_CHOICE) {
           var mcItem = item.asMultipleChoiceItem();
-          var choice = mcItem.createChoice(String(val));
-          var itemResponse = mcItem.createResponse([choice]);
-          // Hoặc
-          var itemResponse2 = mcItem.createResponse(String(val));
-          response.withItemResponse(itemResponse2);
+          var itemResponse = mcItem.createResponse(String(val));
+          response.withItemResponse(itemResponse);
           submittedCount++;
         } else if (itemType === FormApp.ItemType.TEXT) {
           var textItem = item.asTextItem();
@@ -116,12 +113,12 @@ function superAutoSubmitApp() {
           skipped.push(eid + "(type=" + itemType + ")");
         }
       } catch (e) {
-        skipped.push(eid + "(err:" + e.message + ")");
+        skipped.push(eid + " err=" + e.message);
       }
     }
 
     Logger.log("Submitted: " + submittedCount + "/" + (numCols - 1) + " items");
-    if (skipped.length > 0) Logger.log("Skipped: " + JSON.stringify(skipped.slice(0, 10)));
+    Logger.log("Skipped: " + (skipped.length > 0 ? JSON.stringify(skipped) : "0"));
 
     try {
       response.submit();
