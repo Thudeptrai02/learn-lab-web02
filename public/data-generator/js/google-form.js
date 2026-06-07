@@ -3,6 +3,7 @@ let _gfEntryMap = [];
 
 function parseFormId(url) {
   if (!url) return null;
+  url = url.split('?')[0]; // bỏ query params
   const m = url.match(/\/d\/e\/([a-zA-Z0-9_-]+)/) || url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   return m ? m[1] : null;
 }
@@ -106,12 +107,11 @@ async function detectGoogleForm() {
       return;
     }
   }
-  status.innerHTML = '⚠️ Không đọc được form. Nhập Entry ID thủ công.';
-  showManualEntry(tbody, status, mappingDiv, url, fid);
-  const ds = document.getElementById('gf-date-start');
-  const de = document.getElementById('gf-date-end');
-  if (!ds.value) { const d = new Date(); d.setDate(d.getDate()-60); ds.value = d.toISOString().split('T')[0]; }
-  if (!de.value) { de.value = new Date().toISOString().split('T')[0]; }
+  status.innerHTML = '⚠️ Không đọc được form qua proxy. Có thể form bị chặn hoặc proxy lỗi. <button class="btn btn-sm btn-outline" onclick="detectGoogleForm()" style="font-size:.7rem">🔄 Thử lại</button>';
+  var dv = getDataVariables();
+  if (dv.length > 0) {
+    showManualEntry(tbody, status, mappingDiv, url, fid);
+  }
 }
 
 function showEntryCodesPopup(qlist) {
