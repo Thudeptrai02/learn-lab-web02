@@ -63,20 +63,48 @@ function superAutoSubmitApp() {
     // Lấy fbzx từ HTML
     var html = getResp.getContentText();
     var fbzx = "-1";
-    // fbzx trong js code: fbzx = "XXXXX" hoặc "fbzx":"XXXXX"
-    var fbMatch = html.match(/fbzx['"]?\s*[:=]\s*['"]([^'"]+)['"]/);
-    if (fbMatch) fbzx = fbMatch[1];
-    // Thử tìm trong FB_PUBLIC_LOAD_DATA_
+
+    // 1. fbzx xuất hiện trong inline script dạng: fbzx:"ABCD1234" hoặc "fbzx":"ABCD"
+    //  variable fbzx = "ABCD"  hoặc fbzx value: "ABCD"
+    var re1 = html.match(/["']?fbzx["']?\s*[:=]\s*["']([a-zA-Z0-9_-]{5,})["']/);
+    if (re1) fbzx = re1[1];
+    Logger.log("Thử 1 (fbzx:value): " + (re1 ? fbzx : "không"));
+
+    // 2. Trong URL dạng &fbzx=ABCD&
     if (fbzx === "-1") {
-      fbzx = html.match(/"fbzx"\s*:\s*"([^"]+)"/);
-      if (fbzx) { fbzx = fbzx[1]; } else { fbzx = "-1"; }
+      var re2 = html.match(/[?&]fbzx=([a-zA-Z0-9_-]{5,})(?:&|")/);
+      if (re2) fbzx = re2[1];
+      Logger.log("Thử 2 (?fbzx=): " + (re2 ? fbzx : "không"));
     }
-    // Thử tìm dạng: fbzx=XXXXX trong URL hoặc script inline
+
+    // 3. Trong JSON string trong FB_PUBLIC_LOAD_DATA_
     if (fbzx === "-1") {
-      fbzx = html.match(/fbzx=([a-zA-Z0-9_-]+)/);
-      if (fbzx) { fbzx = fbzx[1]; } else { fbzx = "-1"; }
+      // fbzx nằm trong ldJson, tìm số > 100000 (các số là ID)
+      var ld = ldMatch ? ldMatch[1] : "";
+      var nums = ld.match(/\b\d{6,}\b/g);
+      if (nums) {
+        Logger.log("Các số >6 digit trong FB_PUBLIC: " + JSON.stringify(nums.slice(0, 20)));
+      }
+      // Tìm "fbzx" key trong JSON
+      var fbInLd = ld.match(/"fbzx"\s*:\s*(\d+)/);
+      if (fbInLd) {
+        fbzx = fbInLd[1];
+        Logger.log("Thử 3 (fbzx trong FB_PUBLIC): " + fbzx);
+      }
     }
-    Logger.log("fbzx: " + fbzx);
+
+    // 4. fbzx là giá trị số, thường kết thúc bằng chuỗi dài
+    if (fbzx === "-1") {
+      // Trong FB_PUBLIC, fbzx thường là số đầu tiên của một mảng con
+      // format: [number, null, null, "ABCDEF...", ...]
+      var fbInArray = html.match(/\[(\d{8,}),\s*null,\s*null,\s*"/);
+      if (fbInArray) {
+        fbzx = fbInArray[1];
+        Logger.log("Thử 4 ([bigNum,null,null,\"): " + fbzx);
+      }
+    }
+
+    Logger.log("fbzx cuối: " + fbzx);
 
     // Bước 2: Tìm entry.XXXXX trong HTML dưới mọi format
     // Google Forms mới lưu entry IDs trong FB_PUBLIC_LOAD_DATA_
