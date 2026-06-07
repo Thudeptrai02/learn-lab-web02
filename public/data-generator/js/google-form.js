@@ -476,34 +476,10 @@ function generateFormScript() {
   cKeys.forEach(function(k) { constructs[k].items.forEach(function(it) { colOrder.push(it.name); }); });
   demos.forEach(function(d) { colOrder.push(d.name); });
 
-  // Xây mapping: tên biến → label hiển thị (để khớp với choice trong Form)
-  var likertLabels = ['', '1 - Rất không đồng ý', '2 - Không đồng ý', '3 - Trung lập', '4 - Đồng ý', '5 - Rất đồng ý'];
-  var valueToLabel = {};
-  // Construct items: Likert 1-5
-  cKeys.forEach(function(k) {
-    constructs[k].items.forEach(function(it) {
-      valueToLabel[it.name] = function(v) {
-        var num = Number(v);
-        return (num >= 1 && num <= 5 && !isNaN(num)) ? likertLabels[num] : String(v);
-      };
-    });
-  });
-  // Demographic items: map số → "idx+1. customValue"
-  demos.forEach(function(d) {
-    if (d.customValues && d.customValues.length > 0) {
-      valueToLabel[d.name] = function(v) {
-        var num = Number(v);
-        if (!isNaN(num) && num >= 1 && num <= d.customValues.length) {
-          return (num) + '. ' + d.customValues[num - 1];
-        }
-        // Nếu giá trị đã là text, tìm trong customValues
-        var idx = d.customValues.indexOf(String(v));
-        return idx >= 0 ? (idx + 1) + '. ' + d.customValues[idx] : String(v);
-      };
-    } else {
-      valueToLabel[d.name] = function(v) { return v === null || v === undefined ? '' : String(v); };
-    }
-  });
+  // Chuyển giá trị về dạng số để khớp choice trong Form (choice là số)
+  function toChoiceValue(v) {
+    return v === null || v === undefined ? '' : String(v);
+  }
 
   // Lấy dữ liệu từ generatedData (nếu có) và chuyển thành mảng 2 chiều
   var dataRows2d = [];
@@ -515,8 +491,7 @@ function generateFormScript() {
       var row = generatedData.rawRows[ri];
       var rowVals = [];
       colOrder.forEach(function(vname) {
-        var mapper = valueToLabel[vname];
-        rowVals.push(mapper ? mapper(row[vname]) : (row[vname] === null || row[vname] === undefined ? '' : String(row[vname])));
+        rowVals.push(toChoiceValue(row[vname]));
       });
       // Thêm timestamp (giả lập ngày trong 60 ngày qua, giờ hành chính)
       var ts = new Date(startDate.getTime() + ri * Math.random() * 86400000);
@@ -576,13 +551,14 @@ function createSurveyForm() {
   const q${ki}_${ii} = form.addMultipleChoiceItem();
   q${ki}_${ii}.setTitle('${qText}');
   q${ki}_${ii}.setRequired(true);
-  q${ki}_${ii}.setChoices([
-    q${ki}_${ii}.createChoice('1 - Rất không đồng ý'),
-    q${ki}_${ii}.createChoice('2 - Không đồng ý'),
-    q${ki}_${ii}.createChoice('3 - Trung lập'),
-    q${ki}_${ii}.createChoice('4 - Đồng ý'),
-    q${ki}_${ii}.createChoice('5 - Rất đồng ý')
-  ]);`;
+      q${ki}_${ii}.setChoices([
+    q${ki}_${ii}.createChoice('1'),
+    q${ki}_${ii}.createChoice('2'),
+    q${ki}_${ii}.createChoice('3'),
+    q${ki}_${ii}.createChoice('4'),
+    q${ki}_${ii}.createChoice('5')
+  ]);
+  q${ki}_${ii}.setHelpText('1=Rất không đồng ý  5=Rất đồng ý');`;
     });
   });
 
@@ -600,8 +576,9 @@ function createSurveyForm() {
   const d${di} = form.addMultipleChoiceItem();
   d${di}.setTitle('${dLabel}');
   d${di}.setRequired(false);
-  d${di}.setChoices([${d.customValues.map((cv,ci) => `\n    d${di}.createChoice('${(ci+1)}. ${cv.replace(/'/g, "\\'")}')`).join(',')}
-  ]);`;
+  d${di}.setChoices([${d.customValues.map((cv,ci) => `\n    d${di}.createChoice('${ci+1}')`).join(',')}
+  ]);
+  d${di}.setHelpText('${d.customValues.map((cv,ci) => `${ci+1}=${cv.replace(/'/g, "\\'")}`).join(', ')}');`;
       } else {
         script += `
   // ${d.name}
