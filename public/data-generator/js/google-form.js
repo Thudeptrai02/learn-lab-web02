@@ -16,11 +16,18 @@ async function fetchFormHTML(fid) {
   const proxies = [
     `https://api.allorigins.win/raw?url=https://docs.google.com/forms/d/e/${fid}/viewform`,
     `https://corsproxy.io/?url=https://docs.google.com/forms/d/e/${fid}/viewform`,
+    `https://api.allorigins.win/get?url=${encodeURIComponent('https://docs.google.com/forms/d/e/' + fid + '/viewform')}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent('https://docs.google.com/forms/d/e/' + fid + '/viewform')}`,
   ];
   for (const proxy of proxies) {
     try {
-      const r = await fetch(proxy, { signal: AbortSignal.timeout(8000) });
-      if (r.ok) return await r.text();
+      const r = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
+      if (r.ok) {
+        let text = await r.text();
+        // Một số proxy wrap response trong JSON
+        try { const j = JSON.parse(text); if (j.contents) text = j.contents; } catch(e) {}
+        if (text && text.length > 100) return text;
+      }
     } catch(e) {}
   }
   return null;
