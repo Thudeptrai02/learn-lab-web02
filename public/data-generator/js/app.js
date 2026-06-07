@@ -151,9 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   ['gf-date-start', 'gf-date-end', 'gf-hour-start', 'gf-hour-end', 'gf-rate-min', 'gf-rate-max'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener('change', updateFillSummary);
+    if (el) el.addEventListener('change', function() {});
   });
-  updateFillSummary();
 
   if (typeof addDemoPctRow === 'function') {
     setTimeout(() => {
