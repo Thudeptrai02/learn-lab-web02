@@ -44,15 +44,14 @@ function superAutoSubmitApp() {
     }
     if (!editUrl) {
       Logger.log("⚠️ Không tìm thấy EDIT_URL trong Sheet. Tìm form trong Drive...");
-      // Thử tìm form bằng tên
-      var files = DriveApp.getFilesByName("Khảo sát - Chất lượng cảm nhận");
-      while (files.hasNext()) {
-        var f = files.next();
-        if (f.getMimeType() === "application/vnd.google-apps.form") {
-          editUrl = f.getUrl();
-          Logger.log("✅ Tìm thấy form: " + editUrl);
-          break;
-        }
+      // Tìm tất cả form có tên bắt đầu bằng "Khảo sát"
+      var allForms = DriveApp.searchFiles("mimeType='application/vnd.google-apps.form' and title contains 'Khảo sát'");
+      var count = 0;
+      while (allForms.hasNext() && count < 10) {
+        var f = allForms.next();
+        count++;
+        Logger.log("  🔍 Form #" + count + ": " + f.getName() + " → " + f.getUrl());
+        if (!editUrl) editUrl = f.getUrl();
       }
     }
 
@@ -133,9 +132,6 @@ function superAutoSubmitApp() {
     } catch (e) {
       Logger.log("❌ Submit lỗi: " + e.message + "\n" + e.stack);
     }
-    sheet.deleteRow(3);
-    xoaTatCaTrigger();
-    taoTriggerNgauNhien();
 
   } catch (e) {
     Logger.log("LỖI: " + e.message + "\n" + e.stack);

@@ -654,12 +654,18 @@ function createSurveyForm() {
     form.setDestination(FormApp.DestinationType.SPREADSHEET, responseSs.getId());
     var responseSheet = responseSs.getSheets()[0];
 
-    // Ghi response sheet URL vào cuối Sheet mồi
+    // Ghi response sheet URL + Edit URL vào cuối Sheet mồi
     var infoCol = headerRow.length + 2;
     sheet.getRange(1, infoCol).setValue('RESPONSE_SHEET_URL');
     sheet.getRange(2, infoCol).setValue(responseSs.getUrl());
     sheet.getRange(1, infoCol, 2, 1).setFontWeight('bold');
     sheet.getRange(1, infoCol, 2, 1).setBackground('#fef3c7');
+
+    var editCol = headerRow.length + 3;
+    sheet.getRange(1, editCol).setValue('EDIT_URL');
+    sheet.getRange(2, editCol).setValue(form.getEditUrl());
+    sheet.getRange(1, editCol, 2, 1).setFontWeight('bold');
+    sheet.getRange(1, editCol, 2, 1).setBackground('#e0f2fe');
 
     Logger.log('=== FILE "MỒI" ĐÃ TẠO ===');
     Logger.log('Sheet URL: ' + ss.getUrl());
@@ -667,6 +673,7 @@ function createSurveyForm() {
     Logger.log('Hàng 2: tên câu hỏi.');
     Logger.log('Hàng 3+: dữ liệu mẫu (nếu có).');
     Logger.log('RESPONSE SHEET: ' + responseSs.getUrl());
+    Logger.log('EDIT URL: ' + form.getEditUrl());
     Logger.log('👉 Dán dữ liệu SPSS thật vào thay thế Hàng 3 trở xuống.');
   }
 
