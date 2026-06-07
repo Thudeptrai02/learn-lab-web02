@@ -476,6 +476,35 @@ function generateFormScript() {
   cKeys.forEach(function(k) { constructs[k].items.forEach(function(it) { colOrder.push(it.name); }); });
   demos.forEach(function(d) { colOrder.push(d.name); });
 
+  // Xây mapping: tên biến → label hiển thị (để khớp với choice trong Form)
+  var likertLabels = ['', '1 - Rất không đồng ý', '2 - Không đồng ý', '3 - Trung lập', '4 - Đồng ý', '5 - Rất đồng ý'];
+  var valueToLabel = {};
+  // Construct items: Likert 1-5
+  cKeys.forEach(function(k) {
+    constructs[k].items.forEach(function(it) {
+      valueToLabel[it.name] = function(v) {
+        var num = Number(v);
+        return (num >= 1 && num <= 5 && !isNaN(num)) ? likertLabels[num] : String(v);
+      };
+    });
+  });
+  // Demographic items: map số → "idx+1. customValue"
+  demos.forEach(function(d) {
+    if (d.customValues && d.customValues.length > 0) {
+      valueToLabel[d.name] = function(v) {
+        var num = Number(v);
+        if (!isNaN(num) && num >= 1 && num <= d.customValues.length) {
+          return (num) + '. ' + d.customValues[num - 1];
+        }
+        // Nếu giá trị đã là text, tìm trong customValues
+        var idx = d.customValues.indexOf(String(v));
+        return idx >= 0 ? (idx + 1) + '. ' + d.customValues[idx] : String(v);
+      };
+    } else {
+      valueToLabel[d.name] = function(v) { return v === null || v === undefined ? '' : String(v); };
+    }
+  });
+
   // Lấy dữ liệu từ generatedData (nếu có) và chuyển thành mảng 2 chiều
   var dataRows2d = [];
   if (generatedData && generatedData.rawRows && generatedData.rawRows.length > 0) {
@@ -486,8 +515,8 @@ function generateFormScript() {
       var row = generatedData.rawRows[ri];
       var rowVals = [];
       colOrder.forEach(function(vname) {
-        var v = row[vname];
-        rowVals.push(v === null || v === undefined ? '' : String(v));
+        var mapper = valueToLabel[vname];
+        rowVals.push(mapper ? mapper(row[vname]) : (row[vname] === null || row[vname] === undefined ? '' : String(row[vname])));
       });
       // Thêm timestamp (giả lập ngày trong 60 ngày qua, giờ hành chính)
       var ts = new Date(startDate.getTime() + ri * Math.random() * 86400000);
