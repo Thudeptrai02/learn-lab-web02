@@ -94,16 +94,36 @@ function superAutoSubmitApp() {
       Logger.log("❌ Không tìm thấy FB_PUBLIC_LOAD_DATA_");
     }
 
-    // Tìm entry IDs trong phần "entries" của form data
-    var entryMatches = html.match(/["']entry\.(\d+)["']/g);
-    Logger.log("entry.XXXXX trong HTML: " + (entryMatches ? entryMatches.length + " matches" : "0"));
+    // Tìm entry IDs từ Sheet trong FB_PUBLIC_LOAD_DATA_
+    var ldJson = ldMatch ? ldMatch[1] : "";
+    var entryIdsFromSheet = [];
+    for (var ci = 0; ci < numCols; ci++) {
+      var e = String(entryRow[ci]).trim().replace("entry.", "");
+      if (e) entryIdsFromSheet.push(e);
+    }
+    Logger.log("Entry ID Sheet (" + entryIdsFromSheet.length + "): " + JSON.stringify(entryIdsFromSheet));
 
-    // Tìm tất cả số 9 digit (entry ID có 9 chữ số)
-    var nineDigits = html.match(/\b\d{9}\b/g);
-    var nineUnique = [];
-    if (nineDigits) {
-      nineDigits.forEach(function(n) { if (nineUnique.indexOf(n) < 0) nineUnique.push(n); });
-      Logger.log("Số 9 digit: " + nineUnique.length + " cái: " + JSON.stringify(nineUnique.slice(0, 30)));
+    // Tìm từng entry ID trong FB_PUBLIC_LOAD_DATA_
+    var foundInLd = [];
+    var notFoundInLd = [];
+    for (var ei = 0; ei < entryIdsFromSheet.length; ei++) {
+      if (ldJson.indexOf('"' + entryIdsFromSheet[ei] + '"') >= 0) {
+        foundInLd.push(entryIdsFromSheet[ei]);
+      } else {
+        notFoundInLd.push(entryIdsFromSheet[ei]);
+      }
+    }
+    Logger.log("Có trong FB_PUBLIC_LOAD_DATA_: " + foundInLd.length + "/" + entryIdsFromSheet.length);
+    if (notFoundInLd.length > 0) {
+      Logger.log("⚠️ KHÔNG có trong FB_PUBLIC_LOAD_DATA_: " + JSON.stringify(notFoundInLd));
+    }
+
+    // Tìm entry.XXXXX trong ldJson
+    var ldEntryMatches = ldJson.match(/entry\.(\d+)/g);
+    var ldUnique = [];
+    if (ldEntryMatches) {
+      ldEntryMatches.forEach(function(e) { if (ldUnique.indexOf(e) < 0) ldUnique.push(e); });
+      Logger.log("entry.XXXXX trong FB_PUBLIC_LOAD_DATA_: " + JSON.stringify(ldUnique));
     }
 
     // Bước 3: Xây payload từ Sheet
