@@ -70,24 +70,37 @@ function superAutoSubmitApp() {
     var form = FormApp.openByUrl(editUrl);
     var items = form.getItems();
     Logger.log("Form: '" + form.getTitle() + "' (" + items.length + " items)");
-    Logger.log("Published URL: " + form.getPublishedUrl());
+
+    // Log thứ tự items trong form (chỉ MULTIPLE_CHOICE và TEXT)
+    var formItemIds = [];
+    for (var ii = 0; ii < items.length; ii++) {
+      var item = items[ii];
+      var t = item.getType();
+      if (t === FormApp.ItemType.MULTIPLE_CHOICE || t === FormApp.ItemType.TEXT) {
+        Logger.log("  Form item #" + formItemIds.length + ": ID=" + item.getId() + " title='" + item.getTitle() + "' type=" + t);
+        formItemIds.push(String(item.getId()));
+      }
+    }
+
+    // Log thứ tự cột trong Sheet
+    Logger.log("--- Sheet columns (entry codes):");
+    var ecIdx = 0;
+    for (var ci = 0; ci < numCols; ci++) {
+      var ec = String(entryRow[ci]).trim();
+      if (!ec || ec === "EDIT_URL" || ec === "RESPONSE_SHEET_URL") continue;
+      if (/^entry\./.test(ec)) {
+        Logger.log("  Sheet col #" + ecIdx + ": " + ec + " value=" + String(dataRow[ci]));
+        ecIdx++;
+      }
+    }
 
     // Xây map: entry ID → item
     var idToItem = {};
-    var entryIdsFromSheet = [];
-    for (var ci = 0; ci < numCols; ci++) {
-      var ec = String(entryRow[ci]).trim();
-      if (!ec || ec === "EDIT_URL") continue;
-      var eid = ec.replace("entry.", "");
-      entryIdsFromSheet.push(eid);
-    }
-
     for (var ii = 0; ii < items.length; ii++) {
       var item = items[ii];
-      var id = String(item.getId());
-      idToItem[id] = item;
+      idToItem[String(item.getId())] = item;
     }
-    Logger.log("Entry IDs trong Sheet (" + entryIdsFromSheet.length + "), items trong form (" + items.length + ")");
+    Logger.log("Form items count: " + items.length + ", Sheet entry columns: " + ecIdx);
 
     // Tạo FormResponse
     var response = form.createResponse();
