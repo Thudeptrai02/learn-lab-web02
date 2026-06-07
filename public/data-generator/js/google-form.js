@@ -100,12 +100,12 @@ async function detectGoogleForm() {
       const dataVars = getDataVariables();
       if (dataVars.length > 0) {
         buildMappingTable(qlist, tbody, status, mappingDiv, url);
-        // Tự động gen script tạo Sheet mồi
-        generateBaitSheetScript();
       } else {
-        status.innerHTML = '✅ Đã dò được <b>' + qlist.length + '</b> câu hỏi. <span style="color:#d97706">Tạo dữ liệu trước, sau đó bấm 🔍 Dò câu hỏi lại để gen Script.</span>';
+        status.innerHTML = '✅ Đã dò được <b>' + qlist.length + '</b> câu hỏi.';
         mappingDiv.style.display = 'none';
       }
+      // Luôn gen script tạo Sheet mồi (có hoặc ko data)
+      generateBaitSheetScript(qlist);
       return;
     }
   }
@@ -615,47 +615,50 @@ function createSurveyForm() {
   win.document.close();
 }
 
-function generateBaitSheetScript() {
+function generateBaitSheetScript(qlist) {
   const url = document.getElementById('gf-url').value.trim();
   if (!url) { showToast('Vui lòng nhập link Google Form', 'error'); return; }
   const fid = parseFormId(url);
   if (!fid) { showToast('Link không hợp lệ', 'error'); return; }
 
-  if (!_gfEntryMap || _gfEntryMap.length === 0) {
+  // Nếu có qlist từ detect (chưa có mapping/data) → chế độ đơn giản
+  if (qlist && (!_gfEntryMap || _gfEntryMap.length === 0)) {
+    _gfEntryMap = qlist.map(q => ({ entryId: q.id, varName: '', question: q.text }));
+  }
+
+  // Build entry codes + var names
+  const entryCodes = [];
+  const varNames = [];
+
+  if (_gfEntryMap && _gfEntryMap.length > 0) {
+    _gfEntryMap.forEach(m => {
+      entryCodes.push('entry.' + m.entryId);
+      varNames.push(m.varName || '');
+    });
+  } else {
     showToast('Chưa có mapping. Bấm "🔍 Dò câu hỏi" trước.', 'error');
     return;
   }
-  if (!generatedData || !generatedData.rawRows || generatedData.rawRows.length === 0) {
-    showToast('Chưa có dữ liệu. Hãy generate data trước.', 'error');
-    return;
+
+  // Build 2D data (nếu có)
+  let dataJson = 'null';
+  const hasData = generatedData && generatedData.rawRows && generatedData.rawRows.length > 0;
+  if (hasData) {
+    const rawRows = generatedData.rawRows;
+    const maxRows = Math.min(rawRows.length, 50);
+    const data2d = [];
+    for (let ri = 0; ri < maxRows; ri++) {
+      const row = rawRows[ri];
+      const vals = [];
+      _gfEntryMap.forEach(m => {
+        const v = row[m.varName];
+        vals.push(v === null || v === undefined ? '' : String(v));
+      });
+      data2d.push(vals);
+    }
+    dataJson = JSON.stringify(data2d);
   }
 
-  const dataVars = getDataVariables();
-  const rawRows = generatedData.rawRows;
-  const colNames = generatedData.colNames || [];
-
-  // Build entry codes + var names + data arrays
-  const entryCodes = [];
-  const varNames = [];
-  _gfEntryMap.forEach(m => {
-    entryCodes.push('entry.' + m.entryId);
-    varNames.push(m.varName);
-  });
-
-  // Build 2D data (first 50 rows để tránh script quá lớn)
-  const maxRows = Math.min(rawRows.length, 50);
-  const data2d = [];
-  for (let ri = 0; ri < maxRows; ri++) {
-    const row = rawRows[ri];
-    const vals = [];
-    _gfEntryMap.forEach(m => {
-      const v = row[m.varName];
-      vals.push(v === null || v === undefined ? '' : String(v));
-    });
-    data2d.push(vals);
-  }
-
-  const dataJson = JSON.stringify(data2d);
   const entryJson = JSON.stringify(entryCodes);
   const varJson = JSON.stringify(varNames);
   const formTitle = 'Khảo sát SPSS từ tool';
@@ -687,7 +690,7 @@ function createBaitSheet() {
     var names = ${varJson};
     for (var c = 0; c < codes.length; c++) {
       sheet.getRange(1, c + 1).setValue(codes[c]);
-      sheet.getRange(2, c + 1).setValue(names[c]);
+      sheet.getRange(2, c + 1).setValue(names[c] || "Biến " + (c + 1));
     }
     sheet.getRange(1, 1, 1, codes.length).setFontWeight("bold").setBackground("#f0fdf4");
     sheet.getRange(2, 1, 1, codes.length).setFontWeight("bold").setBackground("#f8fafc");
