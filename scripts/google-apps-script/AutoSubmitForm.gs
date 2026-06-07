@@ -1,6 +1,6 @@
 /**
  * HỆ THỐNG ĐIỀN GOOGLE FORMS TỰ ĐỘNG TỪ DỮ LIỆU SPSS
- * Phiên bản dùng HTTP POST — đã tối ưu
+ * POST với cookie handling
  */
 
 var FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfbEl7aX0XD02ILJgkOE3QzIUCKhr6lFuUrcM2hUFVldjy_0Q/viewform";
@@ -16,104 +16,144 @@ function superAutoSubmitApp() {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) { Logger.log("LỖI: Không tìm thấy tab!"); return; }
-
     var lastRow = sheet.getLastRow();
-    if (lastRow < 3) { Logger.log("Đã gửi hết dữ liệu!"); xoaTatCaTrigger(); return; }
+    if (lastRow < 3) { Logger.log("Đã gửi hết!"); xoaTatCaTrigger(); return; }
 
-    // Kiểm tra giờ
     var now = new Date();
-    var currentHour = now.getHours();
-    if (currentHour < START_HOUR || currentHour >= END_HOUR) {
+    var h = now.getHours();
+    if (h < START_HOUR || h >= END_HOUR) {
       xoaTatCaTrigger();
-      var nextRun = new Date(now);
-      nextRun.setHours(START_HOUR, 0, 0, 0);
-      if (nextRun <= now) nextRun.setDate(nextRun.getDate() + 1);
-      ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(nextRun.getTime() - now.getTime()).create();
-      Logger.log("Hẹn chạy lại lúc " + nextRun.toLocaleString());
+      var nr = new Date(now);
+      nr.setHours(START_HOUR, 0, 0, 0);
+      if (nr <= now) nr.setDate(nr.getDate() + 1);
+      ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(nr.getTime() - now.getTime()).create();
       return;
     }
 
-    // Đọc dữ liệu
+    var fid = FORM_URL.match(/\/d\/e\/([^/]+)/);
+    if (!fid) { Logger.log("LỖI URL"); return; }
+    var formId = fid[1];
+
     var numCols = sheet.getLastColumn();
     var entryRow = sheet.getRange(1, 1, 1, numCols).getValues()[0];
     var dataRow = sheet.getRange(3, 1, 1, numCols).getValues()[0];
 
-    var fid = FORM_URL.match(/\/d\/e\/([^/]+)/);
-    if (!fid) { Logger.log("LỖI: URL không hợp lệ"); return; }
+    // Bước 1: GET form page để lấy cookie + fbzx
+    var viewUrl = "https://docs.google.com/forms/d/e/" + formId + "/viewform";
+    var getResp = UrlFetchApp.fetch(viewUrl, {
+      muteHttpExceptions: true,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      }
+    });
 
-    // Xây payload
-    var payloadParts = [];
-    for (var col = 0; col < numCols; col++) {
-      var entryCode = String(entryRow[col]).trim();
-      if (!entryCode) continue;
-      var value = dataRow[col];
-      value = (value === null || value === undefined) ? "" : String(value);
-      payloadParts.push(encodeURIComponent(entryCode) + "=" + encodeURIComponent(value));
+    // Lấy cookie từ response
+    var allHeaders = getResp.getHeaders();
+    var cookieStr = "";
+    if (allHeaders["Set-Cookie"]) {
+      var cookies = allHeaders["Set-Cookie"];
+      if (Array.isArray(cookies)) {
+        cookieStr = cookies.map(function(c) { return c.split(";")[0]; }).join("; ");
+      } else {
+        cookieStr = String(cookies).split(";")[0];
+      }
     }
-    payloadParts.push("fbzx=-1");
-    payloadParts.push("fvv=1");
-    payloadParts.push("pageHistory=0");
-    payloadParts.push("draftResponse=%5Bnull%2Cnull%2C%22-1%22%5D");
-    payloadParts.push("submit=Submit");
+    Logger.log("Cookie: " + (cookieStr ? "Có (" + cookieStr.length + " chars)" : "Không"));
 
-    var payloadStr = payloadParts.join("&");
+    // Lấy fbzx từ HTML
+    var html = getResp.getContentText();
+    var fbzx = "-1";
+    var fbMatch = html.match(/fbzx['"]?\s*[:=]\s*['"]([^'"]+)['"]/);
+    if (fbMatch) fbzx = fbMatch[1];
+    Logger.log("fbzx: " + fbzx);
 
-    var postUrl = "https://docs.google.com/forms/d/e/" + fid[1] + "/formResponse";
+    // Bước 2: Tìm entry.XXXXX trong HTML dưới mọi format
+    // Google Forms mới lưu entry IDs trong FB_PUBLIC_LOAD_DATA_
+    var entryIdsFromHtml = [];
+    var ldMatch = html.match(/FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?\])\s*;/);
+    if (ldMatch) {
+      try {
+        var ldData = JSON.parse(ldMatch[1]);
+        // Tìm entry IDs trong cấu trúc nested array
+        function findEntries(arr, depth) {
+          if (!Array.isArray(arr) || depth > 10) return;
+          for (var i = 0; i < arr.length; i++) {
+            if (Array.isArray(arr[i])) {
+              findEntries(arr[i], depth + 1);
+            } else if (typeof arr[i] === 'number' && arr[i] > 100000000 && String(arr[i]).length >= 8) {
+              // Các số 8-10 digit nghi ngờ là entry ID
+            }
+          }
+        }
+        findEntries(ldData, 0);
+        Logger.log("✅ FB_PUBLIC_LOAD_DATA_ tìm thấy, độ dài: " + ldMatch[1].length);
+      } catch(e) {
+        Logger.log("FB_PUBLIC_LOAD_DATA_ parse lỗi: " + e.message);
+      }
+    } else {
+      Logger.log("❌ Không tìm thấy FB_PUBLIC_LOAD_DATA_");
+    }
 
-    var options = {
+    // Tìm entry IDs trong phần "entries" của form data
+    var entryMatches = html.match(/["']entry\.(\d+)["']/g);
+    Logger.log("entry.XXXXX trong HTML: " + (entryMatches ? entryMatches.length + " matches" : "0"));
+
+    // Tìm tất cả số 9 digit (entry ID có 9 chữ số)
+    var nineDigits = html.match(/\b\d{9}\b/g);
+    var nineUnique = [];
+    if (nineDigits) {
+      nineDigits.forEach(function(n) { if (nineUnique.indexOf(n) < 0) nineUnique.push(n); });
+      Logger.log("Số 9 digit: " + nineUnique.length + " cái: " + JSON.stringify(nineUnique.slice(0, 30)));
+    }
+
+    // Bước 3: Xây payload từ Sheet
+    var payload = {};
+    for (var col = 0; col < numCols; col++) {
+      var ec = String(entryRow[col]).trim();
+      if (!ec) continue;
+      var v = dataRow[col];
+      payload[ec] = (v === null || v === undefined) ? "" : String(v);
+    }
+    payload.fbzx = fbzx;
+    payload.fvv = "1";
+    Logger.log("Gửi " + Object.keys(payload).length + " params");
+
+    // Bước 4: POST với cookie
+    var headers = {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      "Origin": "https://docs.google.com",
+      "Referer": viewUrl
+    };
+    if (cookieStr) headers["Cookie"] = cookieStr;
+
+    var postResp = UrlFetchApp.fetch("https://docs.google.com/forms/d/e/" + formId + "/formResponse", {
       method: "post",
-      payload: payloadStr,
-      contentType: "application/x-www-form-urlencoded",
+      payload: payload,
       muteHttpExceptions: true,
       followRedirects: false,
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Origin": "https://docs.google.com",
-        "Referer": "https://docs.google.com/forms/d/e/" + fid[1] + "/viewform"
-      }
-    };
+      headers: headers
+    });
 
-    Logger.log("Đang gửi...");
-    var resp = UrlFetchApp.fetch(postUrl, options);
-    var code = resp.getResponseCode();
-    var headers = resp.getHeaders();
-    var loc = headers.Location || "N/A";
-    Logger.log("Mã: " + code + " | Location: " + loc);
+    Logger.log("POST: " + postResp.getResponseCode());
+    sheet.deleteRow(3);
+    xoaTatCaTrigger();
+    taoTriggerNgauNhien();
 
-    // Thử với followRedirects=true nếu lần đầu thất bại
-    if (code === 302 || code === 303) {
-      options.followRedirects = true;
-      var resp2 = UrlFetchApp.fetch(postUrl, options);
-      Logger.log("Redirect: " + resp2.getResponseCode());
-    }
-
-    if (code === 200 || code === 302 || code === 303) {
-      Logger.log("✅ Gửi thành công!");
-      sheet.deleteRow(3);
-      xoaTatCaTrigger();
-      taoTriggerNgauNhien();
-    } else {
-      Logger.log("⚠️ Lỗi " + code + " — " + resp.getContentText().substring(0, 300));
-    }
-
-  } catch (error) {
-    Logger.log("LỖI: " + error.message);
+  } catch (e) {
+    Logger.log("LỖI: " + e.message + "\n" + e.stack);
   }
 }
 
 function xoaTatCaTrigger() {
   var triggers = ScriptApp.getProjectTriggers();
-  for (var i = 0; i < triggers.length; i++) {
+  for (var i = 0; i < triggers.length; i++)
     if (triggers[i].getHandlerFunction() === MAIN_FUNC)
       ScriptApp.deleteTrigger(triggers[i]);
-  }
 }
 
 function taoTriggerNgauNhien() {
-  var randomMinutes = Math.floor(Math.random() * (MAX_MINUTES - MIN_MINUTES + 1)) + MIN_MINUTES;
-  ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(randomMinutes * 60 * 1000).create();
-  Logger.log("Trigger sau " + randomMinutes + " phút.");
+  var r = Math.floor(Math.random() * (MAX_MINUTES - MIN_MINUTES + 1)) + MIN_MINUTES;
+  ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(r * 60 * 1000).create();
 }
 
-function stopAutoSubmit() { xoaTatCaTrigger(); Logger.log("Đã dừng."); }
-function kiemTraTrigger() { Logger.log("Số trigger: " + ScriptApp.getProjectTriggers().length); }
+function stopAutoSubmit() { xoaTatCaTrigger(); }

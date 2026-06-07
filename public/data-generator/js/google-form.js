@@ -649,11 +649,24 @@ function createSurveyForm() {
       Logger.log('Đã điền ' + numRows + ' dòng dữ liệu mẫu từ Hàng 3.');
     }
 
+    // Tạo Response Sheet và liên kết với Form
+    var responseSs = SpreadsheetApp.create('Response_' + new Date().toISOString().slice(0,10));
+    form.setDestination(FormApp.DestinationType.SPREADSHEET, responseSs.getId());
+    var responseSheet = responseSs.getSheets()[0];
+
+    // Ghi response sheet URL vào cuối Sheet mồi
+    var infoCol = headerRow.length + 2;
+    sheet.getRange(1, infoCol).setValue('RESPONSE_SHEET_URL');
+    sheet.getRange(2, infoCol).setValue(responseSs.getUrl());
+    sheet.getRange(1, infoCol, 2, 1).setFontWeight('bold');
+    sheet.getRange(1, infoCol, 2, 1).setBackground('#fef3c7');
+
     Logger.log('=== FILE "MỒI" ĐÃ TẠO ===');
     Logger.log('Sheet URL: ' + ss.getUrl());
     Logger.log('Hàng 1: entry.xxxx đã được điền sẵn.');
     Logger.log('Hàng 2: tên câu hỏi.');
     Logger.log('Hàng 3+: dữ liệu mẫu (nếu có).');
+    Logger.log('RESPONSE SHEET: ' + responseSs.getUrl());
     Logger.log('👉 Dán dữ liệu SPSS thật vào thay thế Hàng 3 trở xuống.');
   }
 
