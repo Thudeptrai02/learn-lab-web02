@@ -180,7 +180,9 @@ function superAutoSubmitApp() {
     for (var si = 0; si < Math.min(5, entryIdsFromSheet.length); si++) {
       var eid = entryIdsFromSheet[si];
       if (html.indexOf(eid) >= 0) {
-        Logger.log("Sheet ID #" + eid + " CÓ trong HTML (pos " + html.indexOf(eid) + ")");
+        var pos = html.indexOf(eid);
+        var ctx = html.slice(Math.max(0, pos - 50), pos + 50);
+        Logger.log("Sheet ID #" + eid + " CÓ (pos " + pos + "): ..." + ctx.replace(/\n/g, "\\n").replace(/\r/g, "") + "...");
       } else {
         Logger.log("Sheet ID #" + eid + " KHÔNG có trong HTML");
       }
