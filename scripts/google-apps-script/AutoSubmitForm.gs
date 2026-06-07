@@ -82,25 +82,24 @@ function superAutoSubmitApp() {
       }
     }
 
-    // Log thứ tự cột trong Sheet
-    Logger.log("--- Sheet columns (entry codes):");
-    var ecIdx = 0;
-    for (var ci = 0; ci < numCols; ci++) {
-      var ec = String(entryRow[ci]).trim();
-      if (!ec || ec === "EDIT_URL" || ec === "RESPONSE_SHEET_URL") continue;
-      if (/^entry\./.test(ec)) {
-        Logger.log("  Sheet col #" + ecIdx + ": " + ec + " value=" + String(dataRow[ci]));
-        ecIdx++;
-      }
-    }
-
     // Xây map: entry ID → item
     var idToItem = {};
     for (var ii = 0; ii < items.length; ii++) {
       var item = items[ii];
       idToItem[String(item.getId())] = item;
     }
-    Logger.log("Form items count: " + items.length + ", Sheet entry columns: " + ecIdx);
+
+    // Đếm entry ID hợp lệ trong Sheet
+    var validEntryCols = 0;
+    for (var ci = 0; ci < numCols; ci++) {
+      var ec = String(entryRow[ci]).trim();
+      if (!ec || ec === "EDIT_URL" || ec === "RESPONSE_SHEET_URL") continue;
+      if (/^entry\./.test(ec)) validEntryCols++;
+    }
+    Logger.log("Form titlable items: " + formItemIds.length + ", Sheet entry columns: " + validEntryCols);
+    Logger.log("Form item 0: " + formItemIds[0] + " → Sheet entry 0: " + String(entryRow[0]).replace("entry.", ""));
+    Logger.log("Form item 1: " + formItemIds[1] + " → Sheet entry 1: " + String(entryRow[1]).replace("entry.", ""));
+    Logger.log("Form item 2: " + formItemIds[2] + " → Sheet entry 2: " + String(entryRow[2]).replace("entry.", ""));
 
     // Tạo FormResponse
     var response = form.createResponse();
