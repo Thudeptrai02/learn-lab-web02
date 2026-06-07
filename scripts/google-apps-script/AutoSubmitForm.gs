@@ -17,8 +17,8 @@
 
 // ===================== CẤU HÌNH =====================
 
-/** Link Google Form — nhớ đuôi /formResponse */
-var baseFormUrl = "LINK_GOOGLE_FORM_CUA_BAN/formResponse";
+/** Link Google Form — dạng /viewform hoặc /formResponse đều được */
+var FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfbEl7aX0XD02ILJgkOE3QzIUCKhr6lFuUrcM2hUFVldjy_0Q/viewform";
 
 /** Thời gian chờ tối thiểu giữa các đơn (phút) */
 var MIN_MINUTES = 10;
@@ -42,183 +42,167 @@ var MAIN_FUNC = "superAutoSubmitApp";
 
 
 /**
- * Hàm chính — thực hiện toàn bộ logic:
- *   1. Kiểm tra dữ liệu còn không
- *   2. Kiểm tra khung giờ hoạt động
- *   3. Gửi dữ liệu lên Form
- *   4. Xoá hàng vừa gửi
- *   5. Tự động tạo Trigger mới với thời gian ngẫu nhiên
+ * Hàm chính — thực hiện toàn bộ logic
  */
 function superAutoSubmitApp() {
   try {
-    // ---- Bước 1: Đọc dữ liệu từ tab SPSS_Data ----
+    // ---- Bước 1: Đọc dữ liệu ----
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName(SHEET_NAME);
-
-    if (!sheet) {
-      Logger.log("LỖI: Không tìm thấy tab \"" + SHEET_NAME + "\"!");
-      return;
-    }
+    if (!sheet) { Logger.log("LỖI: Không tìm thấy tab \"" + SHEET_NAME + "\"!"); return; }
 
     var lastRow = sheet.getLastRow();
-    if (lastRow < 3) {
-      Logger.log("Đã gửi hết dữ liệu nghiên cứu!");
-      xoaTatCaTrigger();
-      return;
-    }
+    if (lastRow < 3) { Logger.log("Đã gửi hết dữ liệu nghiên cứu!"); xoaTatCaTrigger(); return; }
 
-    // ---- Bước 2: Kiểm tra khung giờ hoạt động ----
+    // ---- Bước 2: Kiểm tra khung giờ ----
     var now = new Date();
     var currentHour = now.getHours();
-
     if (currentHour < START_HOUR || currentHour >= END_HOUR) {
-      Logger.log("Ngoài khung giờ hoạt động (" + START_HOUR + "h-" + END_HOUR + "h). Hiện tại: " + currentHour + "h");
-
-      // Xoá Trigger cũ
+      Logger.log("Ngoài khung giờ (" + START_HOUR + "h-" + END_HOUR + "h). Hiện tại: " + currentHour + "h");
       xoaTatCaTrigger();
-
-      // Tính thời gian đến START_HOUR sáng hôm sau
-      var tomorrow = new Date(now);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      tomorrow.setHours(START_HOUR, 0, 0, 0);
-
-      // Nếu vẫn còn trong hôm nay (ví dụ: 3h sáng, START_HOUR=8) thì đặt vào hôm nay
       var nextRun = new Date(now);
       nextRun.setHours(START_HOUR, 0, 0, 0);
-      if (nextRun <= now) {
-        nextRun.setDate(nextRun.getDate() + 1);
-      }
-
-      var delayMs = nextRun.getTime() - now.getTime();
-      ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(delayMs).create();
-      Logger.log("Đã hẹn Trigger chạy lại lúc " + nextRun.toLocaleString());
+      if (nextRun <= now) nextRun.setDate(nextRun.getDate() + 1);
+      ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(nextRun.getTime() - now.getTime()).create();
+      Logger.log("Đã hẹn chạy lại lúc " + nextRun.toLocaleString());
       return;
     }
 
-    // ---- Bước 3: Đọc entry codes (Hàng 1) và dữ liệu (Hàng 3) ----
+    // ---- Bước 3: Đọc entry codes & dữ liệu ----
     var numCols = sheet.getLastColumn();
-    if (numCols < 1) {
-      Logger.log("LỖI: Không có dữ liệu cột nào!");
-      return;
-    }
-
     var entryRow = sheet.getRange(1, 1, 1, numCols).getValues()[0];
     var dataRow = sheet.getRange(3, 1, 1, numCols).getValues()[0];
 
-    // ---- Bước 4: Xây chuỗi tham số URL ----
-    var params = [];
+    // ---- Bước 4: Lấy fbzx thật từ form ----
+    Logger.log("Đang lấy fbzx từ form...");
+    var formId = FORM_URL.match(/\/d\/e\/([^/]+)/);
+    if (!formId) { Logger.log("LỖI: Không tìm thấy Form ID trong URL"); return; }
+    var fid = formId[1];
+
+    // GET form page để lấy fbzx token thật
+    var formPage = UrlFetchApp.fetch("https://docs.google.com/forms/d/e/" + fid + "/viewform", {
+      muteHttpExceptions: true,
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" }
+    });
+    var formHtml = formPage.getContentText();
+
+    // Tìm fbzx trong HTML
+    var fbzxMatch = formHtml.match(/fbzx["']?\s*:\s*["']([^"']+)["']/);
+    var fbzx = fbzxMatch ? fbzxMatch[1] : "-1";
+    Logger.log("fbzx: " + fbzx);
+
+    // ---- DEBUG: So sánh entry ID từ HTML với Sheet ----
+    var htmlEntryIds = [];
+    var entryRegex = /entry\.(\d+)/g;
+    var m;
+    while ((m = entryRegex.exec(formHtml)) !== null) {
+      if (htmlEntryIds.indexOf("entry." + m[1]) < 0) htmlEntryIds.push("entry." + m[1]);
+    }
+    Logger.log("ENTRY ID từ HTML Form (" + htmlEntryIds.length + "): " + JSON.stringify(htmlEntryIds));
+    Logger.log("HTML length: " + formHtml.length + " ký tự");
+
+    // Tìm tất cả entry.XXXXX hoặc "entry":number trong HTML
+    var allEntryMatches = formHtml.match(/[eE]ntry[=\.]["']?\d+/g) || [];
+    var uniqueEntries = [];
+    allEntryMatches.forEach(function(e) { 
+      var num = e.match(/\d+/); 
+      if (num) { var s = "entry." + num[0]; if (uniqueEntries.indexOf(s) < 0) uniqueEntries.push(s); }
+    });
+    Logger.log("Entry IDs tìm thấy trong HTML (" + uniqueEntries.length + "): " + JSON.stringify(uniqueEntries));
+
+    // Tìm action URL
+    var actionMatch = formHtml.match(/action=["']([^"']*formResponse[^"']*)["']/);
+    if (actionMatch) Logger.log("Form action URL: " + actionMatch[1]);
+
+    // Tìm các số 8-10 chữ số trong HTML (có thể là entry ID)
+    var allNums = formHtml.match(/\b\d{8,10}\b/g) || [];
+    var uniqueNums = [];
+    allNums.forEach(function(n) { if (uniqueNums.indexOf(n) < 0) uniqueNums.push(n); });
+    Logger.log("Các số 8-10 digit trong HTML (" + uniqueNums.length + "): " + JSON.stringify(uniqueNums.slice(0, 30)));
+    Logger.log("HTML đoạn 40000-40800:\n" + formHtml.substring(40000, 40800));
+    Logger.log("HTML đoạn 50000-50800:\n" + formHtml.substring(50000, 50800));
+    Logger.log("HTML đoạn cuối 500:\n" + formHtml.substring(formHtml.length - 500));
+    Logger.log("Từ 'entry' trong HTML: " + (formHtml.indexOf("entry") >= 0 ? "CÓ (vị trí " + formHtml.indexOf("entry") + ")" : "KHÔNG"));
+    var sheetEntries = [];
+    for (var ci = 0; ci < numCols; ci++) {
+      var e = String(entryRow[ci]).trim();
+      if (e) sheetEntries.push(e);
+    }
+    Logger.log("ENTRY ID từ Sheet Hàng 1 (" + sheetEntries.length + "): " + JSON.stringify(sheetEntries));
+    // So sánh
+    if (JSON.stringify(htmlEntryIds) !== JSON.stringify(sheetEntries)) {
+      Logger.log("⚠️ KHÔNG KHỚP! Entry ID trong Sheet khác với Form!");
+    } else {
+      Logger.log("✅ Entry ID khớp hoàn toàn!");
+    }
+
+    // ---- Bước 5: Xây payload & gửi ----
+    var payload = {};
     for (var col = 0; col < numCols; col++) {
       var entryCode = String(entryRow[col]).trim();
       var value = dataRow[col];
-
-      // Bỏ qua cột rỗng
       if (!entryCode || entryCode === "") continue;
-
-      // Chuyển value về string, xử lý null/undefined
-      var strValue = (value === null || value === undefined) ? "" : String(value);
-
-      params.push(encodeURIComponent(entryCode) + "=" + encodeURIComponent(strValue));
+      payload[entryCode] = (value === null || value === undefined) ? "" : String(value);
     }
+    payload.fbzx = fbzx;
+    payload.fvv = "1";
 
-    var finalFormUrl = baseFormUrl + "?" + params.join("&");
-    Logger.log("Đang gửi: " + finalFormUrl);
+    Logger.log("Đang gửi " + Object.keys(payload).length + " tham số...");
 
-    // ---- Bước 5: Gửi request đến Google Form ----
-    var response = UrlFetchApp.fetch(finalFormUrl, {
+    var resp = UrlFetchApp.fetch("https://docs.google.com/forms/d/e/" + fid + "/formResponse", {
       method: "post",
+      payload: payload,
+      muteHttpExceptions: true,
       followRedirects: false,
-      muteHttpExceptions: true
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+        "Origin": "https://docs.google.com",
+        "Referer": "https://docs.google.com/forms/d/e/" + fid + "/viewform"
+      }
     });
 
-    var statusCode = response.getResponseCode();
-    if (statusCode === 200 || statusCode === 302 || statusCode === 303) {
-      Logger.log("Gửi thành công! Mã phản hồi: " + statusCode);
+    var code = resp.getResponseCode();
+    var headers = resp.getHeaders();
+    Logger.log("Phản hồi: " + code + " | Location: " + (headers.Location || "N/A"));
+
+    if (code === 200 || code === 302 || code === 303) {
+      Logger.log("✅ Gửi thành công!");
     } else {
-      Logger.log("CẢNH BÁO: Form trả về mã " + statusCode + ". Vẫn tiếp tục...");
+      Logger.log("⚠️ Mã lạ: " + code);
     }
 
-    // ---- Bước 6: Xoá hàng 3 (dòng vừa gửi) ----
+    // ---- Bước 6: Xoá hàng 3 ----
     sheet.deleteRow(3);
-    Logger.log("Đã xoá hàng 3. Còn " + (sheet.getLastRow() - 2) + " dòng dữ liệu.");
+    Logger.log("Đã xoá hàng 3.");
 
-    // ---- Bước 7: Xoá Trigger cũ và tạo Trigger mới ngẫu nhiên ----
+    // ---- Bước 7: Trigger mới ----
     xoaTatCaTrigger();
     taoTriggerNgauNhien();
 
   } catch (error) {
-    Logger.log("LỖI NGHIÊM TRỌNG: " + error.message + "\nStack: " + error.stack);
+    Logger.log("LỖI: " + error.message + "\nStack: " + error.stack);
   }
 }
 
-
-/**
- * Xoá TẤT CẢ trigger có tên superAutoSubmitApp trong dự án
- * để tránh nhân bản luồng chạy.
- */
 function xoaTatCaTrigger() {
-  try {
-    var triggers = ScriptApp.getProjectTriggers();
-    for (var i = 0; i < triggers.length; i++) {
-      if (triggers[i].getHandlerFunction() === MAIN_FUNC) {
-        ScriptApp.deleteTrigger(triggers[i]);
-      }
-    }
-    Logger.log("Đã xoá tất cả trigger cũ.");
-  } catch (error) {
-    Logger.log("LỖI khi xoá trigger: " + error.message);
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === MAIN_FUNC) ScriptApp.deleteTrigger(triggers[i]);
   }
 }
 
-
-/**
- * Tạo một trigger mới với thời gian chờ ngẫu nhiên
- * trong khoảng MIN_MINUTES ~ MAX_MINUTES phút.
- */
 function taoTriggerNgauNhien() {
-  try {
-    var randomMinutes = Math.floor(Math.random() * (MAX_MINUTES - MIN_MINUTES + 1)) + MIN_MINUTES;
-    var delayMs = randomMinutes * 60 * 1000;
-
-    ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(delayMs).create();
-    Logger.log("Đã tạo trigger mới — sẽ chạy lại sau " + randomMinutes + " phút (" + delayMs + "ms).");
-  } catch (error) {
-    Logger.log("LỖI khi tạo trigger: " + error.message);
-  }
+  var randomMinutes = Math.floor(Math.random() * (MAX_MINUTES - MIN_MINUTES + 1)) + MIN_MINUTES;
+  ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(randomMinutes * 60 * 1000).create();
+  Logger.log("Trigger mới sau " + randomMinutes + " phút.");
 }
 
-
-/**
- * Hàm tiện ích — dừng toàn bộ hệ thống.
- * Chạy hàm này nếu muốn tắt hẳn quá trình tự động gửi.
- */
 function stopAutoSubmit() {
-  try {
-    xoaTatCaTrigger();
-    Logger.log("ĐÃ DỪNG: Toàn bộ trigger đã bị xoá.");
-  } catch (error) {
-    Logger.log("LỖI khi dừng: " + error.message);
-  }
+  xoaTatCaTrigger();
+  Logger.log("ĐÃ DỪNG: Toàn bộ trigger đã bị xoá.");
 }
 
-
-/**
- * Hàm tiện ích — kiểm tra trạng thái trigger hiện tại.
- */
 function kiemTraTrigger() {
-  try {
-    var triggers = ScriptApp.getProjectTriggers();
-    Logger.log("Số trigger hiện tại: " + triggers.length);
-
-    if (triggers.length === 0) {
-      Logger.log("Không có trigger nào đang chạy.");
-    } else {
-      for (var i = 0; i < triggers.length; i++) {
-        var t = triggers[i];
-        Logger.log("Trigger #" + (i + 1) + " → Hàm: " + t.getHandlerFunction() +
-                   ", Nguồn: " + t.getTriggerSource() + ", Loại: " + t.getEventType());
-      }
-    }
-  } catch (error) {
-    Logger.log("LỖI khi kiểm tra trigger: " + error.message);
-  }
+  var triggers = ScriptApp.getProjectTriggers();
+  Logger.log("Số trigger: " + triggers.length);
 }
