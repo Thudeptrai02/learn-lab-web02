@@ -63,8 +63,19 @@ function superAutoSubmitApp() {
     // Lấy fbzx từ HTML
     var html = getResp.getContentText();
     var fbzx = "-1";
+    // fbzx trong js code: fbzx = "XXXXX" hoặc "fbzx":"XXXXX"
     var fbMatch = html.match(/fbzx['"]?\s*[:=]\s*['"]([^'"]+)['"]/);
     if (fbMatch) fbzx = fbMatch[1];
+    // Thử tìm trong FB_PUBLIC_LOAD_DATA_
+    if (fbzx === "-1") {
+      fbzx = html.match(/"fbzx"\s*:\s*"([^"]+)"/);
+      if (fbzx) { fbzx = fbzx[1]; } else { fbzx = "-1"; }
+    }
+    // Thử tìm dạng: fbzx=XXXXX trong URL hoặc script inline
+    if (fbzx === "-1") {
+      fbzx = html.match(/fbzx=([a-zA-Z0-9_-]+)/);
+      if (fbzx) { fbzx = fbzx[1]; } else { fbzx = "-1"; }
+    }
     Logger.log("fbzx: " + fbzx);
 
     // Bước 2: Tìm entry.XXXXX trong HTML dưới mọi format
@@ -157,6 +168,8 @@ function superAutoSubmitApp() {
     }
     payload.fbzx = fbzx;
     payload.fvv = "1";
+    payload.pageHistory = "0";
+    payload.submit = "Gửi";
     Logger.log("Gửi " + Object.keys(payload).length + " params");
 
     // Bước 4: POST với cookie
@@ -171,11 +184,18 @@ function superAutoSubmitApp() {
       method: "post",
       payload: payload,
       muteHttpExceptions: true,
-      followRedirects: false,
+      followRedirects: true,
       headers: headers
     });
 
-    Logger.log("POST: " + postResp.getResponseCode());
+    Logger.log("POST: " + postResp.getResponseCode() + " (length: " + postResp.getContentText().length + ")");
+    // Kiểm tra nếu response chứa "Your response" hoặc thông báo thành công
+    var body = postResp.getContentText();
+    if (body.indexOf("response" + " recorded") >= 0 || body.indexOf("your response") >= 0 || body.indexOf("câu trả lời") >= 0 || body.indexOf("phản hồi") >= 0) {
+      Logger.log("✅ Dường như submit thành công!");
+    } else if (body.length < 200) {
+      Logger.log("📄 Response: " + body);
+    }
     sheet.deleteRow(3);
     xoaTatCaTrigger();
     taoTriggerNgauNhien();
