@@ -118,12 +118,33 @@ function superAutoSubmitApp() {
       Logger.log("⚠️ KHÔNG có trong FB_PUBLIC_LOAD_DATA_: " + JSON.stringify(notFoundInLd));
     }
 
-    // Tìm entry.XXXXX trong ldJson
-    var ldEntryMatches = ldJson.match(/entry\.(\d+)/g);
-    var ldUnique = [];
-    if (ldEntryMatches) {
-      ldEntryMatches.forEach(function(e) { if (ldUnique.indexOf(e) < 0) ldUnique.push(e); });
-      Logger.log("entry.XXXXX trong FB_PUBLIC_LOAD_DATA_: " + JSON.stringify(ldUnique));
+    // Dump FB_PUBLIC_LOAD_DATA_ để debug
+    Logger.log("📦 FB_PUBLIC_LOAD_DATA_ 500 ký tự đầu: " + ldJson.slice(0, 500));
+
+    // Thử greedy regex để xem có được nhiều data hơn không
+    var ldGreedy = html.match(/FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+\])\s*;/);
+    if (ldGreedy && ldGreedy[1]) {
+      Logger.log("✅ Greedy: " + ldGreedy[1].length + " chars");
+      Logger.log("📦 Greedy 500 đầu: " + ldGreedy[1].slice(0, 500));
+      // Parse để tìm entry IDs
+      var ge = ldGreedy[1].match(/entry\.(\d+)/g);
+      if (ge) {
+        var uniq = [];
+        ge.forEach(function(e) { if (uniq.indexOf(e) < 0) uniq.push(e); });
+        Logger.log("entry.XXXXX thực (greedy): " + JSON.stringify(uniq));
+      } else {
+        Logger.log("Không entry.XXXXX ngay cả greedy");
+      }
+    }
+
+    // Tìm entry IDs từ Sheet trong HTML đầy đủ
+    for (var si = 0; si < Math.min(5, entryIdsFromSheet.length); si++) {
+      var eid = entryIdsFromSheet[si];
+      if (html.indexOf(eid) >= 0) {
+        Logger.log("Sheet ID #" + eid + " CÓ trong HTML (pos " + html.indexOf(eid) + ")");
+      } else {
+        Logger.log("Sheet ID #" + eid + " KHÔNG có trong HTML");
+      }
     }
 
     // Bước 3: Xây payload từ Sheet
