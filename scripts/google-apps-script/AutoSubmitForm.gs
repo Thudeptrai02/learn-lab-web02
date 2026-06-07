@@ -30,201 +30,108 @@ function superAutoSubmitApp() {
       return;
     }
 
-    var fid = FORM_URL.match(/\/d\/e\/([^/]+)/);
-    if (!fid) { Logger.log("LỖI URL"); return; }
-    var formId = fid[1];
-
     var numCols = sheet.getLastColumn();
     var entryRow = sheet.getRange(1, 1, 1, numCols).getValues()[0];
     var dataRow = sheet.getRange(3, 1, 1, numCols).getValues()[0];
 
-    // Bước 1: GET form page để lấy cookie + fbzx
-    var viewUrl = "https://docs.google.com/forms/d/e/" + formId + "/viewform";
-    var getResp = UrlFetchApp.fetch(viewUrl, {
-      muteHttpExceptions: true,
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-      }
-    });
-
-    // Lấy cookie từ response
-    var allHeaders = getResp.getHeaders();
-    var cookieStr = "";
-    if (allHeaders["Set-Cookie"]) {
-      var cookies = allHeaders["Set-Cookie"];
-      if (Array.isArray(cookies)) {
-        cookieStr = cookies.map(function(c) { return c.split(";")[0]; }).join("; ");
-      } else {
-        cookieStr = String(cookies).split(";")[0];
+    // Lấy Edit URL từ Sheet
+    var editUrl = "";
+    for (var ci = 0; ci < numCols; ci++) {
+      if (String(entryRow[ci]).trim() === "EDIT_URL") {
+        editUrl = String(sheet.getRange(2, ci+1).getValue()).trim();
+        break;
       }
     }
-    Logger.log("Cookie: " + (cookieStr ? "Có (" + cookieStr.length + " chars)" : "Không"));
-
-    // Lấy fbzx từ HTML
-    var html = getResp.getContentText();
-    var fbzx = "-1";
-
-    // 1. fbzx xuất hiện trong inline script dạng: fbzx:"ABCD1234" hoặc "fbzx":"ABCD"
-    //  variable fbzx = "ABCD"  hoặc fbzx value: "ABCD"
-    var re1 = html.match(/["']?fbzx["']?\s*[:=]\s*["']([a-zA-Z0-9_-]{5,})["']/);
-    if (re1) fbzx = re1[1];
-    Logger.log("Thử 1 (fbzx:value): " + (re1 ? fbzx : "không"));
-
-    // 2. Trong URL dạng &fbzx=ABCD&
-    if (fbzx === "-1") {
-      var re2 = html.match(/[?&]fbzx=([a-zA-Z0-9_-]{5,})(?:&|")/);
-      if (re2) fbzx = re2[1];
-      Logger.log("Thử 2 (?fbzx=): " + (re2 ? fbzx : "không"));
-    }
-
-    // 3. Trong JSON string trong FB_PUBLIC_LOAD_DATA_
-    if (fbzx === "-1") {
-      // fbzx nằm trong ldJson, tìm số > 100000 (các số là ID)
-      var ld = ldMatch ? ldMatch[1] : "";
-      var nums = ld.match(/\b\d{6,}\b/g);
-      if (nums) {
-        Logger.log("Các số >6 digit trong FB_PUBLIC: " + JSON.stringify(nums.slice(0, 20)));
-      }
-      // Tìm "fbzx" key trong JSON
-      var fbInLd = ld.match(/"fbzx"\s*:\s*(\d+)/);
-      if (fbInLd) {
-        fbzx = fbInLd[1];
-        Logger.log("Thử 3 (fbzx trong FB_PUBLIC): " + fbzx);
-      }
-    }
-
-    // 4. fbzx là giá trị số, thường kết thúc bằng chuỗi dài
-    if (fbzx === "-1") {
-      // Trong FB_PUBLIC, fbzx thường là số đầu tiên của một mảng con
-      // format: [number, null, null, "ABCDEF...", ...]
-      var fbInArray = html.match(/\[(\d{8,}),\s*null,\s*null,\s*"/);
-      if (fbInArray) {
-        fbzx = fbInArray[1];
-        Logger.log("Thử 4 ([bigNum,null,null,\"): " + fbzx);
-      }
-    }
-
-    Logger.log("fbzx cuối: " + fbzx);
-
-    // Bước 2: Tìm entry.XXXXX trong HTML dưới mọi format
-    // Google Forms mới lưu entry IDs trong FB_PUBLIC_LOAD_DATA_
-    var entryIdsFromHtml = [];
-    var ldMatch = html.match(/FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?\])\s*;/);
-    if (ldMatch) {
-      try {
-        var ldData = JSON.parse(ldMatch[1]);
-        // Tìm entry IDs trong cấu trúc nested array
-        function findEntries(arr, depth) {
-          if (!Array.isArray(arr) || depth > 10) return;
-          for (var i = 0; i < arr.length; i++) {
-            if (Array.isArray(arr[i])) {
-              findEntries(arr[i], depth + 1);
-            } else if (typeof arr[i] === 'number' && arr[i] > 100000000 && String(arr[i]).length >= 8) {
-              // Các số 8-10 digit nghi ngờ là entry ID
-            }
-          }
+    if (!editUrl) {
+      Logger.log("⚠️ Không tìm thấy EDIT_URL trong Sheet. Tìm form trong Drive...");
+      // Thử tìm form bằng tên
+      var files = DriveApp.getFilesByName("Khảo sát - Chất lượng cảm nhận");
+      while (files.hasNext()) {
+        var f = files.next();
+        if (f.getMimeType() === "application/vnd.google-apps.form") {
+          editUrl = f.getUrl();
+          Logger.log("✅ Tìm thấy form: " + editUrl);
+          break;
         }
-        findEntries(ldData, 0);
-        Logger.log("✅ FB_PUBLIC_LOAD_DATA_ tìm thấy, độ dài: " + ldMatch[1].length);
-      } catch(e) {
-        Logger.log("FB_PUBLIC_LOAD_DATA_ parse lỗi: " + e.message);
       }
-    } else {
-      Logger.log("❌ Không tìm thấy FB_PUBLIC_LOAD_DATA_");
     }
 
-    // Tìm entry IDs từ Sheet trong FB_PUBLIC_LOAD_DATA_
-    var ldJson = ldMatch ? ldMatch[1] : "";
+    if (!editUrl) {
+      Logger.log("❌ Không tìm thấy Edit URL. Thêm EDIT_URL vào Sheet!");
+      return;
+    }
+
+    // Mở form và tạo response
+    var form = FormApp.openByUrl(editUrl);
+    var items = form.getItems();
+    Logger.log("Form: " + form.getTitle() + " (" + items.length + " items)");
+
+    // Xây map: entry ID → item
+    var idToItem = {};
     var entryIdsFromSheet = [];
     for (var ci = 0; ci < numCols; ci++) {
-      var e = String(entryRow[ci]).trim().replace("entry.", "");
-      if (e) entryIdsFromSheet.push(e);
+      var ec = String(entryRow[ci]).trim();
+      if (!ec || ec === "EDIT_URL") continue;
+      var eid = ec.replace("entry.", "");
+      entryIdsFromSheet.push(eid);
     }
-    Logger.log("Entry ID Sheet (" + entryIdsFromSheet.length + "): " + JSON.stringify(entryIdsFromSheet));
 
-    // Tìm từng entry ID trong FB_PUBLIC_LOAD_DATA_
-    var foundInLd = [];
-    var notFoundInLd = [];
-    for (var ei = 0; ei < entryIdsFromSheet.length; ei++) {
-      if (ldJson.indexOf('"' + entryIdsFromSheet[ei] + '"') >= 0) {
-        foundInLd.push(entryIdsFromSheet[ei]);
-      } else {
-        notFoundInLd.push(entryIdsFromSheet[ei]);
+    for (var ii = 0; ii < items.length; ii++) {
+      var item = items[ii];
+      var id = String(item.getId());
+      idToItem[id] = item;
+    }
+    Logger.log("Entry IDs trong Sheet (" + entryIdsFromSheet.length + "), items trong form (" + items.length + ")");
+
+    // Tạo FormResponse
+    var response = form.createResponse();
+    var submittedCount = 0;
+    var skipped = [];
+
+    for (var ci = 0; ci < numCols; ci++) {
+      var ec = String(entryRow[ci]).trim();
+      if (!ec || ec === "EDIT_URL") continue;
+      var eid = ec.replace("entry.", "");
+      var val = dataRow[ci];
+      if (val === null || val === undefined || val === "") { skipped.push(eid); continue; }
+
+      var item = idToItem[eid];
+      if (!item) { skipped.push(eid + "(no item)"); continue; }
+
+      try {
+        var itemType = item.getType();
+        if (itemType === FormApp.ItemType.MULTIPLE_CHOICE) {
+          var mcItem = item.asMultipleChoiceItem();
+          var choice = mcItem.createChoice(String(val));
+          var itemResponse = mcItem.createResponse([choice]);
+          // Hoặc
+          var itemResponse2 = mcItem.createResponse(String(val));
+          response.withItemResponse(itemResponse2);
+          submittedCount++;
+        } else if (itemType === FormApp.ItemType.TEXT) {
+          var textItem = item.asTextItem();
+          var textResp = textItem.createResponse(String(val));
+          response.withItemResponse(textResp);
+          submittedCount++;
+        } else {
+          skipped.push(eid + "(type=" + itemType + ")");
+        }
+      } catch (e) {
+        skipped.push(eid + "(err:" + e.message + ")");
       }
     }
-    Logger.log("Có trong FB_PUBLIC_LOAD_DATA_: " + foundInLd.length + "/" + entryIdsFromSheet.length);
-    if (notFoundInLd.length > 0) {
-      Logger.log("⚠️ KHÔNG có trong FB_PUBLIC_LOAD_DATA_: " + JSON.stringify(notFoundInLd));
-    }
 
-    // Dump FB_PUBLIC_LOAD_DATA_ để debug
-    Logger.log("📦 FB_PUBLIC_LOAD_DATA_ 500 ký tự đầu: " + ldJson.slice(0, 500));
+    Logger.log("Submitted: " + submittedCount + "/" + (numCols - 1) + " items");
+    if (skipped.length > 0) Logger.log("Skipped: " + JSON.stringify(skipped.slice(0, 10)));
 
-    // Thử greedy regex để xem có được nhiều data hơn không
-    var ldGreedy = html.match(/FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+\])\s*;/);
-    if (ldGreedy && ldGreedy[1]) {
-      Logger.log("✅ Greedy: " + ldGreedy[1].length + " chars");
-      Logger.log("📦 Greedy 500 đầu: " + ldGreedy[1].slice(0, 500));
-      // Parse để tìm entry IDs
-      var ge = ldGreedy[1].match(/entry\.(\d+)/g);
-      if (ge) {
-        var uniq = [];
-        ge.forEach(function(e) { if (uniq.indexOf(e) < 0) uniq.push(e); });
-        Logger.log("entry.XXXXX thực (greedy): " + JSON.stringify(uniq));
-      } else {
-        Logger.log("Không entry.XXXXX ngay cả greedy");
-      }
-    }
-
-    // Tìm entry IDs từ Sheet trong HTML đầy đủ
-    for (var si = 0; si < Math.min(5, entryIdsFromSheet.length); si++) {
-      var eid = entryIdsFromSheet[si];
-      if (html.indexOf(eid) >= 0) {
-        var pos = html.indexOf(eid);
-        var ctx = html.slice(Math.max(0, pos - 50), pos + 50);
-        Logger.log("Sheet ID #" + eid + " CÓ (pos " + pos + "): ..." + ctx.replace(/\n/g, "\\n").replace(/\r/g, "") + "...");
-      } else {
-        Logger.log("Sheet ID #" + eid + " KHÔNG có trong HTML");
-      }
-    }
-
-    // Bước 3: Xây payload từ Sheet
-    var payload = {};
-    for (var col = 0; col < numCols; col++) {
-      var ec = String(entryRow[col]).trim();
-      if (!ec) continue;
-      var v = dataRow[col];
-      payload[ec] = (v === null || v === undefined) ? "" : String(v);
-    }
-    payload.fbzx = fbzx;
-    payload.fvv = "1";
-    payload.pageHistory = "0";
-    payload.submit = "Gửi";
-    Logger.log("Gửi " + Object.keys(payload).length + " params");
-
-    // Bước 4: POST với cookie
-    var headers = {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-      "Origin": "https://docs.google.com",
-      "Referer": viewUrl
-    };
-    if (cookieStr) headers["Cookie"] = cookieStr;
-
-    var postResp = UrlFetchApp.fetch("https://docs.google.com/forms/d/e/" + formId + "/formResponse", {
-      method: "post",
-      payload: payload,
-      muteHttpExceptions: true,
-      followRedirects: true,
-      headers: headers
-    });
-
-    Logger.log("POST: " + postResp.getResponseCode() + " (length: " + postResp.getContentText().length + ")");
-    // Kiểm tra nếu response chứa "Your response" hoặc thông báo thành công
-    var body = postResp.getContentText();
-    if (body.indexOf("response" + " recorded") >= 0 || body.indexOf("your response") >= 0 || body.indexOf("câu trả lời") >= 0 || body.indexOf("phản hồi") >= 0) {
-      Logger.log("✅ Dường như submit thành công!");
-    } else if (body.length < 200) {
-      Logger.log("📄 Response: " + body);
+    try {
+      response.submit();
+      Logger.log("✅ SUBMIT THÀNH CÔNG!");
+      sheet.deleteRow(3);
+      xoaTatCaTrigger();
+      taoTriggerNgauNhien();
+    } catch (e) {
+      Logger.log("❌ Submit lỗi: " + e.message + "\n" + e.stack);
     }
     sheet.deleteRow(3);
     xoaTatCaTrigger();
