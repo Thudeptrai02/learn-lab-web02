@@ -791,6 +791,273 @@ function createSurveyForm() {
   win.document.close();
 }
 
+function generateBaitSheetScript() {
+  const url = document.getElementById('gf-url').value.trim();
+  if (!url) { showToast('Vui lòng nhập link Google Form', 'error'); return; }
+  const fid = parseFormId(url);
+  if (!fid) { showToast('Link không hợp lệ', 'error'); return; }
+
+  if (!_gfEntryMap || _gfEntryMap.length === 0) {
+    showToast('Chưa có mapping. Bấm "🔍 Dò câu hỏi" trước.', 'error');
+    return;
+  }
+  if (!generatedData || !generatedData.rawRows || generatedData.rawRows.length === 0) {
+    showToast('Chưa có dữ liệu. Hãy generate data trước.', 'error');
+    return;
+  }
+
+  const dataVars = getDataVariables();
+  const rawRows = generatedData.rawRows;
+  const colNames = generatedData.colNames || [];
+
+  // Build entry codes + var names + data arrays
+  const entryCodes = [];
+  const varNames = [];
+  _gfEntryMap.forEach(m => {
+    entryCodes.push('entry.' + m.entryId);
+    varNames.push(m.varName);
+  });
+
+  // Build 2D data (first 50 rows để tránh script quá lớn)
+  const maxRows = Math.min(rawRows.length, 50);
+  const data2d = [];
+  for (let ri = 0; ri < maxRows; ri++) {
+    const row = rawRows[ri];
+    const vals = [];
+    _gfEntryMap.forEach(m => {
+      const v = row[m.varName];
+      vals.push(v === null || v === undefined ? '' : String(v));
+    });
+    data2d.push(vals);
+  }
+
+  const dataJson = JSON.stringify(data2d);
+  const entryJson = JSON.stringify(entryCodes);
+  const varJson = JSON.stringify(varNames);
+  const formTitle = 'Khảo sát SPSS từ tool';
+  const dateStr = new Date().toISOString().slice(0, 10);
+
+  const script = `// === Sheet mồi + Auto Submit Script ===
+// 📋 Tạo bởi Data Generator Tool
+// 1. Run createBaitSheet() → tạo Sheet + điền dữ liệu
+// 2. Paste dữ liệu SPSS thật vào Hàng 3+
+// 3. Run superAutoSubmitApp() → bắt đầu điền tự động
+
+var FORM_URL = "${url}";
+var MIN_MINUTES = 2;
+var MAX_MINUTES = 5;
+var START_HOUR = 8;
+var END_HOUR = 22;
+var SHEET_NAME = "SPSS_Data";
+var MAIN_FUNC = "superAutoSubmitApp";
+var EDIT_URL = "";
+
+function createBaitSheet() {
+  try {
+    var ss = SpreadsheetApp.create("Bo_Chay_SPSS_${dateStr}");
+    var sheet = ss.getActiveSheet();
+    sheet.setName("SPSS_Data");
+
+    // Hàng 1: entry codes
+    var codes = ${entryJson};
+    var names = ${varJson};
+    for (var c = 0; c < codes.length; c++) {
+      sheet.getRange(1, c + 1).setValue(codes[c]);
+      sheet.getRange(2, c + 1).setValue(names[c]);
+    }
+    sheet.getRange(1, 1, 1, codes.length).setFontWeight("bold").setBackground("#f0fdf4");
+    sheet.getRange(2, 1, 1, codes.length).setFontWeight("bold").setBackground("#f8fafc");
+
+    // Hàng 3+: dữ liệu mẫu
+    var sampleData = ${dataJson};
+    if (sampleData && sampleData.length > 0) {
+      var r = sheet.getRange(3, 1, sampleData.length, codes.length);
+      r.setValues(sampleData);
+    }
+
+    // Cột STATUS
+    var sc = codes.length + 2;
+    sheet.getRange(1, sc).setValue("STATUS").setFontWeight("bold").setBackground("#fef3c7");
+
+    // Lưu EDIT_URL
+    EDIT_URL = findEditUrl();
+    if (EDIT_URL) {
+      sheet.getRange(1, codes.length + 1).setValue("EDIT_URL").setFontWeight("bold").setBackground("#e0f2fe");
+      sheet.getRange(2, codes.length + 1).setValue(EDIT_URL);
+    }
+
+    Logger.log("✅ Sheet tạo: " + ss.getUrl());
+    Logger.log("👉 Dán dữ liệu SPSS thật vào Hàng 3+ (giữ nguyên Hàng 1-2)");
+    Logger.log("👉 Run superAutoSubmitApp() để bắt đầu");
+  } catch (e) {
+    Logger.log("LỖI: " + e.message);
+  }
+}
+
+function findEditUrl() {
+  try {
+    var files = DriveApp.searchFiles("mimeType='application/vnd.google-apps.form' and title contains 'Khảo sát'");
+    while (files.hasNext()) {
+      var f = files.next();
+      var testForm = FormApp.openByUrl(f.getUrl());
+      if (testForm.getPublishedUrl() === FORM_URL) return f.getUrl();
+    }
+  } catch(e) {}
+  Logger.log("⚠️ Không tìm thấy EDIT_URL. Chạy SuperAutoSubmitApp sẽ dùng Drive search.");
+  return "";
+}
+
+function superAutoSubmitApp() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) { Logger.log("LỖI: Không tìm thấy tab!"); return; }
+
+    var statusCol = timCotStatus(sheet);
+    if (!statusCol) { Logger.log("LỖI: Không có cột STATUS"); return; }
+
+    var lastRow = sheet.getLastRow();
+    var targetRow = -1;
+    var statusData = sheet.getRange(3, statusCol, lastRow - 2, 1).getValues();
+    for (var ri = 0; ri < statusData.length; ri++) {
+      var val = String(statusData[ri][0]).trim();
+      if (val === "" || val === "null") { targetRow = 3 + ri; break; }
+    }
+    if (targetRow === -1) { Logger.log("✅ Đã gửi hết!"); xoaTatCaTrigger(); return; }
+
+    var now = new Date();
+    var h = now.getHours();
+    if (h < START_HOUR || h >= END_HOUR) {
+      xoaTatCaTrigger();
+      var nr = new Date(now);
+      nr.setHours(START_HOUR, 0, 0, 0);
+      if (nr <= now) nr.setDate(nr.getDate() + 1);
+      ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(nr.getTime() - now.getTime()).create();
+      return;
+    }
+
+    var numCols = sheet.getLastColumn();
+    var entryRow = sheet.getRange(1, 1, 1, numCols).getValues()[0];
+    var dataRow = sheet.getRange(targetRow, 1, 1, numCols).getValues()[0];
+
+    var editUrl = EDIT_URL || timEditUrl(sheet, numCols, entryRow);
+    if (!editUrl) { Logger.log("❌ Không tìm thấy EDIT_URL"); return; }
+
+    var form = FormApp.openByUrl(editUrl);
+    var items = form.getItems();
+    var idToItem = {};
+    for (var ii = 0; ii < items.length; ii++) idToItem[String(items[ii].getId())] = items[ii];
+
+    var response = form.createResponse();
+    var submittedCount = 0;
+    var skipped = [];
+
+    for (var ci = 0; ci < numCols; ci++) {
+      var ec = String(entryRow[ci]).trim();
+      if (!ec || ec === "EDIT_URL" || ec === "STATUS" || ec === "RESPONSE_SHEET_URL") continue;
+      var eid = ec.replace("entry.", "");
+      var val = dataRow[ci];
+      if (val === null || val === undefined || val === "") { skipped.push(eid); continue; }
+
+      var item = idToItem[eid];
+      if (!item) { skipped.push(eid); continue; }
+
+      try {
+        var itemType = item.getType();
+        if (itemType === FormApp.ItemType.MULTIPLE_CHOICE) {
+          response.withItemResponse(item.asMultipleChoiceItem().createResponse(String(val)));
+          submittedCount++;
+        } else if (itemType === FormApp.ItemType.TEXT) {
+          response.withItemResponse(item.asTextItem().createResponse(String(val)));
+          submittedCount++;
+        }
+      } catch(e) { skipped.push(eid); }
+    }
+
+    try {
+      response.submit();
+      Logger.log("✅ SUBMIT THÀNH CÔNG (" + submittedCount + " items)");
+      sheet.getRange(targetRow, statusCol).setValue("Đã gửi " + Utilities.formatDate(now, Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss"));
+      xoaTatCaTrigger();
+      taoTriggerNgauNhien();
+    } catch(e) {
+      Logger.log("❌ LỖI submit: " + e.message);
+      sheet.getRange(targetRow, statusCol).setValue("LỖI: " + e.message);
+    }
+  } catch(e) {
+    Logger.log("LỖI: " + e.message);
+  }
+}
+
+function timCotStatus(sheet) {
+  var lastCol = sheet.getLastColumn();
+  var hdr = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  for (var c = 0; c < hdr.length; c++) { if (String(hdr[c]).trim() === "STATUS") return c + 1; }
+  var nc = lastCol + 1;
+  sheet.getRange(1, nc).setValue("STATUS").setFontWeight("bold").setBackground("#fef3c7");
+  return nc;
+}
+
+function timEditUrl(sheet, numCols, entryRow) {
+  for (var c = 0; c < numCols; c++) {
+    if (String(entryRow[c]).trim() === "EDIT_URL") return String(sheet.getRange(2, c+1).getValue()).trim();
+  }
+  try {
+    var files = DriveApp.searchFiles("mimeType='application/vnd.google-apps.form' and title contains 'Khảo sát'");
+    while (files.hasNext()) {
+      var f = files.next();
+      try { var tf = FormApp.openByUrl(f.getUrl()); if (tf.getPublishedUrl() === FORM_URL) return f.getUrl(); } catch(e) {}
+    }
+  } catch(e) {}
+  return "";
+}
+
+function xoaTatCaTrigger() {
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++)
+    if (triggers[i].getHandlerFunction() === MAIN_FUNC) ScriptApp.deleteTrigger(triggers[i]);
+}
+
+function taoTriggerNgauNhien() {
+  var r = Math.floor(Math.random() * (MAX_MINUTES - MIN_MINUTES + 1)) + MIN_MINUTES;
+  ScriptApp.newTrigger(MAIN_FUNC).timeBased().after(r * 60 * 1000).create();
+}
+
+function onOpen() {
+  try {
+    SpreadsheetApp.getUi().createMenu("📋 SPSS")
+      .addItem("🚀 Tạo Sheet mồi", "createBaitSheet")
+      .addItem("▶️ Bắt đầu điền form", "superAutoSubmitApp")
+      .addItem("⏹ Dừng", "stopAutoSubmit")
+      .addToUi();
+  } catch(e) {}
+}
+
+function stopAutoSubmit() { xoaTatCaTrigger(); }
+`;
+
+  const instructions = `
+📋 HƯỚNG DẪN:
+
+1️⃣ Copy toàn bộ script bên dưới
+2️⃣ Vào script.google.com → + New project
+3️⃣ Paste script → File > Save (Ctrl+S)
+4️⃣ Chọn hàm "createBaitSheet" → Run
+5️⃣ View > Logs → copy link Sheet
+6️⃣ Dán dữ liệu SPSS thật vào Sheet từ Hàng 3
+7️⃣ Chạy "superAutoSubmitApp" để bắt đầu
+
+⚠️ Lần đầu chạy sẽ yêu cầu cấp quyền → Allow.
+`;
+
+  document.getElementById('gf-result').style.display = 'block';
+  document.getElementById('gf-result').innerHTML = `
+    <div style="font-size:.85rem;font-weight:600;margin-bottom:.35rem">📋 Script tạo Sheet mồi + điền tự động</div>
+    <div style="font-size:.75rem;background:#fefce8;padding:.5rem;border-radius:4px;margin-bottom:.35rem;white-space:pre-line;color:#92400e">${instructions.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+    <textarea style="width:100%;height:350px;font-family:monospace;font-size:.75rem;padding:.5rem;border:1px solid var(--gray-300);border-radius:4px" readonly>${script.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+    <button class="btn btn-primary btn-sm" onclick="navigator.clipboard.writeText(document.querySelector('#gf-result textarea').value);showToast('✅ Đã copy script!','success')" style="margin-top:.35rem;font-size:.8rem">📋 Copy script</button>`;
+}
+
 function generateTimestampScript() {
   const ds = document.getElementById('gf-date-start').value;
   const de = document.getElementById('gf-date-end').value;
