@@ -16,8 +16,20 @@ function superAutoSubmitApp() {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) { Logger.log("LỖI: Không tìm thấy tab!"); return; }
+
+    // Đảm bảo có cột STATUS
+    var statusCol = timCotStatus(sheet);
+    if (!statusCol) { Logger.log("LỖI: Không tìm được cột STATUS"); return; }
+
+    // Tìm dòng đầu tiên (≥3) chưa gửi
     var lastRow = sheet.getLastRow();
-    if (lastRow < 3) { Logger.log("Đã gửi hết!"); xoaTatCaTrigger(); return; }
+    var targetRow = -1;
+    var statusData = sheet.getRange(3, statusCol, lastRow - 2, 1).getValues();
+    for (var ri = 0; ri < statusData.length; ri++) {
+      var val = String(statusData[ri][0]).trim();
+      if (val === "" || val === "null") { targetRow = 3 + ri; break; }
+    }
+    if (targetRow === -1) { Logger.log("✅ Đã gửi hết!"); xoaTatCaTrigger(); return; }
 
     var now = new Date();
     var h = now.getHours();
@@ -32,7 +44,8 @@ function superAutoSubmitApp() {
 
     var numCols = sheet.getLastColumn();
     var entryRow = sheet.getRange(1, 1, 1, numCols).getValues()[0];
-    var dataRow = sheet.getRange(3, 1, 1, numCols).getValues()[0];
+    var dataRow = sheet.getRange(targetRow, 1, 1, numCols).getValues()[0];
+    Logger.log("👉 Đang gửi dòng " + targetRow + "/" + lastRow);
 
     // Lấy Edit URL từ Sheet
     var editUrl = "";
@@ -71,35 +84,12 @@ function superAutoSubmitApp() {
     var items = form.getItems();
     Logger.log("Form: '" + form.getTitle() + "' (" + items.length + " items)");
 
-    // Log thứ tự items trong form (chỉ MULTIPLE_CHOICE và TEXT)
-    var formItemIds = [];
-    for (var ii = 0; ii < items.length; ii++) {
-      var item = items[ii];
-      var t = item.getType();
-      if (t === FormApp.ItemType.MULTIPLE_CHOICE || t === FormApp.ItemType.TEXT) {
-        Logger.log("  Form item #" + formItemIds.length + ": ID=" + item.getId() + " title='" + item.getTitle() + "' type=" + t);
-        formItemIds.push(String(item.getId()));
-      }
-    }
-
     // Xây map: entry ID → item
     var idToItem = {};
     for (var ii = 0; ii < items.length; ii++) {
       var item = items[ii];
       idToItem[String(item.getId())] = item;
     }
-
-    // Đếm entry ID hợp lệ trong Sheet
-    var validEntryCols = 0;
-    for (var ci = 0; ci < numCols; ci++) {
-      var ec = String(entryRow[ci]).trim();
-      if (!ec || ec === "EDIT_URL" || ec === "RESPONSE_SHEET_URL") continue;
-      if (/^entry\./.test(ec)) validEntryCols++;
-    }
-    Logger.log("Form titlable items: " + formItemIds.length + ", Sheet entry columns: " + validEntryCols);
-    Logger.log("Form item 0: " + formItemIds[0] + " → Sheet entry 0: " + String(entryRow[0]).replace("entry.", ""));
-    Logger.log("Form item 1: " + formItemIds[1] + " → Sheet entry 1: " + String(entryRow[1]).replace("entry.", ""));
-    Logger.log("Form item 2: " + formItemIds[2] + " → Sheet entry 2: " + String(entryRow[2]).replace("entry.", ""));
 
     // Tạo FormResponse
     var response = form.createResponse();
@@ -142,11 +132,13 @@ function superAutoSubmitApp() {
     try {
       response.submit();
       Logger.log("✅ SUBMIT THÀNH CÔNG!");
-      sheet.deleteRow(3);
+      // Ghi STATUS thay vì xoá dòng
+      sheet.getRange(targetRow, statusCol).setValue("Đã gửi " + Utilities.formatDate(now, Session.getScriptTimeZone(), "dd/MM/yyyy HH:mm:ss"));
       xoaTatCaTrigger();
       taoTriggerNgauNhien();
     } catch (e) {
       Logger.log("❌ Submit lỗi: " + e.message + "\n" + e.stack);
+      sheet.getRange(targetRow, statusCol).setValue("LỖI: " + e.message);
     }
 
   } catch (e) {
@@ -167,3 +159,17 @@ function taoTriggerNgauNhien() {
 }
 
 function stopAutoSubmit() { xoaTatCaTrigger(); }
+
+function timCotStatus(sheet) {
+  var lastCol = sheet.getLastColumn();
+  var headerRow = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  for (var ci = 0; ci < headerRow.length; ci++) {
+    if (String(headerRow[ci]).trim() === "STATUS") return ci + 1;
+  }
+  // Chưa có → thêm cột STATUS ở cuối
+  var newCol = lastCol + 1;
+  sheet.getRange(1, newCol).setValue("STATUS");
+  sheet.getRange(1, newCol).setFontWeight("bold");
+  sheet.getRange(1, newCol).setBackground("#fef3c7");
+  return newCol;
+}
