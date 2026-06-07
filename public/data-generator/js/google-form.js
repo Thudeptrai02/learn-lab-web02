@@ -100,8 +100,10 @@ async function detectGoogleForm() {
       const dataVars = getDataVariables();
       if (dataVars.length > 0) {
         buildMappingTable(qlist, tbody, status, mappingDiv, url);
+        // Tự động gen script tạo Sheet mồi
+        generateBaitSheetScript();
       } else {
-        status.innerHTML = '✅ Đã dò được <b>' + qlist.length + '</b> câu hỏi. Entry codes hiện bên dưới.';
+        status.innerHTML = '✅ Đã dò được <b>' + qlist.length + '</b> câu hỏi. <span style="color:#d97706">Tạo dữ liệu trước, sau đó bấm 🔍 Dò câu hỏi lại để gen Script.</span>';
         mappingDiv.style.display = 'none';
       }
       return;
