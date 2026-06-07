@@ -42,28 +42,35 @@ function superAutoSubmitApp() {
         break;
       }
     }
+
+    // Nếu chưa có EDIT_URL trong Sheet, dùng FORM_URL để tìm form đúng
     if (!editUrl) {
-      Logger.log("⚠️ Không tìm thấy EDIT_URL trong Sheet. Tìm form trong Drive...");
-      // Tìm tất cả form có tên bắt đầu bằng "Khảo sát"
+      Logger.log("⚠️ Chưa có EDIT_URL trong Sheet. Dùng FORM_URL để dò form đúng...");
       var allForms = DriveApp.searchFiles("mimeType='application/vnd.google-apps.form' and title contains 'Khảo sát'");
-      var count = 0;
-      while (allForms.hasNext() && count < 10) {
+      while (allForms.hasNext()) {
         var f = allForms.next();
-        count++;
-        Logger.log("  🔍 Form #" + count + ": " + f.getName() + " → " + f.getUrl());
-        if (!editUrl) editUrl = f.getUrl();
+        var url = f.getUrl();
+        try {
+          var testForm = FormApp.openByUrl(url);
+          if (testForm.getPublishedUrl() === FORM_URL) {
+            editUrl = url;
+            Logger.log("✅ Tìm thấy form đúng: " + editUrl);
+            break;
+          }
+        } catch(e) {}
       }
     }
 
     if (!editUrl) {
-      Logger.log("❌ Không tìm thấy Edit URL. Thêm EDIT_URL vào Sheet!");
+      Logger.log("❌ Không tìm thấy form đúng! Mở FORM_URL trong trình duyệt → Chỉnh sửa → copy URL → paste vào Hàng 2 cột EDIT_URL trong Sheet.");
       return;
     }
 
     // Mở form và tạo response
     var form = FormApp.openByUrl(editUrl);
     var items = form.getItems();
-    Logger.log("Form: " + form.getTitle() + " (" + items.length + " items)");
+    Logger.log("Form: '" + form.getTitle() + "' (" + items.length + " items)");
+    Logger.log("Published URL: " + form.getPublishedUrl());
 
     // Xây map: entry ID → item
     var idToItem = {};
