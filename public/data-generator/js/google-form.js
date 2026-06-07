@@ -27,17 +27,58 @@ async function fetchFormHTML(fid) {
 }
 
 function parseFormHTML(html) {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  const entries = doc.querySelectorAll('[name^="entry."]');
-  const questions = doc.querySelectorAll('.freebirdFormviewerComponentsQuestionBaseTitle');
-  const qlist = [];
-  entries.forEach((el, i) => {
-    const name = el.getAttribute('name');
-    const qText = questions[i] ? questions[i].textContent.trim() : 'Câu hỏi ' + (i+1);
-    if (name && !qlist.some(x => x.id === name)) qlist.push({ id: name.replace('entry.',''), text: qText });
-  });
-  return qlist.length > 0 ? qlist : null;
+  // Cách 1: DOM — form cũ có <input name="entry.XXXXX">
+  {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const inputs = doc.querySelectorAll('[name^="entry."]');
+    if (inputs.length > 0) {
+      const questions = doc.querySelectorAll('.freebirdFormviewerComponentsQuestionBaseTitle');
+      const qlist = [];
+      inputs.forEach((el, i) => {
+        const name = el.getAttribute('name');
+        const qText = questions[i] ? questions[i].textContent.trim() : 'Câu hỏi ' + (i+1);
+        if (name && !qlist.some(x => x.id === name)) qlist.push({ id: name.replace('entry.',''), text: qText });
+      });
+      if (qlist.length > 0) return qlist;
+    }
+  }
+
+  // Cách 2: Regex — form mới, entry IDs trong JSON inline
+  // Format: ]],[ID,"QUESTION_TEXT",...  hoặc  [ID,"QUESTION_TEXT",...
+  const matches = [...html.matchAll(/(?:\]\]|,)\[?(\d{7,12}),"((?:(?!",\d).)+?)"/g)];
+  if (matches.length > 0) {
+    const seen = new Set();
+    const qlist = [];
+    for (const m of matches) {
+      const id = m[1];
+      const text = m[2].trim();
+      if (seen.has(id)) continue;
+      seen.add(id);
+      // Lọc bỏ section/page break (tiêu đề ngắn, chứa từ khoá đặc biệt)
+      if (/^(Giới thiệu|Kết thúc|Thông tin nhân khẩu học|Thông tin chung)$/i.test(text)) continue;
+      qlist.push({ id, text });
+    }
+    if (qlist.length > 0) return qlist;
+  }
+
+  // Cách 3: Quét toàn bộ số 7-12 digit trong HTML, giữ số nào đứng trước dấu phẩy và chuỗi
+  const allNums = [...html.matchAll(/\b(\d{7,12}),"([^"]{10,})"/g)];
+  if (allNums.length > 0) {
+    const seen = new Set();
+    const qlist = [];
+    for (const m of allNums) {
+      const id = m[1];
+      const text = m[2].trim();
+      if (seen.has(id)) continue;
+      seen.add(id);
+      if (/^(Giới thiệu|Kết thúc|Thông tin)/i.test(text)) continue;
+      qlist.push({ id, text });
+    }
+    if (qlist.length > 0) return qlist;
+  }
+
+  return null;
 }
 
 async function detectGoogleForm() {

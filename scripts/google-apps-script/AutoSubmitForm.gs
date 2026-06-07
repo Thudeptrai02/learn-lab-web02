@@ -3,7 +3,7 @@
  * POST với cookie handling
  */
 
-var FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfbEl7aX0XD02ILJgkOE3QzIUCKhr6lFuUrcM2hUFVldjy_0Q/viewform";
+var FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdmEiKwrLSpEH4SjcPa7OKJr0nHCm9eKGZqUtMPLRpYv8fjFQ/viewform";
 var MIN_MINUTES = 2;
 var MAX_MINUTES = 5;
 var START_HOUR = 8;
