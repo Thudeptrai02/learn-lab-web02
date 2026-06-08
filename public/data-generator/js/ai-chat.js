@@ -1,6 +1,63 @@
 // ====== DATA ASSISTANT (AI Chat) ======
 let _aiBackup = null;
 
+// Collect quality report data for AI summary
+function _collectQualityMetrics() {
+  if (!generatedData) return null;
+  const cons = [...new Set(variables.filter(v => v.construct).map(v => v.construct))];
+  const lines = [];
+  cons.forEach(k => {
+    const m = typeof _computeConstructMetrics === 'function' ? _computeConstructMetrics(k) : null;
+    if (!m) return;
+    const alphaOk = m.alpha >= 0.8;
+    const kmoOk = m.kmo >= 0.5;
+    const itc = typeof _computeItemTotalCorr === 'function' ? _computeItemTotalCorr(k) : 0;
+    const itcOk = itc >= 0.3;
+    lines.push(`• ${k}: α=${m.alpha.toFixed(3)}(${alphaOk?'✅':'❌'}), KMO=${m.kmo.toFixed(3)}(${kmoOk?'✅':'❌'}), AVE=${(m.ave||0).toFixed(3)}, item-total r=${itc.toFixed(3)}(${itcOk?'✅':'❌'})`);
+  });
+  // DV metrics
+  cons.filter(k => variables.find(v=>v.construct===k)?.role==='dependent').forEach(dv => {
+    const r = typeof _computeRegressionMetrics === 'function' ? _computeRegressionMetrics(dv) : null;
+    if (!r) return;
+    const r2Ok = r.rSquared >= 0.5;
+    const vifOk = !r.vif || r.vif.every(v => v < 2);
+    lines.push(`→ ${dv} (DV): R²=${r.rSquared.toFixed(3)}(${r2Ok?'✅':'❌'}), VIF=${r.vif?r.vif.map(v=>v.toFixed(2)).join('/'):'?'}(${vifOk?'✅':'❌'}), DW=${(r.dw||0).toFixed(3)}`);
+  });
+  if (lines.length === 0) return null;
+  return lines.join('\n');
+}
+
+async function aiSummarizeQuality() {
+  if (!generatedData) { aiRespond('❌ Chưa có dữ liệu. Tạo dữ liệu trước!', 'system'); return; }
+  const metrics = _collectQualityMetrics();
+  if (!metrics) { aiRespond('❌ Không có metrics để phân tích.', 'system'); return; }
+  setAiThinking(true);
+  try {
+    const resp = await callDeepSeek([
+      { role: 'system', content: `Bạn là chuyên gia SPSS. Phân tích báo cáo chất lượng dữ liệu khảo sát dưới đây.
+
+NGƯỠNG ĐÁNH GIÁ:
+- Cronbach α ≥ 0.80 (tốt), ≥ 0.60 (chấp nhận)
+- KMO ≥ 0.70 (tốt), ≥ 0.50 (chấp nhận)
+- Hệ số tải ≥ 0.50
+- Item-total r ≥ 0.30
+- R² ≥ 0.50 (tốt)
+- VIF < 2 (tốt), < 10 (chấp nhận)
+- Durbin-Watson 1.5–2.5
+
+Trả lời ngắn gọn bằng tiếng Việt:
+1. Dòng đầu: "✅ ĐẸP: ..." — liệt kê metrics đã đạt
+2. Dòng hai: "🔧 CẦN SỬA: ..." — liệt kê metrics chưa đạt + gợi ý fix (tăng alpha, thêm mẫu, chỉnh tương quan...)
+3. Dòng ba: khuyến nghị ưu tiên` },
+      { role: 'user', content: metrics }
+    ]);
+    addAiMsg('📊 **Phân tích chất lượng:**\n' + resp.replace(/\n/g, '<br>'), 'assistant');
+  } catch (e) {
+    aiRespond('❌ Lỗi kết nối AI: ' + e.message, 'system');
+  }
+  setAiThinking(false);
+}
+
 // Resize logic for sidebar
 const AI_MIN_WIDTH = 260;
 const AI_MAX_WIDTH = Math.min(700, window.innerWidth * 0.6);
@@ -691,7 +748,8 @@ function aiHelp() {
 • \`tạo lại\` — tạo lại dữ liệu
 • \`diễn giải\` — xuất báo cáo học thuật
 • \`kiểm tra\` — kiểm tra mô hình
-• \`knowledge adoption\` — gợi ý mô hình nghiên cứu`;
+
+📊 Bấm nút **📊** trên header để AI phân tích chất lượng dữ liệu`;
   aiRespond(help);
 }
 
