@@ -2537,23 +2537,28 @@ function _execAutoFixAll() {
   const constructKeys = Object.keys(
     variables.reduce((acc, v) => { if (v.construct) acc[v.construct] = true; return acc; }, {})
   );
-  // Step 1: Item-total correlation + Internal quality (α + λ + AVE + KMO)
-  constructKeys.forEach(k => {
-    try { fixItemTotalCorrelation(k); } catch(e) {}
-    try { fixConstructInternal(k); } catch(e) {}
-  });
-  // Step 2: EFA — cross-load + communality
-  try { fixEFA_CrossLoading(); } catch(e) {}
-  try { fixEFA_Communality(); } catch(e) {}
-  // Step 3: DV R² + Residual normality
-  constructKeys.filter(k => variables.find(v=>v.construct===k)?.role === 'dependent').forEach(dv => {
-    try { fixDV_Rsquared(dv); } catch(e) {}
-    try { fixResidualNormality(dv); } catch(e) {}
-  });
-  // Step 4: IV correlation + VIF
-  try { fixVIF(); } catch(e) {}
+  const dvKeys = constructKeys.filter(k => variables.find(v=>v.construct===k)?.role === 'dependent');
+
+  // Run full cycle 3 times to stabilize all metrics
+  for (let pass = 0; pass < 3; pass++) {
+    // Pass 1: Item-total + Internal quality
+    constructKeys.forEach(k => {
+      try { fixItemTotalCorrelation(k); } catch(e) {}
+      try { fixConstructInternal(k); } catch(e) {}
+    });
+    // Pass 2: EFA
+    try { fixEFA_CrossLoading(); } catch(e) {}
+    try { fixEFA_Communality(); } catch(e) {}
+    // Pass 3: DV R² + Residual
+    dvKeys.forEach(dv => {
+      try { fixDV_Rsquared(dv); } catch(e) {}
+      try { fixResidualNormality(dv); } catch(e) {}
+    });
+    // Pass 4: IV correlation + VIF
+    try { fixVIF(); } catch(e) {}
+  }
   _refreshQEditor();
-  showToast('✅ Đã tự động sửa tất cả chỉ số chất lượng', 'success');
+  showToast('✅ Đã tự động sửa tất cả chỉ số (3 lượt)', 'success');
 }
 
 // ====== HOOK INTO showQualityReport ======
@@ -2704,26 +2709,20 @@ function _autoFixAfterGenerate() {
     variables.reduce((acc, v) => { if (v.construct) acc[v.construct] = true; return acc; }, {})
   );
   if (cKeys.length === 0) return;
+  const dvKeys = cKeys.filter(k => variables.find(v => v.construct === k)?.role === 'dependent');
 
-  // Item-total + construct internal (α + λ)
-  cKeys.forEach(k => {
-    try { fixItemTotalCorrelation(k); } catch(e) {}
-    try { fixConstructInternal(k); } catch(e) {}
-  });
-
-  // EFA
-  try { fixEFA_CrossLoading(); } catch(e) {}
-  try { fixEFA_Communality(); } catch(e) {}
-
-  // DV R² + Residual
-  cKeys.filter(k => variables.find(v => v.construct === k)?.role === 'dependent').forEach(dv => {
-    try { fixDV_Rsquared(dv); } catch(e) {}
-    try { fixResidualNormality(dv); } catch(e) {}
-  });
-
-  // IV correlation + VIF
-  try { fixVIF(); } catch(e) {}
-
-  // Refresh
+  for (let pass = 0; pass < 3; pass++) {
+    cKeys.forEach(k => {
+      try { fixItemTotalCorrelation(k); } catch(e) {}
+      try { fixConstructInternal(k); } catch(e) {}
+    });
+    try { fixEFA_CrossLoading(); } catch(e) {}
+    try { fixEFA_Communality(); } catch(e) {}
+    dvKeys.forEach(dv => {
+      try { fixDV_Rsquared(dv); } catch(e) {}
+      try { fixResidualNormality(dv); } catch(e) {}
+    });
+    try { fixVIF(); } catch(e) {}
+  }
   _refreshQEditor();
 }
