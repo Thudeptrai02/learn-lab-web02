@@ -39,6 +39,51 @@ No lint, typecheck, or test scripts exist.
 - **All text/UI is Vietnamese** — labels, buttons, error messages.
 - **No components library** — hand-rolled Tailwind components. Check existing `.astro` files for patterns before adding UI.
 
+## Data Generator (`/data-generator`)
+
+| File | Purpose |
+|------|---------|
+| `index.html` | UI — loads all JS. Includes `quality-editor.js` script. |
+| `js/data-generation.js` | Core engine: generate raw SPSS data, `firstPC`, `corrMatrixFromData`, `matInverse`, `computeKMO`, `bartlettTest`. |
+| `js/quality-report.js` | Renders full quality report: Cronbach's α, EFA, regression, correlation, t-test. `c3(v,gl,gh,yl,yh)` utility for green/yellow/red CSS. |
+| `js/quality-editor.js` | Fix all metrics by modifying raw data. Renders editor panel below report. |
+| `js/ai-chat.js` | Chat UI with AI-driven fix functions (`aiAdjustAlphaDirect`, `aiSetRSquaredDirect`, `aiSetCorrelationDirect`), snapshot/restore. |
+| `js/google-form.js` | Google Form creation, `parseFormHTML`, `generateFormScript`, `generateBaitSheetScript`. |
+
+### Quality thresholds (SPSS textbook)
+
+| Metric | Green (✅) | Yellow (⚠️) | Red (❌) |
+|--------|-----------|-------------|---------|
+| Cronbach's α | ≥ 0.80 (GOOD) | ≥ 0.60 (acceptable) | < 0.60 |
+| Item-total r | ≥ 0.30 | — | < 0.30 |
+| Factor loading | ≥ 0.50 | ≥ 0.45 | < 0.45 |
+| KMO | ≥ 0.70 (meritorious) | ≥ 0.50 (acceptable) | < 0.50 |
+| Bartlett Sig. | < 0.05 | — | ≥ 0.05 |
+| Eigenvalue | > 1 | — | ≤ 1 |
+| Cumulative % | > 50% | — | ≤ 50% |
+| Communality | ≥ 0.30 | — | < 0.30 |
+| R² | ≥ 0.50 | — | < 0.50 |
+| F-test Sig. | < 0.05 | — | ≥ 0.05 |
+| t-test Sig. | < 0.05 | — | ≥ 0.05 |
+| Durbin-Watson | 1.5 – 2.5 | 1.3 – 2.7 | outside |
+| VIF | < 2 (Likert) | < 10 | ≥ 10 |
+| Tolerance (1/VIF) | ≥ 0.20 | ≥ 0.10 | < 0.10 |
+| Correlation Sig. | < 0.05 (\*) / < 0.01 (\*\*) | — | ≥ 0.05 |
+
+### Fix functions in `quality-editor.js`
+
+| Function | What it does |
+|----------|-------------|
+| `fixConstructInternal(k)` | Pulls items toward composite (α + λ + AVE + KMO). |
+| `fixItemTotalCorrelation(k)` | Ensures corrected item-total r ≥ 0.3. |
+| `fixEFA_CrossLoading()` | Pulls cross-loading items toward primary factor. |
+| `fixEFA_Communality()` | Pulls low-communality items toward factor mean. |
+| `fixDV_Rsquared(k)` | Adjusts DV items to achieve target R². |
+| `fixResidualNormality(k)` | Scales residuals toward N(0,1). |
+| `fixVIF()` | Reduces IV inter-correlations > 0.5. |
+| `_execAutoFixAll()` | Runs all fixes in sequence: item-total → Nội tại → EFA → R² → Residual → VIF. |
+| `showEditorPanel()` | Force‑renders editor panel + scrolls to it with highlight flash. Called from 🔧 header button. |
+
 ## Gotchas
 
 - `.env` contains **live API keys** and is committed to git. Do not rotate or expose in logs.

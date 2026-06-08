@@ -313,6 +313,7 @@
         <button class="btn btn-outline btn-sm" onclick="showConsistencyReport()" style="font-size:.7rem">🔄 Tính nhất quán</button>
         <button class="btn btn-outline btn-sm" onclick="addInterpretationToReport()" style="font-size:.7rem">📝 Diễn giải</button>
         <button class="btn btn-outline btn-sm" onclick="exportReport()" style="font-size:.75rem">📄 Xuất báo cáo</button>
+        <button class="btn btn-sm" onclick="if(typeof openQualityWizard==='function')openQualityWizard();else alert('quality-editor.js chưa được tải');" style="background:#7c3aed;color:#fff;font-size:.7rem" title="Sửa chất lượng dữ liệu thô">🔧 Sửa chất lượng</button>
         <span class="badge" id="quality-badge">Đang tính...</span>
       </div>
     </div>

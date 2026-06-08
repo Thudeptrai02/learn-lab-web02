@@ -34,7 +34,59 @@ async function fetchFormHTML(fid) {
 }
 
 function parseFormHTML(html) {
-  // Cách 1: DOM — form cũ có <input name="entry.XXXXX">
+  // Cách 1: Tìm ENTRY ID từ name="entry.XXXXX" trong raw HTML (không DOM)
+  // Bắt cả _sentinel (choice/scale) và không _sentinel (text/paragraph)
+  {
+    const allEntryIds = new Set();
+    // sentinel: name="entry.428102983_sentinel"
+    for (const m of html.matchAll(/name="entry\.(\d+)_sentinel"/g)) allEntryIds.add(m[1]);
+    // text/paragraph: name="entry.647502725" (không _sentinel)
+    for (const m of html.matchAll(/name="entry\.(\d{7,12})"(?!_sentinel)/g)) allEntryIds.add(m[1]);
+    if (allEntryIds.size > 0) {
+      const idList = [...allEntryIds];
+      // Map entryId → questionText từ FB_PUBLIC_LOAD_DATA_
+      const ldMatch = html.match(/FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?\])\s*;/);
+      if (ldMatch) {
+        try {
+          const ld = JSON.parse(ldMatch[1]);
+          const items = ld && ld[1] && ld[1][1];
+          const entryMap = {};
+          if (Array.isArray(items)) {
+            for (const item of items) {
+              if (!Array.isArray(item)) continue;
+              const qType = item[3];
+              const itemData = item[4];
+              if (qType === 0 || !Array.isArray(itemData)) continue;
+              if (Array.isArray(itemData[0])) {
+                const entryId = String(itemData[0][0]);
+                const qText = String(item[1] || '').replace(/<[^>]+>/g, '').trim();
+                if (entryId) entryMap[entryId] = qText || 'Câu hỏi (không tiêu đề)';
+              }
+            }
+          }
+          const qlist = [];
+          const seen = new Set();
+          for (const eid of idList) {
+            if (seen.has(eid)) continue;
+            seen.add(eid);
+            qlist.push({ id: eid, text: entryMap[eid] || 'Câu hỏi ' + qlist.length });
+          }
+          if (qlist.length > 0) return qlist;
+        } catch(e) { /* fallthrough */ }
+      }
+      // Fallback: không parse được FB_PUBLIC — dùng số thứ tự
+      const seen = new Set();
+      const qlist = [];
+      for (const eid of idList) {
+        if (seen.has(eid)) continue;
+        seen.add(eid);
+        qlist.push({ id: eid, text: 'Câu hỏi ' + qlist.length });
+      }
+      if (qlist.length > 0) return qlist;
+    }
+  }
+
+  // Cách 2: DOM — form cũ có <input name="entry.XXXXX">
   {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
@@ -45,44 +97,46 @@ function parseFormHTML(html) {
       inputs.forEach((el, i) => {
         const name = el.getAttribute('name');
         const qText = questions[i] ? questions[i].textContent.trim() : 'Câu hỏi ' + (i+1);
-        if (name && !qlist.some(x => x.id === name)) qlist.push({ id: name.replace('entry.',''), text: qText });
+        if (name && !qlist.some(x => x.id === name)) qlist.push({ id: name.replace('entry.','').replace('_sentinel',''), text: qText });
       });
       if (qlist.length > 0) return qlist;
     }
   }
 
-  // Cách 2: Regex — form mới, entry IDs trong JSON inline
-  // Format: ]],[ID,"QUESTION_TEXT",...  hoặc  [ID,"QUESTION_TEXT",...
-  const matches = [...html.matchAll(/(?:\]\]|,)\[?(\d{7,12}),"((?:(?!",\d).)+?)"/g)];
-  if (matches.length > 0) {
-    const seen = new Set();
-    const qlist = [];
-    for (const m of matches) {
-      const id = m[1];
-      const text = m[2].trim();
-      if (seen.has(id)) continue;
-      seen.add(id);
-      // Lọc bỏ section/page break (tiêu đề ngắn, chứa từ khoá đặc biệt)
-      if (/^(Giới thiệu|Kết thúc|Thông tin nhân khẩu học|Thông tin chung)$/i.test(text)) continue;
-      qlist.push({ id, text });
+  // Cách 3: Regex — tìm entry ID từ FB_PUBLIC_LOAD_DATA_ trực tiếp
+  {
+    const ldMatch = html.match(/FB_PUBLIC_LOAD_DATA_\s*=\s*(\[.+?\])\s*;/);
+    if (ldMatch) {
+      // [ITEM_ID,"QUESTION",null,TYPE,[[ENTRY_ID,...
+      const items = [...ldMatch[1].matchAll(/\[(\d{7,12}),"((?:(?!",\d).)+?)",null,\d+,\[\[(\d{7,12})/g)];
+      if (items.length > 0) {
+        const seen = new Set();
+        const qlist = [];
+        for (const m of items) {
+          const entryId = m[3];
+          const qText = m[2].replace(/<[^>]+>/g, '').trim();
+          if (seen.has(entryId)) continue;
+          seen.add(entryId);
+          qlist.push({ id: entryId, text: qText || 'Câu hỏi ' + qlist.length });
+        }
+        if (qlist.length > 0) return qlist;
+      }
     }
-    if (qlist.length > 0) return qlist;
   }
 
-  // Cách 3: Quét toàn bộ số 7-12 digit trong HTML, giữ số nào đứng trước dấu phẩy và chuỗi
-  const allNums = [...html.matchAll(/\b(\d{7,12}),"([^"]{10,})"/g)];
-  if (allNums.length > 0) {
-    const seen = new Set();
-    const qlist = [];
-    for (const m of allNums) {
-      const id = m[1];
-      const text = m[2].trim();
-      if (seen.has(id)) continue;
-      seen.add(id);
-      if (/^(Giới thiệu|Kết thúc|Thông tin)/i.test(text)) continue;
-      qlist.push({ id, text });
+  // Cách 4: Fallback — quét mọi entry.XXXXX trong HTML (kể cả URL, JSON)
+  {
+    const nums = [...html.matchAll(/entry\.(\d{7,12})/g)];
+    if (nums.length > 0) {
+      const seen = new Set();
+      const qlist = [];
+      for (const m of nums) {
+        if (seen.has(m[1])) continue;
+        seen.add(m[1]);
+        qlist.push({ id: m[1], text: 'Câu hỏi ' + qlist.length });
+      }
+      if (qlist.length > 0) return qlist;
     }
-    if (qlist.length > 0) return qlist;
   }
 
   return null;
@@ -633,14 +687,14 @@ function generateBaitSheetScript(qlist) {
     _gfEntryMap = qlist.map(q => ({ entryId: q.id, varName: '', question: q.text }));
   }
 
-  // Build entry codes + var names
+  // Build entry codes + question names (Hàng 2)
   const entryCodes = [];
-  const varNames = [];
+  const questionNames = [];
 
   if (_gfEntryMap && _gfEntryMap.length > 0) {
     _gfEntryMap.forEach(m => {
       entryCodes.push('entry.' + m.entryId);
-      varNames.push(m.varName || '');
+      questionNames.push(m.question || m.varName || '');
     });
   } else {
     showToast('Chưa có mapping. Bấm "🔍 Dò câu hỏi" trước.', 'error');
@@ -667,7 +721,7 @@ function generateBaitSheetScript(qlist) {
   }
 
   const entryJson = JSON.stringify(entryCodes);
-  const varJson = JSON.stringify(varNames);
+  const questionJson = JSON.stringify(questionNames);
   const formTitle = 'Khảo sát SPSS từ tool';
   const dateStr = new Date().toISOString().slice(0, 10);
 
@@ -694,7 +748,7 @@ function createBaitSheet() {
 
     // Hàng 1: entry codes
     var codes = ${entryJson};
-    var names = ${varJson};
+    var names = ${questionJson};
     for (var c = 0; c < codes.length; c++) {
       sheet.getRange(1, c + 1).setValue(codes[c]);
       sheet.getRange(2, c + 1).setValue(names[c] || "Biến " + (c + 1));
