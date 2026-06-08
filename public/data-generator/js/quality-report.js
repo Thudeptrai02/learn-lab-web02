@@ -2726,3 +2726,170 @@ function _autoFixAfterGenerate() {
   }
   _refreshQEditor();
 }
+
+// ====== PERFECT DATA GENERATION (Cholesky-based) ======
+function _targetAlphaCorr(k) {
+  if (k < 2) return 0;
+  return 0.8 / (k - 0.8 * (k - 1));
+}
+
+function _buildTargetCorrMatrix(itemNames) {
+  const N = itemNames.length;
+  const C = Array.from({length:N}, () => Array(N).fill(0));
+  for (let i = 0; i < N; i++) C[i][i] = 1;
+  const groups = {};
+  variables.forEach(v => {
+    const idx = itemNames.indexOf(v.name);
+    if (idx === -1 || !v.construct) return;
+    if (!groups[v.construct]) groups[v.construct] = [];
+    groups[v.construct].push(idx);
+  });
+  Object.keys(groups).forEach(k => {
+    const idxs = groups[k];
+    const rw = Math.min(0.7, _targetAlphaCorr(idxs.length));
+    for (let i = 0; i < idxs.length; i++)
+      for (let j = i + 1; j < idxs.length; j++)
+        C[idxs[i]][idxs[j]] = C[idxs[j]][idxs[i]] = rw;
+  });
+  const cons = Object.keys(groups);
+  for (let a = 0; a < cons.length; a++) {
+    for (let b = a + 1; b < cons.length; b++) {
+      const roleA = variables.find(v => v.construct === cons[a])?.role || '';
+      const roleB = variables.find(v => v.construct === cons[b])?.role || '';
+      let r = 0.25;
+      if (roleA === 'independent' && roleB === 'independent') r = 0.28;
+      else if ((roleA === 'independent' && roleB === 'dependent') || (roleB === 'independent' && roleA === 'dependent')) r = 0.50;
+      else if ((roleA === 'independent' && roleB === 'mediating') || (roleB === 'independent' && roleA === 'mediating')) r = 0.45;
+      else if ((roleA === 'mediating' && roleB === 'dependent') || (roleB === 'mediating' && roleA === 'dependent')) r = 0.50;
+      const idxsA = groups[cons[a]], idxsB = groups[cons[b]];
+      for (const i of idxsA) for (const j of idxsB) C[i][j] = C[j][i] = r;
+    }
+  }
+  // Shrink off-diagonal for positive definiteness
+  for (let i = 0; i < N; i++)
+    for (let j = 0; j < N; j++)
+      if (i !== j) C[i][j] *= 0.95;
+  return C;
+}
+
+function _cholesky(C) {
+  const N = C.length;
+  const L = Array.from({length:N}, () => Array(N).fill(0));
+  for (let j = 0; j < N; j++) {
+    let s = 0;
+    for (let k = 0; k < j; k++) s += L[j][k] * L[j][k];
+    L[j][j] = Math.sqrt(Math.max(1e-10, C[j][j] - s));
+    for (let i = j + 1; i < N; i++) {
+      s = 0;
+      for (let k = 0; k < j; k++) s += L[i][k] * L[j][k];
+      L[i][j] = (C[i][j] - s) / L[j][j];
+    }
+  }
+  return L;
+}
+
+function _normalCDF(x) {
+  const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const t = 1 / (1 + p * x);
+  const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+  return 0.5 * (1 + sign * y);
+}
+
+function _generatePerfectDataCore(n, onProgress) {
+  const itemVars = variables.filter(v => v.construct);
+  const itemNames = itemVars.map(v => v.name);
+  if (itemNames.length < 2) { showToast('❌ Cần ít nhất 2 biến', 'error'); return null; }
+  const N = itemNames.length;
+  onProgress && onProgress(0, 'Ma trận tương quan...');
+  const C = _buildTargetCorrMatrix(itemNames);
+  onProgress && onProgress(20, 'Cholesky...');
+  const L = _cholesky(C);
+  onProgress && onProgress(40, 'Sinh dữ liệu...');
+  const Z = Array.from({length:n}, () => Array.from({length:N}, () => normalRandom(0, 1)));
+  const X = Z.map(z => {
+    const r = Array(N).fill(0);
+    for (let i = 0; i < N; i++) for (let j = 0; j <= i; j++) r[i] += L[i][j] * z[j];
+    return r;
+  });
+  onProgress && onProgress(60, 'Likert...');
+  const rawRows = X.map(row => {
+    const obj = {};
+    itemNames.forEach((name, idx) => {
+      const v = itemVars[idx];
+      const scale = v.scale || 5;
+      const p = _normalCDF(row[idx]);
+      let likert = Math.round(p * (scale - 1) + 0.5);
+      obj[name] = Math.min(scale, Math.max(1, likert));
+    });
+    variables.filter(v => !v.construct).forEach(v => {
+      const scale = v.scale || 5;
+      obj[v.name] = Math.floor(Math.random() * scale) + 1;
+    });
+    return obj;
+  });
+  onProgress && onProgress(80, 'Labels...');
+  const colNames = variables.map(v => v.name);
+  const labelRows = rawRows.map(row => {
+    const lr = {};
+    variables.forEach(v => {
+      const val = row[v.name];
+      lr[v.name] = (v.labels && val) ? v.labels[val - 1] || String(val) : String(val || '');
+    });
+    return lr;
+  });
+  onProgress && onProgress(95, 'Hoàn tất...');
+  return { rawRows, colNames, labelRows, n };
+}
+
+function _updateLabelRows() {
+  if (!generatedData) return;
+  variables.forEach(v => {
+    const idx = generatedData.colNames.indexOf(v.name);
+    if (idx === -1 || !v.labels) return;
+    generatedData.labelRows.forEach((lr, ri) => {
+      const val = generatedData.rawRows[ri][v.name];
+      lr[v.name] = val ? v.labels[val - 1] || String(val) : '';
+    });
+  });
+}
+
+function generatePerfectData() {
+  const n = parseInt(document.getElementById('sample-size').value) || 200;
+  const missingPct = parseFloat(document.getElementById('missing-pct').value) || 0;
+  const statusEl = document.getElementById('gen-status');
+  const btn = document.getElementById('perfect-gen-btn');
+  if (btn) btn.disabled = true;
+  statusEl.textContent = '🧬 Đang tạo... 0%';
+  const result = _generatePerfectDataCore(n, (pct, msg) => { statusEl.textContent = `🧬 ${msg} ${pct}%`; });
+  if (!result) { if (btn) btn.disabled = false; return; }
+  if (missingPct > 0) result.rawRows.forEach(row => { Object.keys(row).forEach(k => { if (Math.random() * 100 < missingPct) row[k] = null; }); });
+  generatedData = result; _dataVersion = 0;
+  const constructs = {};
+  variables.forEach(v => { if (v.construct) { if (!constructs[v.construct]) constructs[v.construct] = []; constructs[v.construct].push(v); } });
+  updatePreview(result.rawRows, result.colNames);
+  updateDataViewerInfo();
+  _updateLabelRows();
+  statusEl.textContent = `🧬 Hoàn hảo (${result.n} mẫu)`;
+  _autoFixAfterGenerate();
+  if (btn) btn.disabled = false;
+  showToast('✅ Dữ liệu hoàn hảo đã sẵn sàng!', 'success');
+}
+
+function addPerfectRows(count) {
+  if (!generatedData) { showToast('❌ Chưa có dữ liệu', 'error'); return; }
+  const statusEl = document.getElementById('gen-status');
+  statusEl.textContent = `➕ Đang thêm ${count} mẫu...`;
+  const result = _generatePerfectDataCore(count, null);
+  if (!result) return;
+  result.rawRows.forEach((row, i) => {
+    generatedData.rawRows.push(row);
+    generatedData.labelRows.push(result.labelRows[i]);
+  });
+  generatedData.n = generatedData.rawRows.length;
+  _updateLabelRows();
+  _autoFixAfterGenerate();
+  statusEl.textContent = `➕ Đã thêm ${count} mẫu (tổng: ${generatedData.n})`;
+  showToast(`✅ Đã thêm ${count} phiếu khảo sát`, 'success');
+}
