@@ -634,7 +634,7 @@ function processAiRuleBased(text) {
   if (m) return aiAddNoise(m[2].trim(), m[3] ? parseFloat(m[3]) : 0.3, constructs);
 
   // Clean, simple commands — no duplicates
-  let m = lower.match(/^(r\s*[²2]|r-squared|r bình phương)\s+(.+?)(?:\s+(?:lên|là|thanh|thành|=)\s+)?(\d+\.?\d*)$/i);
+  m = lower.match(/^(r\s*[²2]|r-squared|r bình phương)\s+(.+?)(?:\s+(?:lên|là|thanh|thành|=)\s+)?(\d+\.?\d*)$/i);
   if (m) return aiSetRSquared(m[2].trim(), parseFloat(m[3]), constructs);
 
   m = lower.match(/^(alpha|cronbach)\s+(.+?)(?:\s+(?:lên|len|is|la|thanh|thành)\s+)?(\d+\.?\d*)$/i);
