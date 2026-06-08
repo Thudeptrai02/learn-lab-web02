@@ -2303,8 +2303,15 @@ function renderQualityEditor() {
         <button class="btn btn-sm btn-outline" onclick="if(_qualityUndoData&&confirm('Khôi phục?'))_qualityRestore()" style="font-size:.7rem">↩️ Undo</button>
       </div>
     </div>
-    <div style="font-size:.7rem;color:var(--gray-500);margin-bottom:.5rem;background:#fefce8;padding:.35rem .5rem;border-radius:6px">
-      💡 <strong>Cách dùng:</strong> Nhập số <b>mục tiêu (α, λ, R²)</b> vào ô input cạnh mỗi nhân tố, rồi bấm nút fix tương ứng.
+    <div style="font-size:.7rem;color:var(--gray-500);margin-bottom:.5rem;background:#fefce8;padding:.45rem .6rem;border-radius:6px;line-height:1.5">
+      💡 <b>Hướng dẫn nhanh:</b><br>
+      • <b>📊 Độ tin cậy</b> = sửa α (Cronbach) + λ (hệ số tải) + AVE + KMO<br>
+      • <b>📊 Đồng nhất</b> = làm biến tương quan với tổng điểm nhân tố<br>
+      • <b>🎯 R²</b> = tăng khả năng giải thích của mô hình hồi quy<br>
+      • <b>📊 Đa cộng tuyến</b> = giảm tương quan giữa các biến độc lập (VIF)<br>
+      • <b>📊 Phần dư</b> = chuẩn hoá phần dư hồi quy<br>
+      • <b>📊 Chéo nhân tố</b> = gỡ biến tải lên nhiều nhân tố<br>
+      • <b>📮 Chia sẻ</b> = tăng phương sai chung biến-nhân tố
     </div>
     <div style="font-size:.65rem;color:var(--gray-400);margin-bottom:.3rem;padding:0 .25rem">
       <span style="display:inline-block;min-width:80px"></span>
@@ -2379,11 +2386,11 @@ function renderQualityEditor() {
     const itcOk = minItemTotal >= 0.3;
     html += `<span style="font-size:.6rem;color:var(--gray-400)">r-total</span>
       <span style="font-size:.7rem;font-weight:600;color:${_clr(minItemTotal, v=>v>=0.3)};min-width:36px">${minItemTotal.toFixed(3)}</span>
-      <button class="btn btn-sm" onclick="_execFixITC('${k}')" style="font-size:.55rem;padding:.1rem .25rem;background:${itcOk?'#d1fae5':'#7c3aed'};color:${itcOk?'#065f46':'#fff'};border:none;border-radius:4px;cursor:pointer">${itcOk?'✅':'r-total'}</button>`;
+      <button class="btn btn-sm" onclick="_execFixITC('${k}')" style="font-size:.6rem;padding:.15rem .35rem;background:${itcOk?'#d1fae5':'#7c3aed'};color:${itcOk?'#065f46':'#fff'};border:none;border-radius:4px;cursor:pointer" title="Làm cho biến này tương quan với tổng điểm nhân tố">${itcOk?'✅':'📊 Đồng nhất'}</button>`;
 
-    // Nút Nội tại
-    const intLabel = needsInternal ? '📊 Nội tại' : '✅';
-    html += `<button class="btn btn-sm" onclick="_execFix('${k}')" style="font-size:.6rem;padding:.15rem .35rem;background:${needsInternal?'#7c3aed':'#d1fae5'};color:${needsInternal?'#fff':'#065f46'};border:none;border-radius:4px;cursor:pointer">${intLabel}</button>`;
+    // Nút tổng hợp: α + λ + AVE + KMO
+    const intLabel = needsInternal ? '📊 Độ tin cậy' : '✅';
+    html += `<button class="btn btn-sm" onclick="_execFix('${k}')" style="font-size:.6rem;padding:.15rem .35rem;background:${needsInternal?'#7c3aed':'#d1fae5'};color:${needsInternal?'#fff':'#065f46'};border:none;border-radius:4px;cursor:pointer" title="Cải thiện α + λ + AVE + KMO đồng thời">${intLabel}</button>`;
 
     // R² for DV
     if (isDV && dvMetrics) {
@@ -2403,11 +2410,11 @@ function renderQualityEditor() {
         const vifOk = maxVif < 2;
         html += `<span style="font-size:.6rem;color:var(--gray-400)">VIF</span>
           <span style="font-size:.75rem;font-weight:600;color:${_clr(maxVif, v=>v<2)};min-width:36px">${maxVif.toFixed(2)}</span>
-          <button class="btn btn-sm" onclick="_execFixVIF()" style="font-size:.6rem;padding:.15rem .35rem;background:${vifOk?'#d1fae5':'#dc2626'};color:${vifOk?'#065f46':'#fff'};border:none;border-radius:4px;cursor:pointer">${vifOk?'✅':'🔄 VIF'}</button>`;
+          <button class="btn btn-sm" onclick="_execFixVIF()" style="font-size:.6rem;padding:.15rem .35rem;background:${vifOk?'#d1fae5':'#dc2626'};color:${vifOk?'#065f46':'#fff'};border:none;border-radius:4px;cursor:pointer" title="Giảm đa cộng tuyến giữa các IV">${vifOk?'✅':'📊 Đa cộng tuyến'}</button>`;
 
         // Residual normality fix
-        html += `<span style="font-size:.6rem;color:var(--gray-400)">Resid</span>
-          <button class="btn btn-sm" onclick="_execFixResidual('${k}')" style="font-size:.55rem;padding:.1rem .25rem;background:#7c3aed;color:#fff;border:none;border-radius:4px;cursor:pointer">📊 Resid</button>`;
+        html += `<span style="font-size:.6rem;color:var(--gray-400)">Phần dư</span>
+          <button class="btn btn-sm" onclick="_execFixResidual('${k}')" style="font-size:.55rem;padding:.1rem .25rem;background:#7c3aed;color:#fff;border:none;border-radius:4px;cursor:pointer" title="Chuẩn hoá phần dư về N(0,1)">📊 Phần dư</button>`;
       }
     }
 
@@ -2446,8 +2453,8 @@ function renderQualityEditor() {
     const hasLowComm = efa.communalities.some(c => c < 0.3);
     html += `<div style="display:flex;gap:.35rem;margin-top:.25rem;flex-wrap:wrap">
       <span style="font-size:.7rem;font-weight:600;color:var(--gray-500);margin-right:.25rem">🔬 EFA:</span>
-      <button class="btn btn-sm" onclick="fixEFA_CrossLoading()" style="font-size:.6rem;padding:.15rem .35rem;background:${hasCross?'#dc2626':'#d1fae5'};color:${hasCross?'#fff':'#065f46'};border:none;border-radius:4px;cursor:pointer">${hasCross?`🔄 Cross-load (${efa.crossLoadings.length})`:'✅ Cross-load'}</button>
-      <button class="btn btn-sm" onclick="fixEFA_Communality()" style="font-size:.6rem;padding:.15rem .35rem;background:${hasLowComm?'#d97706':'#d1fae5'};color:${hasLowComm?'#fff':'#065f46'};border:none;border-radius:4px;cursor:pointer">${hasLowComm?'📊 Communality':'✅ Communality'}</button>
+      <button class="btn btn-sm" onclick="fixEFA_CrossLoading()" style="font-size:.6rem;padding:.15rem .35rem;background:${hasCross?'#dc2626':'#d1fae5'};color:${hasCross?'#fff':'#065f46'};border:none;border-radius:4px;cursor:pointer" title="Loại bỏ biến tải lên nhiều nhân tố cùng lúc">${hasCross?`📊 Chéo nhân tố (${efa.crossLoadings.length})`:'✅ Chéo nhân tố'}</button>
+      <button class="btn btn-sm" onclick="fixEFA_Communality()" style="font-size:.6rem;padding:.15rem .35rem;background:${hasLowComm?'#d97706':'#d1fae5'};color:${hasLowComm?'#fff':'#065f46'};border:none;border-radius:4px;cursor:pointer" title="Tăng phương sai chia sẻ giữa biến và nhân tố">${hasLowComm?'📮 Chia sẻ':'✅ Chia sẻ'}</button>
     </div>`;
   }
 
