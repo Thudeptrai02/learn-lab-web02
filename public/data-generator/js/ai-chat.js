@@ -37,11 +37,8 @@ if (document.readyState === 'loading') {
 
 function toggleAiChat() {
   const sidebar = document.getElementById('ai-sidebar');
-  const btn = document.getElementById('ai-btn');
-  const closed = sidebar.classList.toggle('closed');
-  btn.innerHTML = closed ? '🤖' : '✕';
-  btn.title = closed ? 'Mở trợ lý AI' : 'Đóng';
-  if (!closed) {
+  sidebar.classList.toggle('closed');
+  if (!sidebar.classList.contains('closed')) {
     setTimeout(() => document.getElementById('ai-input')?.focus(), 100);
     if (document.getElementById('ai-msgs').children.length === 0) {
       aiHelp();
