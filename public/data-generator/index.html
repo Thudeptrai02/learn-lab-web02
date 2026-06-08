@@ -334,20 +334,24 @@
 <script src="/data-generator/js/google-form.js"></script>
 <script src="/data-generator/js/ai-chat.js"></script>
 
-<!-- AI Chat -->
+<!-- AI Chat — Side Panel -->
 <button id="ai-btn" onclick="toggleAiChat()" title="Trợ lý AI">
   <span id="ai-btn-icon">🤖</span>
   <span class="badge-dot" id="ai-badge" style="display:none"></span>
 </button>
 <div id="ai-panel">
+  <div id="ai-resize-handle"></div>
   <div id="ai-header">
-    <strong>🤖 Trợ lý Dữ liệu (AI)</strong>
-    <button onclick="toggleAiChat()" title="Đóng">✕</button>
+    <span class="title">🤖 Trợ lý AI <small>DeepSeek</small></span>
+    <span class="actions">
+      <button onclick="aiHelp()" title="Hướng dẫn">?</button>
+      <button onclick="toggleAiChat()" title="Đóng">✕</button>
+    </span>
   </div>
   <div id="ai-thinking"><div class="spinner"></div><span>AI đang phân tích dữ liệu...</span></div>
   <div id="ai-msgs"></div>
   <div id="ai-input-row">
-    <input type="text" id="ai-input" placeholder="Nhập yêu cầu... (VD: tăng CL lên 0.5)" onkeydown="if(event.key==='Enter')sendAiChat()">
+    <input type="text" id="ai-input" placeholder="VD: tối ưu hết, tăng alpha CL lên 0.85..." onkeydown="if(event.key==='Enter')sendAiChat()">
     <button onclick="sendAiChat()" id="ai-send-btn" disabled>➤</button>
   </div>
 </div>

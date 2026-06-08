@@ -1,10 +1,39 @@
 // ====== DATA ASSISTANT (AI Chat) ======
 let _aiBackup = null;
 
-function getAiKey() {
-  try { return localStorage.getItem('deepseek_api_key') || ''; } catch (e) { return ''; }
+// Resize logic for side panel
+const AI_MIN_WIDTH = 280;
+const AI_MAX_WIDTH = Math.min(800, window.innerWidth * 0.85);
+function initAiResize() {
+  const handle = document.getElementById('ai-resize-handle');
+  const panel = document.getElementById('ai-panel');
+  if (!handle || !panel) return;
+  let startX = 0, startW = 0;
+  const onDown = (e) => {
+    startX = e.clientX;
+    startW = panel.getBoundingClientRect().width;
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  };
+  const onMove = (e) => {
+    const w = Math.max(AI_MIN_WIDTH, Math.min(AI_MAX_WIDTH, startW - (e.clientX - startX)));
+    panel.style.width = w + 'px';
+  };
+  const onUp = () => {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  };
+  handle.addEventListener('mousedown', onDown);
 }
-function hasAiKey() { return getAiKey().length > 10; }
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAiResize);
+} else {
+  initAiResize();
+}
 
 function toggleAiChat() {
   const panel = document.getElementById('ai-panel');
@@ -53,11 +82,13 @@ function setAiThinking(show) {
 }
 
 async function callDeepSeek(messages) {
-  const key = getAiKey();
-  const resp = await fetch('https://api.deepseek.com/v1/chat/completions', {
+  const resp = await fetch('/api/data-assistant', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-    body: JSON.stringify({ model: 'deepseek-chat', messages, temperature: 0.05, max_tokens: 1500 })
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages: messages.map(m => ({
+      role: m.role,
+      content: m.role === 'system' ? m.content + '\n\nGiới hạn: actions tối đa 5, ưu tiên actions có tác động lớn nhất.' : m.content
+    })) })
   });
   if (!resp.ok) {
     const err = await resp.text().catch(() => '');
@@ -115,23 +146,34 @@ function buildDataContext() {
   return ctx;
 }
 
-const AI_SYSTEM_PROMPT = `Bạn là trợ lý phân tích và can thiệp dữ liệu khảo sát SPSS.
+const AI_SYSTEM_PROMPT = `Bạn là trợ lý phân tích và can thiệp dữ liệu khảo sát SPSS chuyên sâu.
 
-Bạn có thể thực hiện các hành động sau để can thiệp vào dữ liệu:
+NGUYÊN TẮC TỐI ƯU:
+- Cronbach's Alpha ≥ 0.80 (tốt), ≥ 0.60 (chấp nhận)
+- Hệ số tải (loading) ≥ 0.50
+- KMO ≥ 0.70
+- Item-total correlation ≥ 0.30
+- R² ≥ 0.50 (tốt)
+- VIF < 2
+- Durbin-Watson 1.5–2.5
+- Tương quan giữa các nhân tố có Sig. < 0.05
+
+Bạn có thể thực hiện các hành động sau:
 1. "adjustMean": điều chỉnh mean của một nhân tố (delta: số dương = tăng, âm = giảm)
-2. "addNoise": thêm nhiễu ngẫu nhiên cho nhân tố (amount: độ lệch chuẩn của nhiễu, mặc định 0.3)
-3. "setCorrelation": điều chỉnh tương quan giữa 2 nhân tố (target: giá trị r target, VD: 0.6)
-4. "setRSquared": điều chỉnh R² của một biến phụ thuộc (dependent: tên nhân tố DV, targetR2: giá trị R² target, VD: 0.6)
-5. "adjustAlpha": điều chỉnh Cronbach's Alpha của một nhân tố (construct: tên nhân tố, targetAlpha: giá trị alpha target, VD: 0.85)
-6. "showStats": hiển thị thống kê chi tiết của nhân tố
+2. "addNoise": thêm nhiễu ngẫu nhiên cho nhân tố (amount: độ lệch chuẩn)
+3. "setCorrelation": điều chỉnh tương quan giữa 2 nhân tố (construct1, construct2, target: r target)
+4. "setRSquared": điều chỉnh R² của biến phụ thuộc (dependent, targetR2)
+5. "adjustAlpha": điều chỉnh Cronbach's Alpha (construct, targetAlpha)
+6. "showStats": hiển thị thống kê chi tiết
 7. "regenerate": tạo lại toàn bộ dữ liệu
-8. "respond": trả lời người dùng mà ko cần thay đổi dữ liệu
+8. "respond": trả lời không thay đổi dữ liệu
+9. "fixAll": chạy toàn bộ chu trình tối ưu (ko cần params)
 
 LUÔN TRẢ LỜI BẰNG JSON CHUẨN, định dạng:
-{"message": "câu trả lời cho người dùng bằng tiếng Việt, ngắn gọn", "actions": [{"type": "tên_hành_động", "params": {...}}]}
+{"message": "câu trả lời bằng tiếng Việt, ngắn gọn", "actions": [{"type": "tên_hành_động", "params": {...}}]}
 
-Nếu không cần thay đổi dữ liệu, trả về actions là [].
-Chỉ dùng đúng tên nhân tố có trong dữ liệu.`;
+Nếu không cần thay đổi dữ liệu, actions là [].
+Chỉ dùng đúng tên nhân tố có trong dữ liệu. Phân tích kỹ số liệu trước khi quyết định hành động. Ưu tiên dùng fixAll nếu cần cải thiện nhiều chỉ số cùng lúc.`;
 
 async function processAiWithAI(text) {
   const constructs = [...new Set(variables.filter(v => v.construct).map(v => v.construct))];
@@ -208,6 +250,7 @@ function executeAiActions(actions, constructs) {
         case 'adjustAlpha': aiAdjustAlphaDirect(p.construct, p.targetAlpha, constructs); break;
         case 'showStats': aiShowStatsDirect(p.construct, constructs); break;
         case 'regenerate': _aiBackup = null; smartGenerate(); break;
+        case 'fixAll': _execAutoFixAll(); break;
       }
     } catch (e) { console.error('Action error:', action, e); }
   });
@@ -539,16 +582,12 @@ function aiShowStatsDirect(construct, constructs) {
 }
 
 function processAiCommand(text) {
-  const isLocal = location.protocol === 'file:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-  if (hasAiKey() && !isLocal) {
+  try {
     processAiWithAI(text);
-  } else {
+  } catch (e) {
     if (!generatedData) {
       aiRespond('❌ Chưa có dữ liệu. Hãy tạo dữ liệu trước!\n\n➡️ Click 1 trong các **mẫu nhanh** (3 IV → 1 DV, IV → Trung gian → DV,...) hoặc thêm nhân tố thủ công, sau đó bấm **🎯 Tạo dữ liệu**.', 'system');
       return;
-    }
-    if (isLocal && hasAiKey()) {
-      addAiMsg('ℹ️ Đang chạy local — dùng AI ngoại tuyến thay vì gọi API. Gõ `giúp` để xem lệnh.', 'system');
     }
     processAiRuleBased(text);
   }
