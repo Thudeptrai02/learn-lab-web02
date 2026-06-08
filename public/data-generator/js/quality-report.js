@@ -1312,6 +1312,42 @@ function exportReport() {
 // ====== QUALITY EDITOR (merged) ======
 // ====== QUALITY EDITOR — fix ALL metrics by modifying raw data ======
 
+// Per-construct custom targets (set via inputs in quality editor panel)
+window.__customTargets = window.__customTargets || {
+  alpha: {},   // constructKey -> number (e.g. 0.85)
+  loading: {}, // constructKey -> number (e.g. 0.7)
+  rsq: {},     // constructKey -> number (e.g. 0.6)
+  corrMin: {}, // 'c1|c2' -> number (e.g. 0.3)
+  corrMax: {}, // 'c1|c2' -> number (e.g. 0.6)
+};
+function _ct() { return window.__customTargets; }
+
+function _getTargetAlpha(key) {
+  const t = _ct();
+  if (key && t.alpha[key] != null) return t.alpha[key];
+  return parseFloat(document.getElementById('q-alpha')?.value) || 0.8;
+}
+function _getTargetLoading(key) {
+  const t = _ct();
+  if (key && t.loading[key] != null) return t.loading[key];
+  return parseFloat(document.getElementById('q-loading')?.value) || 0.6;
+}
+function _getTargetRSq(key) {
+  const t = _ct();
+  if (key && t.rsq[key] != null) return t.rsq[key];
+  return parseFloat(document.getElementById('q-rsq')?.value) || 0.5;
+}
+function _getTargetCorrMin(key) {
+  const t = _ct();
+  if (key && t.corrMin[key] != null) return t.corrMin[key];
+  return parseFloat(document.getElementById('q-corr-min')?.value) || 0.30;
+}
+function _getTargetCorrMax(key) {
+  const t = _ct();
+  if (key && t.corrMax[key] != null) return t.corrMax[key];
+  return parseFloat(document.getElementById('q-corr-max')?.value) || 0.60;
+}
+
 let _qualityUndoData = null;
 
 function _qualitySnapshot() {
@@ -1892,7 +1928,7 @@ function fixItemTotalCorrelation(constructKey) {
   const rows = generatedData.rawRows;
   const n = rows.length;
 
-  for (let iter = 0; iter < 3; iter++) {
+  for (let iter = 0; iter < 5; iter++) {
     const scores = itemNames.map(name => rows.map(r => (typeof r[name]==='number'&&!isNaN(r[name]))?r[name]:null));
     const valid = [];
     for (let i = 0; i < n; i++) { if (scores.every(col => col[i] !== null)) valid.push(i); }
@@ -1911,37 +1947,48 @@ function fixItemTotalCorrelation(constructKey) {
       const corr = sdI>0&&sdT>0 ? covIT/(sdI*sdT) : 0;
       if (corr >= 0.3) continue;
 
-      // Fix: pull item toward total score direction
+      // Fix: strongly pull item toward total score direction
       const name = itemNames[ii];
-      let changed = 0;
       valid.forEach(ri => {
         const old = rows[ri][name];
         if (typeof old !== 'number' || isNaN(old)) return;
         const total = totalScores[ri];
         const item = itemScores[ri];
-        const pullDir = (total/items.length - item) * 0.2;
+        const pullDir = (total/items.length - item) * 0.35;
         let newVal = Math.round(old + pullDir);
         newVal = Math.min(scale, Math.max(1, newVal));
-        if (newVal !== old && Math.random() < 0.5) { rows[ri][name] = newVal; changed++; }
+        if (newVal !== old) rows[ri][name] = newVal;
       });
     }
+  }
 
-    // Also pull toward composite (same as internal fix but lighter)
-    const itemMeans = itemNames.map((_, idx) => valid.reduce((a,i)=>a+scores[idx][i],0)/m);
-    const composite = valid.map(ri => itemNames.reduce((s,n)=>s+rows[ri][n],0)/itemNames.length);
-    let changed2 = 0;
-    valid.forEach((ri, idx) => {
-      const comp = composite[idx];
-      itemNames.forEach((name) => {
-        const old = rows[ri][name];
-        if (typeof old !== 'number' || isNaN(old)) return;
-        const pull = (comp - old) * 0.15;
-        let newVal = Math.round(old + pull);
-        newVal = Math.min(scale, Math.max(1, newVal));
-        if (newVal !== old && Math.random() < 0.3) { rows[ri][name] = newVal; changed2++; }
+  // Post-fix: reorder items to match composite ranking (same as construct internal)
+  {
+    const scores = itemNames.map(name => rows.map(r => (typeof r[name]==='number'&&!isNaN(r[name]))?r[name]:null));
+    const valid = [];
+    for (let i = 0; i < n; i++) { if (scores.every(col => col[i] !== null)) valid.push(i); }
+    if (valid.length >= 10) {
+      const m = valid.length;
+      const composite = valid.map(ri => itemNames.reduce((s,n)=>s+rows[ri][n],0)/itemNames.length);
+      const sortedIdx = [...Array(m).keys()].sort((a,b) => composite[a] - composite[b]);
+      const groups = Math.min(scale, 5);
+      const groupSize = Math.floor(m / groups);
+      itemNames.forEach(name => {
+        sortedIdx.forEach((pos, p) => {
+          const group = Math.min(groups-1, Math.floor(p / groupSize));
+          const groupMin = Math.max(1, Math.round(1 + (scale-1) * group / groups));
+          const groupMax = Math.min(scale, Math.round(1 + (scale-1) * (group+1) / groups));
+          const ideal = Math.round(groupMin + (groupMax - groupMin) * Math.random());
+          const ri = valid[pos];
+          const old = rows[ri][name];
+          if (typeof old !== 'number' || isNaN(old)) return;
+          const pull = (ideal - old) * 0.4;
+          let newVal = Math.round(old + pull);
+          newVal = Math.min(scale, Math.max(1, newVal));
+          if (newVal !== old) rows[ri][name] = newVal;
+        });
       });
-    });
-    if (changed2 < 2) break;
+    }
   }
 
   items.forEach(v => {
@@ -2050,14 +2097,54 @@ function fixConstructInternal(constructKey) {
   const rows = generatedData.rawRows;
   const n = rows.length;
 
-  for (let iter = 0; iter < 5; iter++) {
+  // Phase 1: Sort rows by composite, then assign items to match
+  for (let bigIter = 0; bigIter < 3; bigIter++) {
+    const scores = itemNames.map(name => rows.map(r => (typeof r[name]==='number'&&!isNaN(r[name]))?r[name]:null));
+    const valid = [];
+    for (let i = 0; i < n; i++) { if (scores.every(col => col[i] !== null)) valid.push(i); }
+    if (valid.length < 10) break;
+    const m = valid.length;
+
+    // Compute composite
+    const composite = valid.map(ri => itemNames.reduce((s,n)=>s+rows[ri][n],0)/itemNames.length);
+
+    // Sort row indices by composite
+    const sortedIdx = [...Array(m).keys()].sort((a,b) => composite[a] - composite[b]);
+
+    // Re-rank each item to match the composite ordering
+    itemNames.forEach((name) => {
+      const colIdx = itemNames.indexOf(name);
+      const vals = valid.map(ri => scores[colIdx][ri]);
+
+      // Sort values
+      const sortedVals = [...vals].sort((a,b) => a - b);
+
+      // Build quartile-based mapping: low composite rows get low item values
+      const groups = Math.min(scale, 5);
+      const groupSize = Math.floor(m / groups);
+      sortedIdx.forEach((ri, pos) => {
+        const group = Math.min(groups-1, Math.floor(pos / groupSize));
+        const groupMin = Math.max(1, Math.round(1 + (scale-1) * group / groups));
+        const groupMax = Math.min(scale, Math.round(1 + (scale-1) * (group+1) / groups));
+        const ideal = Math.round(groupMin + (groupMax - groupMin) * Math.random());
+        const old = rows[valid[ri]][name];
+        if (typeof old !== 'number' || isNaN(old)) return;
+        const pull = (ideal - old) * 0.4;
+        let newVal = Math.round(old + pull);
+        newVal = Math.min(scale, Math.max(1, newVal));
+        if (newVal !== old) rows[valid[ri]][name] = newVal;
+      });
+    });
+  }
+
+  // Phase 2: Fine-tune with composite pull (10 iterations)
+  for (let iter = 0; iter < 10; iter++) {
     const scores = itemNames.map(name => rows.map(r => (typeof r[name]==='number'&&!isNaN(r[name]))?r[name]:null));
     const valid = [];
     for (let i = 0; i < n; i++) { if (scores.every(col => col[i] !== null)) valid.push(i); }
     if (valid.length < 5) break;
     const m = valid.length;
 
-    const itemMeans = itemNames.map((_, idx) => valid.reduce((a,i)=>a+scores[idx][i],0)/m);
     const composite = valid.map(ri => itemNames.reduce((s,n)=>s+rows[ri][n],0)/itemNames.length);
 
     let totalChanged = 0;
@@ -2066,18 +2153,16 @@ function fixConstructInternal(constructKey) {
       itemNames.forEach((name) => {
         const old = rows[ri][name];
         if (typeof old !== 'number' || isNaN(old)) return;
-        // Pull toward composite with decreasing strength
-        const pull = (comp - old) * 0.25;
+        const pull = (comp - old) * (iter < 5 ? 0.35 : 0.15);
         let newVal = Math.min(scale, Math.max(1, Math.round(old + pull)));
         if (newVal === old) {
-          // tiny random nudge if stuck
           newVal = Math.min(scale, Math.max(1, old + (Math.random() < 0.5 ? 1 : -1)));
           if (Math.abs(newVal - old) > 1) newVal = old;
         }
         if (newVal !== old) { rows[ri][name] = newVal; totalChanged++; }
       });
     });
-    if (totalChanged < 2) break;
+    if (totalChanged < 3) break;
   }
 
   // Update labelRows
@@ -2095,7 +2180,7 @@ function fixConstructInternal(constructKey) {
 function fixDV_Rsquared(dvKey) {
   const metrics = _computeRegressionMetrics(dvKey);
   if (!metrics || metrics.predictors.length === 0) return;
-  const targetR2 = parseFloat(document.getElementById('q-rsq')?.value) || 0.5;
+  const targetR2 = _getTargetRSq(dvKey);
   if (metrics.rSquared >= targetR2) return;
 
   const constructs = {};
@@ -2117,8 +2202,9 @@ function fixIVCorrelation(c1, c2) {
       constructs[v.construct].push(v);
     }
   });
-  const corrMin = parseFloat(document.getElementById('q-corr-min')?.value) || 0.30;
-  const corrMax = parseFloat(document.getElementById('q-corr-max')?.value) || 0.60;
+  const pk = `${c1}|${c2}`;
+  const corrMin = _getTargetCorrMin(pk);
+  const corrMax = _getTargetCorrMax(pk);
   const targetR = (corrMin + corrMax) / 2;
   aiSetCorrelationDirect(c1, c2, targetR, constructs);
 }
@@ -2205,9 +2291,6 @@ function renderQualityEditor() {
   constructKeys.forEach(k => { allMetrics[k] = _computeConstructMetrics(k); });
 
   const ivPairs = _computeIVCorrelations();
-  const targetAlpha = parseFloat(document.getElementById('q-alpha')?.value) || 0.8;
-  const targetLoading = parseFloat(document.getElementById('q-loading')?.value) || 0.6;
-  const targetRSq = parseFloat(document.getElementById('q-rsq')?.value) || 0.5;
   const roleColor = { independent:'#2563eb', dependent:'#dc2626', mediating:'#d97706', moderating:'#7c3aed' };
   const roleLabels = { independent:'Độc lập', dependent:'Phụ thuộc', mediating:'Trung gian', moderating:'Điều tiết' };
 
@@ -2221,8 +2304,17 @@ function renderQualityEditor() {
       </div>
     </div>
     <div style="font-size:.7rem;color:var(--gray-500);margin-bottom:.5rem;background:#fefce8;padding:.35rem .5rem;border-radius:6px">
-      💡 <strong>Cách dùng:</strong> Với mỗi nhân tố, bấm <b>📊 Nội tại</b> để cải thiện đồng thời α + λ + AVE + KMO. 
-      Nếu cần tăng R², bấm <b>🎯 R²</b>. Giới hạn dưới lấy từ 🎯 Yêu cầu chất lượng.
+      💡 <strong>Cách dùng:</strong> Nhập số <b>mục tiêu (α, λ, R²)</b> vào ô input cạnh mỗi nhân tố, rồi bấm nút fix tương ứng.
+    </div>
+    <div style="font-size:.65rem;color:var(--gray-400);margin-bottom:.3rem;padding:0 .25rem">
+      <span style="display:inline-block;min-width:80px"></span>
+      <span style="display:inline-block;min-width:36px">α</span>
+      <span style="display:inline-block;min-width:36px">λ</span>
+      <span style="display:inline-block;min-width:35px">Mục tiêu α</span>
+      <span style="display:inline-block;min-width:35px">Mục tiêu λ</span>
+      <span style="display:inline-block;min-width:36px">AVE</span>
+      <span style="display:inline-block;min-width:36px">KMO</span>
+      <span style="display:inline-block;min-width:36px">r-total</span>
     </div>
     <div style="display:flex;flex-direction:column;gap:.35rem">`;
 
@@ -2237,13 +2329,18 @@ function renderQualityEditor() {
       return;
     }
 
+    // Read custom targets for this construct
+    const ca = _getTargetAlpha(k);
+    const cl = _getTargetLoading(k);
+
     // Single unified "Nội tại" button for alpha+loading+AVE+KMO
-    const needsInternal = m.alpha < targetAlpha || m.avgLoading < targetLoading || m.ave < 0.3 || m.kmo < 0.5;
+    const needsInternal = m.alpha < ca || m.avgLoading < cl || m.ave < 0.3 || m.kmo < 0.5;
 
     // R² for DV
     const isDV = c.role === 'dependent';
     let dvMetrics = null;
     if (isDV) dvMetrics = _computeRegressionMetrics(k);
+    const crsq = _getTargetRSq(k);
 
     // Display row
     html += `<div style="display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;background:#fff;padding:.35rem .5rem;border-radius:6px;border:1px solid var(--gray-200)">
@@ -2251,11 +2348,19 @@ function renderQualityEditor() {
 
     // Alpha
     html += `<span style="font-size:.6rem;color:var(--gray-400)">α</span>
-      <span style="font-size:.75rem;font-weight:600;color:${_clr(m.alpha, v=>v>=targetAlpha)};min-width:36px">${m.alpha.toFixed(3)}</span>`;
+      <span style="font-size:.75rem;font-weight:600;color:${_clr(m.alpha, v=>v>=ca)};min-width:36px">${m.alpha.toFixed(3)}</span>`;
 
     // Loading
     html += `<span style="font-size:.6rem;color:var(--gray-400)">λ</span>
-      <span style="font-size:.75rem;font-weight:600;color:${_clr(m.avgLoading, v=>v>=targetLoading)};min-width:36px">${m.avgLoading.toFixed(3)}</span>`;
+      <span style="font-size:.75rem;font-weight:600;color:${_clr(m.avgLoading, v=>v>=cl)};min-width:36px">${m.avgLoading.toFixed(3)}</span>`;
+
+    // Custom target input for α (tiny input)
+    html += `<input type="number" id="ta-${k}" value="${ca.toFixed(2)}" min="0.5" max="0.95" step="0.05"
+      onchange="window.__customTargets.alpha['${k}']=parseFloat(this.value)||0.8"
+      style="width:45px;font-size:.6rem;padding:.05rem .15rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">`;
+    html += `<input type="number" id="tl-${k}" value="${cl.toFixed(2)}" min="0.3" max="0.95" step="0.05"
+      onchange="window.__customTargets.loading['${k}']=parseFloat(this.value)||0.6"
+      style="width:45px;font-size:.6rem;padding:.05rem .15rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">`;
 
     // AVE
     html += `<span style="font-size:.6rem;color:var(--gray-400)">AVE</span>
@@ -2278,10 +2383,13 @@ function renderQualityEditor() {
 
     // R² for DV
     if (isDV && dvMetrics) {
-      const rsqOk = dvMetrics.rSquared >= targetRSq;
-      html += `<span style="font-size:.6rem;color:var(--gray-400);margin-left:.25rem">R²</span>
-        <span style="font-size:.75rem;font-weight:600;color:${_clr(dvMetrics.rSquared, v=>v>=targetRSq)};min-width:36px">${dvMetrics.rSquared.toFixed(3)}</span>
-        <button class="btn btn-sm" onclick="_execFixDV('${k}')" style="font-size:.6rem;padding:.15rem .35rem;background:${rsqOk?'#d1fae5':'#059669'};color:${rsqOk?'#065f46':'#fff'};border:none;border-radius:4px;cursor:pointer">${rsqOk?'✅':'🎯 R²'}</button>`;
+      const rsqOk = dvMetrics.rSquared >= crsq;
+      html += `<span style="font-size:.6rem;color:var(--gray-400);margin-left:.1rem">R²</span>
+        <span style="font-size:.75rem;font-weight:600;color:${_clr(dvMetrics.rSquared, v=>v>=crsq)};min-width:36px">${dvMetrics.rSquared.toFixed(3)}</span>
+        <input type="number" id="tr-${k}" value="${crsq.toFixed(2)}" min="0.1" max="0.9" step="0.05"
+          onchange="window.__customTargets.rsq['${k}']=parseFloat(this.value)||0.5"
+          style="width:40px;font-size:.6rem;padding:.05rem .15rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">`;
+      html += `<button class="btn btn-sm" onclick="_execFixDV('${k}')" style="font-size:.6rem;padding:.15rem .35rem;background:${rsqOk?'#d1fae5':'#059669'};color:${rsqOk?'#065f46':'#fff'};border:none;border-radius:4px;cursor:pointer">${rsqOk?'✅':'🎯 R²'}</button>`;
 
       // VIF
       if (dvMetrics.vif && dvMetrics.vif.length > 0) {
@@ -2302,20 +2410,24 @@ function renderQualityEditor() {
 
   // IV Correlation row
   if (ivPairs.length > 0) {
-    let corrStatus = '✅';
-    const corrMin = parseFloat(document.getElementById('q-corr-min')?.value) || 0.30;
-    const corrMax = parseFloat(document.getElementById('q-corr-max')?.value) || 0.60;
-    ivPairs.forEach(p => { if (p.r < corrMin || p.r > corrMax) corrStatus = '⚠️'; });
-
     html += `<div style="display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;background:#fff;padding:.35rem .5rem;border-radius:6px;border:1px solid var(--gray-200);margin-top:.25rem">
       <span style="font-weight:600;font-size:.8rem;color:#2563eb;min-width:80px">📊 IV Tương quan</span>`;
     ivPairs.forEach(p => {
-      const inRange = p.r >= corrMin && p.r <= corrMax;
+      const pk = `${p.c1}|${p.c2}`;
+      const cMin = _getTargetCorrMin(pk);
+      const cMax = _getTargetCorrMax(pk);
+      const inRange = p.r >= cMin && p.r <= cMax;
       html += `<span style="font-size:.6rem;color:var(--gray-400)">${p.c1}↔${p.c2}</span>
-        <span style="font-size:.7rem;font-weight:600;color:${_clr(p.r, v=>v>=corrMin&&v<=corrMax)};min-width:32px">${p.r.toFixed(3)}</span>
+        <span style="font-size:.7rem;font-weight:600;color:${_clr(p.r, v=>v>=cMin&&v<=cMax)};min-width:32px">${p.r.toFixed(3)}</span>
+        <input type="number" value="${cMin.toFixed(2)}" min="0" max="0.8" step="0.05"
+          onchange="window.__customTargets.corrMin['${pk}']=parseFloat(this.value)||0.3"
+          style="width:35px;font-size:.55rem;padding:.03rem .1rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">
+        <input type="number" value="${cMax.toFixed(2)}" min="0" max="0.8" step="0.05"
+          onchange="window.__customTargets.corrMax['${pk}']=parseFloat(this.value)||0.6"
+          style="width:35px;font-size:.55rem;padding:.03rem .1rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">
         <button class="btn btn-sm" onclick="_execFixCorr('${p.c1}','${p.c2}')" style="font-size:.55rem;padding:.1rem .25rem;background:${inRange?'#d1fae5':'#2563eb'};color:${inRange?'#065f46':'#fff'};border:none;border-radius:4px;cursor:pointer">${inRange?'✅':'🔗'}</button>`;
     });
-    html += `<span style="font-size:.6rem;color:var(--gray-500)">[${corrMin}–${corrMax}]</span></div>`;
+    html += `</div>`;
   }
 
   // EFA fix buttons
