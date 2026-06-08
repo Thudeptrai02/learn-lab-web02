@@ -633,15 +633,12 @@ function processAiRuleBased(text) {
   m = lower.match(/^(nhiễu|nhieu|noise)\s+(.+?)(?:\s+(\d+\.?\d*))?$/i);
   if (m) return aiAddNoise(m[2].trim(), m[3] ? parseFloat(m[3]) : 0.3, constructs);
 
-  m = lower.match(/^(?:r\s*[²2]|r-squared|r bình phương)\s+(.+?)(?:\s+(?:lên|là|thanh|thành|=)\s+)?(\d+\.?\d*)$/i);
-  if (m) return aiSetRSquared(m[1].trim(), parseFloat(m[2]), constructs);
-  m = lower.match(/^(?:tăng|tang|set|chỉnh|chinh|dieu chinh|điều chỉnh)\s+r\s*[²2]\s+(?:của|cua)\s+(.+?)(?:\s+(?:lên|là|thanh|thành|=)\s+)?(\d+\.?\d*)$/i);
-  if (m) return aiSetRSquared(m[1].trim(), parseFloat(m[2]), constructs);
+  // Clean, simple commands — no duplicates
+  let m = lower.match(/^(r\s*[²2]|r-squared|r bình phương)\s+(.+?)(?:\s+(?:lên|là|thanh|thành|=)\s+)?(\d+\.?\d*)$/i);
+  if (m) return aiSetRSquared(m[2].trim(), parseFloat(m[3]), constructs);
 
-  m = lower.match(/^(?:alpha|cronbach)\s+(.+?)(?:\s+(?:lên|len|is|la|thanh|thành)\s+)?(\d+\.?\d*)$/i);
-  if (m) return aiAdjustAlpha(m[1].trim(), parseFloat(m[2]), constructs);
-  m = lower.match(/^(?:tăng|tang|set|chỉnh|chinh)\s+(?:alpha|cronbach)\s+(?:của|cua)\s+(.+?)(?:\s+(?:lên|len|is|la|thanh|thành|=)\s+)?(\d+\.?\d*)$/i);
-  if (m) return aiAdjustAlpha(m[1].trim(), parseFloat(m[2]), constructs);
+  m = lower.match(/^(alpha|cronbach)\s+(.+?)(?:\s+(?:lên|len|is|la|thanh|thành)\s+)?(\d+\.?\d*)$/i);
+  if (m) return aiAdjustAlpha(m[2].trim(), parseFloat(m[3]), constructs);
 
   m = lower.match(/^(tương quan|tuong quan|correlation)\s+(.+)$/i);
   if (m) return aiCorrelation(m[2].trim(), constructs);
@@ -649,94 +646,52 @@ function processAiRuleBased(text) {
   m = lower.match(/^corr\s+(.+?)\s+(.+?)\s+(\d+\.?\d*)$/i);
   if (m) return aiSetCorrelation(m[1].trim(), m[2].trim(), parseFloat(m[3]), constructs);
 
-  // Module 2: Research knowledge commands
-  m = lower.match(/^(?:knowledge|hiểu biết|phân tích)\s+(.+)$/i);
-  if (m) {
-    const topic = m[1].trim();
-    const pattern = RESEARCH_KNOWLEDGE ? RESEARCH_KNOWLEDGE.matchResearchPattern(topic) : null;
+  // Knowledge & suggestions
+  m = lower.match(/^(?:knowledge|gợi ý)\s+(.+)$/i);
+  if (m && RESEARCH_KNOWLEDGE) {
+    const topic = m[1].trim().toLowerCase();
+    const pattern = RESEARCH_KNOWLEDGE.matchResearchPattern(topic);
+    const hints = RESEARCH_KNOWLEDGE.constructRoleHints;
+    const found = Object.keys(hints).find(k => k.toLowerCase().includes(topic) || topic.includes(k.toLowerCase()));
     if (pattern) {
-      let html = `📚 **${pattern.label}** — ${pattern.description}<br><br>`;
-      html += `<strong>Các nhân tố phổ biến:</strong> ${pattern.commonConstructs.join(', ')}<br>`;
-      html += `<strong>R² điển hình:</strong> ${pattern.typicalR2[0]}-${pattern.typicalR2[1]}<br><br>`;
-      html += `<strong>Các mối quan hệ điển hình:</strong><br>`;
-      pattern.typicalRelationships.forEach(([from, to, range]) => {
-        html += `• ${from} → ${to}: β = [${range[0]}, ${range[1]}]<br>`;
-      });
+      let html = `📚 **${pattern.label}**<br>${pattern.description}<br>`;
+      html += `Nhân tố: ${pattern.commonConstructs.join(', ')}<br>`;
+      html += `R²: ${pattern.typicalR2[0]}-${pattern.typicalR2[1]}`;
       return aiRespond(html);
     }
-    return aiRespond(`❌ Không tìm thấy mẫu nghiên cứu nào cho chủ đề "${topic}". Thử: adoption, satisfaction, loyalty, TAM, purchase_intention, service_quality, UTAUT`, 'system');
-  }
-
-  m = lower.match(/^(?:gợi ý|suggest)\s+(.+)$/i);
-  if (m && RESEARCH_KNOWLEDGE) {
-    const construct = m[1].trim().toLowerCase();
-    const hints = RESEARCH_KNOWLEDGE.constructRoleHints;
-    const found = Object.keys(hints).find(k => k.toLowerCase().includes(construct) || construct.includes(k.toLowerCase()));
     if (found) {
       const h = hints[found];
-      return aiRespond(`💡 **Gợi ý cho nhân tố "${found}":**<br>• Vai trò điển hình: ${h.role}<br>• Thang đo: ${h.typicalScale} (${h.items} items)<br>• Thường được sử dụng trong các mô hình ${RESEARCH_KNOWLEDGE.matchResearchPattern(found)?.label || 'nghiên cứu hành vi'}`);
+      return aiRespond(`💡 **${found}:** ${h.role} (${h.typicalScale}, ${h.items} items)`);
     }
-    const allNames = Object.keys(hints).join(', ');
-    return aiRespond(`❌ Không tìm thấy "${construct}". Các nhân tố có sẵn: ${allNames}`, 'system');
+    return aiRespond(`❌ Không tìm thấy "${topic}". Thử: adoption, TAM, loyalty, satisfaction, UTAUT`, 'system');
   }
 
-  // Module 6: Interpretation command
-  m = lower.match(/^(?:diễn giải|dien giai|interpret|giải thích)$/i);
+  // Interpretation & consistency
+  m = lower.match(/^(diễn giải|dien giai|interpret)$/i);
   if (m) {
-    if (!_regressionResults) return aiRespond('❌ Chưa có kết quả hồi quy để diễn giải. Hãy tạo dữ liệu trước.', 'system');
-    const html = generateFullInterpretation();
-    return aiRespond(html);
+    if (!_regressionResults) return aiRespond('❌ Chưa có dữ liệu để diễn giải.', 'system');
+    return aiRespond(generateFullInterpretation());
   }
 
-  // Module 7: Consistency check command
-  m = lower.match(/^(?:nhất quán|nhat quan|consistency|kiểm tra|kiem tra)\s*(?:mô hình|mo hinh|nghiên cứu)?$/i);
-  if (m) {
-    showConsistencyReport();
-    return aiRespond('🔄 Đã kiểm tra tính nhất quán của mô hình nghiên cứu. Xem kết quả trong phần báo cáo chất lượng.');
-  }
+  m = lower.match(/^(kiểm tra|kiem tra|consistency)$/i);
+  if (m) { showConsistencyReport(); return aiRespond('🔄 Đã kiểm tra tính nhất quán.'); }
 
-  aiRespond(`🤔 Mình chưa hiểu yêu cầu "${text}".\n\nThử các lệnh:\n• \`tăng CL lên 0.5\`\n• \`giảm GC xuống 0.3\`\n• \`r² GC 0.6\`\n• \`alpha GC 0.85\`\n• \`nhiễu HL\`\n• \`tương quan CL và GC\`\n• \`mean CL\`\n• \`tạo lại\`\n• \`knowledge adoption\`\n• \`gợi ý Trust\`\n• \`diễn giải\`\n• \`kiểm tra\`\n• \`giúp\``, 'system');
+  aiRespond(`🤔 Chưa hiểu "${text}". Gõ \`giúp\` để xem hướng dẫn.`, 'system');
 }
 
 function aiHelp() {
-  const help = `🤖 **Trợ lý Dữ liệu** — Tôi giúp bạn can thiệp vào dữ liệu sau khi đã tạo.
+  const help = `🤖 **Các lệnh đơn giản:**
 
-**Các lệnh hỗ trợ:**
-
-📊 **Điều chỉnh mean**
-• \`tăng CL lên 0.5\` — tăng mean của nhân tố CL
-• \`giảm GC xuống 0.3\` — giảm mean của GC
-
-📈 **Tương quan & R²**
-• \`tương quan CL và GC\` — xem tương quan
-• \`corr CL GC 0.6\` — đặt target tương quan
-• \`r² GC 0.6\` — đặt R² của biến phụ thuộc GC
-• \`tăng r² của GC lên 0.6\` — tăng R² của GC
-
-📐 **Cronbach's Alpha**
-• \`alpha CL 0.85\` — đặt alpha của CL
-• \`tăng alpha của CL lên 0.9\` — tăng alpha
-
-🌊 **Nhiễu**
-• \`nhiễu HL\` — thêm nhiễu cho nhân tố HL
-• \`nhiễu CL 0.5\` — nhiễu mức 0.5
-
-📋 **Thống kê**
-• \`mean CL\` — xem thống kê của CL
-
-📚 **Research Knowledge** (Module 2)
-• \`knowledge adoption\` — xem mẫu nghiên cứu adoption
-• \`gợi ý Trust\` — xem gợi ý về nhân tố Trust
-
-📝 **Diễn giải tự động** (Module 6)
-• \`diễn giải\` — xem diễn giải học thuật tự động
-
-🔄 **Kiểm tra nhất quán** (Module 7)
-• \`kiểm tra\` — kiểm tra tính nhất quán của mô hình
-
-🔄 **Khác**
-• \`tạo lại\` — tạo lại toàn bộ dữ liệu
-• \`giúp\` — xem hướng dẫn này`;
+• \`alpha CL 0.85\` — đặt Cronbach's Alpha
+• \`r² GC 0.6\` — đặt R² hồi quy
+• \`corr CL GC 0.5\` — đặt tương quan 2 nhân tố
+• \`tăng CL 0.3\` / \`giảm GC 0.2\` — điều chỉnh mean
+• \`nhiễu HL\` — thêm nhiễu ngẫu nhiên
+• \`mean CL\` / \`tương quan CL và GC\` — xem thống kê
+• \`tạo lại\` — tạo lại dữ liệu
+• \`diễn giải\` — xuất báo cáo học thuật
+• \`kiểm tra\` — kiểm tra mô hình
+• \`knowledge adoption\` — gợi ý mô hình nghiên cứu`;
   aiRespond(help);
 }
 
