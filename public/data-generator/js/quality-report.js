@@ -1928,7 +1928,7 @@ function fixItemTotalCorrelation(constructKey) {
   const rows = generatedData.rawRows;
   const n = rows.length;
 
-  for (let iter = 0; iter < 5; iter++) {
+  for (let iter = 0; iter < 10; iter++) {
     const scores = itemNames.map(name => rows.map(r => (typeof r[name]==='number'&&!isNaN(r[name]))?r[name]:null));
     const valid = [];
     for (let i = 0; i < n; i++) { if (scores.every(col => col[i] !== null)) valid.push(i); }
@@ -1954,7 +1954,7 @@ function fixItemTotalCorrelation(constructKey) {
         if (typeof old !== 'number' || isNaN(old)) return;
         const total = totalScores[ri];
         const item = itemScores[ri];
-        const pullDir = (total/items.length - item) * 0.35;
+        const pullDir = (total/items.length - item) * 0.65;
         let newVal = Math.round(old + pullDir);
         newVal = Math.min(scale, Math.max(1, newVal));
         if (newVal !== old) rows[ri][name] = newVal;
@@ -1963,7 +1963,7 @@ function fixItemTotalCorrelation(constructKey) {
   }
 
   // Post-fix: reorder items to match composite ranking (same as construct internal)
-  {
+  for (let bigIter = 0; bigIter < 3; bigIter++) {
     const scores = itemNames.map(name => rows.map(r => (typeof r[name]==='number'&&!isNaN(r[name]))?r[name]:null));
     const valid = [];
     for (let i = 0; i < n; i++) { if (scores.every(col => col[i] !== null)) valid.push(i); }
@@ -1982,7 +1982,7 @@ function fixItemTotalCorrelation(constructKey) {
           const ri = valid[pos];
           const old = rows[ri][name];
           if (typeof old !== 'number' || isNaN(old)) return;
-          const pull = (ideal - old) * 0.4;
+          const pull = (ideal - old) * 0.55;
           let newVal = Math.round(old + pull);
           newVal = Math.min(scale, Math.max(1, newVal));
           if (newVal !== old) rows[ri][name] = newVal;
@@ -2098,7 +2098,7 @@ function fixConstructInternal(constructKey) {
   const n = rows.length;
 
   // Phase 1: Sort rows by composite, then assign items to match
-  for (let bigIter = 0; bigIter < 3; bigIter++) {
+  for (let bigIter = 0; bigIter < 5; bigIter++) {
     const scores = itemNames.map(name => rows.map(r => (typeof r[name]==='number'&&!isNaN(r[name]))?r[name]:null));
     const valid = [];
     for (let i = 0; i < n; i++) { if (scores.every(col => col[i] !== null)) valid.push(i); }
@@ -2137,8 +2137,8 @@ function fixConstructInternal(constructKey) {
     });
   }
 
-  // Phase 2: Fine-tune with composite pull (10 iterations)
-  for (let iter = 0; iter < 10; iter++) {
+  // Phase 2: Fine-tune with composite pull (30 iterations — aggressive)
+  for (let iter = 0; iter < 30; iter++) {
     const scores = itemNames.map(name => rows.map(r => (typeof r[name]==='number'&&!isNaN(r[name]))?r[name]:null));
     const valid = [];
     for (let i = 0; i < n; i++) { if (scores.every(col => col[i] !== null)) valid.push(i); }
@@ -2153,11 +2153,11 @@ function fixConstructInternal(constructKey) {
       itemNames.forEach((name) => {
         const old = rows[ri][name];
         if (typeof old !== 'number' || isNaN(old)) return;
-        const pull = (comp - old) * (iter < 5 ? 0.35 : 0.15);
+        const pull = (comp - old) * (iter < 15 ? 0.5 : 0.2);
         let newVal = Math.min(scale, Math.max(1, Math.round(old + pull)));
-        if (newVal === old) {
-          newVal = Math.min(scale, Math.max(1, old + (Math.random() < 0.5 ? 1 : -1)));
-          if (Math.abs(newVal - old) > 1) newVal = old;
+        if (newVal === old && iter % 3 === 0) {
+          const bump = Math.random() < 0.5 ? 1 : -1;
+          newVal = Math.min(scale, Math.max(1, old + bump));
         }
         if (newVal !== old) { rows[ri][name] = newVal; totalChanged++; }
       });
@@ -2539,8 +2539,8 @@ function _execAutoFixAll() {
   );
   const dvKeys = constructKeys.filter(k => variables.find(v=>v.construct===k)?.role === 'dependent');
 
-  // Run full cycle 3 times to stabilize all metrics
-  for (let pass = 0; pass < 3; pass++) {
+  // Run full cycle 5 times to stabilize all metrics
+  for (let pass = 0; pass < 5; pass++) {
     // Pass 1: Item-total + Internal quality
     constructKeys.forEach(k => {
       try { fixItemTotalCorrelation(k); } catch(e) {}
@@ -2711,7 +2711,7 @@ function _autoFixAfterGenerate() {
   if (cKeys.length === 0) return;
   const dvKeys = cKeys.filter(k => variables.find(v => v.construct === k)?.role === 'dependent');
 
-  for (let pass = 0; pass < 3; pass++) {
+  for (let pass = 0; pass < 5; pass++) {
     cKeys.forEach(k => {
       try { fixItemTotalCorrelation(k); } catch(e) {}
       try { fixConstructInternal(k); } catch(e) {}
