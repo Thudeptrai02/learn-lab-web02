@@ -381,9 +381,9 @@ function loadTemplate(key) {
   renderModelStructure();
   updateDownloadButtons();
   updatePreview(null);
-  document.getElementById('gen-status').textContent = `✅ Đã tải mẫu "${tpl.label}" (${variables.length} biến) — đang tạo dữ liệu...`;
-  showToast(`Đã tải mẫu "${tpl.label}"`, 'success');
-  setTimeout(() => { smartGenerate(); }, 100);
+  document.getElementById('gen-status').textContent = `✅ Đã tải mẫu "${tpl.label}" (${variables.length} biến) — bấm 🎯 Tạo dữ liệu để sinh`;
+  showToast(`Đã tải mẫu "${tpl.label}" — bấm 🎯 để tạo dữ liệu`, 'success');
+  // User must click 🎯 Tạo dữ liệu manually
 }
 
 // ====== DEMOGRAPHIC VARIABLES ======

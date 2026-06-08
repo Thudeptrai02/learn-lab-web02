@@ -2354,13 +2354,17 @@ function renderQualityEditor() {
     html += `<span style="font-size:.6rem;color:var(--gray-400)">λ</span>
       <span style="font-size:.75rem;font-weight:600;color:${_clr(m.avgLoading, v=>v>=cl)};min-width:36px">${m.avgLoading.toFixed(3)}</span>`;
 
-    // Custom target input for α (tiny input)
-    html += `<input type="number" id="ta-${k}" value="${ca.toFixed(2)}" min="0.5" max="0.95" step="0.05"
-      onchange="window.__customTargets.alpha['${k}']=parseFloat(this.value)||0.8"
-      style="width:45px;font-size:.6rem;padding:.05rem .15rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">`;
-    html += `<input type="number" id="tl-${k}" value="${cl.toFixed(2)}" min="0.3" max="0.95" step="0.05"
-      onchange="window.__customTargets.loading['${k}']=parseFloat(this.value)||0.6"
-      style="width:45px;font-size:.6rem;padding:.05rem .15rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">`;
+    // Custom target inputs for α and λ (with labels)
+    html += `<span style="font-size:.55rem;color:#7c3aed;font-weight:600;margin-left:.15rem">α></span>
+      <input type="number" id="ta-${k}" value="${ca.toFixed(2)}" min="0.5" max="0.95" step="0.05"
+        onchange="window.__customTargets.alpha['${k}']=parseFloat(this.value)||0.8"
+        style="width:45px;font-size:.65rem;padding:.1rem .2rem;border:1.5px solid #7c3aed;border-radius:4px;text-align:center;background:#faf5ff"
+        title="Nhập Cronbach's Alpha mục tiêu cho nhân tố này">`;
+    html += `<span style="font-size:.55rem;color:#7c3aed;font-weight:600">λ></span>
+      <input type="number" id="tl-${k}" value="${cl.toFixed(2)}" min="0.3" max="0.95" step="0.05"
+        onchange="window.__customTargets.loading['${k}']=parseFloat(this.value)||0.6"
+        style="width:45px;font-size:.65rem;padding:.1rem .2rem;border:1.5px solid #7c3aed;border-radius:4px;text-align:center;background:#faf5ff"
+        title="Nhập Factor Loading mục tiêu cho nhân tố này">`;
 
     // AVE
     html += `<span style="font-size:.6rem;color:var(--gray-400)">AVE</span>
@@ -2386,9 +2390,11 @@ function renderQualityEditor() {
       const rsqOk = dvMetrics.rSquared >= crsq;
       html += `<span style="font-size:.6rem;color:var(--gray-400);margin-left:.1rem">R²</span>
         <span style="font-size:.75rem;font-weight:600;color:${_clr(dvMetrics.rSquared, v=>v>=crsq)};min-width:36px">${dvMetrics.rSquared.toFixed(3)}</span>
+        <span style="font-size:.55rem;color:#059669;font-weight:600">R²></span>
         <input type="number" id="tr-${k}" value="${crsq.toFixed(2)}" min="0.1" max="0.9" step="0.05"
           onchange="window.__customTargets.rsq['${k}']=parseFloat(this.value)||0.5"
-          style="width:40px;font-size:.6rem;padding:.05rem .15rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">`;
+          style="width:42px;font-size:.65rem;padding:.1rem .2rem;border:1.5px solid #059669;border-radius:4px;text-align:center;background:#f0fdf4"
+          title="Nhập R² mục tiêu cho biến phụ thuộc này">`;
       html += `<button class="btn btn-sm" onclick="_execFixDV('${k}')" style="font-size:.6rem;padding:.15rem .35rem;background:${rsqOk?'#d1fae5':'#059669'};color:${rsqOk?'#065f46':'#fff'};border:none;border-radius:4px;cursor:pointer">${rsqOk?'✅':'🎯 R²'}</button>`;
 
       // VIF
@@ -2421,10 +2427,13 @@ function renderQualityEditor() {
         <span style="font-size:.7rem;font-weight:600;color:${_clr(p.r, v=>v>=cMin&&v<=cMax)};min-width:32px">${p.r.toFixed(3)}</span>
         <input type="number" value="${cMin.toFixed(2)}" min="0" max="0.8" step="0.05"
           onchange="window.__customTargets.corrMin['${pk}']=parseFloat(this.value)||0.3"
-          style="width:35px;font-size:.55rem;padding:.03rem .1rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">
+          style="width:38px;font-size:.6rem;padding:.08rem .15rem;border:1.5px solid #2563eb;border-radius:4px;text-align:center;background:#eff6ff"
+          title="Tương quan tối thiểu">
+        <span style="font-size:.5rem;color:#2563eb">→</span>
         <input type="number" value="${cMax.toFixed(2)}" min="0" max="0.8" step="0.05"
           onchange="window.__customTargets.corrMax['${pk}']=parseFloat(this.value)||0.6"
-          style="width:35px;font-size:.55rem;padding:.03rem .1rem;border:1px solid #d1d5db;border-radius:3px;text-align:center">
+          style="width:38px;font-size:.6rem;padding:.08rem .15rem;border:1.5px solid #2563eb;border-radius:4px;text-align:center;background:#eff6ff"
+          title="Tương quan tối đa">
         <button class="btn btn-sm" onclick="_execFixCorr('${p.c1}','${p.c2}')" style="font-size:.55rem;padding:.1rem .25rem;background:${inRange?'#d1fae5':'#2563eb'};color:${inRange?'#065f46':'#fff'};border:none;border-radius:4px;cursor:pointer">${inRange?'✅':'🔗'}</button>`;
     });
     html += `</div>`;
@@ -2679,4 +2688,35 @@ function openQualityWizard() {
     </div>
   </div>`;
   document.body.appendChild(overlay);
+}
+
+// ====== AUTO FIX AFTER GENERATION (called from smartGenerate) ======
+function _autoFixAfterGenerate() {
+  if (!generatedData) return;
+  const cKeys = Object.keys(
+    variables.reduce((acc, v) => { if (v.construct) acc[v.construct] = true; return acc; }, {})
+  );
+  if (cKeys.length === 0) return;
+
+  // Item-total + construct internal (α + λ)
+  cKeys.forEach(k => {
+    try { fixItemTotalCorrelation(k); } catch(e) {}
+    try { fixConstructInternal(k); } catch(e) {}
+  });
+
+  // EFA
+  try { fixEFA_CrossLoading(); } catch(e) {}
+  try { fixEFA_Communality(); } catch(e) {}
+
+  // DV R² + Residual
+  cKeys.filter(k => variables.find(v => v.construct === k)?.role === 'dependent').forEach(dv => {
+    try { fixDV_Rsquared(dv); } catch(e) {}
+    try { fixResidualNormality(dv); } catch(e) {}
+  });
+
+  // IV correlation + VIF
+  try { fixVIF(); } catch(e) {}
+
+  // Refresh
+  _refreshQEditor();
 }

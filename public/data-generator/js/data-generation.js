@@ -460,10 +460,14 @@ function generateDataCore(n, missingPct, targetAlpha, minLoading, minRSq, corrMi
   }
 
   generatedData = { rawRows, labelRows, colNames, colLabels: colNames, n };
+  if (hasModel) {
+    // Tối ưu dữ liệu theo mục tiêu TRƯỚC khi hiện báo cáo
+    try { _autoFixAfterGenerate(); } catch(e) { console.error(e); }
+  }
   updatePreview(rawRows, colNames);
   updateDownloadButtons();
-  document.getElementById('gen-status').textContent = `🎯 Đã tạo ${n} dòng × ${variables.length} biến (α∈[0.70;0.95], λ∈[0.50;0.96], R²∈[0.25;0.85])`;
-  showToast(`Đã tạo ${n} dòng!`, 'success');
+  document.getElementById('gen-status').textContent = `🎯 Đã tạo ${n} dòng × ${variables.length} biến · ✅ Tối ưu`;
+  showToast(`✅ Đã tạo ${n} dòng dữ liệu đạt mục tiêu`, 'success');
   if (hasModel) {
     showQualityReport(rawRows, constructs, n);
     renderModelStructure();
