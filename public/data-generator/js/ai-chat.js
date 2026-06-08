@@ -1,25 +1,25 @@
 // ====== DATA ASSISTANT (AI Chat) ======
 let _aiBackup = null;
 
-// Resize logic for side panel
-const AI_MIN_WIDTH = 280;
-const AI_MAX_WIDTH = Math.min(800, window.innerWidth * 0.85);
+// Resize logic for sidebar
+const AI_MIN_WIDTH = 260;
+const AI_MAX_WIDTH = Math.min(700, window.innerWidth * 0.6);
 function initAiResize() {
   const handle = document.getElementById('ai-resize-handle');
-  const panel = document.getElementById('ai-panel');
-  if (!handle || !panel) return;
+  const sidebar = document.getElementById('ai-sidebar');
+  if (!handle || !sidebar) return;
   let startX = 0, startW = 0;
   const onDown = (e) => {
     startX = e.clientX;
-    startW = panel.getBoundingClientRect().width;
+    startW = sidebar.getBoundingClientRect().width;
     document.addEventListener('mousemove', onMove);
     document.addEventListener('mouseup', onUp);
     document.body.style.cursor = 'ew-resize';
     document.body.style.userSelect = 'none';
   };
   const onMove = (e) => {
-    const w = Math.max(AI_MIN_WIDTH, Math.min(AI_MAX_WIDTH, startW - (e.clientX - startX)));
-    panel.style.width = w + 'px';
+    const w = Math.max(AI_MIN_WIDTH, Math.min(AI_MAX_WIDTH, startW + (e.clientX - startX)));
+    sidebar.style.width = w + 'px';
   };
   const onUp = () => {
     document.removeEventListener('mousemove', onMove);
@@ -36,10 +36,13 @@ if (document.readyState === 'loading') {
 }
 
 function toggleAiChat() {
-  const panel = document.getElementById('ai-panel');
-  const open = panel.classList.toggle('open');
-  if (open) {
-    document.getElementById('ai-input').focus();
+  const sidebar = document.getElementById('ai-sidebar');
+  const btn = document.getElementById('ai-btn');
+  const closed = sidebar.classList.toggle('closed');
+  btn.innerHTML = closed ? '🤖' : '✕';
+  btn.title = closed ? 'Mở trợ lý AI' : 'Đóng';
+  if (!closed) {
+    setTimeout(() => document.getElementById('ai-input')?.focus(), 100);
     if (document.getElementById('ai-msgs').children.length === 0) {
       aiHelp();
     }
@@ -55,6 +58,7 @@ function sendAiChat() {
   addAiMsg(text, 'user');
   setTimeout(() => processAiCommand(text), 200);
 }
+// ====== CHAT UI ======
 
 function addAiMsg(text, role) {
   const container = document.getElementById('ai-msgs');

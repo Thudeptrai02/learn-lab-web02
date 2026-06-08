@@ -10,6 +10,31 @@
 </head>
 <body>
 
+<div class="app-layout">
+
+  <!-- AI Sidebar -->
+  <div id="ai-sidebar" class="open">
+    <div id="ai-resize-handle"></div>
+    <div id="ai-panel">
+      <div id="ai-header">
+        <span class="title">🤖 Trợ lý AI <small>DeepSeek</small></span>
+        <span class="actions">
+          <button onclick="aiHelp()" title="Hướng dẫn">?</button>
+          <button onclick="toggleAiChat()" title="Đóng">✕</button>
+        </span>
+      </div>
+      <div id="ai-thinking"><div class="spinner"></div><span>AI đang phân tích dữ liệu...</span></div>
+      <div id="ai-msgs"></div>
+      <div id="ai-input-row">
+        <input type="text" id="ai-input" placeholder="VD: tối ưu hết, tăng alpha CL lên 0.85..." onkeydown="if(event.key==='Enter')sendAiChat()">
+        <button onclick="sendAiChat()" id="ai-send-btn" disabled>➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="app-main">
+
 <div class="header">
   <h1> Tạo dữ liệu cho SPSS / PLS</h1>
   <p>Xây dựng mô hình & Tạo dữ liệu khảo sát — Xuất file Excel (.xlsx)</p>
@@ -320,7 +345,17 @@
     <div id="quality-content"></div>
   </div>
 
-</div>
+</div>  <!-- .container -->
+</div>  <!-- .app-main -->
+</div>  <!-- .app-layout -->
+
+<!-- Toggle AI sidebar button (when closed) -->
+<button id="ai-btn" onclick="toggleAiChat()" title="Mở trợ lý AI">
+  <span id="ai-btn-icon">🤖</span>
+  <span class="badge-dot" id="ai-badge" style="display:none"></span>
+</button>
+
+<!-- Scale Editor Modal -->
 
 <script src="/data-generator/js/research-knowledge.js"></script>
 <script src="/data-generator/js/realism-engine.js"></script>
@@ -333,30 +368,6 @@
 <script src="/data-generator/js/import-data.js"></script>
 <script src="/data-generator/js/google-form.js"></script>
 <script src="/data-generator/js/ai-chat.js"></script>
-
-<!-- AI Chat — Side Panel -->
-<button id="ai-btn" onclick="toggleAiChat()" title="Trợ lý AI">
-  <span id="ai-btn-icon">🤖</span>
-  <span class="badge-dot" id="ai-badge" style="display:none"></span>
-</button>
-<div id="ai-panel">
-  <div id="ai-resize-handle"></div>
-  <div id="ai-header">
-    <span class="title">🤖 Trợ lý AI <small>DeepSeek</small></span>
-    <span class="actions">
-      <button onclick="aiHelp()" title="Hướng dẫn">?</button>
-      <button onclick="toggleAiChat()" title="Đóng">✕</button>
-    </span>
-  </div>
-  <div id="ai-thinking"><div class="spinner"></div><span>AI đang phân tích dữ liệu...</span></div>
-  <div id="ai-msgs"></div>
-  <div id="ai-input-row">
-    <input type="text" id="ai-input" placeholder="VD: tối ưu hết, tăng alpha CL lên 0.85..." onkeydown="if(event.key==='Enter')sendAiChat()">
-    <button onclick="sendAiChat()" id="ai-send-btn" disabled>➤</button>
-  </div>
-</div>
-
-<!-- Scale Editor Modal -->
 <div id="scale-editor-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:999;justify-content:center;align-items:center">
   <div style="background:#fff;border-radius:12px;padding:1.25rem;max-width:520px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2)">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem">
