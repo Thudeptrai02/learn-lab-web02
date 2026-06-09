@@ -1,36 +1,10 @@
 export const prerender = false;
 
-const DEEPSEEK_API_KEY = import.meta.env.DEEPSEEK_API_KEY || "";
+// TẠM DỪNG — DeepSeek API đã hết credit
+// Khi nạp tiền, bỏ comment code dưới và xoá đoạn return này
 
 export const POST = async ({ request }) => {
-  try {
-    const { messages } = await request.json();
-    if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return new Response(JSON.stringify({ error: "Missing messages" }), { status: 400 });
-    }
-    const res = await fetch("https://api.deepseek.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${DEEPSEEK_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "deepseek-chat",
-        messages,
-        temperature: 0.05,
-        max_tokens: 8192,
-      }),
-    });
-    if (!res.ok) {
-      const err = await res.text().catch(() => "");
-      return new Response(JSON.stringify({ error: `DeepSeek API ${res.status}: ${err}` }), { status: 502 });
-    }
-    const data = await res.json();
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
-  }
+  return new Response(JSON.stringify({
+    choices: [{ message: { content: '{"message":"⚠️ AI tạm dừng do hết credit DeepSeek. Các tính năng fix (nút trong quality report, Tạo chuẩn SPSS) vẫn hoạt động bình thường.","actions":[]}' } }]
+  }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 };

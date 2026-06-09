@@ -2746,7 +2746,8 @@ function _buildTargetCorrMatrix(itemNames) {
   });
   Object.keys(groups).forEach(k => {
     const idxs = groups[k];
-    const rw = Math.min(0.7, _targetAlphaCorr(idxs.length));
+    // Higher within-construct r to compensate Likert discretization loss
+    const rw = Math.min(0.85, _targetAlphaCorr(idxs.length) * 1.3);
     for (let i = 0; i < idxs.length; i++)
       for (let j = i + 1; j < idxs.length; j++)
         C[idxs[i]][idxs[j]] = C[idxs[j]][idxs[i]] = rw;
@@ -2756,19 +2757,19 @@ function _buildTargetCorrMatrix(itemNames) {
     for (let b = a + 1; b < cons.length; b++) {
       const roleA = variables.find(v => v.construct === cons[a])?.role || '';
       const roleB = variables.find(v => v.construct === cons[b])?.role || '';
-      let r = 0.25;
-      if (roleA === 'independent' && roleB === 'independent') r = 0.28;
-      else if ((roleA === 'independent' && roleB === 'dependent') || (roleB === 'independent' && roleA === 'dependent')) r = 0.50;
-      else if ((roleA === 'independent' && roleB === 'mediating') || (roleB === 'independent' && roleA === 'mediating')) r = 0.45;
-      else if ((roleA === 'mediating' && roleB === 'dependent') || (roleB === 'mediating' && roleA === 'dependent')) r = 0.50;
+      let r = 0.30;
+      if (roleA === 'independent' && roleB === 'independent') r = 0.32;
+      else if ((roleA === 'independent' && roleB === 'dependent') || (roleB === 'independent' && roleA === 'dependent')) r = 0.60;
+      else if ((roleA === 'independent' && roleB === 'mediating') || (roleB === 'independent' && roleA === 'mediating')) r = 0.55;
+      else if ((roleA === 'mediating' && roleB === 'dependent') || (roleB === 'mediating' && roleA === 'dependent')) r = 0.60;
       const idxsA = groups[cons[a]], idxsB = groups[cons[b]];
       for (const i of idxsA) for (const j of idxsB) C[i][j] = C[j][i] = r;
     }
   }
-  // Shrink off-diagonal for positive definiteness
+  // Gentle shrinkage for positive definiteness
   for (let i = 0; i < N; i++)
     for (let j = 0; j < N; j++)
-      if (i !== j) C[i][j] *= 0.95;
+      if (i !== j) C[i][j] *= 0.97;
   return C;
 }
 
@@ -2861,7 +2862,7 @@ function generatePerfectData() {
   const statusEl = document.getElementById('gen-status');
   const btn = document.getElementById('perfect-gen-btn');
   if (btn) btn.disabled = true;
-  statusEl.textContent = '🧬 Đang tạo... 0%';
+  statusEl.textContent = '🧬 Đang tạo dữ liệu chuẩn SPSS... 0%';
   const result = _generatePerfectDataCore(n, (pct, msg) => { statusEl.textContent = `🧬 ${msg} ${pct}%`; });
   if (!result) { if (btn) btn.disabled = false; return; }
   if (missingPct > 0) result.rawRows.forEach(row => { Object.keys(row).forEach(k => { if (Math.random() * 100 < missingPct) row[k] = null; }); });
@@ -2871,10 +2872,10 @@ function generatePerfectData() {
   updatePreview(result.rawRows, result.colNames);
   updateDataViewerInfo();
   _updateLabelRows();
-  statusEl.textContent = `🧬 Hoàn hảo (${result.n} mẫu)`;
-  _autoFixAfterGenerate();
+  statusEl.textContent = `🧬 Chuẩn SPSS (${result.n} mẫu)`;
+  _refreshQEditor();
   if (btn) btn.disabled = false;
-  showToast('✅ Dữ liệu hoàn hảo đã sẵn sàng!', 'success');
+  showToast('✅ Dữ liệu đã tạo!', 'success');
 }
 
 function addPerfectRows(count) {
@@ -2889,7 +2890,7 @@ function addPerfectRows(count) {
   });
   generatedData.n = generatedData.rawRows.length;
   _updateLabelRows();
-  _autoFixAfterGenerate();
+  _refreshQEditor();
   statusEl.textContent = `➕ Đã thêm ${count} mẫu (tổng: ${generatedData.n})`;
   showToast(`✅ Đã thêm ${count} phiếu khảo sát`, 'success');
 }
