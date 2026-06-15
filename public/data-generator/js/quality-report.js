@@ -2744,10 +2744,14 @@ function _buildTargetCorrMatrix(itemNames) {
     if (!groups[v.construct]) groups[v.construct] = [];
     groups[v.construct].push(idx);
   });
+  // Higher within-construct r to compensate Likert discretization loss
   Object.keys(groups).forEach(k => {
     const idxs = groups[k];
-    // Higher within-construct r to compensate Likert discretization loss
-    const rw = Math.min(0.85, _targetAlphaCorr(idxs.length) * 1.3);
+    const nItems = idxs.length;
+    // Target: α ≥ 0.85 → need r ≈ 0.85/(nItems - 0.85*(nItems-1))
+    const rNeeded = 0.85 / (nItems - 0.85 * (nItems - 1));
+    // Boost by 1.5x to compensate Likert loss
+    const rw = Math.min(0.90, rNeeded * 1.5);
     for (let i = 0; i < idxs.length; i++)
       for (let j = i + 1; j < idxs.length; j++)
         C[idxs[i]][idxs[j]] = C[idxs[j]][idxs[i]] = rw;
@@ -2757,11 +2761,11 @@ function _buildTargetCorrMatrix(itemNames) {
     for (let b = a + 1; b < cons.length; b++) {
       const roleA = variables.find(v => v.construct === cons[a])?.role || '';
       const roleB = variables.find(v => v.construct === cons[b])?.role || '';
-      let r = 0.30;
-      if (roleA === 'independent' && roleB === 'independent') r = 0.32;
-      else if ((roleA === 'independent' && roleB === 'dependent') || (roleB === 'independent' && roleA === 'dependent')) r = 0.60;
-      else if ((roleA === 'independent' && roleB === 'mediating') || (roleB === 'independent' && roleA === 'mediating')) r = 0.55;
-      else if ((roleA === 'mediating' && roleB === 'dependent') || (roleB === 'mediating' && roleA === 'dependent')) r = 0.60;
+      let r = 0.35;
+      if (roleA === 'independent' && roleB === 'independent') r = 0.35;
+      else if ((roleA === 'independent' && roleB === 'dependent') || (roleB === 'independent' && roleA === 'dependent')) r = 0.75;
+      else if ((roleA === 'independent' && roleB === 'mediating') || (roleB === 'independent' && roleA === 'mediating')) r = 0.65;
+      else if ((roleA === 'mediating' && roleB === 'dependent') || (roleB === 'mediating' && roleA === 'dependent')) r = 0.70;
       const idxsA = groups[cons[a]], idxsB = groups[cons[b]];
       for (const i of idxsA) for (const j of idxsB) C[i][j] = C[j][i] = r;
     }
@@ -2815,15 +2819,31 @@ function _generatePerfectDataCore(n, onProgress) {
     return r;
   });
   onProgress && onProgress(60, 'Likert...');
-  const rawRows = X.map(row => {
+  // Rank-based discretization: sort continuous values → replace with evenly-spaced Likert
+  const rawRows = [];
+  const X_T = X[0].map((_, ri) => X.map(row => row[ri])); // transpose: row-major
+  X_T.forEach(col => {
     const obj = {};
     itemNames.forEach((name, idx) => {
-      const v = itemVars[idx];
-      const scale = v.scale || 5;
-      const p = _normalCDF(row[idx]);
-      let likert = Math.round(p * (scale - 1) + 0.5);
-      obj[name] = Math.min(scale, Math.max(1, likert));
+      const scale = itemVars[idx].scale || 5;
+      // Rank among all values for this column across all rows
+      const allVals = X.map(r => r[idx]);
+      const sorted = [...allVals].sort((a, b) => a - b);
+      // Map value to its rank percentile → Likert
+      let lo = 0, hi = sorted.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (sorted[mid] < col[idx]) lo = mid + 1;
+        else hi = mid;
+      }
+      const pct = lo / (sorted.length - 1 || 1);
+      obj[name] = Math.min(scale, Math.max(1, Math.round(pct * (scale - 1) + 1)));
     });
+    variables.filter(v => !v.construct).forEach(v => {
+      obj[v.name] = Math.floor(Math.random() * (v.scale || 5)) + 1;
+    });
+    rawRows.push(obj);
+  });
     variables.filter(v => !v.construct).forEach(v => {
       const scale = v.scale || 5;
       obj[v.name] = Math.floor(Math.random() * scale) + 1;
