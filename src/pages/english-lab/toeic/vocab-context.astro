@@ -1,0 +1,258 @@
+---
+import Layout from '../../../layouts/Layout.astro';
+import Header from '../../../components/Header.astro';
+---
+
+<Layout title="Học Từ Vựng Qua Ngữ Cảnh | TOEIC">
+  <Header />
+  
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    <div class="mb-8 text-center">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Học Từ Vựng Qua Ngữ Cảnh (TOEIC)</h1>
+      <p class="text-gray-600">Nhập các từ vựng bạn muốn học. AI sẽ tạo một đoạn văn chuẩn TOEIC chứa các từ này và đặt câu hỏi để kiểm tra trí nhớ của bạn.</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+      <label class="block text-sm font-semibold text-gray-700 mb-2">Nhập từ vựng (mỗi từ một dòng, hoặc cách nhau bởi dấu phẩy)</label>
+      <textarea 
+        id="vocabInput" 
+        rows="4" 
+        class="w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-3 text-base resize-y"
+        placeholder="Ví dụ: lucrative, mandatory, tentative, implement"
+      ></textarea>
+      
+      <button 
+        id="generateBtn" 
+        class="mt-4 w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+      >
+        <span>Tạo Bài Đọc Bằng AI</span>
+        <svg id="loadingSpinner" class="animate-spin h-5 w-5 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+      </button>
+      
+      <div id="errorMsg" class="mt-4 text-red-600 text-sm hidden bg-red-50 p-3 rounded"></div>
+    </div>
+
+    <!-- Kết quả -->
+    <div id="resultContainer" class="hidden space-y-8">
+      
+      <!-- Đoạn văn -->
+      <div class="bg-blue-50 rounded-xl p-6 border border-blue-100">
+        <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+          <span>📖</span> Reading Passage
+        </h2>
+        <div id="passageEn" class="text-gray-800 text-lg leading-relaxed whitespace-pre-line mb-6 font-medium"></div>
+        
+        <button id="toggleTranslationBtn" class="text-blue-600 text-sm font-semibold hover:underline mb-3 transition-all">
+          + Xem bản dịch tiếng Việt
+        </button>
+        <div id="passageVi" class="text-gray-600 italic whitespace-pre-line hidden border-l-4 border-blue-300 pl-4 py-1"></div>
+      </div>
+
+      <!-- Bài tập -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+          <span>📝</span> Comprehension Check
+        </h2>
+        
+        <div id="questionsContainer" class="space-y-8"></div>
+        
+        <button 
+          id="submitAnswersBtn" 
+          class="mt-8 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors w-full hidden"
+        >
+          Nộp Bài & Xem Giải Thích
+        </button>
+      </div>
+      
+    </div>
+  </main>
+</Layout>
+
+<script>
+  let currentQuestions = [];
+
+  const vocabInput = document.getElementById('vocabInput');
+  const generateBtn = document.getElementById('generateBtn');
+  const loadingSpinner = document.getElementById('loadingSpinner');
+  const errorMsg = document.getElementById('errorMsg');
+  const resultContainer = document.getElementById('resultContainer');
+  
+  const passageEn = document.getElementById('passageEn');
+  const passageVi = document.getElementById('passageVi');
+  const toggleTranslationBtn = document.getElementById('toggleTranslationBtn');
+  
+  const questionsContainer = document.getElementById('questionsContainer');
+  const submitAnswersBtn = document.getElementById('submitAnswersBtn');
+
+  // Toggle Translation
+  toggleTranslationBtn.addEventListener('click', () => {
+    passageVi.classList.toggle('hidden');
+    if (passageVi.classList.contains('hidden')) {
+      toggleTranslationBtn.textContent = '+ Xem bản dịch tiếng Việt';
+    } else {
+      toggleTranslationBtn.textContent = '- Ẩn bản dịch';
+    }
+  });
+
+  // Generate
+  generateBtn.addEventListener('click', async () => {
+    const rawText = vocabInput.value.trim();
+    if (!rawText) {
+      errorMsg.textContent = "Vui lòng nhập ít nhất 1 từ vựng.";
+      errorMsg.classList.remove('hidden');
+      return;
+    }
+
+    // Parse list (split by newline, comma)
+    const vocabList = rawText.split(/[\n,]+/).map(w => w.trim()).filter(w => w.length > 0);
+    
+    if (vocabList.length === 0) {
+      errorMsg.textContent = "Không tìm thấy từ vựng hợp lệ.";
+      errorMsg.classList.remove('hidden');
+      return;
+    }
+
+    // UI Loading state
+    errorMsg.classList.add('hidden');
+    resultContainer.classList.add('hidden');
+    generateBtn.disabled = true;
+    loadingSpinner.classList.remove('hidden');
+    passageVi.classList.add('hidden');
+    toggleTranslationBtn.textContent = '+ Xem bản dịch tiếng Việt';
+    
+    // Reset test button
+    submitAnswersBtn.textContent = "Nộp Bài & Xem Giải Thích";
+    submitAnswersBtn.disabled = false;
+    submitAnswersBtn.className = "mt-8 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors w-full";
+
+    try {
+      const res = await fetch('/api/generate-vocab-context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vocabList })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || data.details || 'Lỗi server khi tạo bài đọc.');
+      }
+
+      renderResult(data, vocabList);
+
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      errorMsg.classList.remove('hidden');
+    } finally {
+      generateBtn.disabled = false;
+      loadingSpinner.classList.add('hidden');
+    }
+  });
+
+  function renderResult(data, vocabList) {
+    let enText = data.passage_en;
+    
+    // Highlight vocab items in passage
+    vocabList.forEach(word => {
+      if (word.length > 2) { // Tối ưu: Không bôi đậm chữ quá ngắn
+        // Sử dụng Regex an toàn hơn (bỏ qua case, nhưng giữ nguyên chữ gốc)
+        const regex = new RegExp(\`\\\\b(\${word.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&')})\\\\b\`, 'gi');
+        enText = enText.replace(regex, '<span class="text-blue-700 font-bold bg-blue-100 px-1 rounded">$1</span>');
+      }
+    });
+    
+    passageEn.innerHTML = enText;
+    passageVi.textContent = data.passage_vi;
+    currentQuestions = data.questions;
+
+    // Render questions
+    questionsContainer.innerHTML = '';
+    currentQuestions.forEach((q, qIndex) => {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'question-block p-5 bg-gray-50 rounded-xl border border-gray-200';
+      
+      let optionsHtml = '';
+      q.options.forEach((opt, optIndex) => {
+        // Làm sạch "A. ", "B. " ở đầu để option sạch hơn
+        const cleanOpt = opt.replace(/^[A-D]\.\s*/i, '');
+        const labelText = ['A', 'B', 'C', 'D'][optIndex] + '. ' + cleanOpt;
+
+        optionsHtml += \`
+          <label class="flex items-start gap-3 p-3 rounded hover:bg-gray-200 cursor-pointer transition-colors option-label-\${qIndex}-\${optIndex}">
+            <input type="radio" name="q\${qIndex}" value="\${optIndex}" class="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+            <span class="text-gray-800 font-medium">\${labelText}</span>
+          </label>
+        \`;
+      });
+
+      qDiv.innerHTML = \`
+        <p class="font-bold text-gray-900 mb-4 text-lg">\${qIndex + 1}. \${q.question}</p>
+        <div class="space-y-2 flex flex-col pl-2">
+          \${optionsHtml}
+        </div>
+        <div id="explanation-\${qIndex}" class="mt-5 p-4 rounded bg-blue-50 text-blue-900 text-sm hidden border border-blue-200">
+          <strong class="text-blue-700 uppercase tracking-wide text-xs mb-1 block">Giải thích chi tiết:</strong>
+          \${q.explanation}
+        </div>
+      \`;
+      questionsContainer.appendChild(qDiv);
+    });
+
+    submitAnswersBtn.classList.remove('hidden');
+    resultContainer.classList.remove('hidden');
+    
+    resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Submit answers
+  submitAnswersBtn.addEventListener('click', () => {
+    let score = 0;
+    let allAnswered = true;
+    
+    currentQuestions.forEach((q, qIndex) => {
+      const selected = document.querySelector(\`input[name="q\${qIndex}"]:checked\`);
+      if (!selected) {
+        allAnswered = false;
+      }
+    });
+
+    if (!allAnswered && !confirm("Bạn chưa trả lời hết các câu hỏi. Vẫn muốn nộp bài?")) {
+      return;
+    }
+    
+    currentQuestions.forEach((q, qIndex) => {
+      const selected = document.querySelector(\`input[name="q\${qIndex}"]:checked\`);
+      const selectedVal = selected ? parseInt(selected.value) : -1;
+      
+      q.options.forEach((_, optIndex) => {
+        const label = document.querySelector(\`.option-label-\${qIndex}-\${optIndex}\`);
+        label.classList.remove('hover:bg-gray-200'); // Tắt hover effect
+        
+        if (optIndex === q.correct_answer_index) {
+          label.classList.add('bg-green-100', 'border', 'border-green-300');
+        } else if (optIndex === selectedVal) {
+          label.classList.add('bg-red-100', 'border', 'border-red-300');
+        } else {
+          // Làm mờ các option khác
+          label.classList.add('opacity-50');
+        }
+        
+        // Vô hiệu hóa radio
+        const radio = document.querySelector(\`input[name="q\${qIndex}"][value="\${optIndex}"]\`);
+        if (radio) radio.disabled = true;
+      });
+      
+      if (selectedVal === q.correct_answer_index) {
+        score++;
+      }
+
+      document.getElementById(\`explanation-\${qIndex}\`).classList.remove('hidden');
+    });
+
+    submitAnswersBtn.textContent = \`Bạn đạt \${score}/\${currentQuestions.length} câu đúng.\`;
+    submitAnswersBtn.disabled = true;
+    submitAnswersBtn.classList.replace('bg-green-600', 'bg-gray-600');
+    submitAnswersBtn.classList.replace('hover:bg-green-700', 'bg-gray-600');
+  });
+
+</script>
