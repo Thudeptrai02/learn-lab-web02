@@ -155,8 +155,9 @@ import Header from '../../../components/Header.astro';
     // Highlight vocab items in passage
     vocabList.forEach(word => {
       if (word.length > 2) { // Tối ưu: Không bôi đậm chữ quá ngắn
-        // Sử dụng Regex an toàn hơn (bỏ qua case, nhưng giữ nguyên chữ gốc)
-        const regex = new RegExp(\`\\\\b(\${word.replace(/[.*+?^\${}()|[\\]\\\\]/g, '\\\\$&')})\\\\b\`, 'gi');
+        // Thoát các ký tự đặc biệt trong Regex
+        const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\$&');
+        const regex = new RegExp("\\\\b(" + escapeRegExp(word) + ")\\\\b", 'gi');
         enText = enText.replace(regex, '<span class="text-blue-700 font-bold bg-blue-100 px-1 rounded">$1</span>');
       }
     });
@@ -177,24 +178,24 @@ import Header from '../../../components/Header.astro';
         const cleanOpt = opt.replace(/^[A-D]\.\s*/i, '');
         const labelText = ['A', 'B', 'C', 'D'][optIndex] + '. ' + cleanOpt;
 
-        optionsHtml += \`
-          <label class="flex items-start gap-3 p-3 rounded hover:bg-gray-200 cursor-pointer transition-colors option-label-\${qIndex}-\${optIndex}">
-            <input type="radio" name="q\${qIndex}" value="\${optIndex}" class="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
-            <span class="text-gray-800 font-medium">\${labelText}</span>
+        optionsHtml += `
+          <label class="flex items-start gap-3 p-3 rounded hover:bg-gray-200 cursor-pointer transition-colors option-label-${qIndex}-${optIndex}">
+            <input type="radio" name="q${qIndex}" value="${optIndex}" class="mt-1 w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300">
+            <span class="text-gray-800 font-medium">${labelText}</span>
           </label>
-        \`;
+        `;
       });
 
-      qDiv.innerHTML = \`
-        <p class="font-bold text-gray-900 mb-4 text-lg">\${qIndex + 1}. \${q.question}</p>
+      qDiv.innerHTML = `
+        <p class="font-bold text-gray-900 mb-4 text-lg">${qIndex + 1}. ${q.question}</p>
         <div class="space-y-2 flex flex-col pl-2">
-          \${optionsHtml}
+          ${optionsHtml}
         </div>
-        <div id="explanation-\${qIndex}" class="mt-5 p-4 rounded bg-blue-50 text-blue-900 text-sm hidden border border-blue-200">
+        <div id="explanation-${qIndex}" class="mt-5 p-4 rounded bg-blue-50 text-blue-900 text-sm hidden border border-blue-200">
           <strong class="text-blue-700 uppercase tracking-wide text-xs mb-1 block">Giải thích chi tiết:</strong>
-          \${q.explanation}
+          ${q.explanation}
         </div>
-      \`;
+      `;
       questionsContainer.appendChild(qDiv);
     });
 
@@ -210,7 +211,7 @@ import Header from '../../../components/Header.astro';
     let allAnswered = true;
     
     currentQuestions.forEach((q, qIndex) => {
-      const selected = document.querySelector(\`input[name="q\${qIndex}"]:checked\`);
+      const selected = document.querySelector(`input[name="q${qIndex}"]:checked`);
       if (!selected) {
         allAnswered = false;
       }
@@ -221,11 +222,11 @@ import Header from '../../../components/Header.astro';
     }
     
     currentQuestions.forEach((q, qIndex) => {
-      const selected = document.querySelector(\`input[name="q\${qIndex}"]:checked\`);
+      const selected = document.querySelector(`input[name="q${qIndex}"]:checked`);
       const selectedVal = selected ? parseInt(selected.value) : -1;
       
       q.options.forEach((_, optIndex) => {
-        const label = document.querySelector(\`.option-label-\${qIndex}-\${optIndex}\`);
+        const label = document.querySelector(`.option-label-${qIndex}-${optIndex}`);
         label.classList.remove('hover:bg-gray-200'); // Tắt hover effect
         
         if (optIndex === q.correct_answer_index) {
@@ -238,7 +239,7 @@ import Header from '../../../components/Header.astro';
         }
         
         // Vô hiệu hóa radio
-        const radio = document.querySelector(\`input[name="q\${qIndex}"][value="\${optIndex}"]\`);
+        const radio = document.querySelector(`input[name="q${qIndex}"][value="${optIndex}"]`);
         if (radio) radio.disabled = true;
       });
       
@@ -246,10 +247,10 @@ import Header from '../../../components/Header.astro';
         score++;
       }
 
-      document.getElementById(\`explanation-\${qIndex}\`).classList.remove('hidden');
+      document.getElementById(`explanation-${qIndex}`).classList.remove('hidden');
     });
 
-    submitAnswersBtn.textContent = \`Bạn đạt \${score}/\${currentQuestions.length} câu đúng.\`;
+    submitAnswersBtn.textContent = `Bạn đạt ${score}/${currentQuestions.length} câu đúng.`;
     submitAnswersBtn.disabled = true;
     submitAnswersBtn.classList.replace('bg-green-600', 'bg-gray-600');
     submitAnswersBtn.classList.replace('hover:bg-green-700', 'bg-gray-600');
