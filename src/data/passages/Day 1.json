@@ -1,0 +1,39 @@
+{
+  "passage_en": "Dear Team,\n\nWe are excited to announce that our department will be moving to the **upstairs** office suite, Suite 501, next Monday. We understand that this transition might be somewhat **demanding** initially, as everyone will need to **familiarize** themselves with the new layout **as well as** the updated emergency exit routes. Please note that your internal phone **extension** numbers will remain the same, but a new internal directory **listing** will be distributed. We are aware that the new location is closer to the main entrance, which means you **be likely to** experience heavier traffic during **rush hour**. However, we hope you will quickly become **accustomed** to the new environment. We want to ensure everyone continues to **perceive** our workspace as productive and comfortable. We appreciate your patience and cooperation during this move.",
+  "passage_vi": "Kính gửi đội ngũ,\n\nChúng tôi vui mừng thông báo rằng bộ phận của chúng ta sẽ chuyển đến văn phòng suite ở **tầng trên**, Suite 501, vào thứ Hai tới. Chúng tôi hiểu rằng quá trình chuyển đổi này ban đầu có thể khá **khó khăn**, vì mọi người sẽ cần **làm quen** với bố cục mới **cũng như** các tuyến đường thoát hiểm khẩn cấp đã cập nhật. Xin lưu ý rằng số **máy nhánh** nội bộ của bạn sẽ không thay đổi, nhưng một danh bạ nội bộ mới sẽ được phân phát. Chúng tôi biết rằng vị trí mới gần lối vào chính hơn, điều này có nghĩa là bạn **có khả năng** sẽ gặp phải tình trạng giao thông đông đúc hơn trong **giờ cao điểm**. Tuy nhiên, chúng tôi hy vọng bạn sẽ nhanh chóng **quen với** môi trường mới. Chúng tôi muốn đảm bảo mọi người tiếp tục **cảm nhận** không gian làm việc của chúng ta là năng suất và thoải mái. Chúng tôi đánh giá cao sự kiên nhẫn và hợp tác của bạn trong quá trình chuyển đổi này.",
+  "questions": [
+    {
+      "question": "What is the main purpose of this memo?",
+      "options": [
+        "A. To announce a departmental relocation.",
+        "B. To discuss new traffic regulations.",
+        "C. To update phone extension numbers.",
+        "D. To introduce new team members."
+      ],
+      "correct_answer_index": 0,
+      "explanation": "Thông báo chính của bản ghi nhớ là về việc bộ phận sẽ chuyển đến văn phòng mới ở tầng trên."
+    },
+    {
+      "question": "In the passage, the word \"demanding\" is closest in meaning to:",
+      "options": [
+        "A. Simple",
+        "B. Challenging",
+        "C. Exciting",
+        "D. Relaxing"
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Trong ngữ cảnh này, \"demanding\" (đòi hỏi) có nghĩa là cần nhiều nỗ lực hoặc khó khăn, tương tự như \"challenging\" (thử thách)."
+    },
+    {
+      "question": "What are employees expected to become \"accustomed\" to?",
+      "options": [
+        "A. The heavier rush hour traffic.",
+        "B. The new office environment.",
+        "C. The updated emergency exit routes.",
+        "D. The new internal directory listing."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nêu rõ: \"we hope you will quickly become accustomed to the new environment\" (chúng tôi hy vọng bạn sẽ nhanh chóng làm quen với môi trường mới)."
+    }
+  ]
+}

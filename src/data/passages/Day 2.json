@@ -1,0 +1,39 @@
+{
+  "passage_en": "Dear Employees,\n\nThis memo serves as an urgent reminder regarding our commitment to workplace safety. Recent observations highlight a **concern** about inconsistent adherence to established safety **policy**. It is imperative that all personnel **adhere** strictly to these guidelines. For instance, wearing a **protective smock** in the workshop is mandatory at all times to prevent injury. Failure to **comply** with this particular **procedure** will **immediately** result in disciplinary action. Supervisors have been instructed to monitor compliance closely. Employees found to be repeatedly violating safety protocols may be subject to severe consequences, including being **let go**. Our aim is to **enable** a safe working environment for everyone. Please consult the updated safety manual for details on proper tool usage, including how to safely use a **ruler** for precise measurements. Your cooperation is essential.\n\nSincerely,\n[Safety Department]",
+  "passage_vi": "Kính gửi Nhân viên,\n\nBản thông báo này nhằm nhắc nhở khẩn cấp về cam kết của chúng ta đối với an toàn lao động tại nơi làm việc. Những quan sát gần đây đã nêu bật một **mối lo ngại** về việc tuân thủ không nhất quán **chính sách** an toàn đã được thiết lập. Điều bắt buộc là tất cả nhân viên phải **tuân thủ** nghiêm ngặt các hướng dẫn này. Ví dụ, việc mặc **áo khoác bảo hộ** trong xưởng là bắt buộc mọi lúc để ngăn ngừa thương tích. Việc không **tuân thủ** **quy trình** cụ thể này sẽ **ngay lập tức** dẫn đến hành động kỷ luật. Các giám sát viên đã được chỉ thị giám sát chặt chẽ việc tuân thủ. Những nhân viên bị phát hiện vi phạm liên tục các quy tắc an toàn có thể phải chịu những hậu quả nghiêm trọng, bao gồm bị **cho thôi việc**. Mục tiêu của chúng tôi là **tạo điều kiện** cho một môi trường làm việc an toàn cho mọi người. Vui lòng tham khảo sổ tay an toàn cập nhật để biết chi tiết về cách sử dụng công cụ đúng cách, bao gồm cả cách sử dụng **thước kẻ** một cách an toàn để đo lường chính xác. Sự hợp tác của bạn là cần thiết.\n\nTrân trọng,\n[Phòng An toàn]",
+  "questions": [
+    {
+      "question": "What is the main purpose of this memo?",
+      "options": [
+        "A. To introduce new safety equipment.",
+        "B. To inform about changes in working hours.",
+        "C. To emphasize adherence to existing safety policies.",
+        "D. To solicit feedback on current workplace procedures."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nhắc nhở về việc tuân thủ chính sách an toàn đã có, như được nêu trong câu 'This memo serves as an urgent reminder regarding our commitment to workplace safety.' và 'It is imperative that all personnel adhere strictly to these guidelines.'"
+    },
+    {
+      "question": "The word \"comply\" in the passage is closest in meaning to which of the following?",
+      "options": [
+        "A. argue",
+        "B. follow",
+        "C. question",
+        "D. reject"
+      ],
+      "correct_answer_index": 1,
+      "explanation": "\"Comply\" có nghĩa là tuân thủ, làm theo hoặc chấp hành một quy tắc, yêu cầu. Trong ngữ cảnh này, nó đồng nghĩa với \"follow\" (làm theo)."
+    },
+    {
+      "question": "According to the memo, what could happen to employees who repeatedly violate safety protocols?",
+      "options": [
+        "A. They will receive additional training on tool usage.",
+        "B. They might be dismissed from their job.",
+        "C. D. They must purchase their own protective smock.",
+        "D. They will be assigned to a different department."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nêu rõ: \"Employees found to be repeatedly violating safety protocols may be subject to severe consequences, including being let go.\" \"Let go\" trong ngữ cảnh này có nghĩa là bị cho thôi việc hoặc sa thải."
+    }
+  ]
+}
