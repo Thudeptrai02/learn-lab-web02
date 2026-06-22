@@ -1,0 +1,202 @@
+---
+import Layout from '../../../../layouts/Layout.astro';
+import Header from '../../../../components/Header.astro';
+
+const { topic } = Astro.params;
+
+// Tìm bài đọc đã sinh sẵn
+const allPassages = import.meta.glob('../../../../data/passages/*.json', { eager: true });
+const targetKey = Object.keys(allPassages).find(key => key.endsWith(`/${topic}.json`));
+const passageData = targetKey ? (allPassages[targetKey].default || allPassages[targetKey]) : null;
+
+// Tìm danh sách từ vựng gốc
+const allVocabs = import.meta.glob('../../../../data/**/*.json', { eager: true });
+const vocabKey = Object.keys(allVocabs).find(key => key.endsWith(`/${topic}.json`) && !key.includes('/exams/') && !key.includes('/passages/'));
+const vocabData = vocabKey ? (allVocabs[vocabKey].default || allVocabs[vocabKey]) : [];
+const words = Array.isArray(vocabData) ? vocabData.map(item => item.word).filter(Boolean) : [];
+
+if (!passageData) {
+  // Nếu chưa có bài đọc, render màn hình báo lỗi nhẹ nhàng
+  return new Response(`
+    <html><head><meta charset="UTF-8"><title>Chưa có bài đọc</title><script src="https://cdn.tailwindcss.com"></script></head>
+    <body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+      <div class="bg-white p-8 rounded-2xl shadow-sm border max-w-md text-center">
+        <h1 class="text-2xl font-bold text-slate-800 mb-2">Chưa có bài đọc!</h1>
+        <p class="text-slate-500 mb-6">Chủ đề <strong>${topic}</strong> chưa được Admin tạo bài đọc. Vui lòng quay lại sau nhé.</p>
+        <a href="/english-lab/toeic/flashcards/${topic}" class="px-5 py-2.5 bg-teal-600 text-white font-bold rounded-lg hover:bg-teal-700">Quay lại Flashcard</a>
+      </div>
+    </body></html>
+  `, {
+    status: 404,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' }
+  });
+}
+
+// Bôi đậm từ vựng trong bài đọc
+let enText = passageData.passage_en;
+words.forEach(word => {
+  if (word.length > 2) {
+    const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp("\\b(" + escapeRegExp(word) + ")\\b", 'gi');
+    enText = enText.replace(regex, '<span class="text-indigo-700 font-bold bg-indigo-100 px-1 rounded">$1</span>');
+  }
+});
+
+const pageTitle = `Luyện tập: ${topic.toUpperCase()}`;
+const clientData = JSON.stringify(passageData.questions);
+---
+
+<Layout title={pageTitle}>
+  <Header />
+  
+  <main class="max-w-4xl mx-auto px-4 py-8">
+    
+    <div class="mb-8 flex items-center justify-between">
+      <div>
+        <a href={`/english-lab/toeic/flashcards/${topic}`} class="text-[11px] font-black uppercase tracking-widest text-slate-400 hover:text-teal-600 transition-colors flex items-center gap-2 mb-2">
+           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+           Quay lại bài Flashcard
+        </a>
+        <h1 class="text-3xl font-black text-slate-900 tracking-tight">{pageTitle}</h1>
+      </div>
+      <div class="px-4 py-2 rounded-xl bg-indigo-50 border border-indigo-100">
+        <span class="text-indigo-600 font-bold text-sm">Context Reading</span>
+      </div>
+    </div>
+
+    <!-- Kết quả -->
+    <div class="space-y-8">
+      
+      <!-- Đoạn văn -->
+      <div class="bg-indigo-50/50 rounded-2xl p-6 md:p-8 border border-indigo-100">
+        <h2 class="text-xl font-black text-indigo-900 mb-6 flex items-center gap-2">
+          <span class="text-2xl">📖</span> Đoạn văn Ngữ cảnh
+        </h2>
+        <div class="text-slate-800 text-lg leading-relaxed whitespace-pre-line mb-6 font-medium" set:html={enText}></div>
+        
+        <button id="toggleTranslationBtn" class="text-indigo-600 text-sm font-bold hover:underline mb-3 transition-all">
+          + Xem bản dịch tiếng Việt
+        </button>
+        <div id="passageVi" class="text-slate-600 italic whitespace-pre-line hidden border-l-4 border-indigo-300 pl-4 py-1">{passageData.passage_vi}</div>
+      </div>
+
+      <!-- Bài tập -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <h2 class="text-xl font-black text-slate-900 mb-6 flex items-center gap-2">
+          <span class="text-2xl">📝</span> Kiểm tra Mức độ Hiểu
+        </h2>
+        
+        <div id="questionsContainer" class="space-y-8">
+          {passageData.questions.map((q, qIndex) => (
+            <div class="question-block p-5 md:p-6 bg-slate-50 rounded-xl border border-slate-200 transition-all">
+              <p class="font-bold text-slate-900 mb-4 text-lg">{qIndex + 1}. {q.question}</p>
+              <div class="space-y-2 flex flex-col pl-2">
+                {q.options.map((opt, optIndex) => {
+                  const cleanOpt = opt.replace(/^[A-D]\.\s*/i, '');
+                  const labelText = ['A', 'B', 'C', 'D'][optIndex] + '. ' + cleanOpt;
+                  return (
+                    <label class={`flex items-start gap-3 p-3 rounded-lg hover:bg-slate-200 cursor-pointer transition-colors option-label-${qIndex}-${optIndex}`}>
+                      <input type="radio" name={`q${qIndex}`} value={optIndex} class="mt-1 w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300" />
+                      <span class="text-slate-800 font-medium">{labelText}</span>
+                    </label>
+                  );
+                })}
+              </div>
+              <div id={`explanation-${qIndex}`} class="mt-5 p-4 rounded-lg bg-indigo-50 text-indigo-900 text-sm hidden border border-indigo-200 animate-fade-in">
+                <strong class="text-indigo-700 uppercase tracking-wide text-xs mb-1 block">Giải thích chi tiết:</strong>
+                {q.explanation}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <button 
+          id="submitAnswersBtn" 
+          class="mt-8 px-6 py-4 bg-teal-600 hover:bg-teal-700 text-white font-black text-[15px] uppercase tracking-wider rounded-xl transition-all w-full shadow-lg shadow-teal-200 hover:-translate-y-1"
+        >
+          Nộp Bài & Xem Giải Thích
+        </button>
+      </div>
+      
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .animate-fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<script define:vars={{ clientData }}>
+  const questions = JSON.parse(clientData);
+
+  const toggleTranslationBtn = document.getElementById('toggleTranslationBtn');
+  const passageVi = document.getElementById('passageVi');
+  const submitAnswersBtn = document.getElementById('submitAnswersBtn');
+
+  // Toggle Translation
+  if (toggleTranslationBtn && passageVi) {
+    toggleTranslationBtn.addEventListener('click', () => {
+      passageVi.classList.toggle('hidden');
+      if (passageVi.classList.contains('hidden')) {
+        toggleTranslationBtn.textContent = '+ Xem bản dịch tiếng Việt';
+      } else {
+        toggleTranslationBtn.textContent = '- Ẩn bản dịch';
+      }
+    });
+  }
+
+  // Submit answers
+  if (submitAnswersBtn) {
+    submitAnswersBtn.addEventListener('click', () => {
+      let score = 0;
+      let allAnswered = true;
+      
+      questions.forEach((q, qIndex) => {
+        const selected = document.querySelector(`input[name="q${qIndex}"]:checked`);
+        if (!selected) {
+          allAnswered = false;
+        }
+      });
+
+      if (!allAnswered && !confirm("Bạn chưa trả lời hết các câu hỏi. Vẫn muốn nộp bài?")) {
+        return;
+      }
+      
+      questions.forEach((q, qIndex) => {
+        const selected = document.querySelector(`input[name="q${qIndex}"]:checked`);
+        const selectedVal = selected ? parseInt(selected.value) : -1;
+        
+        q.options.forEach((_, optIndex) => {
+          const label = document.querySelector(`.option-label-${qIndex}-${optIndex}`);
+          label.classList.remove('hover:bg-slate-200', 'cursor-pointer'); 
+          
+          if (optIndex === q.correct_answer_index) {
+            label.classList.add('bg-green-100', 'border', 'border-green-300');
+          } else if (optIndex === selectedVal) {
+            label.classList.add('bg-rose-100', 'border', 'border-rose-300');
+          } else {
+            label.classList.add('opacity-50');
+          }
+          
+          const radio = document.querySelector(`input[name="q${qIndex}"][value="${optIndex}"]`);
+          if (radio) radio.disabled = true;
+        });
+        
+        if (selectedVal === q.correct_answer_index) {
+          score++;
+        }
+
+        const exp = document.getElementById(`explanation-${qIndex}`);
+        if(exp) exp.classList.remove('hidden');
+      });
+
+      submitAnswersBtn.textContent = `Thành tích: ${score}/${questions.length} câu đúng`;
+      submitAnswersBtn.disabled = true;
+      submitAnswersBtn.className = "mt-8 px-6 py-4 bg-slate-800 text-white font-black text-[15px] uppercase tracking-wider rounded-xl transition-all w-full opacity-90 cursor-default";
+      
+      // Auto scroll to top of questions
+      document.getElementById('questionsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+</script>

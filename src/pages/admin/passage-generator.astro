@@ -1,0 +1,275 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+
+// Quét toàn bộ JSON trừ thư mục exams và passages
+const allVocabFiles = import.meta.glob('../../data/**/*.json', { eager: true });
+const vocabTopics = Object.keys(allVocabFiles)
+  .filter(path => !path.includes('/exams/') && !path.includes('/passages/'))
+  .map(path => {
+    const fileName = path.split('/').pop().replace('.json', '');
+    const data = allVocabFiles[path].default || allVocabFiles[path];
+    const words = Array.isArray(data) ? data.map(item => item.word).filter(Boolean) : [];
+    return { topic: fileName, words };
+  });
+
+// Quét các bài đọc đã tạo
+const allPassageFiles = import.meta.glob('../../data/passages/*.json', { eager: true });
+const existingPassages = Object.keys(allPassageFiles).map(path => path.split('/').pop().replace('.json', ''));
+
+// Pass dữ liệu xuống Client
+const topicsData = JSON.stringify(vocabTopics);
+const existingData = JSON.stringify(existingPassages);
+---
+
+<Layout title="Admin | Tạo Bài Đọc Ngữ Cảnh">
+  <Header />
+  
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    <div class="mb-8 border-b pb-4">
+      <h1 class="text-3xl font-black text-slate-900 uppercase tracking-tight mb-2">Hệ Thống Admin: Tạo Bài Đọc Ngữ Cảnh</h1>
+      <p class="text-slate-600 font-medium">Công cụ nội bộ dành cho Quản trị viên để sinh sẵn bài đọc cho các chủ đề từ vựng bằng AI.</p>
+      
+      <div class="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <p class="text-amber-800 text-sm font-bold">⚠️ LƯU Ý QUAN TRỌNG:</p>
+        <ul class="text-amber-700 text-sm list-disc ml-5 mt-2">
+          <li>Tính năng <strong>Lưu Dữ Liệu</strong> chỉ hoạt động khi bạn đang chạy web trên môi trường Local (chạy lệnh <code>npm run dev</code> trên máy tính).</li>
+          <li>Nó sẽ tự động ghi file JSON vào thư mục <code>src/data/passages/</code>. Sau khi lưu, bạn cần commit code và push lên Github để cập nhật trên Vercel.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      
+      <!-- Cột trái: Danh sách Topic -->
+      <div class="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 h-[calc(100vh-250px)] flex flex-col">
+        <h2 class="font-bold text-slate-900 text-lg mb-4 flex items-center justify-between">
+          <span>Chọn Chủ Đề</span>
+          <span class="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-1 rounded">{vocabTopics.length} topics</span>
+        </h2>
+        
+        <div id="topicList" class="overflow-y-auto pr-2 space-y-2 flex-1 custom-scrollbar">
+          <!-- Render by JS -->
+        </div>
+      </div>
+
+      <!-- Cột phải: Preview và Actions -->
+      <div class="lg:col-span-2 flex flex-col h-[calc(100vh-250px)]">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex-1 flex flex-col mb-4 overflow-y-auto relative">
+          <div id="welcomeState" class="absolute inset-0 flex flex-col items-center justify-center text-slate-400">
+            <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <p>Chọn một chủ đề bên trái để bắt đầu tạo bài đọc</p>
+          </div>
+          
+          <div id="previewState" class="hidden flex-col">
+            <h3 class="text-xl font-bold text-slate-900 mb-2" id="previewTitle">Topic Name</h3>
+            <div class="flex flex-wrap gap-1 mb-6" id="previewWords"></div>
+            
+            <div class="bg-slate-50 p-5 rounded-xl border border-slate-100 mb-6">
+              <h4 class="font-bold text-slate-800 mb-3 flex items-center gap-2"><span>📖</span> Đoạn văn sinh ra</h4>
+              <div id="passageEn" class="text-slate-700 leading-relaxed font-medium mb-4 whitespace-pre-line"></div>
+              <div id="passageVi" class="text-slate-500 italic text-sm border-l-2 border-slate-300 pl-3 whitespace-pre-line"></div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+              <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2"><span>📝</span> Bài tập (Câu hỏi)</h4>
+              <div id="questionsContainer" class="space-y-4"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbar Hành Động -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center justify-between">
+          <div class="text-sm font-medium text-slate-600" id="statusText">Sẵn sàng</div>
+          <div class="flex gap-3">
+            <button id="generateBtn" disabled class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+              <svg id="generateSpinner" class="animate-spin h-4 w-4 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              <span>1. Tạo Bài Đọc Bằng AI</span>
+            </button>
+            <button id="saveBtn" disabled class="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 text-white font-bold rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+              <span>2. Lưu Dữ Liệu</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
+</style>
+
+<script define:vars={{ topicsData, existingData }}>
+  const topics = JSON.parse(topicsData);
+  const existing = JSON.parse(existingData);
+  
+  let currentTopic = null;
+  let currentPassageData = null;
+
+  const topicList = document.getElementById('topicList');
+  const generateBtn = document.getElementById('generateBtn');
+  const saveBtn = document.getElementById('saveBtn');
+  const generateSpinner = document.getElementById('generateSpinner');
+  const statusText = document.getElementById('statusText');
+  
+  const welcomeState = document.getElementById('welcomeState');
+  const previewState = document.getElementById('previewState');
+  
+  // Render list
+  function renderTopics() {
+    topicList.innerHTML = '';
+    topics.forEach((t, idx) => {
+      const isDone = existing.includes(t.topic);
+      const btn = document.createElement('button');
+      btn.className = `w-full text-left p-3 rounded-xl border flex items-center justify-between transition-all group ${isDone ? 'bg-teal-50/50 border-teal-100 hover:border-teal-300' : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50'}`;
+      btn.innerHTML = `
+        <div class="flex-1 overflow-hidden">
+          <p class="font-bold text-[14px] truncate ${isDone ? 'text-teal-800' : 'text-slate-800'}">${t.topic}</p>
+          <p class="text-[11px] text-slate-500 mt-1">${t.words.length} từ vựng</p>
+        </div>
+        <div>
+          ${isDone ? '<span class="px-2 py-1 bg-teal-100 text-teal-700 text-[10px] font-bold rounded uppercase">Đã có</span>' : ''}
+        </div>
+      `;
+      
+      btn.onclick = () => selectTopic(t, btn);
+      topicList.appendChild(btn);
+    });
+  }
+
+  function selectTopic(t, btnEl) {
+    // Styling selected
+    document.querySelectorAll('#topicList button').forEach(b => b.classList.remove('ring-2', 'ring-indigo-500', 'shadow-md'));
+    btnEl.classList.add('ring-2', 'ring-indigo-500', 'shadow-md');
+    
+    currentTopic = t;
+    currentPassageData = null; // reset
+    
+    welcomeState.classList.add('hidden');
+    previewState.classList.remove('hidden');
+    
+    document.getElementById('previewTitle').textContent = `Chủ đề: ${t.topic}`;
+    document.getElementById('previewWords').innerHTML = t.words.map(w => `<span class="px-2 py-0.5 bg-slate-200 text-slate-700 rounded text-xs">${w}</span>`).join('');
+    
+    document.getElementById('passageEn').innerHTML = '<span class="text-slate-400 italic">Chưa có bài đọc. Bấm "Tạo Bài Đọc Bằng AI" để bắt đầu.</span>';
+    document.getElementById('passageVi').textContent = '';
+    document.getElementById('questionsContainer').innerHTML = '';
+    
+    generateBtn.disabled = false;
+    saveBtn.disabled = true;
+    
+    const isDone = existing.includes(t.topic);
+    if(isDone) {
+      statusText.innerHTML = `<span class="text-teal-600 font-bold">Chủ đề này đã có bài đọc được lưu. Bạn có thể tạo lại để ghi đè.</span>`;
+    } else {
+      statusText.textContent = `Đã chọn: ${t.topic} (${t.words.length} từ)`;
+    }
+  }
+
+  generateBtn.onclick = async () => {
+    if (!currentTopic) return;
+    
+    let wordsToUse = [...currentTopic.words];
+    // Chống quá tải: Random 10 từ nếu nhiều hơn 10
+    if (wordsToUse.length > 10) {
+      wordsToUse = wordsToUse.sort(() => 0.5 - Math.random()).slice(0, 10);
+    }
+
+    generateBtn.disabled = true;
+    generateSpinner.classList.remove('hidden');
+    statusText.innerHTML = `<span class="text-indigo-600 font-bold animate-pulse">Đang dùng AI sinh bài đọc (có thể mất 10-20 giây)...</span>`;
+    saveBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/generate-vocab-context', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ vocabList: wordsToUse })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Lỗi sinh bài');
+
+      currentPassageData = data;
+      renderPreview(data, wordsToUse);
+      
+      statusText.innerHTML = `<span class="text-green-600 font-bold">✅ Sinh bài đọc thành công! Bạn có thể xem trước và bấm Lưu Dữ Liệu.</span>`;
+      saveBtn.disabled = false;
+    } catch (err) {
+      statusText.innerHTML = `<span class="text-red-600 font-bold">❌ Lỗi: ${err.message}</span>`;
+    } finally {
+      generateBtn.disabled = false;
+      generateSpinner.classList.add('hidden');
+    }
+  };
+
+  saveBtn.onclick = async () => {
+    if (!currentTopic || !currentPassageData) return;
+    
+    saveBtn.disabled = true;
+    statusText.innerHTML = `<span class="text-teal-600 font-bold">Đang lưu file...</span>`;
+    
+    try {
+      const res = await fetch('/api/save-passage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          topic: currentTopic.topic, 
+          passageData: currentPassageData 
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Lỗi lưu file');
+      
+      statusText.innerHTML = `<span class="text-green-600 font-bold">✅ ${data.message} Vui lòng commit code lên Github để update server.</span>`;
+      
+      // Update UI existing mark
+      if (!existing.includes(currentTopic.topic)) {
+        existing.push(currentTopic.topic);
+        renderTopics();
+      }
+    } catch(err) {
+      statusText.innerHTML = `<span class="text-red-600 font-bold">❌ Lỗi Lưu: ${err.message}</span>`;
+      saveBtn.disabled = false;
+    }
+  };
+
+  function renderPreview(data, highlightWords) {
+    let enText = data.passage_en;
+    highlightWords.forEach(word => {
+      if (word.length > 2) {
+        const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp("\\\\b(" + escapeRegExp(word) + ")\\\\b", 'gi');
+        enText = enText.replace(regex, '<span class="text-indigo-700 font-bold bg-indigo-100 px-1 rounded">$1</span>');
+      }
+    });
+    
+    document.getElementById('passageEn').innerHTML = enText;
+    document.getElementById('passageVi').textContent = data.passage_vi;
+    
+    const qc = document.getElementById('questionsContainer');
+    qc.innerHTML = '';
+    data.questions.forEach((q, idx) => {
+      qc.innerHTML += `
+        <div class="bg-white border rounded-lg p-3 text-sm">
+          <p class="font-bold text-slate-800 mb-2">${idx + 1}. ${q.question}</p>
+          <ul class="pl-4 space-y-1 mb-2">
+            ${q.options.map((o, i) => `<li class="${i === q.correct_answer_index ? 'text-green-700 font-bold' : 'text-slate-600'}">${['A','B','C','D'][i]}. ${o}</li>`).join('')}
+          </ul>
+          <p class="text-xs text-slate-500 italic bg-slate-50 p-2 rounded">Giải thích: ${q.explanation}</p>
+        </div>
+      `;
+    });
+  }
+
+  // Init
+  renderTopics();
+
+</script>
