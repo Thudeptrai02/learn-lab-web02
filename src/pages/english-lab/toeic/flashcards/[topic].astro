@@ -14,13 +14,14 @@ export async function getStaticPaths() {
 }
 
 const { topic } = Astro.params;
+const decodedTopic = decodeURIComponent(topic);
 
 // 🚀 TÌM ĐÚNG FILE JSON TRÊN TOÀN BỘ DATA DỰA VÀO TÊN FILE
 const allFiles = import.meta.glob('../../../../data/**/*.json', { eager: true });
-const targetKey = Object.keys(allFiles).find(key => key.endsWith(`/${topic}.json`) && !key.includes('/exams/') && !key.includes('/passages/'));
+const targetKey = Object.keys(allFiles).find(key => key.endsWith(`/${decodedTopic}.json`) && !key.includes('/exams/') && !key.includes('/passages/'));
 const cards = targetKey ? (allFiles[targetKey].default || allFiles[targetKey]) : [];
 
-const pageTitle = `${topic.toUpperCase()}`;
+const pageTitle = `${decodedTopic.toUpperCase()}`;
 ---
 
 <Layout title={`${pageTitle} | Kho Từ Vựng`}>

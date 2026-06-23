@@ -3,15 +3,16 @@ import Layout from '../../../../layouts/Layout.astro';
 import Header from '../../../../components/Header.astro';
 
 const { topic } = Astro.params;
+const decodedTopic = decodeURIComponent(topic);
 
 // Tìm bài đọc đã sinh sẵn
 const allPassages = import.meta.glob('../../../../data/passages/*.json', { eager: true });
-const targetKey = Object.keys(allPassages).find(key => key.endsWith(`/${topic}.json`));
+const targetKey = Object.keys(allPassages).find(key => key.endsWith(`/${decodedTopic}.json`));
 const passageData = targetKey ? (allPassages[targetKey].default || allPassages[targetKey]) : null;
 
 // Tìm danh sách từ vựng gốc
 const allVocabs = import.meta.glob('../../../../data/**/*.json', { eager: true });
-const vocabKey = Object.keys(allVocabs).find(key => key.endsWith(`/${topic}.json`) && !key.includes('/exams/') && !key.includes('/passages/'));
+const vocabKey = Object.keys(allVocabs).find(key => key.endsWith(`/${decodedTopic}.json`) && !key.includes('/exams/') && !key.includes('/passages/'));
 const vocabData = vocabKey ? (allVocabs[vocabKey].default || allVocabs[vocabKey]) : [];
 const words = Array.isArray(vocabData) ? vocabData.map(item => item.word).filter(Boolean) : [];
 
