@@ -1,0 +1,39 @@
+{
+  "passage_en": "To: All Department Heads\nFrom: CEO's Office\nSubject: Addressing Key Management Imperatives for Q3\n\nAs we embark on the third quarter, our focus remains sharply on enhancing our overall **business strategy** and addressing critical **management issues**. Recent discussions have highlighted the need for robust **corporate governance** and meticulous **strategic planning**. We must ensure **strategic alignment** across all departments to drive our ambitious **strategic initiatives**. \n\nA primary concern is bolstering our **risk management** framework, particularly regarding **operational risk** and ensuring **business continuity** in an unpredictable **regulatory environment**. Achieving greater **operational efficiency** is paramount, as is maintaining strong **financial performance**. We are also committed to our **corporate social responsibility** efforts.\n\nUpcoming challenges include navigating significant **organizational change** and potential **corporate restructuring**. Effective **change management** will be crucial here. Our HR department is intensely focused on **talent development** and robust **succession planning** to ensure seamless **leadership succession**. We need clear **performance metrics** for all **project management** efforts to track **performance improvement**. \n\nFurthermore, strengthening **management accountability** and fostering proactive **stakeholder engagement** are vital. We must also be prepared for any unforeseen events with strong **crisis management** protocols in place. Adhering to strict **regulatory compliance** is non-negotiable.",
+  "passage_vi": "Kính gửi: Tất cả Trưởng phòng ban\nTừ: Văn phòng CEO\nChủ đề: Giải quyết các Vấn đề Quản lý Trọng yếu cho Quý 3\n\nKhi chúng ta bước vào quý 3, trọng tâm của chúng ta vẫn là nâng cao **chiến lược kinh doanh** tổng thể và giải quyết các **vấn đề quản lý** quan trọng. Các cuộc thảo luận gần đây đã nhấn mạnh sự cần thiết của **quản trị doanh nghiệp** vững chắc và **hoạch định chiến lược** tỉ mỉ. Chúng ta phải đảm bảo **sự phối hợp chiến lược** giữa tất cả các phòng ban để thúc đẩy các **sáng kiến chiến lược** đầy tham vọng của chúng ta.\n\nMối quan tâm hàng đầu là củng cố khuôn khổ **quản lý rủi ro** của chúng ta, đặc biệt là liên quan đến **rủi ro hoạt động** và đảm bảo **tính liên tục trong kinh doanh** trong một **môi trường pháp lý** khó đoán. Đạt được **hiệu quả hoạt động** cao hơn là tối quan trọng, cũng như duy trì **hiệu suất tài chính** mạnh mẽ. Chúng ta cũng cam kết thực hiện các nỗ lực **trách nhiệm xã hội của doanh nghiệp**.\n\nCác thách thức sắp tới bao gồm việc điều hướng các **thay đổi về tổ chức** đáng kể và khả năng **tái cấu trúc doanh nghiệp**. **Quản lý sự thay đổi** hiệu quả sẽ rất quan trọng ở đây. Phòng Nhân sự của chúng ta đang tập trung cao độ vào **phát triển tài năng** và **kế hoạch kế nhiệm** mạnh mẽ để đảm bảo **kế nhiệm lãnh đạo** suôn sẻ. Chúng ta cần các **chỉ số hiệu suất** rõ ràng cho tất cả các nỗ lực **quản lý dự án** để theo dõi **cải thiện hiệu suất**.\n\nHơn nữa, tăng cường **trách nhiệm giải trình của quản lý** và thúc đẩy **sự tham gia của các bên liên quan** chủ động là rất quan trọng. Chúng ta cũng phải chuẩn bị cho bất kỳ sự kiện bất ngờ nào với các quy trình **quản lý khủng hoảng** mạnh mẽ. Việc tuân thủ nghiêm ngặt **tuân thủ quy định** là không thể thương lượng.",
+  "questions": [
+    {
+      "question": "What is the primary purpose of this memo?",
+      "options": [
+        "A. To outline key management priorities and challenges for the third quarter.",
+        "B. To announce new hires in the HR department.",
+        "C. To report on the company's financial performance in the previous quarter.",
+        "D. To describe a new business strategy being implemented immediately."
+      ],
+      "correct_answer_index": 0,
+      "explanation": "Đoạn văn bắt đầu bằng việc đặt ra trọng tâm cho quý 3 và thảo luận về các chiến lược cùng thách thức quản lý quan trọng. Vì vậy, mục đích chính là vạch ra các ưu tiên và thách thức quản lý cho quý 3."
+    },
+    {
+      "question": "According to the memo, which department is primarily responsible for 'talent development' and 'succession planning'?",
+      "options": [
+        "A. The CEO's Office",
+        "B. All Department Heads",
+        "C. The HR department",
+        "D. The Risk Management department"
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: 'Our HR department is intensely focused on talent development and robust succession planning...' (Phòng Nhân sự của chúng ta đang tập trung cao độ vào phát triển tài năng và kế hoạch kế nhiệm mạnh mẽ...)."
+    },
+    {
+      "question": "Which of the following is NOT mentioned as a primary concern or area of focus for the company's Q3?",
+      "options": [
+        "A. Enhancing corporate governance",
+        "B. Reducing employee salaries",
+        "C. Strengthening risk management",
+        "D. Ensuring strategic alignment"
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn đề cập đến 'corporate governance' (quản trị doanh nghiệp), 'risk management' (quản lý rủi ro), và 'strategic alignment' (sự phối hợp chiến lược) là những lĩnh vực trọng tâm. Tuy nhiên, việc giảm lương nhân viên ('Reducing employee salaries') không được đề cập trong bản ghi nhớ."
+    }
+  ]
+}

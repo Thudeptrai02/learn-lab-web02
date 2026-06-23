@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Enhancing Our Human Capital Management Strategies\n\nTo: All Staff\nFrom: Department of Human Resources\nDate: October 26, 2023\n\nDear Team,\n\nThe Department of **Human Resources** is excited to announce several key initiatives aimed at strengthening our organizational foundation and fostering a more dynamic work environment. Our primary goal is to optimize our **human capital** by focusing on **employee retention** and overall **job satisfaction**.\n\nWe are currently refining our **recruitment process** and **talent acquisition** strategies to ensure we attract and onboard the best candidates, reflecting a strong commitment to **workforce diversity**. The new **onboarding process** will be more comprehensive, setting new hires up for success. To support continuous growth, significant investment is being made in **training and development** and **leadership development**, paving clear paths for **career advancement**.\n\nOur new **compensation structure** is designed to provide a competitive **compensation package**, which, along with enhanced **employee benefits**, aims to improve **employee engagement**. We are updating **job description** templates to align with clear **performance metrics** for accurate **performance appraisal** and **performance improvement**. This proactive approach will help reduce **employee turnover**.\n\nFurthermore, we are initiating programs for **team building** and **conflict resolution** to foster a positive **organizational culture**. Through robust **succession planning**, we aim to identify and nurture future leaders within the company. This comprehensive strategy on **compensation and benefits** underscores our dedication to your professional growth and well-being.\n\nThank you for your continued dedication.\n\nSincerely,\nThe Human Resources Team",
+  "passage_vi": "Chủ đề: Nâng cao Chiến lược Quản lý Nguồn Nhân lực của Chúng ta\n\nKính gửi: Toàn thể Nhân viên\nTừ: Phòng Nguồn Nhân lực\nNgày: 26 tháng 10 năm 2023\n\nKính gửi Đội ngũ,\n\nPhòng **Nguồn Nhân lực** rất vui mừng thông báo một số sáng kiến ​​quan trọng nhằm củng cố nền tảng tổ chức của chúng ta và thúc đẩy một môi trường làm việc năng động hơn. Mục tiêu chính của chúng ta là tối ưu hóa **nguồn nhân lực** bằng cách tập trung vào **giữ chân nhân viên** và tổng thể **sự hài lòng trong công việc**.\n\nChúng tôi hiện đang tinh chỉnh **quy trình tuyển dụng** và các chiến lược **thu hút nhân tài** để đảm bảo chúng ta thu hút và tiếp nhận những ứng viên tốt nhất, thể hiện cam kết mạnh mẽ đối với **đa dạng lực lượng lao động**. **Quy trình hòa nhập** mới sẽ toàn diện hơn, giúp nhân viên mới hòa nhập thành công. Để hỗ trợ sự phát triển liên tục, một khoản đầu tư đáng kể đang được thực hiện vào **đào tạo và phát triển** cũng như **phát triển lãnh đạo**, mở ra những con đường rõ ràng cho **thăng tiến nghề nghiệp**.\n\n**Cơ cấu lương thưởng** mới của chúng ta được thiết kế để cung cấp một **gói lương thưởng** cạnh tranh, cùng với **phúc lợi nhân viên** được nâng cao, nhằm mục đích cải thiện **sự gắn kết của nhân viên**. Chúng tôi đang cập nhật các mẫu **mô tả công việc** để phù hợp với các **chỉ số hiệu suất** rõ ràng cho việc **đánh giá hiệu suất** và **cải thiện hiệu suất** chính xác. Cách tiếp cận chủ động này sẽ giúp giảm **tỷ lệ thôi việc của nhân viên**.\n\nHơn nữa, chúng tôi đang khởi xướng các chương trình **xây dựng đội nhóm** và **giải quyết xung đột** để nuôi dưỡng một **văn hóa tổ chức** tích cực. Thông qua **lập kế hoạch kế nhiệm** mạnh mẽ, chúng tôi đặt mục tiêu xác định và nuôi dưỡng các nhà lãnh đạo tương lai trong công ty. Chiến lược toàn diện về **tiền lương và phúc lợi** này nhấn mạnh sự cống hiến của chúng tôi đối với sự phát triển nghề nghiệp và phúc lợi của bạn.\n\nCảm ơn sự cống hiến không ngừng của bạn.\n\nTrân trọng,\nĐội ngũ Nguồn Nhân lực",
+  "questions": [
+    {
+      "question": "What is the main purpose of this memo?",
+      "options": [
+        "A. To announce new product lines and marketing strategies.",
+        "B. To inform staff about upcoming holiday schedules and events.",
+        "C. To detail new initiatives for improving human capital management and employee well-being.",
+        "D. To request feedback on current organizational culture and leadership."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn chủ yếu trình bày các sáng kiến mới của Phòng Nguồn Nhân lực nhằm củng cố nền tảng tổ chức và thúc đẩy môi trường làm việc năng động, tập trung vào quản lý nguồn nhân lực và phúc lợi nhân viên."
+    },
+    {
+      "question": "Which of the following is NOT mentioned as an area receiving significant investment or refinement?",
+      "options": [
+        "A. Training and development.",
+        "B. Recruitment process.",
+        "C. Customer service training.",
+        "D. Leadership development."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn đề cập đến 'training and development', 'recruitment process' và 'leadership development' nhưng không hề nhắc đến 'customer service training'."
+    },
+    {
+      "question": "What is one expected outcome of the new compensation structure and enhanced employee benefits?",
+      "options": [
+        "A. A decrease in workforce diversity.",
+        "B. An improvement in employee engagement.",
+        "C. A reduction in succession planning efforts.",
+        "D. A longer onboarding process for new hires."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nêu rõ: 'Our new compensation structure is designed to provide a competitive compensation package, which, along with enhanced employee benefits, aims to improve employee engagement.'"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Boosting Market Presence and Customer Engagement\n\nDear Marketing Team,\n\nAs we plan for the upcoming quarter, our primary focus must be on launching an **effective advertising campaign** designed to enhance our market presence. A thorough **competitive analysis** has revealed a need for stronger **product differentiation** in our offerings. Our goal is to develop an **innovative** approach to attract new clients, focusing heavily on **customer acquisition** while simultaneously strengthening **customer retention**. \n\nUnderstanding **consumer behavior** is paramount. We need to employ sophisticated **market segmentation** to precisely identify our **target audience**. This will allow us to craft **persuasive** and **appealing** messages that resonate deeply. Our **strategic marketing** efforts must be **consistent** across all platforms, creating a **substantial** impact.\n\nTo foster **brand loyalty**, our communications must be **articulate** and our service **responsive** to customer needs. The **promotional** activities we undertake should be both **influential** and lead to **lucrative** outcomes. By staying **competitive** and delivering **diverse** value propositions, we can unlock significant **potential** for growth. This **strategic** overhaul will ensure long-term success.",
+  "passage_vi": "Chủ đề: Tăng cường sự hiện diện trên thị trường và tương tác với khách hàng\n\nKính gửi Đội ngũ Marketing,\n\nKhi chúng ta lên kế hoạch cho quý tới, trọng tâm chính của chúng ta phải là triển khai một **chiến dịch quảng cáo hiệu quả** được thiết kế để nâng cao sự hiện diện của chúng ta trên thị trường. Một phân tích cạnh tranh kỹ lưỡng đã chỉ ra sự cần thiết phải có sự **khác biệt hóa sản phẩm** mạnh mẽ hơn trong các sản phẩm của chúng ta. Mục tiêu của chúng ta là phát triển một phương pháp **đổi mới** để thu hút khách hàng mới, tập trung nhiều vào **thu hút khách hàng** đồng thời tăng cường **giữ chân khách hàng**.\n\nHiểu **hành vi người tiêu dùng** là tối quan trọng. Chúng ta cần sử dụng **phân khúc thị trường** tinh vi để xác định chính xác **đối tượng mục tiêu** của mình. Điều này sẽ cho phép chúng ta tạo ra những thông điệp **thuyết phục** và **hấp dẫn** có sức lan tỏa sâu rộng. Các nỗ lực **tiếp thị chiến lược** của chúng ta phải **nhất quán** trên tất cả các nền tảng, tạo ra một tác động **đáng kể**.\n\nĐể xây dựng **lòng trung thành với thương hiệu**, các thông điệp của chúng ta phải **rõ ràng** và dịch vụ của chúng ta phải **đáp ứng nhanh chóng** các nhu cầu của khách hàng. Các hoạt động **quảng bá** mà chúng ta thực hiện phải vừa **có ảnh hưởng** vừa mang lại kết quả **có lợi nhuận**. Bằng cách duy trì tính **cạnh tranh** và cung cấp các đề xuất giá trị **đa dạng**, chúng ta có thể mở khóa **tiềm năng** tăng trưởng đáng kể. Cuộc đại tu **chiến lược** này sẽ đảm bảo thành công lâu dài.",
+  "questions": [
+    {
+      "question": "What is the primary purpose of this memo?",
+      "options": [
+        "A. To announce new product launches for the upcoming quarter.",
+        "B. To outline strategic marketing goals for market presence and customer engagement.",
+        "C. To report on the outcomes of the latest advertising campaign.",
+        "D. To request a budget increase for the marketing department."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Bức thư vạch ra các mục tiêu tiếp thị chiến lược cho quý tới, bao gồm việc tăng cường sự hiện diện trên thị trường và tương tác với khách hàng."
+    },
+    {
+      "question": "According to the memo, what is revealed by a thorough competitive analysis?",
+      "options": [
+        "A. A need to reduce promotional activities.",
+        "B. The strong brand loyalty of current customers.",
+        "C. A requirement for stronger product differentiation.",
+        "D. The success of previous strategic marketing efforts."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: 'A thorough competitive analysis has revealed a need for stronger product differentiation in our offerings.'"
+    },
+    {
+      "question": "What is suggested as a method to foster brand loyalty?",
+      "options": [
+        "A. Launching an innovative customer acquisition program.",
+        "B. Ensuring communications are articulate and service is responsive.",
+        "C. Conducting more market segmentation studies.",
+        "D. Focusing solely on lucrative promotional outcomes."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn đề cập: 'To foster brand loyalty, our communications must be articulate and our service responsive to customer needs.'"
+    }
+  ]
+}

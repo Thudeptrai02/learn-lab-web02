@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Enhancing Our People Strategy: HR Department Updates\n\nDear Team,\n\nWe are excited to announce several strategic updates from the Human Resources department aimed at fostering a more robust and supportive work environment. Our primary goal remains enhancing **employee satisfaction** and strengthening **talent retention**. To achieve this, we are refining our **talent strategy** and focusing on comprehensive **organizational development**.\n\nStarting next quarter, we will implement a new **job rotation** program to broaden skill sets and identify **leadership potential** across various departments. This initiative will also aid in our ongoing **job evaluation** and **job classification** efforts, ensuring fair and accurate descriptions. We're also launching a refined **leadership assessment** process to identify key areas for growth and **performance improvement**. For employees needing targeted support, a personalized **performance improvement plan** will be available.\n\nOur commitment to **employee health and safety** remains paramount, and we encourage everyone to review the updated guidelines in the **employee handbook**. We are also reviewing our **compensation planning** through **compensation benchmarking** to ensure competitive salaries and benefits, followed by an annual **compensation review**. This is crucial for **employee alignment** with company goals and improving overall **job performance**.\n\nWe are investing in **workforce analytics** to better understand **workforce engagement** and inform decisions, including potential **job redesign**. Furthermore, our **employee assistance program** is being expanded to provide enhanced support, addressing any **employee grievance** through proactive **employee relations** and **employee advocacy**. We believe these changes will lead to significant **performance improvement** across the organization.",
+  "passage_vi": "Chủ đề: Nâng cao Chiến lược Con người của Chúng ta: Cập nhật từ Phòng Nhân sự\n\nKính gửi Đội ngũ,\n\nChúng tôi vui mừng thông báo một số cập nhật chiến lược từ phòng Nhân sự nhằm mục đích thúc đẩy một môi trường làm việc mạnh mẽ và hỗ trợ hơn. Mục tiêu chính của chúng tôi vẫn là nâng cao sự **hài lòng của nhân viên** và củng cố việc **giữ chân nhân tài**. Để đạt được điều này, chúng tôi đang tinh chỉnh **chiến lược tài năng** và tập trung vào **phát triển tổ chức** toàn diện.\n\nBắt đầu từ quý tới, chúng tôi sẽ triển khai chương trình **luân chuyển công việc** mới để mở rộng bộ kỹ năng và xác định **tiềm năng lãnh đạo** trên các phòng ban khác nhau. Sáng kiến này cũng sẽ hỗ trợ các nỗ lực **đánh giá công việc** và **phân loại công việc** đang diễn ra của chúng tôi, đảm bảo mô tả công việc công bằng và chính xác. Chúng tôi cũng đang khởi động một quy trình **đánh giá năng lực lãnh đạo** được tinh chỉnh để xác định các lĩnh vực tăng trưởng và **cải thiện hiệu suất** chính. Đối với những nhân viên cần hỗ trợ có mục tiêu, một **kế hoạch cải thiện hiệu suất** cá nhân hóa sẽ có sẵn.\n\nCam kết của chúng tôi đối với **sức khỏe và an toàn của nhân viên** vẫn là tối quan trọng, và chúng tôi khuyến khích mọi người xem xét các hướng dẫn cập nhật trong **sổ tay nhân viên**. Chúng tôi cũng đang xem xét **kế hoạch lương thưởng** của mình thông qua **đánh giá lương thưởng theo thị trường** để đảm bảo mức lương và phúc lợi cạnh tranh, tiếp theo là **xem xét lương thưởng** hàng năm. Điều này rất quan trọng để **nhân viên hòa hợp** với các mục tiêu của công ty và cải thiện **hiệu suất công việc** tổng thể.\n\nChúng tôi đang đầu tư vào **phân tích nguồn nhân lực** để hiểu rõ hơn về **sự gắn kết của nhân viên** và đưa ra các quyết định, bao gồm cả **tái thiết kế công việc** tiềm năng. Hơn nữa, **chương trình hỗ trợ nhân viên** của chúng tôi đang được mở rộng để cung cấp hỗ trợ nâng cao, giải quyết mọi **khiếu nại của nhân viên** thông qua **quan hệ nhân viên** chủ động và **bảo vệ quyền lợi nhân viên**. Chúng tôi tin rằng những thay đổi này sẽ dẫn đến **cải thiện hiệu suất** đáng kể trên toàn tổ chức.",
+  "questions": [
+    {
+      "question": "What is the primary purpose of this memo?",
+      "options": [
+        "A. To announce a new product launch.",
+        "B. To inform employees about upcoming HR initiatives and strategic goals.",
+        "C. To request feedback on the company's financial performance.",
+        "D. To introduce new hiring procedures for external candidates."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn chủ yếu thông báo về các cập nhật chiến lược và sáng kiến mới từ phòng Nhân sự nhằm cải thiện môi trường làm việc và sự hài lòng của nhân viên. Do đó, lựa chọn B là chính xác."
+    },
+    {
+      "question": "According to the memo, what is one intended benefit of the new job rotation program?",
+      "options": [
+        "A. To reduce the overall workload for all employees.",
+        "B. To broaden skill sets and identify leadership potential.",
+        "C. To immediately increase salaries for all participants.",
+        "D. To primarily focus on improving employee health and safety."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nêu rõ: 'we will implement a new job rotation program to broaden skill sets and identify leadership potential'. Lựa chọn B phản ánh đúng thông tin này."
+    },
+    {
+      "question": "What is the purpose of investing in \"workforce analytics\"?",
+      "options": [
+        "A. To conduct external audits of employee benefits.",
+        "B. To understand employee engagement and inform decisions.",
+        "C. To predict future market trends for product development.",
+        "D. To manage daily operational tasks more efficiently."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn giải thích: 'We are investing in workforce analytics to better understand workforce engagement and inform decisions'. Lựa chọn B khớp với mục đích đã nêu."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Enhancing Our Management Framework for Future Success\n\nDear Team,\n\nThis memo outlines critical updates to strengthen our organization's foundation and ensure sustainable growth. Our focus remains on achieving our overarching **corporate objectives** and adapting to evolving **stakeholder priorities**. \n\nWe are refining our approach to **strategic management**, beginning with a comprehensive review of our current **business goals**. New **management policies** will be introduced to streamline processes and reinforce **corporate accountability**. A key **strategic imperative** for the coming quarter is the enhancement of our **performance review process**, ensuring it accurately reflects individual and team contributions.\n\nTo optimize efficiency, our **operational strategy** is being re-evaluated, with a strong emphasis on **operational cost management** and adherence to updated **operational standards**. Regular **operational audits** will be conducted, alongside thorough **operational risk assessment** to mitigate potential disruptions. We are also exploring new **strategic partnerships** that align with our long-term vision.\n\nCentral to these changes is fostering robust **management competencies** and honing essential **management skills** across all levels. We will launch new **corporate ethics programs** to uphold our values. Senior leadership is emphasizing **management responsibility** to drive these changes. Our **management goals** include improving **financial performance metrics** and ensuring sound **financial governance**.\n\nThrough insightful **strategic insights** and targeted **strategic investment**, we aim for seamless **strategic implementation**. These **management directives** are crucial for our collective success.\n\nSincerely,\nThe Leadership Team",
+  "passage_vi": "Chủ đề: Nâng cao Khung Quản lý của Chúng ta để Thành công trong Tương lai\n\nKính gửi Đội ngũ,\n\nThông báo này phác thảo những cập nhật quan trọng nhằm củng cố nền tảng của tổ chức chúng ta và đảm bảo tăng trưởng bền vững. Trọng tâm của chúng ta vẫn là đạt được các **mục tiêu doanh nghiệp** tổng thể và thích ứng với các **ưu tiên của các bên liên quan** đang phát triển.\n\nChúng ta đang tinh chỉnh cách tiếp cận **quản lý chiến lược** của mình, bắt đầu bằng việc xem xét toàn diện các **mục tiêu kinh doanh** hiện tại. Các **chính sách quản lý** mới sẽ được giới thiệu để hợp lý hóa quy trình và tăng cường **trách nhiệm giải trình của doanh nghiệp**. Một **mệnh lệnh chiến lược** quan trọng trong quý tới là nâng cao **quy trình đánh giá hiệu suất**, đảm bảo nó phản ánh chính xác đóng góp cá nhân và đội nhóm.\n\nĐể tối ưu hóa hiệu quả, **chiến lược vận hành** của chúng ta đang được đánh giá lại, với sự chú trọng mạnh mẽ vào **quản lý chi phí vận hành** và tuân thủ các **tiêu chuẩn vận hành** đã được cập nhật. Các cuộc **kiểm toán vận hành** định kỳ sẽ được thực hiện, cùng với **đánh giá rủi ro vận hành** kỹ lưỡng để giảm thiểu các gián đoạn tiềm ẩn. Chúng ta cũng đang khám phá các **quan hệ đối tác chiến lược** mới phù hợp với tầm nhìn dài hạn của mình.\n\nTrọng tâm của những thay đổi này là nuôi dưỡng **năng lực quản lý** mạnh mẽ và mài giũa **kỹ năng quản lý** thiết yếu ở mọi cấp độ. Chúng ta sẽ triển khai các **chương trình đạo đức doanh nghiệp** mới để duy trì các giá trị của mình. Ban lãnh đạo cấp cao đang nhấn mạnh **trách nhiệm quản lý** để thúc đẩy những thay đổi này. Các **mục tiêu quản lý** của chúng ta bao gồm cải thiện **các chỉ số hiệu suất tài chính** và đảm bảo **quản trị tài chính** lành mạnh.\n\nThông qua **những hiểu biết chiến lược** sâu sắc và **đầu tư chiến lược** có mục tiêu, chúng ta hướng tới **triển khai chiến lược** liền mạch. Những **chỉ thị quản lý** này rất quan trọng cho thành công chung của chúng ta.\n\nTrân trọng,\nBan Lãnh đạo",
+  "questions": [
+    {
+      "question": "What is the primary purpose of this memo?",
+      "options": [
+        "A. To announce new leadership appointments.",
+        "B. To outline new initiatives for improving company management and performance.",
+        "C. To detail the results of recent operational audits.",
+        "D. To recruit new talent for strategic partnerships."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn bắt đầu bằng việc nêu rõ mục đích là 'phác thảo những cập nhật quan trọng nhằm củng cố nền tảng của tổ chức chúng ta và đảm bảo tăng trưởng bền vững', sau đó trình bày chi tiết các sáng kiến quản lý và vận hành."
+    },
+    {
+      "question": "Which of the following is NOT explicitly mentioned as a focus area for the operational strategy?",
+      "options": [
+        "A. Operational cost management.",
+        "B. Adherence to updated operational standards.",
+        "C. Development of new product lines.",
+        "D. Thorough operational risk assessment."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn đề cập đến 'quản lý chi phí vận hành', 'tuân thủ các tiêu chuẩn vận hành đã được cập nhật' và 'đánh giá rủi ro vận hành kỹ lưỡng'. Phát triển dòng sản phẩm mới không được nêu rõ trong phần chiến lược vận hành."
+    },
+    {
+      "question": "According to the memo, what is a key \"strategic imperative\" for the coming quarter?",
+      "options": [
+        "A. Conducting regular operational audits.",
+        "B. Refining corporate ethics programs.",
+        "C. Enhancing the performance review process.",
+        "D. Exploring new strategic partnerships."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: 'Một mệnh lệnh chiến lược quan trọng trong quý tới là nâng cao quy trình đánh giá hiệu suất'."
+    }
+  ]
+}

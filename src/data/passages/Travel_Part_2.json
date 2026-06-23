@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Important Updates for Your Upcoming Kyoto Trip\n\nDear Mr. Henderson,\n\nWe're writing from \"Global Explorers,\" your trusted **travel agency**, to provide crucial updates regarding your upcoming **voyage** to Kyoto, Japan. This renowned **travel destination** is celebrated for its rich **cultural heritage** and countless **tourist attraction**s.\n\nPlease note a minor adjustment to your **flight schedule**. Your flight GE789 from the **international terminal** now has a revised departure time. We apologize for any inconvenience; this is an alteration, not a **cancellation**. Your new **boarding pass** will reflect this, and please proceed to the **departure lounge** at least 90 minutes before. Our **cabin crew** is ready to ensure your comfort.\n\nYour comprehensive **travel insurance** covers all aspects, including the pre-booked **guided tour** of temples and the **group tour** for **sightseeing** in Gion. Your detailed **travel itinerary**, including tips on exchanging **foreign currency**, has been resent. For future travels, whether **business travel** or a leisurely **holiday package**, consider becoming a **frequent flyer**. We also offer special deals on **budget airline** options.\n\nUpon arrival, a representative will meet you at **baggage claim**. Should your plans change, a **travel voucher** may be issued. We always monitor **travel advisory** updates to ensure a safe and enjoyable **package tour**.\n\nSincerely,\n\nThe Global Explorers Team",
+  "passage_vi": "Chủ đề: Thông tin cập nhật quan trọng cho chuyến đi Kyoto sắp tới của Quý khách\n\nKính gửi ông Henderson,\n\nChúng tôi viết thư này từ \"Global Explorers\", **đại lý du lịch** đáng tin cậy của Quý khách, để cung cấp các thông tin cập nhật quan trọng liên quan đến **chuyến đi** sắp tới của Quý khách đến Kyoto, Nhật Bản. **Điểm đến du lịch** nổi tiếng này được ca ngợi vì **di sản văn hóa** phong phú và vô số **điểm thu hút khách du lịch**.\n\nXin lưu ý một điều chỉnh nhỏ về **lịch trình bay** của Quý khách. Chuyến bay GE789 của Quý khách từ **nhà ga quốc tế** hiện đã có giờ khởi hành được sửa đổi. Chúng tôi xin lỗi vì bất kỳ sự bất tiện nào; đây là một sự thay đổi, không phải là một sự **hủy bỏ**. **Thẻ lên máy bay** mới của Quý khách sẽ phản ánh điều này, và xin Quý khách vui lòng đến **phòng chờ khởi hành** ít nhất 90 phút trước. **Phi hành đoàn** của chúng tôi sẵn sàng đảm bảo sự thoải mái cho Quý khách.\n\n**Bảo hiểm du lịch** toàn diện của Quý khách bao gồm tất cả các khía cạnh, bao gồm **chuyến tham quan có hướng dẫn** đã đặt trước các ngôi đền và **chuyến tham quan theo nhóm** để **ngắm cảnh** ở Gion. **Lịch trình du lịch** chi tiết của Quý khách, bao gồm các mẹo về việc đổi **ngoại tệ**, đã được gửi lại. Đối với các chuyến đi trong tương lai, dù là **chuyến công tác** hay **gói nghỉ dưỡng** nhàn nhã, hãy cân nhắc trở thành **khách hàng thường xuyên** của chúng tôi. Chúng tôi cũng cung cấp các ưu đãi đặc biệt cho các lựa chọn **hãng hàng không giá rẻ**.\n\nKhi đến nơi, một đại diện sẽ đón Quý khách tại **khu vực nhận hành lý**. Nếu kế hoạch của Quý khách thay đổi, một **phiếu du lịch** có thể được cấp. Chúng tôi luôn theo dõi các **khuyến cáo du lịch** để đảm bảo một **tour trọn gói** an toàn và thú vị.\n\nTrân trọng,\n\nĐội ngũ Global Explorers",
+  "questions": [
+    {
+      "question": "What is the main purpose of this email?",
+      "options": [
+        "A. To inform Mr. Henderson about changes to his travel plans.",
+        "B. To advertise new holiday packages.",
+        "C. To apologize for a flight cancellation.",
+        "D. To provide a list of tourist attractions in Kyoto."
+      ],
+      "correct_answer_index": 0,
+      "explanation": "Email thông báo các cập nhật quan trọng về chuyến đi của ông Henderson, bao gồm thay đổi lịch trình bay và nhắc nhở về các dịch vụ đã đặt, như được nêu trong câu mở đầu: \"to provide crucial updates regarding your upcoming voyage\"."
+    },
+    {
+      "question": "Which of the following is NOT mentioned as being covered by Mr. Henderson's travel insurance?",
+      "options": [
+        "A. A guided tour of temples.",
+        "B. A group sightseeing tour in Gion.",
+        "C. Costs associated with a flight cancellation.",
+        "D. All aspects of the trip."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nhấn mạnh rằng sự thay đổi lịch bay không phải là hủy bỏ (\"not a cancellation\"). Mặc dù bảo hiểm du lịch thường bao gồm việc hủy bỏ, đoạn văn không đề cập rằng bảo hiểm của ông Henderson bao gồm chi phí hủy chuyến bay trong ngữ cảnh này. Các lựa chọn khác được đề cập rõ ràng là được bảo hiểm hoặc ngụ ý bởi cụm từ \"all aspects\" (tất cả các khía cạnh)."
+    },
+    {
+      "question": "What should Mr. Henderson do upon arrival in Kyoto?",
+      "options": [
+        "A. Exchange foreign currency at the airport.",
+        "B. Proceed directly to his pre-booked guided tour.",
+        "C. Meet a representative at baggage claim.",
+        "D. Look for a budget airline for his next flight."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: \"Upon arrival, a representative will meet you at baggage claim.\" (Khi đến nơi, một đại diện sẽ đón Quý khách tại khu vực nhận hành lý.)"
+    }
+  ]
+}

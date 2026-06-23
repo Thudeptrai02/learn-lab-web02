@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Promoting Comprehensive Well-being at NovaCorp\n\nDear Employees,\n\nAt NovaCorp, we believe that prioritizing your health is paramount. This month, we're launching a series of initiatives focused on holistic well-being. Understanding your **medical history** is the first step toward effective **prevention**. We encourage regular check-ups with your **general practitioner**, who can provide initial **diagnosis** for various conditions and guide you on necessary **treatment** plans.\n\nOur programs will cover essential aspects like maintaining healthy **blood pressure** and managing **cholesterol** levels to mitigate risks of serious conditions such as **heart disease**, **stroke**, and **hypertension**. Educational sessions on proper **nutrition** will be offered to strengthen your **immune system** and reduce **inflammation**, helping you avoid common **symptoms** associated with poor diet.\n\nWe also recognize the importance of **mental health**, offering resources to support emotional well-being. For those requiring specific care, our network includes **specialists** and facilities for **physical therapy** and **rehabilitation**. We'll also provide information on current **vaccination** schedules and how to manage **acute** conditions like severe **allergy** reactions. Our benefits team can assist with understanding your **medical insurance** coverage for any **prescription** medications or long-term care for **chronic** illnesses like **diabetes**.\n\nWe are committed to fostering a healthier, more productive workforce.\n\nSincerely,\nNovaCorp HR Department",
+  "passage_vi": "Chủ đề: Thúc đẩy Sức khỏe Toàn diện tại NovaCorp\n\nKính gửi Nhân viên,\n\nTại NovaCorp, chúng tôi tin rằng việc ưu tiên sức khỏe của bạn là tối quan trọng. Tháng này, chúng tôi đang khởi động một loạt các sáng kiến tập trung vào sức khỏe toàn diện. Hiểu rõ **tiền sử bệnh án** của bạn là bước đầu tiên hướng tới **phòng ngừa** hiệu quả. Chúng tôi khuyến khích kiểm tra sức khỏe định kỳ với **bác sĩ đa khoa** của bạn, người có thể cung cấp **chẩn đoán** ban đầu cho nhiều tình trạng và hướng dẫn bạn về các kế hoạch **điều trị** cần thiết.\n\nCác chương trình của chúng tôi sẽ bao gồm các khía cạnh thiết yếu như duy trì **huyết áp** khỏe mạnh và quản lý mức **cholesterol** để giảm thiểu rủi ro mắc các bệnh nghiêm trọng như **bệnh tim**, **đột quỵ** và **tăng huyết áp**. Các buổi giáo dục về **dinh dưỡng** hợp lý sẽ được cung cấp để tăng cường **hệ miễn dịch** của bạn và giảm **viêm nhiễm**, giúp bạn tránh các **triệu chứng** thường gặp liên quan đến chế độ ăn uống kém.\n\nChúng tôi cũng nhận thức được tầm quan trọng của **sức khỏe tinh thần**, cung cấp các nguồn lực để hỗ trợ tinh thần. Đối với những người cần chăm sóc đặc biệt, mạng lưới của chúng tôi bao gồm các **chuyên gia** và cơ sở vật chất cho **vật lý trị liệu** và **phục hồi chức năng**. Chúng tôi cũng sẽ cung cấp thông tin về lịch **tiêm chủng** hiện tại và cách quản lý các tình trạng **cấp tính** như phản ứng **dị ứng** nghiêm trọng. Đội ngũ phúc lợi của chúng tôi có thể hỗ trợ bạn hiểu về bảo hiểm y tế của mình cho bất kỳ đơn **thuốc kê toa** nào hoặc chăm sóc dài hạn cho các bệnh **mãn tính** như **tiểu đường**.\n\nChúng tôi cam kết xây dựng một lực lượng lao động khỏe mạnh và năng suất hơn.\n\nTrân trọng,\nPhòng Nhân sự NovaCorp",
+  "questions": [
+    {
+      "question": "What is the primary purpose of this announcement from NovaCorp HR Department?",
+      "options": [
+        "A. To inform employees about new medical insurance benefits.",
+        "B. To introduce a series of initiatives promoting overall employee well-being.",
+        "C. To announce mandatory health check-ups for all staff.",
+        "D. To recruit specialists for their new in-house medical clinic."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn bắt đầu bằng việc thông báo rằng NovaCorp đang 'khởi động một loạt các sáng kiến tập trung vào sức khỏe toàn diện' của nhân viên."
+    },
+    {
+      "question": "According to the announcement, which of the following is NOT mentioned as a serious condition whose risk can be mitigated by managing blood pressure and cholesterol levels?",
+      "options": [
+        "A. Heart disease",
+        "B. Stroke",
+        "C. Diabetes",
+        "D. Hypertension"
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: 'quản lý mức cholesterol để giảm thiểu rủi ro mắc các bệnh nghiêm trọng như bệnh tim, đột quỵ và tăng huyết áp.' Bệnh tiểu đường được nhắc đến sau đó như một 'bệnh mãn tính' nhưng không nằm trong danh sách các bệnh có thể giảm thiểu rủi ro bằng cách quản lý huyết áp và cholesterol."
+    },
+    {
+      "question": "What kind of support does NovaCorp offer for employees requiring specific care like physical therapy?",
+      "options": [
+        "A. They provide free on-site physical therapy sessions.",
+        "B. They connect employees with specialists and facilities.",
+        "C. They offer full reimbursement for any physical therapy treatments.",
+        "D. They advise employees to seek general practitioners for such needs."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nói rằng: 'Đối với những người cần chăm sóc đặc biệt, mạng lưới của chúng tôi bao gồm các chuyên gia và cơ sở vật chất cho vật lý trị liệu và phục hồi chức năng.'"
+    }
+  ]
+}

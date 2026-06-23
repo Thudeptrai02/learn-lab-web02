@@ -1,0 +1,39 @@
+{
+  "passage_en": "To: The Marketing Team\nFrom: Alex Chen, Head of Marketing\nDate: October 26, 2023\nSubject: Q3 Marketing Strategy Review & Future Initiatives\n\nFollowing our successful `product launch` last quarter, it's crucial we thoroughly `evaluate effectiveness` of our initial campaigns. While `brand awareness` has certainly increased, our `market penetration` efforts need strengthening. We must `adapt to trends` in `digital marketing` to truly `drive engagement` across all platforms. Our `content creation` team will now focus on developing more compelling assets to optimize the `user experience` throughout the entire `sales funnel`, aiming to significantly boost our `conversion rate` and `lead generation` for Q4.\n\nOur `pricing strategy` will remain competitive as we strive to capture a larger `market share`. We are also finalizing an `influencer partnership` program to identify suitable `brand ambassador` candidates, hoping this will dramatically enhance our reach and cultivate loyalty. The `marketing budget` for Q4 will prioritize these initiatives, ensuring a strong `return on investment`. We are confident we can achieve our `sales target` by year-end, positioning us to become a `market leader` in the coming years. Positive `customer feedback` from early adopters is promising, and our `public relations` team is working diligently to `craft a message` that resonates with a broader audience, aiming to further `penetrate the market` and increase `advertising revenue`.",
+  "passage_vi": "Đến: Đội ngũ Marketing\nTừ: Alex Chen, Trưởng phòng Marketing\nNgày: 26 tháng 10 năm 2023\nChủ đề: Đánh giá Chiến lược Marketing Q3 & Các Sáng kiến Tương lai\n\nSau đợt `ra mắt sản phẩm` thành công vào quý trước, điều cực kỳ quan trọng là chúng ta phải `đánh giá hiệu quả` của các chiến dịch ban đầu một cách kỹ lưỡng. Mặc dù `nhận diện thương hiệu` chắc chắn đã tăng lên, nhưng nỗ lực `xâm nhập thị trường` của chúng ta cần được củng cố. Chúng ta phải `thích nghi với các xu hướng` trong `marketing kỹ thuật số` để thực sự `thúc đẩy tương tác` trên tất cả các nền tảng. Đội ngũ `sáng tạo nội dung` của chúng ta giờ đây sẽ tập trung phát triển các tài sản hấp dẫn hơn để tối ưu hóa `trải nghiệm người dùng` trong suốt `phễu bán hàng`, với mục tiêu tăng đáng kể `tỷ lệ chuyển đổi` và `tạo khách hàng tiềm năng` cho quý 4.\n\n`Chiến lược định giá` của chúng ta sẽ duy trì tính cạnh tranh khi chúng ta cố gắng chiếm được `thị phần` lớn hơn. Chúng ta cũng đang hoàn thiện chương trình `hợp tác với người ảnh hưởng` để xác định các ứng cử viên `đại sứ thương hiệu` phù hợp, hy vọng điều này sẽ tăng cường đáng kể phạm vi tiếp cận và xây dựng lòng trung thành. `Ngân sách marketing` cho quý 4 sẽ ưu tiên các sáng kiến này, đảm bảo `lợi tức đầu tư` mạnh mẽ. Chúng ta tin tưởng có thể đạt được `mục tiêu doanh số` vào cuối năm, định vị chúng ta trở thành `người dẫn đầu thị trường` trong những năm tới. `Phản hồi của khách hàng` tích cực từ những người dùng đầu tiên là rất hứa hẹn, và đội ngũ `quan hệ công chúng` của chúng ta đang làm việc siêng năng để `soạn thảo thông điệp` gây được tiếng vang với đối tượng rộng hơn, nhằm mục đích `xâm nhập thị trường` sâu hơn và tăng `doanh thu quảng cáo`.",
+  "questions": [
+    {
+      "question": "What is the primary purpose of this memo?",
+      "options": [
+        "A. To announce a new product launch for the upcoming quarter.",
+        "B. To review past marketing performance and outline future strategies.",
+        "C. To request an increase in the marketing budget for digital advertising.",
+        "D. To report on customer feedback and public relations success only."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn bắt đầu bằng việc đánh giá các chiến dịch quý trước ('evaluate effectiveness') và sau đó trình bày các kế hoạch, sáng kiến cho quý 4 ('Q4 will prioritize these initiatives'). Vì vậy, mục đích chính là xem xét hiệu suất đã qua và vạch ra các chiến lược tương lai."
+    },
+    {
+      "question": "Which of the following marketing aspects is mentioned as needing strengthening?",
+      "options": [
+        "A. Brand awareness.",
+        "B. Market penetration efforts.",
+        "C. The current pricing strategy.",
+        "D. The lead generation for early adopters."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nêu rõ: 'While brand awareness has certainly increased, our market penetration efforts need strengthening.' Điều này chỉ ra rằng nhận diện thương hiệu đã tăng nhưng nỗ lực xâm nhập thị trường cần được củng cố."
+    },
+    {
+      "question": "What will the content creation team focus on to optimize the user experience?",
+      "options": [
+        "A. Developing more compelling assets.",
+        "B. Reducing the marketing budget.",
+        "C. Forming new influencer partnerships.",
+        "D. Collecting positive customer feedback."
+      ],
+      "correct_answer_index": 0,
+      "explanation": "Đoạn văn nói: 'Our content creation team will now focus on developing more compelling assets to optimize the user experience throughout the entire sales funnel...'. Điều này trực tiếp trả lời câu hỏi."
+    }
+  ]
+}

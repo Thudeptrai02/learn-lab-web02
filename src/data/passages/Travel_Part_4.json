@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Discovering Authentic Experiences Beyond the Typical Travel Destination!\n\nDear Fellow Explorers,\n\nAre you tired of the usual <b>tourist trap</b> experiences and longing for a true <b>cultural immersion</b>? At 'Wanderlust Expeditions,' we understand the <b>wanderlust</b> that drives every true <b>wayfarer</b> and <b>backpacker</b>. Our latest offering focuses on helping you explore destinations <b>off the beaten path</b>.\n\nForget the <b>jetsetter</b> life of hopping from one luxury <b>resort</b> to another. We curate personalized <b>itinerary</b> plans that prioritize genuine local experiences. Before your <b>sojourn</b> begins, we handle all your <b>travel documents</b>, including assisting with your <b>visa application</b>, and remind you to always get <b>travel insurance</b>. We also advise clients about current <b>travel restrictions</b> and the importance of checking <b>passport control</b> requirements for your chosen <b>travel destination</b>.\n\nOur expert guides lead small <b>group tour</b>s, ensuring an intimate <b>guided sightseeing tour</b> of every <b>local attraction</b>. You'll savor authentic <b>local cuisine</b> and find comfortable <b>accommodation</b> options, from boutique guesthouses to eco-lodges, rather than just securing a standard <b>hotel reservation</b>. We encourage all our <b>vacationer</b>s to <b>travel light</b> to truly embrace the adventure.\n\nFor more details, visit our website!\n\nSincerely,\nThe Wanderlust Expeditions Team",
+  "passage_vi": "Chủ đề: Khám phá những trải nghiệm đích thực vượt ra ngoài các điểm đến du lịch thông thường!\n\nKính gửi những nhà thám hiểm,\n\nBạn có mệt mỏi với những trải nghiệm 'bẫy du lịch' thông thường và khao khát một sự 'hòa mình vào văn hóa' thực sự? Tại 'Wanderlust Expeditions', chúng tôi hiểu 'khao khát xê dịch' thúc đẩy mỗi 'lữ khách' và 'người du lịch bụi' thực thụ. Gói dịch vụ mới nhất của chúng tôi tập trung vào việc giúp bạn khám phá những điểm đến 'khuất nẻo'.\n\nHãy quên đi cuộc sống 'sành điệu' của việc hết nghỉ dưỡng tại 'khu nghỉ dưỡng' sang trọng này đến khu khác. Chúng tôi sắp xếp các 'lộ trình' cá nhân hóa, ưu tiên những trải nghiệm địa phương chân thực. Trước khi 'chuyến đi ngắn' của bạn bắt đầu, chúng tôi sẽ xử lý tất cả 'giấy tờ du lịch' của bạn, bao gồm hỗ trợ 'đơn xin thị thực', và nhắc nhở bạn luôn mua 'bảo hiểm du lịch'. Chúng tôi cũng tư vấn khách hàng về 'hạn chế du lịch' hiện tại và tầm quan trọng của việc kiểm tra các yêu cầu tại 'khu vực kiểm soát hộ chiếu' cho 'điểm đến du lịch' bạn đã chọn.\n\nCác hướng dẫn viên chuyên nghiệp của chúng tôi dẫn các 'tour nhóm' nhỏ, đảm bảo một 'tour tham quan có hướng dẫn' thân mật tại mỗi 'điểm tham quan địa phương'. Bạn sẽ thưởng thức 'ẩm thực địa phương' đích thực và tìm thấy các lựa chọn 'chỗ ở' thoải mái, từ nhà nghỉ boutique đến nhà nghỉ sinh thái, thay vì chỉ đơn thuần đặt 'phòng khách sạn' tiêu chuẩn. Chúng tôi khuyến khích tất cả 'khách du lịch' của chúng tôi 'đi gọn nhẹ' để thực sự tận hưởng cuộc phiêu lưu.\n\nĐể biết thêm chi tiết, hãy truy cập trang web của chúng tôi!\n\nTrân trọng,\nĐội ngũ Wanderlust Expeditions",
+  "questions": [
+    {
+      "question": "What is the main purpose of \"Wanderlust Expeditions\" according to the email?",
+      "options": [
+        "A. To provide luxury resort stays for jetsetters.",
+        "B. To offer guided tours to popular tourist traps.",
+        "C. To help travelers experience authentic destinations off the beaten path.",
+        "D. To manage all hotel reservations for vacationers globally."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nhấn mạnh việc tránh 'tourist trap' và khám phá 'destinations off the beaten path' để có 'authentic experiences' và 'cultural immersion'."
+    },
+    {
+      "question": "Which of the following services does Wanderlust Expeditions NOT explicitly mention providing?",
+      "options": [
+        "A. Assistance with visa applications.",
+        "B. Advising on travel restrictions.",
+        "C. Booking flights and airfare.",
+        "D. Arranging accommodation beyond standard hotel reservations."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn đề cập đến việc hỗ trợ 'visa application', tư vấn 'travel restrictions' và sắp xếp 'accommodation', nhưng không hề nhắc đến việc đặt vé máy bay ('booking flights and airfare')."
+    },
+    {
+      "question": "What advice is given to vacationers regarding their luggage?",
+      "options": [
+        "A. They should bring heavy luggage for all contingencies.",
+        "B. They are encouraged to travel light to fully embrace adventure.",
+        "C. They must ensure their luggage meets passport control requirements.",
+        "D. They need to pack enough for a long sojourn."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nêu rõ: 'We encourage all our vacationers to travel light to truly embrace the adventure.'"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Exciting New Travel Opportunities from Global Expeditions!\n\nDear Valued Traveler,\n\nGet ready for unforgettable adventures! Global Expeditions is thrilled to announce our updated travel packages designed to cater to every explorer. Our latest **itinerary** for the Antarctic **expedition**, for example, promises breathtaking views and includes luxurious **accommodation** on our state-of-the-art **cruise** ship. Daily **excursions** will take you to observe fascinating wildlife and iconic **landmarks**. We've streamlined the **embarkation** and **disembarkation** processes to ensure a smooth start and end to your journey.\n\nFor those planning independent trips, remember the importance of checking your **passport** validity and securing the necessary **visa** well in advance to avoid issues at **customs**. We also offer a special package for **backpackers** interested in sustainable **tourism**, emphasizing local **hospitality**. Our dedicated **concierge** team can assist with all aspects of your trip, from confirming your **reservation** to advising on flight connections, minimizing **layover** times during **transit**. They can even provide tips to combat **jet lag**!\n\nOur premium packages boast comprehensive **amenities**, and we always recommend travel insurance that covers unforeseen events, including medical **repatriation**. Be sure to arrive at the correct **terminal** for your **departure**, and look forward to a seamless **arrival** at your destination. Visit our website for more details on these incredible **expeditions** and start planning your next escape today!\n\nSincerely,\nThe Global Expeditions Team",
+  "passage_vi": "Chủ đề: Cơ hội du lịch mới đầy thú vị từ Global Expeditions!\n\nKính gửi Quý khách hàng,\n\nHãy sẵn sàng cho những cuộc phiêu lưu khó quên! Global Expeditions vui mừng thông báo các gói du lịch cập nhật của chúng tôi được thiết kế để phục vụ mọi nhà thám hiểm. Chẳng hạn, **lộ trình** mới nhất của chúng tôi cho **chuyến thám hiểm** Nam Cực hứa hẹn cảnh quan ngoạn mục và bao gồm **chỗ ở** sang trọng trên tàu **du thuyền** hiện đại của chúng tôi. Các **chuyến tham quan** hàng ngày sẽ đưa bạn đi quan sát động vật hoang dã hấp dẫn và các **địa danh** mang tính biểu tượng. Chúng tôi đã hợp lý hóa quy trình **lên tàu** và **xuống tàu** để đảm bảo một khởi đầu và kết thúc suôn sẻ cho hành trình của bạn.\n\nĐối với những người đang lên kế hoạch cho các chuyến đi độc lập, hãy nhớ tầm quan trọng của việc kiểm tra hiệu lực **hộ chiếu** và xin **thị thực** cần thiết trước để tránh các vấn đề tại **hải quan**. Chúng tôi cũng cung cấp một gói đặc biệt dành cho **du khách ba lô** quan tâm đến **du lịch** bền vững, nhấn mạnh vào **lòng hiếu khách** của địa phương. Đội ngũ **hộ tống cá nhân** tận tâm của chúng tôi có thể hỗ trợ tất cả các khía cạnh của chuyến đi của bạn, từ xác nhận **đặt chỗ** đến tư vấn về các chuyến bay nối chuyến, giảm thiểu thời gian **quá cảnh** trong **chuyến bay chuyển tiếp**. Họ thậm chí có thể cung cấp các mẹo để chống lại **lệch múi giờ**!\n\nCác gói cao cấp của chúng tôi tự hào có các **tiện nghi** toàn diện, và chúng tôi luôn khuyến nghị bảo hiểm du lịch bao gồm các sự kiện không lường trước được, bao gồm cả **hồi hương** y tế. Hãy chắc chắn đến đúng **nhà ga** cho **khởi hành** của bạn, và mong chờ một **đến nơi** suôn sẻ tại điểm đến của bạn. Hãy truy cập trang web của chúng tôi để biết thêm chi tiết về những **chuyến thám hiểm** đáng kinh ngạc này và bắt đầu lên kế hoạch cho chuyến đi tiếp theo của bạn ngay hôm nay!\n\nTrân trọng,\nĐội ngũ Global Expeditions",
+  "questions": [
+    {
+      "question": "What is the main purpose of this email?",
+      "options": [
+        "A. To announce new and updated travel packages from Global Expeditions.",
+        "B. To remind travelers about passport and visa requirements.",
+        "C. To offer tips for independent backpackers and solo travelers.",
+        "D. To provide details about an Antarctic expedition cruise."
+      ],
+      "correct_answer_index": 0,
+      "explanation": "Đoạn văn bắt đầu với 'Global Expeditions is thrilled to announce our updated travel packages designed to cater to every explorer' và tiếp tục mô tả nhiều gói khác nhau, cho thấy mục đích chính là thông báo về các gói du lịch mới."
+    },
+    {
+      "question": "Which of the following is NOT explicitly mentioned as part of the Antarctic expedition package?",
+      "options": [
+        "A. Luxurious accommodation on a cruise ship.",
+        "B. Daily excursions to observe wildlife.",
+        "C. Streamlined embarkation and disembarkation processes.",
+        "D. Medical repatriation insurance."
+      ],
+      "correct_answer_index": 3,
+      "explanation": "Đoạn văn đề cập đến 'luxurious accommodation', 'daily excursions', và 'streamlined embarkation and disembarkation processes' cho chuyến thám hiểm Nam Cực. Tuy nhiên, bảo hiểm hồi hương y tế được đề cập như một khuyến nghị chung cho 'premium packages' chứ không phải là một phần cụ thể của gói Nam Cực."
+    },
+    {
+      "question": "What service can the concierge team assist with?",
+      "options": [
+        "A. Designing a sustainable tourism itinerary for backpackers.",
+        "B. Directly issuing passports and visas for international travel.",
+        "C. Confirming reservations and providing advice on flight connections.",
+        "D. Offering discounts on local hospitality services at the destination."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: 'Our dedicated concierge team can assist with all aspects of your trip, from confirming your reservation to advising on flight connections, minimizing layover times during transit.'."
+    }
+  ]
+}

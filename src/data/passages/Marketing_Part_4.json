@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Q3 Marketing Strategy: Enhancing Our Market Impact\n\nDear Team,\n\nFollowing our comprehensive **market analysis**, it's clear we need to refine our **marketing mix** for Q3. Our current **market positioning** and **brand positioning** must be reinforced to achieve a stronger **competitive advantage**. We'll focus on understanding the complete **customer journey**, leveraging recent **customer insight** to optimize our **conversion funnel**.\n\nFor our existing **product portfolio**, we need to reassess each **product lifecycle** stage and plan targeted **product development** for upcoming launches. Our core **value proposition** should always be highlighted, perhaps by introducing a new **value-added service**.\n\nOur **advertising strategy** will be multi-faceted. We'll increase our **digital presence** across key **marketing channel** options, employing **direct marketing** campaigns where appropriate. A robust **social media strategy** is vital, focusing on **influencer marketing** to boost our **engagement rate** and cultivate positive **brand perception**. We aim for significantly improved **brand recognition**.\n\nThe **advertising budget** needs to be allocated strategically, ensuring effective **sales promotion** activities. Based on our latest **market forecast**, these adjustments are crucial for sustained growth.\n\nBest regards,\n[Director's Name]",
+  "passage_vi": "Chủ đề: Chiến lược Marketing Q3: Nâng cao Tác động Thị trường của Chúng ta\n\nKính gửi Đội ngũ,\n\nSau khi **phân tích thị trường** toàn diện của chúng ta, rõ ràng chúng ta cần tinh chỉnh **marketing mix** (kế hoạch tiếp thị) của mình cho Quý 3. **Market positioning** (Định vị thị trường) và **brand positioning** (định vị thương hiệu) hiện tại của chúng ta phải được củng cố để đạt được **competitive advantage** (lợi thế cạnh tranh) mạnh mẽ hơn. Chúng ta sẽ tập trung vào việc tìm hiểu toàn bộ **customer journey** (hành trình khách hàng), tận dụng **customer insight** (thông tin chi tiết về khách hàng) gần đây để tối ưu hóa **conversion funnel** (phễu chuyển đổi) của chúng ta.\n\nĐối với **product portfolio** (danh mục sản phẩm) hiện có của chúng ta, chúng ta cần đánh giá lại từng giai đoạn **product lifecycle** (chu kỳ sống của sản phẩm) và lên kế hoạch **product development** (phát triển sản phẩm) có mục tiêu cho các lần ra mắt sắp tới. **Value proposition** (Đề xuất giá trị) cốt lõi của chúng ta phải luôn được làm nổi bật, có thể bằng cách giới thiệu một **value-added service** (dịch vụ giá trị gia tăng) mới.\n\n**Advertising strategy** (Chiến lược quảng cáo) của chúng ta sẽ đa diện. Chúng ta sẽ tăng cường **digital presence** (sự hiện diện kỹ thuật số) của mình trên các **marketing channel** (kênh tiếp thị) chính, sử dụng các chiến dịch **direct marketing** (tiếp thị trực tiếp) khi thích hợp. Một **social media strategy** (chiến lược truyền thông xã hội) mạnh mẽ là rất quan trọng, tập trung vào **influencer marketing** (tiếp thị người có ảnh hưởng) để tăng **engagement rate** (tỷ lệ tương tác) và xây dựng **brand perception** (nhận thức thương hiệu) tích cực. Chúng ta hướng tới việc cải thiện đáng kể **brand recognition** (sự nhận diện thương hiệu).\n\n**Advertising budget** (Ngân sách quảng cáo) cần được phân bổ một cách chiến lược, đảm bảo các hoạt động **sales promotion** (khuyến mãi bán hàng) hiệu quả. Dựa trên **market forecast** (dự báo thị trường) mới nhất của chúng ta, những điều chỉnh này là rất quan trọng cho sự tăng trưởng bền vững.\n\nTrân trọng,\n[Tên Giám đốc]",
+  "questions": [
+    {
+      "question": "What is the main objective of this email?",
+      "options": [
+        "A. To introduce a new marketing director to the team.",
+        "B. To outline the strategic marketing adjustments for the upcoming quarter.",
+        "C. To discuss the financial performance of the previous quarter.",
+        "D. To solicit feedback on the current product portfolio."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Email thảo luận về việc 'refine our marketing mix for Q3' và 'strategic adjustments are crucial for sustained growth,' cho thấy mục đích chính là vạch ra các điều chỉnh chiến lược cho quý tới."
+    },
+    {
+      "question": "Which of the following is explicitly mentioned as part of the proposed advertising strategy?",
+      "options": [
+        "A. Collaborating with television networks for prime-time commercials.",
+        "B. Implementing direct marketing campaigns.",
+        "C. Distributing flyers and brochures in public areas.",
+        "D. Sponsoring major sporting events."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn rõ ràng đề cập 'employing direct marketing campaigns where appropriate' như một phần của chiến lược quảng cáo."
+    },
+    {
+      "question": "According to the email, what is the intended outcome of reinforcing market and brand positioning, understanding the customer journey, and optimizing the conversion funnel?",
+      "options": [
+        "A. A reduction in the overall product lifecycle duration.",
+        "B. An increase in the advertising budget for the next year.",
+        "C. Achieving a stronger competitive advantage.",
+        "D. Focusing solely on digital presence without other channels."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ 'Our current market positioning and brand positioning must be reinforced to achieve a stronger competitive advantage. We'll focus on understanding the complete customer journey, leveraging recent customer insight to optimize our conversion funnel,' liên kết trực tiếp các hành động này với việc đạt được lợi thế cạnh tranh."
+    }
+  ]
+}

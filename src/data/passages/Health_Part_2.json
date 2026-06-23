@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Grand Opening: The Horizon Medical Center – A New Era in Healthcare\n\nDear Community Members,\n\nWe are thrilled to announce the grand opening of the Horizon Medical Center, a cutting-edge facility designed to serve all your healthcare needs. Our comprehensive approach integrates various specialized departments under one roof. For our youngest patients, our **pediatrics** unit provides exceptional care, while our **dermatology** and **dental care** clinics cater to specific needs.\n\nOur dedicated wings treat complex conditions; the **neurology** department handles nervous system disorders, and the **oncology** unit offers advanced treatments for cancer, working closely with **pathology** for accurate diagnoses. Our highly skilled surgeons perform intricate procedures, including **organ transplant**, with expert **anesthesia** and post-operative **intensive care**. For chronic issues like **arthritis** and **osteoporosis**, our specialists provide advanced **pain management** strategies.\n\nOur center also addresses critical health areas: **cardiovascular** health, **respiratory** illnesses, and the prevention of **infectious disease**. We are pioneering solutions for **genetic disorder** diagnosis and treatment. Post-treatment, patients can recover at our on-site **rehabilitation center**. We embrace **holistic medicine** to enhance overall well-being and strengthen the **immune response**. Furthermore, our commitment to **public health** extends to offering **telemedicine** consultations and participating in crucial **clinical trial** research for new **pharmaceutical** developments. For those requiring comfort care, our **palliative care** team is ready to assist.\n\nSincerely,\nDr. Elena Rodriguez\nDirector, Horizon Medical Center",
+  "passage_vi": "Chủ đề: Lễ Khai Trương: Trung tâm Y tế Horizon – Một Kỷ Nguyên Mới Trong Chăm Sóc Sức Khỏe\n\nKính gửi các thành viên cộng đồng,\n\nChúng tôi vô cùng vui mừng thông báo về lễ khai trương của Trung tâm Y tế Horizon, một cơ sở hiện đại được thiết kế để phục vụ mọi nhu cầu chăm sóc sức khỏe của quý vị. Phương pháp tiếp cận toàn diện của chúng tôi tích hợp nhiều khoa chuyên biệt dưới một mái nhà. Đối với các bệnh nhân nhỏ tuổi nhất, khoa **nhi khoa** của chúng tôi cung cấp dịch vụ chăm sóc đặc biệt, trong khi các phòng khám **da liễu** và **chăm sóc răng miệng** của chúng tôi đáp ứng các nhu cầu cụ thể.\n\nCác khu chuyên biệt của chúng tôi điều trị các tình trạng phức tạp; khoa **thần kinh** xử lý các rối loạn hệ thần kinh, và đơn vị **ung bướu** cung cấp các phương pháp điều trị tiên tiến cho bệnh ung thư, phối hợp chặt chẽ với khoa **bệnh lý học** để chẩn đoán chính xác. Các bác sĩ phẫu thuật có tay nghề cao của chúng tôi thực hiện các thủ thuật phức tạp, bao gồm cả **ghép tạng**, với đội ngũ **gây mê** chuyên nghiệp và **chăm sóc tích cực** sau phẫu thuật. Đối với các vấn đề mãn tính như **viêm khớp** và **loãng xương**, các chuyên gia của chúng tôi cung cấp các chiến lược **quản lý cơn đau** tiên tiến.\n\nTrung tâm của chúng tôi cũng giải quyết các lĩnh vực sức khỏe quan trọng: sức khỏe **tim mạch**, các bệnh về **hô hấp** và phòng ngừa **bệnh truyền nhiễm**. Chúng tôi đang tiên phong trong các giải pháp chẩn đoán và điều trị **rối loạn di truyền**. Sau điều trị, bệnh nhân có thể hồi phục tại **trung tâm phục hồi chức năng** ngay tại chỗ của chúng tôi. Chúng tôi áp dụng **y học toàn diện** để nâng cao sức khỏe tổng thể và tăng cường **phản ứng miễn dịch**. Hơn nữa, cam kết của chúng tôi đối với **y tế công cộng** mở rộng đến việc cung cấp các buổi tư vấn **khám chữa bệnh từ xa** và tham gia vào nghiên cứu **thử nghiệm lâm sàng** quan trọng cho các phát triển **dược phẩm** mới. Đối với những người cần chăm sóc giảm nhẹ, đội ngũ **chăm sóc giảm nhẹ** của chúng tôi sẵn sàng hỗ trợ.\n\nTrân trọng,\nTiến sĩ Elena Rodriguez\nGiám đốc, Trung tâm Y tế Horizon",
+  "questions": [
+    {
+      "question": "What is the main purpose of this announcement?",
+      "options": [
+        "A. To solicit donations for the Horizon Medical Center.",
+        "B. To announce the opening of a new medical facility.",
+        "C. To recruit medical professionals for various departments.",
+        "D. To inform the public about new pharmaceutical products."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn bắt đầu bằng \"We are thrilled to announce the grand opening...\" và mô tả các dịch vụ của trung tâm mới, cho thấy mục đích chính là thông báo khai trương cơ sở y tế mới."
+    },
+    {
+      "question": "Which of the following conditions or services are NOT explicitly mentioned as being handled by specialized departments or units at Horizon Medical Center?",
+      "options": [
+        "A. Arthritis and osteoporosis.",
+        "B. Pediatric care.",
+        "C. Emergency psychiatric services.",
+        "D. Organ transplant procedures."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn đề cập đến arthritis, osteoporosis, pediatric care, và organ transplant. Tuy nhiên, không có thông tin nào về \"Emergency psychiatric services\" (dịch vụ tâm thần khẩn cấp) được đề cập rõ ràng."
+    },
+    {
+      "question": "What innovative approaches does the Horizon Medical Center mention for public health and research?",
+      "options": [
+        "A. Focusing solely on traditional medicine and local outreach programs.",
+        "B. Offering telemedicine consultations and participating in clinical trials.",
+        "C. Providing only in-person specialized care and limiting pharmaceutical developments.",
+        "D. Concentrating on genetic disorder treatment without public engagement."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nêu rõ \"Our commitment to public health extends to offering telemedicine consultations and participating in crucial clinical trial research for new pharmaceutical developments.\" (Cam kết của chúng tôi đối với y tế công cộng mở rộng đến việc cung cấp các buổi tư vấn khám chữa bệnh từ xa và tham gia vào nghiên cứu thử nghiệm lâm sàng quan trọng cho các phát triển dược phẩm mới.)"
+    }
+  ]
+}

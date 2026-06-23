@@ -1,0 +1,39 @@
+{
+  "passage_en": "FOR IMMEDIATE RELEASE\n\n**Entertainment Industry Sees Significant Shifts in Audience Preferences**\n\n[Date: October 26, 2023] – The global **entertainment industry** is currently experiencing a profound transformation, driven largely by evolving consumer habits. While traditional programming, such as popular **television series** and even **variety show** formats, still command a significant following, the shift towards **online streaming** services is undeniable. This year, an analysis revealed a slight dip in **audience rating** for linear TV compared to a surge in **video on demand** consumption.\n\nMajor **television networks** are increasingly investing in **film adaptation** and original content, with some high-budget productions even bypassing a conventional **theatrical release** for direct-to-streaming debuts. This strategy aims to maximize **audience engagement** and capture new demographics. **Ticket sales** for **live performance** events, however, continue to show resilience, with many **entertainment venue**s reporting sold-out shows for musical acts and comedy specials.\n\nThe success of a recent **screen adaptation** from a beloved novel, despite initial skepticism from a prominent **news anchor** regarding its **media coverage**, demonstrated the power of a strong narrative. **Behind the scenes**, **film director** Ava Sharma and **film producer** Mark Jensen from Stellar **Animation Studio** emphasized the meticulous effort. Conversely, interest in niche content like certain **reality show**s and **game show**s appears to be plateauing, while **talent show**s maintain a steady but not growing viewership. The quest for higher **box office revenue** and broad appeal continues to shape the decisions of every major **media outlet**.",
+  "passage_vi": "DÀNH CHO PHÁT HÀNH NGAY LẬP TỨC\n\n**Ngành Công nghiệp Giải trí Chứng kiến Những Thay đổi Đáng Kể trong Sở thích Khán giả**\n\n[Ngày: 26 tháng 10 năm 2023] – **Ngành công nghiệp giải trí** toàn cầu hiện đang trải qua một sự chuyển đổi sâu sắc, phần lớn được thúc đẩy bởi thói quen tiêu dùng đang phát triển. Mặc dù các chương trình truyền thống, như các **phim truyền hình dài tập** phổ biến và thậm chí cả các định dạng **chương trình tạp kỹ**, vẫn thu hút lượng lớn người xem, sự chuyển dịch sang các dịch vụ **truyền phát trực tuyến** là không thể phủ nhận. Năm nay, một phân tích đã tiết lộ sự sụt giảm nhẹ trong **đánh giá khán giả** đối với TV tuyến tính so với sự gia tăng tiêu thụ **video theo yêu cầu**.\n\nCác **mạng lưới truyền hình** lớn đang ngày càng đầu tư vào việc **chuyển thể điện ảnh** và nội dung gốc, với một số sản phẩm kinh phí cao thậm chí còn bỏ qua **phát hành tại rạp** thông thường để ra mắt trực tiếp trên các nền tảng truyền phát. Chiến lược này nhằm tối đa hóa **sự tương tác của khán giả** và thu hút các đối tượng nhân khẩu học mới. Tuy nhiên, **doanh số bán vé** cho các sự kiện **biểu diễn trực tiếp** vẫn cho thấy khả năng phục hồi, với nhiều **địa điểm giải trí** báo cáo các buổi diễn cháy vé cho các chương trình ca nhạc và hài kịch.\n\nThành công của một **chuyển thể màn ảnh** gần đây từ một cuốn tiểu thuyết được yêu thích, mặc dù ban đầu có sự hoài nghi từ một **người dẫn chương trình tin tức** nổi bật về **đưa tin trên các phương tiện truyền thông**, đã chứng minh sức mạnh của một câu chuyện mạnh mẽ. **Đằng sau hậu trường**, **đạo diễn điện ảnh** Ava Sharma và **nhà sản xuất điện ảnh** Mark Jensen từ Stellar **Hãng phim hoạt hình** đã nhấn mạnh nỗ lực tỉ mỉ. Ngược lại, sự quan tâm đến các nội dung đặc thù như một số **chương trình thực tế** và **chương trình trò chơi** dường như đang chững lại, trong khi các **chương trình tìm kiếm tài năng** duy trì lượng người xem ổn định nhưng không tăng trưởng. Cuộc tìm kiếm **doanh thu phòng vé** cao hơn và sự hấp dẫn rộng rãi tiếp tục định hình các quyết định của mọi **cơ quan truyền thông** lớn.",
+  "questions": [
+    {
+      "question": "What is a significant trend observed in the entertainment industry according to the passage?",
+      "options": [
+        "A. A steady increase in linear TV viewership and audience ratings.",
+        "B. A decline in online streaming services due to audience saturation.",
+        "C. A shift from traditional TV programming towards online streaming and video on demand.",
+        "D. A preference for theatrical releases over direct-to-streaming debuts for most films."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: \"sự chuyển dịch sang các dịch vụ truyền phát trực tuyến là không thể phủ nhận. Năm nay, một phân tích đã tiết lộ sự sụt giảm nhẹ trong đánh giá khán giả đối với TV tuyến tính so với sự gia tăng tiêu thụ video theo yêu cầu.\""
+    },
+    {
+      "question": "Which of the following statements is TRUE regarding live performances?",
+      "options": [
+        "A. Ticket sales for live performances have significantly decreased.",
+        "B. Entertainment venues are struggling to sell tickets for live shows.",
+        "C. Live performances continue to attract strong audience numbers and sales.",
+        "D. Live performances are increasingly moving to online streaming platforms."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn cho biết: \"Tuy nhiên, doanh số bán vé cho các sự kiện biểu diễn trực tiếp vẫn cho thấy khả năng phục hồi, với nhiều địa điểm giải trí báo cáo các buổi diễn cháy vé...\""
+    },
+    {
+      "question": "What was the role of Ava Sharma and Mark Jensen from Stellar Animation Studio?",
+      "options": [
+        "A. They were involved in the production of a popular reality show.",
+        "B. They are a news anchor and media outlet owner, respectively.",
+        "C. They were the film director and film producer for a successful screen adaptation.",
+        "D. They analyzed audience ratings for various television networks."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nói rằng: \"Đằng sau hậu trường, đạo diễn điện ảnh Ava Sharma và nhà sản xuất điện ảnh Mark Jensen từ Stellar Hãng phim hoạt hình đã nhấn mạnh nỗ lực tỉ mỉ [cho một chuyển thể màn ảnh thành công].\""
+    }
+  ]
+}

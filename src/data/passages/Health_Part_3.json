@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Enhancing Your Health and Wellness Journey at Evergreen Medical Center\n\nEvergreen Medical Center is committed to fostering comprehensive **health and wellness** for our community. We believe in a proactive approach to **disease prevention** through robust **preventive care**. Our dedicated team of **healthcare providers**, including your trusted **general practitioner**, emphasizes regular **health checkups** and annual **medical examination** to keep your **medical record** updated. We're excited to introduce new programs designed to improve **physical fitness**, promote effective **stress management**, and offer personalized **weight management** plans. Early detection is key, which is why we encourage regular **physical examination** and excellent **dental hygiene**. While we aim to minimize serious health issues, our facility is equipped for both **outpatient care** and, when necessary, **inpatient care**, ensuring continuity of treatment. Our pharmacy stocks essential **prescription drug** options alongside expert advice on **over-the-counter medication**. Understanding the complexity of the **healthcare system**, we also assist with navigating **health insurance** claims and provide support for conditions like **mental illness**. We are constantly integrating insights from **clinical research** and keeping abreast of the latest **medical breakthrough** to enhance our services. Our goal is to ensure that every patient receives top-tier **primary care** without unnecessary visits to the **emergency room**, reinforcing our commitment as a leading **healthcare facility**.",
+  "passage_vi": "Chủ đề: Nâng cao Hành trình Sức khỏe và Hạnh phúc của Bạn tại Trung tâm Y tế Evergreen\n\nTrung tâm Y tế Evergreen cam kết thúc đẩy **sức khỏe và hạnh phúc** toàn diện cho cộng đồng của chúng tôi. Chúng tôi tin vào phương pháp chủ động trong **phòng ngừa bệnh tật** thông qua **chăm sóc phòng ngừa** vững chắc. Đội ngũ **nhà cung cấp dịch vụ y tế** tận tâm của chúng tôi, bao gồm cả **bác sĩ đa khoa** đáng tin cậy của bạn, nhấn mạnh việc **kiểm tra sức khỏe** định kỳ và **khám sức khỏe** hàng năm để cập nhật **hồ sơ y tế** của bạn. Chúng tôi rất vui mừng giới thiệu các chương trình mới được thiết kế để cải thiện **thể lực**, thúc đẩy **quản lý căng thẳng** hiệu quả và cung cấp các kế hoạch **quản lý cân nặng** cá nhân hóa. Phát hiện sớm là chìa khóa, đó là lý do tại sao chúng tôi khuyến khích **khám thể chất** định kỳ và vệ sinh **răng miệng** tốt. Mặc dù chúng tôi mong muốn giảm thiểu các vấn đề sức khỏe nghiêm trọng, cơ sở của chúng tôi được trang bị cho cả **chăm sóc ngoại trú** và, khi cần thiết, **chăm sóc nội trú**, đảm bảo tính liên tục của việc điều trị. Hiệu thuốc của chúng tôi có sẵn các lựa chọn **thuốc kê đơn** thiết yếu cùng với lời khuyên chuyên môn về **thuốc không kê đơn**. Hiểu được sự phức tạp của **hệ thống chăm sóc sức khỏe**, chúng tôi cũng hỗ trợ điều hướng các yêu cầu **bảo hiểm y tế** và cung cấp hỗ trợ cho các tình trạng như **bệnh tâm thần**. Chúng tôi không ngừng tích hợp những hiểu biết từ **nghiên cứu lâm sàng** và luôn cập nhật những **đột phá y tế** mới nhất để nâng cao dịch vụ của mình. Mục tiêu của chúng tôi là đảm bảo rằng mọi bệnh nhân đều nhận được **chăm sóc ban đầu** hàng đầu mà không cần đến **phòng cấp cứu** không cần thiết, củng cố cam kết của chúng tôi với tư cách là một **cơ sở chăm sóc sức khỏe** hàng đầu.",
+  "questions": [
+    {
+      "question": "What is the main purpose of Evergreen Medical Center's announcement?",
+      "options": [
+        "A. To advertise job openings for healthcare providers.",
+        "B. To inform the community about new and updated health services.",
+        "C. To encourage patients to use the emergency room more frequently.",
+        "D. To announce a decrease in health insurance coverage options."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn chủ yếu thông báo về các chương trình và dịch vụ sức khỏe mới, nhấn mạnh tầm quan trọng của chăm sóc phòng ngừa và nâng cao sức khỏe toàn diện."
+    },
+    {
+      "question": "According to the announcement, what is emphasized as key to disease prevention?",
+      "options": [
+        "A. Relying solely on over-the-counter medication.",
+        "B. Frequent visits to the emergency room.",
+        "C. Proactive preventive care and regular health checkups.",
+        "D. Exclusive focus on inpatient care."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: 'We believe in a proactive approach to disease prevention through robust preventive care. Our dedicated team... emphasizes regular health checkups and annual medical examination.'"
+    },
+    {
+      "question": "Which of the following is NOT mentioned as a service or program offered by Evergreen Medical Center?",
+      "options": [
+        "A. Support for navigating health insurance claims.",
+        "B. Personalized weight management plans.",
+        "C. Advanced surgical procedures for cosmetic purposes.",
+        "D. Integration of clinical research insights."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn đề cập đến hỗ trợ bảo hiểm y tế, kế hoạch quản lý cân nặng và tích hợp nghiên cứu lâm sàng, nhưng không nhắc đến phẫu thuật thẩm mỹ."
+    }
+  ]
+}

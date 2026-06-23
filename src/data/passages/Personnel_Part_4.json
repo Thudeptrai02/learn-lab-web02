@@ -1,0 +1,39 @@
+{
+  "passage_en": "MEMORANDUM\n\nTO: Senior Management Team\nFROM: Sarah Chen, HR Director\nDATE: October 26, 2023\nSUBJECT: Enhancing Our Human Resources Strategy for 2024\n\nDear Team,\n\nTo significantly reduce our high employee turnover rate and enhance overall employee experience, HR is launching a new workforce engagement strategy. Our recent employee satisfaction survey indicated a need for a stronger employee value proposition.\n\nThis strategy begins with a thorough workforce assessment to update our skills inventory and address job competency gaps. We will bolster employee development through a new employee training program and a job rotation program, promoting workforce mobility. We're also refining job performance standards and performance review processes.\n\nFurthermore, we will revise our compensation policy following a compensation survey to ensure competitive compensation and rewards. An enhanced employee recognition program will be implemented. Crucially, targeted leadership training will develop leadership capability and strengthen leadership competencies company-wide. Finally, job restructuring will ensure greater job role clarity and workforce flexibility, facilitating better workforce integration for a resilient team.\n\nSincerely,\nSarah Chen\nHR Director",
+  "passage_vi": "BẢN GHI NHỚ\n\nGỬI TỚI: Đội ngũ Quản lý Cấp cao\nTỪ: Sarah Chen, Giám đốc Nhân sự\nNGÀY: 26 tháng 10 năm 2023\nCHỦ ĐỀ: Nâng cao Chiến lược Nhân sự của Chúng ta cho năm 2024\n\nKính gửi Đội ngũ,\n\nĐể giảm đáng kể tỷ lệ luân chuyển nhân viên cao và nâng cao trải nghiệm nhân viên tổng thể, phòng Nhân sự đang triển khai một chiến lược gắn kết lực lượng lao động mới. Khảo sát mức độ hài lòng của nhân viên gần đây của chúng ta cho thấy cần có một đề xuất giá trị nhân viên mạnh mẽ hơn.\n\nChiến lược này bắt đầu bằng một đánh giá lực lượng lao động kỹ lưỡng để cập nhật kho kỹ năng của chúng ta và giải quyết các khoảng trống về năng lực công việc. Chúng ta sẽ tăng cường phát triển nhân viên thông qua một chương trình đào tạo nhân viên mới và một chương trình luân chuyển công việc, thúc đẩy khả năng di chuyển của lực lượng lao động. Chúng ta cũng đang tinh chỉnh tiêu chuẩn hiệu suất công việc và quy trình đánh giá hiệu suất.\n\nHơn nữa, chúng ta sẽ sửa đổi chính sách bồi thường sau một khảo sát bồi thường để đảm bảo bồi thường và phúc lợi cạnh tranh. Một chương trình công nhận nhân viên được tăng cường cũng sẽ được thực hiện. Quan trọng là, đào tạo lãnh đạo mục tiêu sẽ phát triển năng lực lãnh đạo và củng cố năng lực lãnh đạo trên toàn công ty. Cuối cùng, tái cấu trúc công việc sẽ đảm bảo rõ ràng vai trò công việc và linh hoạt lực lượng lao động tốt hơn, tạo điều kiện hội nhập lực lượng lao động tốt hơn cho một đội ngũ kiên cường.\n\nTrân trọng,\nSarah Chen\nGiám đốc Nhân sự",
+  "questions": [
+    {
+      "question": "What is the main purpose of this memo?",
+      "options": [
+        "A. To announce new hiring initiatives for the upcoming year.",
+        "B. To inform employees about changes in compensation and benefits.",
+        "C. To outline a new HR strategy aimed at improving employee retention and engagement.",
+        "D. To request feedback from the Senior Management Team on current HR policies."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn rõ ràng nêu chủ đề là 'Nâng cao Chiến lược Nhân sự của Chúng ta cho năm 2024' và tập trung vào việc giảm 'tỷ lệ luân chuyển nhân viên' và tăng 'trải nghiệm nhân viên' thông qua một 'chiến lược gắn kết lực lượng lao động'."
+    },
+    {
+      "question": "Which of the following is NOT an initiative directly described as a *program* or *activity* to enhance employee development?",
+      "options": [
+        "A. A job rotation program.",
+        "B. A new employee training program.",
+        "C. A thorough workforce assessment.",
+        "D. Specialized leadership training."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Các tùy chọn A, B và D (chương trình luân chuyển công việc, chương trình đào tạo nhân viên, đào tạo lãnh đạo) đều được mô tả là các chương trình hoặc hoạt động phát triển. 'Đánh giá lực lượng lao động' (workforce assessment) là một bước phân tích để xác định nhu cầu và khoảng trống về năng lực, từ đó thông báo cho các chương trình phát triển, chứ bản thân nó không phải là một chương trình hoặc hoạt động phát triển trực tiếp."
+    },
+    {
+      "question": "According to the memo, what is expected to be a direct result of 'job restructuring'?",
+      "options": [
+        "A. A reduction in the employee turnover rate.",
+        "B. Greater job role clarity and workforce flexibility.",
+        "C. An updated skills inventory.",
+        "D. More competitive compensation and rewards."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nêu 'Cuối cùng, tái cấu trúc công việc sẽ đảm bảo rõ ràng vai trò công việc và linh hoạt lực lượng lao động tốt hơn' (job restructuring will ensure greater job role clarity and workforce flexibility)."
+    }
+  ]
+}

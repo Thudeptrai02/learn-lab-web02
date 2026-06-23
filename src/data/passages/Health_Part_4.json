@@ -1,0 +1,39 @@
+{
+  "passage_en": "FOR IMMEDIATE RELEASE: City Launches 'Healthy Futures' Initiative\n\nThe city of Metropolis announced today a significant **public health initiative** aimed at improving **health outcomes** for all residents while mitigating rising **healthcare costs**. This new **health policy** emphasizes **preventive medicine** over reactive treatment, a strategic shift designed to reduce long-term **medical expenses**. A key component is widespread **health screening** and **health assessment** to identify individual **health risk** factors early.\n\nThe program will facilitate regular **medical consultation** and robust **health monitoring** for at-risk individuals and those managing a **chronic condition**. Through an extensive **health campaign** and **health promotion** activities, the initiative seeks to foster a **healthy lifestyle** to combat common **lifestyle disease**s. Dedicated **preventive services** will be readily accessible to all citizens.\n\nFurthermore, specialized **patient care** includes enhanced **prenatal care** and **postnatal care** to support maternal and infant health. The city also plans to improve **health literacy** across all demographics, empowering citizens to make informed decisions. By partnering with local **healthcare provider**s and engaging in **health advocacy**, the initiative aims to address **health disparity** and ensure **health equity** for everyone. This comprehensive approach is expected to lead to a healthier, more productive community.",
+  "passage_vi": "THÔNG CÁO BÁO CHÍ KHẨN CẤP: Thành phố ra mắt Sáng kiến ‘Tương Lai Khỏe Mạnh’\n\nThành phố Metropolis hôm nay đã công bố một **sáng kiến y tế công cộng** quan trọng nhằm cải thiện **kết quả sức khỏe** cho tất cả cư dân, đồng thời giảm thiểu **chi phí chăm sóc sức khỏe** ngày càng tăng. **Chính sách y tế** mới này nhấn mạnh **y học phòng ngừa** thay vì điều trị phản ứng, một sự chuyển đổi chiến lược được thiết kế để giảm **chi phí y tế** dài hạn. Một thành phần chính là **sàng lọc sức khỏe** và **đánh giá sức khỏe** rộng rãi để xác định sớm các yếu tố **rủi ro sức khỏe** cá nhân.\n\nChương trình sẽ tạo điều kiện cho **tư vấn y tế** thường xuyên và **giám sát sức khỏe** mạnh mẽ cho những cá nhân có nguy cơ và những người đang quản lý một **tình trạng mãn tính**. Thông qua một **chiến dịch y tế** sâu rộng và các hoạt động **nâng cao sức khỏe**, sáng kiến này tìm cách thúc đẩy một **lối sống lành mạnh** để chống lại các **bệnh do lối sống** phổ biến. Các **dịch vụ phòng ngừa** chuyên biệt sẽ dễ dàng tiếp cận với tất cả công dân.\n\nNgoài ra, **chăm sóc bệnh nhân** chuyên sâu bao gồm **chăm sóc tiền sản** và **chăm sóc hậu sản** nâng cao để hỗ trợ sức khỏe bà mẹ và trẻ sơ sinh. Thành phố cũng có kế hoạch cải thiện **hiểu biết về sức khỏe** trên tất cả các nhóm dân số, trao quyền cho công dân đưa ra các quyết định sáng suốt. Bằng cách hợp tác với các **nhà cung cấp dịch vụ chăm sóc sức khỏe** địa phương và tham gia **vận động cho sức khỏe**, sáng kiến này nhằm mục đích giải quyết **bất bình đẳng về sức khỏe** và đảm bảo **công bằng về sức khỏe** cho mọi người. Cách tiếp cận toàn diện này dự kiến sẽ dẫn đến một cộng đồng khỏe mạnh hơn, năng suất hơn.",
+  "questions": [
+    {
+      "question": "What is the primary purpose of the 'Healthy Futures' Initiative?",
+      "options": [
+        "A. To increase funding for emergency medical services.",
+        "B. To shift focus from reactive treatment to preventive medicine and reduce costs.",
+        "C. To establish new healthcare provider networks across the city.",
+        "D. To conduct research on new lifestyle diseases."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn nêu rõ: \"This new health policy emphasizes preventive medicine over reactive treatment, a strategic shift designed to reduce long-term medical expenses.\""
+    },
+    {
+      "question": "The 'Healthy Futures' Initiative includes specific support for which demographic?",
+      "options": [
+        "A. Individuals suffering from acute injuries.",
+        "B. Professionals working in preventive medicine.",
+        "C. Expectant and new mothers.",
+        "D. Healthcare providers seeking health advocacy."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn đề cập: \"Furthermore, specialized patient care includes enhanced prenatal care and postnatal care to support maternal and infant health.\""
+    },
+    {
+      "question": "According to the passage, how does the city intend to help citizens make informed health decisions?",
+      "options": [
+        "A. By offering free medical consultations to everyone.",
+        "B. By providing advanced health monitoring devices.",
+        "C. By improving health literacy across all demographics.",
+        "D. By reducing individual medical expenses immediately."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn cho biết: \"The city also plans to improve health literacy across all demographics, empowering citizens to make informed decisions.\""
+    }
+  ]
+}

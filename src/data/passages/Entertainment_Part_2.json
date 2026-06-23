@@ -1,0 +1,39 @@
+{
+  "passage_en": "Spectraflix is thrilled to announce that the highly anticipated **season finale** of its original series, \"Echoes of Eternity,\" has broken all previous **streaming** records. The show, which quickly became a **box office hit** for the platform, has captivated **viewer**s worldwide. Lead **critic** Sarah Chen, in her glowing **review** for 'Entertainment Weekly,' praised the intricate plot crafted by **script writer** Alex Thorne and the stellar performances from both the **leading role**, played by Elena Rodriguez, and the brilliant **supporting role**s. The success is attributed not only to the compelling narrative but also to the groundbreaking **special effects**, including stunning **visual effects** and immersive **sound effects** that brought the dystopian world to life. The **costume design** and **stage design** also received high accolades, contributing significantly to the show's aesthetic appeal. Last week's **opening night** gala, **host**ed by renowned **presenter** Mark Jenkins on the **red carpet**, saw the cast celebrate their achievements. While the series isn't a traditional **film festival** entry, its cultural impact is undeniable. Speculation is already rife about a potential **music video** spin-off and future projects. Despite the monthly **subscription** fee, **ratings** for \"Echoes of Eternity\" have soared, making its **closing ceremony** feel premature to many fans. We eagerly await news of a new **season**.",
+  "passage_vi": "Spectraflix vui mừng thông báo rằng **tập cuối** của mùa phim gốc \"Echoes of Eternity\" đã phá vỡ mọi kỷ lục **phát trực tuyến** trước đó. Chương trình, nhanh chóng trở thành một **phim ăn khách** của nền tảng, đã làm say đắm **người xem** trên toàn thế giới. **Nhà phê bình** hàng đầu Sarah Chen, trong bài **đánh giá** rực rỡ của mình cho 'Entertainment Weekly,' đã ca ngợi cốt truyện phức tạp do **biên kịch** Alex Thorne sáng tạo và diễn xuất xuất sắc từ cả **vai chính**, do Elena Rodriguez thủ vai, và các **vai phụ** tuyệt vời. Thành công này không chỉ nhờ vào câu chuyện hấp dẫn mà còn nhờ vào các **hiệu ứng đặc biệt** đột phá, bao gồm **hiệu ứng hình ảnh** tuyệt đẹp và **hiệu ứng âm thanh** sống động đã đưa thế giới phản địa đàng vào đời thực. **Thiết kế trang phục** và **thiết kế sân khấu** cũng nhận được nhiều lời khen ngợi, góp phần đáng kể vào sức hấp dẫn về mặt thẩm mỹ của chương trình. Đêm gala **khai mạc** tuần trước, được **dẫn chương trình** bởi **người thuyết trình** nổi tiếng Mark Jenkins trên **thảm đỏ**, đã chứng kiến dàn diễn viên ăn mừng thành tựu của họ. Mặc dù loạt phim không phải là một tác phẩm tham gia **liên hoan phim** truyền thống, nhưng tác động văn hóa của nó là không thể phủ nhận. Đã có nhiều suy đoán về một dự án phụ **video ca nhạc** tiềm năng và các dự án tương lai. Mặc dù có phí **đăng ký** hàng tháng, **tỉ suất người xem** cho \"Echoes of Eternity\" đã tăng vọt, khiến **lễ bế mạc** của nó đối với nhiều người hâm mộ cảm thấy quá sớm. Chúng tôi háo hức chờ đợi tin tức về một **mùa** mới.",
+  "questions": [
+    {
+      "question": "What is the main purpose of this announcement?",
+      "options": [
+        "A. To solicit new subscribers for Spectraflix.",
+        "B. To review the entire series \"Echoes of Eternity.\"",
+        "C. To celebrate the success of \"Echoes of Eternity\"'s season finale.",
+        "D. To announce the cancellation of \"Echoes of Eternity.\""
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn chủ yếu thông báo và tôn vinh thành công của tập cuối và toàn bộ loạt phim \"Echoes of Eternity\", bao gồm việc phá kỷ lục phát trực tuyến và nhận được nhiều lời khen ngợi."
+    },
+    {
+      "question": "According to the announcement, which aspect was NOT explicitly praised for its contribution to \"Echoes of Eternity\"'s success?",
+      "options": [
+        "A. The script writer's plot.",
+        "B. The acting performances.",
+        "C. The music video spin-off.",
+        "D. The visual and sound effects."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn đề cập đến \"music video spin-off\" như một dự án tiềm năng và là đối tượng suy đoán, chứ không phải là yếu tố đã đóng góp vào thành công hiện tại của loạt phim. Các lựa chọn khác đều được ca ngợi."
+    },
+    {
+      "question": "What can be inferred about the future of \"Echoes of Eternity\" based on the passage?",
+      "options": [
+        "A. The series will definitely end after this season.",
+        "B. A new season is highly anticipated by fans and possibly expected by Spectraflix.",
+        "C. The show will be adapted into a traditional film festival entry.",
+        "D. Spectraflix is considering reducing its subscription fee due to high ratings."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Câu cuối cùng của đoạn văn (\"We eagerly await news of a new season\") và việc \"lễ bế mạc\" được coi là quá sớm đối với người hâm mộ cho thấy có kỳ vọng cao vào một mùa mới của loạt phim."
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import Layout from '../../../../layouts/Layout.astro';
 
 // 🚀 1. QUÉT TOÀN BỘ FILE JSON TRONG THƯ MỤC DATA (Loại trừ thư mục exams)
 const allFiles = import.meta.glob('../../../../data/**/*.json', { eager: true });
-const vocabFiles = Object.entries(allFiles).filter(([path]) => !path.includes('/exams/'));
+const vocabFiles = Object.entries(allFiles).filter(([path]) => !path.includes('/exams/') && !path.includes('/passages/'));
 
 // 🚀 2. TỰ ĐỘNG GOM NHÓM THEO TÊN THƯ MỤC
 const collections = {};

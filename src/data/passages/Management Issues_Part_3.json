@@ -1,0 +1,39 @@
+{
+  "passage_en": "To: All Department Heads\nFrom: CEO's Office\nDate: October 26, 2023\nSubject: Enhancing Our Management Framework for Future Growth\n\nAs we conclude our latest strategic assessment, it's clear that continuous improvement in our **management practices** is paramount for achieving our long-term **business objectives**. Our recent discussions highlighted the need for robust **strategic decision-making** and a strong emphasis on **operational improvements**. We must ensure our **management framework** supports **operational excellence** across all **business processes**. A key focus moving forward will be on **performance optimization** and ensuring strong **management accountability**. This requires fostering an **organizational culture** that embraces **management innovation** and upholds **management integrity**. Our **management philosophy** centers on creating **stakeholder value** by balancing **stakeholder interests** with our pursuit of **business sustainability**. Effective **stakeholder communication** will be crucial in this endeavor. From a financial perspective, meticulous **financial planning** and maintaining **financial stability** are non-negotiable. We also need to strengthen our **corporate compliance** and **operational risk management**. Our **management reporting** systems will be enhanced to provide clearer insights. With **strategic foresight**, we aim to meet our **strategic objectives** and ensure robust **business sustainability**.",
+  "passage_vi": "Kính gửi: Tất cả Trưởng phòng\nTừ: Văn phòng CEO\nNgày: 26 tháng 10 năm 2023\nChủ đề: Nâng cao Khung Quản lý của Chúng ta để Phát triển trong Tương lai\n\nKhi chúng ta kết thúc đợt đánh giá chiến lược gần đây nhất, rõ ràng là việc cải tiến liên tục trong **thực tiễn quản lý** của chúng ta là tối quan trọng để đạt được các **mục tiêu kinh doanh** dài hạn. Các cuộc thảo luận gần đây của chúng ta đã nhấn mạnh sự cần thiết của **ra quyết định chiến lược** mạnh mẽ và chú trọng cao vào **cải tiến vận hành**. Chúng ta phải đảm bảo **khung quản lý** của chúng ta hỗ trợ **xuất sắc trong vận hành** trên tất cả các **quy trình kinh doanh**. Một trọng tâm chính trong thời gian tới sẽ là **tối ưu hóa hiệu suất** và đảm bảo **trách nhiệm quản lý** vững chắc. Điều này đòi hỏi phải thúc đẩy một **văn hóa tổ chức** khuyến khích **đổi mới quản lý** và duy trì **tính chính trực trong quản lý**. **Triết lý quản lý** của chúng ta tập trung vào việc tạo ra **giá trị cho các bên liên quan** bằng cách cân bằng **lợi ích của các bên liên quan** với việc theo đuổi **bền vững kinh doanh** của chúng ta. **Giao tiếp với các bên liên quan** hiệu quả sẽ đóng vai trò quan trọng trong nỗ lực này. Từ góc độ tài chính, **lập kế hoạch tài chính** tỉ mỉ và duy trì **ổn định tài chính** là không thể thiếu. Chúng ta cũng cần tăng cường **tuân thủ quy định doanh nghiệp** và **quản lý rủi ro vận hành**. Hệ thống **báo cáo quản lý** của chúng ta sẽ được cải thiện để cung cấp thông tin chi tiết rõ ràng hơn. Với **tầm nhìn chiến lược**, chúng ta đặt mục tiêu đạt được các **mục tiêu chiến lược** và đảm bảo **bền vững kinh doanh** mạnh mẽ.",
+  "questions": [
+    {
+      "question": "What is the main purpose of this memo?",
+      "options": [
+        "A. To announce new financial regulations.",
+        "B. To discuss the importance of enhancing management practices and strategic planning for future growth.",
+        "C. To report on recent operational improvements.",
+        "D. To inform employees about changes in corporate compliance."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Mục đích chính của bản ghi nhớ là nhấn mạnh sự cần thiết của việc cải thiện thực tiễn quản lý và lập kế hoạch chiến lược để đạt được các mục tiêu tương lai, được thể hiện qua tiêu đề và nội dung."
+    },
+    {
+      "question": "According to the memo, what does the company's management philosophy primarily focus on?",
+      "options": [
+        "A. Minimizing operational risk and ensuring corporate compliance.",
+        "B. Maximizing financial stability through meticulous financial planning.",
+        "C. Creating stakeholder value by balancing stakeholder interests with business sustainability.",
+        "D. Fostering an organizational culture of management innovation."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: 'Our management philosophy centers on creating stakeholder value by balancing stakeholder interests with our pursuit of business sustainability.'"
+    },
+    {
+      "question": "Which of the following is NOT explicitly mentioned as an area of focus or improvement moving forward?",
+      "options": [
+        "A. Strengthening operational risk management.",
+        "B. Developing new product lines.",
+        "C. Enhancing management reporting systems.",
+        "D. Fostering an organizational culture that embraces management innovation."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Các lựa chọn A, C và D đều được đề cập trong bản ghi nhớ. 'Developing new product lines' (phát triển dòng sản phẩm mới) không được nhắc đến."
+    }
+  ]
+}

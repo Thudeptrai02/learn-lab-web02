@@ -1,0 +1,600 @@
+1. advertising campaign np /ˈædvətaɪzɪŋ kæmˈpeɪn/ chiến dịch quảng cáo
+2. brand loyalty np /brænd ˈlɔɪəlti/ lòng trung thành thương hiệu
+3. competitive analysis np /kəmˈpetɪtɪv əˈnælɪsɪs/ phân tích cạnh tranh
+4. consumer behavior np /kənˈsjuːmə bɪˈheɪvjə/ hành vi người tiêu dùng
+5. customer retention np /ˈkʌstəmə rɪˈtenʃən/ giữ chân khách hàng
+6. market segmentation np /ˈmɑːkɪt ˌsɛɡmɛnˈteɪʃən/ phân khúc thị trường
+7. product differentiation np /ˈprɒdʌkt ˌdɪfəˌrɛnʃɪˈeɪʃən/ sự khác biệt hóa sản phẩm
+8. strategic marketing np /strəˈtiːdʒɪk ˈmɑːkɪtɪŋ/ tiếp thị chiến lược
+9. target audience np /ˈtɑːɡɪt ˈɔːdiəns/ khán giả mục tiêu
+10. customer acquisition np /ˈkʌstəmə ˌækwɪˈzɪʃən/ thu hút khách hàng
+11. competitive adj /kəmˈpetɪtɪv/ cạnh tranh
+12. innovative adj /ˈɪnəvətɪv/ sáng tạo
+13. promotional adj /prəˈməʊʃənl/ khuyến mãi
+14. effective adj /ɪˈfektɪv/ hiệu quả
+15. potential adj /pəˈtenʃl/ tiềm năng
+16. appealing adj /əˈpiːlɪŋ/ hấp dẫn
+17. influential adj /ˌɪnfluˈɛnʃəl/ có ảnh hưởng
+18. lucrative adj /ˈluːkrətɪv/ có lợi
+19. strategic adj /strəˈtiːdʒɪk/ chiến lược
+20. substantial adj /səbˈstænʃl/ đáng kể
+21. articulate adj /ɑːˈtɪkjʊlət/ rõ ràng
+22. diverse adj /daɪˈvɜːs/ đa dạng
+23. persuasive adj /pəˈsweɪsɪv/ thuyết phục
+24. consistent adj /kənˈsɪstənt/ nhất quán
+25. responsive adj /rɪˈspɒnsɪv/ phản hồi nhanh
+26. analyze v /ˈænəlaɪz/ phân tích
+27. capitalize v /ˈkæpɪtəlaɪz/ tận dụng
+28. implement v /ˈɪmplɪmənt/ thực hiện
+29. launch v /lɔːntʃ/ ra mắt
+30. leverage v /ˈlevərɪdʒ/ tận dụng
+31. promote v /prəˈməʊt/ quảng bá
+32. target v /ˈtɑːɡɪt/ nhắm mục tiêu
+33. assess v /əˈsɛs/ đánh giá
+34. optimize v /ˈɒptɪmaɪz/ tối ưu hóa
+35. streamline v /ˈstriːmˌlaɪn/ đơn giản hóa
+36. allocate v /ˈæləˌkeɪt/ phân bổ
+37. collaborate v /kəˈlæbəˌreɪt/ hợp tác
+38. differentiate v /ˌdɪfəˈrɛnʃɪeɪt/ phân biệt
+39. endorse v /ɪnˈdɔːrs/ chứng thực
+40. establish v /ɪˈstæblɪʃ/ thành lập
+41. maximize v /ˈmæksɪmaɪz/ tối đa hóa
+42. refine v /rɪˈfaɪn/ tinh chỉnh
+43. pioneer v /ˌpaɪəˈnɪər/ tiên phong
+44. innovate v /ˈɪnəˌveɪt/ đổi mới
+45. gauge v /ɡeɪdʒ/ đo lường
+46. implement a strategy vp /ˈɪmplɪmənt ə ˈstrætədʒi/ thực hiện chiến lược
+47. conduct market research vp /kənˈdʌkt ˈmɑːkɪt ˈriːsɜːtʃ/ tiến hành nghiên cứu thị trường
+48. launch a campaign vp /lɔːntʃ ə kæmˈpeɪn/ khởi động chiến dịch
+49. assess the market vp /əˈsɛs ðə ˈmɑːkɪt/ đánh giá thị trường
+50. target a demographic vp /ˈtɑːɡɪt ə ˌdɛməˈɡræfɪk/ nhắm vào nhóm khách hàng
+51. evaluate effectiveness vp /ɪˈvæljueɪt ɪˈfɛktɪvnɪs/ đánh giá hiệu quả
+52. craft a message vp /krɑːft ə ˈmɛsɪdʒ/ tạo thông điệp
+53. penetrate the market vp /ˈpɛnɪˌtreɪt ðə ˈmɑːkɪt/ thâm nhập thị trường
+54. drive engagement vp /draɪv ɪnˈɡeɪdʒmənt/ thúc đẩy sự tham gia
+55. adapt to trends vp /əˈdæpt tə trɛndz/ thích ứng với xu hướng
+56. pricing strategy np /ˈpraɪsɪŋ ˈstrætədʒi/ chiến lược định giá
+57. brand awareness np /brænd əˈwɛənɪs/ nhận thức về thương hiệu
+58. digital marketing np /ˈdɪdʒɪtl ˈmɑːkɪtɪŋ/ tiếp thị số
+59. conversion rate np /kənˈvɜːʃən reɪt/ tỷ lệ chuyển đổi
+60. content creation np /ˈkɒntɛnt kriˈeɪʃən/ sáng tạo nội dung
+61. sales funnel np /seɪlz ˈfʌnl/ phễu bán hàng
+62. user experience np /ˈjuːzər ɪkˈspɪəriəns/ trải nghiệm người dùng
+63. influencer partnership np /ˈɪnflʊənsər ˈpɑːtnəʃɪp/ hợp tác với người ảnh hưởng
+64. market penetration np /ˈmɑːkɪt ˌpɛnɪˈtreɪʃən/ thâm nhập thị trường
+65. brand ambassador np /brænd æmˈbæsədər/ đại sứ thương hiệu
+66. return on investment np /rɪˈtɜːn ɒn ɪnˈvɛstmənt/ lợi tức đầu tư
+67. lead generation np /liːd ˌdʒɛnəˈreɪʃən/ tạo khách hàng tiềm năng
+68. market share np /ˈmɑːkɪt ʃeə/ thị phần
+69. product launch np /ˈprɒdʌkt lɔːntʃ/ ra mắt sản phẩm
+70. public relations np /ˈpʌblɪk rɪˈleɪʃənz/ quan hệ công chúng
+71. sales target np /seɪlz ˈtɑːɡɪt/ mục tiêu doanh số
+72. marketing budget np /ˈmɑːkɪtɪŋ ˈbʌdʒɪt/ ngân sách tiếp thị
+73. market leader np /ˈmɑːkɪt ˈliːdə/ dẫn đầu thị trường
+74. advertising revenue np /ˈædvətaɪzɪŋ ˈrɛvənjuː/ doanh thu quảng cáo
+75. customer feedback np /ˈkʌstəmə ˈfiːdbæk/ phản hồi khách hàng
+76. engagement rate np /ɪnˈɡeɪdʒmənt reɪt/ tỷ lệ tham gia
+77. market positioning np /ˈmɑːkɪt pəˈzɪʃənɪŋ/ định vị thị trường
+78. product lifecycle np /ˈprɒdʌkt ˈlaɪfsɪkl/ vòng đời sản phẩm
+79. value proposition np /ˈvæljuː ˌprɒpəˈzɪʃən/ giá trị đề xuất
+80. direct marketing np /dəˈrɛkt ˈmɑːkɪtɪŋ/ tiếp thị trực tiếp
+81. advertising strategy np /ˈædvətaɪzɪŋ ˈstrætədʒi/ chiến lược quảng cáo
+82. conversion funnel np /kənˈvɜːʃən ˈfʌnl/ phễu chuyển đổi
+83. customer insight np /ˈkʌstəmə ˈɪnsaɪt/ thông tin chi tiết về khách hàng
+84. digital presence np /ˈdɪdʒɪtl ˈprɛzəns/ sự hiện diện kỹ thuật số
+85. marketing channel np /ˈmɑːkɪtɪŋ ˈʧænəl/ kênh tiếp thị
+86. brand perception np /brænd pəˈsɛpʃən/ nhận thức thương hiệu
+87. customer journey np /ˈkʌstəmə ˈʤɜːni/ hành trình của khách hàng
+88. influencer marketing np /ˈɪnflʊənsə ˈmɑːkɪtɪŋ/ tiếp thị qua người ảnh hưởng
+89. social media strategy np /ˈsəʊʃəl ˈmiːdiə ˈstrætədʒi/ chiến lược truyền thông xã hội
+90. market analysis np /ˈmɑːkɪt əˈnælɪsɪs/ phân tích thị trường
+91. competitive advantage np /kəmˈpetɪtɪv ædˈvæntɪdʒ/ lợi thế cạnh tranh
+92. product portfolio np /ˈprɒdʌkt pɔːtˈfəʊliəʊ/ danh mục sản phẩm
+93. sales promotion np /seɪlz prəˈməʊʃən/ khuyến mại bán hàng
+94. brand positioning np /brænd pəˈzɪʃənɪŋ/ định vị thương hiệu
+95. marketing mix np /ˈmɑːkɪtɪŋ mɪks/ phối hợp tiếp thị
+96. advertising budget np /ˈædvətaɪzɪŋ ˈbʌdʒɪt/ ngân sách quảng cáo
+97. market forecast np /ˈmɑːkɪt ˈfɔːkɑːst/ dự báo thị trường
+98. value-added service np /ˈvæljuː-ˈædɪd ˈsɜːvɪs/ dịch vụ gia tăng giá trị
+99. product development np /ˈprɒdʌkt dɪˈvɛləpmənt/ phát triển sản phẩm
+100. brand recognition np /brænd ˌrɛkəɡˈnɪʃən/ nhận diện thương hiệu
+1. human resources np /ˈhjuːmən rɪˈsɔːsɪz/ nguồn nhân lực
+2. performance appraisal np /pəˈfɔːməns əˈpreɪzəl/ đánh giá hiệu suất
+3. employee benefits np /ɪmˈplɔɪi ˈbɛnɪfɪts/ phúc lợi nhân viên
+4. job satisfaction np /ʤɒb ˌsætɪsˈfækʃən/ sự hài lòng công việc
+5. recruitment process np /rɪˈkruːtmənt ˈprəʊsɛs/ quy trình tuyển dụng
+6. training and development np /ˈtreɪnɪŋ ænd dɪˈvɛləpmənt/ đào tạo và phát triển
+7. talent acquisition np /ˈtælɪnt ˌækwɪˈzɪʃən/ thu hút nhân tài
+8. workforce diversity np /ˈwɜːkfɔːs daɪˈvɜːsɪti/ sự đa dạng lao động
+9. compensation package np /ˌkɒmpɛnˈseɪʃən ˈpækɪʤ/ gói đền bù
+10. employee engagement np /ɪmˈplɔɪi ɪnˈɡeɪdʒmənt/ sự gắn kết của nhân viên
+11. organizational culture np /ˌɔːɡənaɪˈzeɪʃənəl ˈkʌlʧə/ văn hóa tổ chức
+12. career advancement np /kəˈrɪə ədˈvɑːnsmənt/ thăng tiến trong sự nghiệp
+13. leadership development np /ˈliːdəʃɪp dɪˈvɛləpmənt/ phát triển lãnh đạo
+14. succession planning np /səkˈsɛʃən ˈplænɪŋ/ kế hoạch kế nhiệm
+15. employee turnover np /ɪmˈplɔɪi ˈtɜːnəʊvə/ tỷ lệ thay thế nhân viên
+16. performance metrics np /pəˈfɔːməns ˈmɛtrɪks/ chỉ số hiệu suất
+17. job description np /ʤɒb dɪˈskrɪpʃən/ mô tả công việc
+18. onboarding process np /ˈɒnbɔːdɪŋ ˈprəʊsɛs/ quá trình hội nhập
+19. conflict resolution np /ˈkɒnflɪkt ˌrɛzəˈluːʃən/ giải quyết xung đột
+20. team building np /tiːm ˈbɪldɪŋ/ xây dựng đội ngũ
+21. employee retention np /ɪmˈplɔɪi rɪˈtɛnʃən/ giữ chân nhân viên
+22. compensation and benefits np /ˌkɒmpɛnˈseɪʃən ænd ˈbɛnɪfɪts/ tiền lương và phúc lợi
+23. performance improvement np /pəˈfɔːməns ɪmˈpruːvmənt/ cải thiện hiệu suất
+24. human capital np /ˈhjuːmən ˈkæpɪtl/ vốn nhân lực
+25. compensation structure np /ˌkɒmpɛnˈseɪʃən ˈstrʌkʧə/ cấu trúc đền bù
+26. employee advocacy np /ɪmˈplɔɪi ˈædvəkəsi/ sự ủng hộ nhân viên
+27. performance evaluation np /pəˈfɔːməns ɪˌvæljʊˈeɪʃən/ đánh giá hiệu suất
+28. leadership skills np /ˈliːdəʃɪp skɪlz/ kỹ năng lãnh đạo
+29. talent management np /ˈtælɪnt ˈmænɪdʒmənt/ quản lý nhân tài
+30. employee recognition np /ɪmˈplɔɪi rɪkəɡˈnɪʃən/ sự công nhận nhân viên
+31. job enrichment np /ʤɒb ɪnˈrɪʧmənt/ làm phong phú công việc
+32. succession planning np /səkˈsɛʃən ˈplænɪŋ/ kế hoạch kế thừa
+33. leadership pipeline np /ˈliːdəʃɪp ˈpaɪplaɪn/ chuỗi lãnh đạo
+34. performance management np /pəˈfɔːməns ˈmænɪdʒmənt/ quản lý hiệu suất
+35. skills assessment np /skɪlz əˈsɛsmənt/ đánh giá kỹ năng
+36. career development np /kəˈrɪə dɪˈvɛləpmənt/ phát triển sự nghiệp
+37. employee morale np /ɪmˈplɔɪi məˈræl/ tinh thần nhân viên
+38. competency model np /ˈkɒmpɪtənsi ˈmɒdl/ mô hình năng lực
+39. employee handbook np /ɪmˈplɔɪi ˈhændˌbʊk/ sổ tay nhân viên
+40. compensation analysis np /ˌkɒmpɛnˈseɪʃən əˈnælɪsɪs/ phân tích tiền lương
+41. employee orientation np /ɪmˈplɔɪi ˌɔːrɪɛnˈteɪʃən/ định hướng nhân viên
+42. workforce planning np /ˈwɜːkfɔːs ˈplænɪŋ/ lập kế hoạch lao động
+43. conflict management np /ˈkɒnflɪkt ˈmænɪdʒmənt/ quản lý xung đột
+44. leadership coaching np /ˈliːdəʃɪp ˈkəʊʧɪŋ/ huấn luyện lãnh đạo
+45. employee performance np /ɪmˈplɔɪi pəˈfɔːməns/ hiệu suất nhân viên
+46. job satisfaction survey np /ʤɒb ˌsætɪsˈfækʃən ˈsɜːveɪ/ khảo sát sự hài lòng công việc
+47. talent pool np /ˈtælɪnt puːl/ nguồn nhân tài
+48. workforce optimization np /ˈwɜːkfɔːs ˌɒptɪmaɪˈzeɪʃən/ tối ưu hóa lực lượng lao động
+49. employee productivity np /ɪmˈplɔɪi ˌprɒdʌkˈtɪvɪti/ năng suất lao động
+50. diversity training np /daɪˈvɜːsɪti ˈtreɪnɪŋ/ đào tạo đa dạng
+51. job rotation np /ʤɒb rəʊˈteɪʃən/ luân chuyển công việc
+52. employee satisfaction np /ɪmˈplɔɪi ˌsætɪsˈfækʃən/ sự hài lòng của nhân viên
+53. leadership assessment np /ˈliːdəʃɪp əˈsɛsmənt/ đánh giá lãnh đạo
+54. workforce analytics np /ˈwɜːkfɔːs əˈnælɪtɪks/ phân tích lực lượng lao động
+55. performance improvement plan np /pəˈfɔːməns ɪmˈpruːvmənt plæn/ kế hoạch cải thiện hiệu suất
+56. employee assistance program np /ɪmˈplɔɪi əˈsɪstəns ˈprəʊɡræm/ chương trình hỗ trợ nhân viên
+57. compensation planning np /ˌkɒmpɛnˈseɪʃən ˈplænɪŋ/ kế hoạch tiền lương
+58. job evaluation np /ʤɒb ɪˈvæljʊeɪʃən/ đánh giá công việc
+59. talent retention np /ˈtælɪnt rɪˈtɛnʃən/ giữ chân nhân tài
+60. employee health and safety np /ɪmˈplɔɪi hɛlθ ænd ˈseɪfti/ sức khỏe và an toàn nhân viên
+61. organizational development np /ˌɔːɡənaɪˈzeɪʃənəl dɪˈvɛləpmənt/ phát triển tổ chức
+62. employee grievance np /ɪmˈplɔɪi ˈɡriːvəns/ khiếu nại của nhân viên
+63. compensation benchmarking np /ˌkɒmpɛnˈseɪʃən ˈbɛntʃˌmɑːkɪŋ/ so sánh tiền lương
+64. employee alignment np /ɪmˈplɔɪi əˈlaɪnmənt/ sự phù hợp của nhân viên
+65. job performance np /ʤɒb pəˈfɔːməns/ hiệu suất công việc
+66. leadership potential np /ˈliːdəʃɪp pəˈtɛnʃəl/ tiềm năng lãnh đạo
+67. employee handbook np /ɪmˈplɔɪi ˈhændˌbʊk/ sổ tay nhân viên
+68. job classification np /ʤɒb ˌklæsɪfɪˈkeɪʃən/ phân loại công việc
+69. employee advocacy np /ɪmˈplɔɪi ˈædvəkəsi/ bảo vệ quyền lợi nhân viên
+70. talent strategy np /ˈtælɪnt ˈstrætədʒi/ chiến lược nhân tài
+71. performance improvement np /pəˈfɔːməns ɪmˈpruːvmənt/ cải thiện hiệu suất
+72. job redesign np /ʤɒb ˌriːdɪˈzaɪn/ tái thiết kế công việc
+73. workforce engagement np /ˈwɜːkfɔːs ɪnˈɡeɪdʒmənt/ sự gắn kết của lực lượng lao động
+74. compensation review np /ˌkɒmpɛnˈseɪʃən rɪˈvjuː/ xem xét đền bù
+75. employee relations np /ɪmˈplɔɪi rɪˈleɪʃənz/ quan hệ nhân viên
+76. leadership capability np /ˈliːdəʃɪp ˌkeɪpəˈbɪlɪti/ khả năng lãnh đạo
+77. employee turnover rate np /ɪmˈplɔɪi ˈtɜːnəʊvə reɪt/ tỷ lệ thay thế nhân viên
+78. job rotation program np /ʤɒb rəʊˈteɪʃən ˈprəʊɡræm/ chương trình luân chuyển công việc
+79. employee development np /ɪmˈplɔɪi dɪˈvɛləpmənt/ phát triển nhân viên
+80. skills inventory np /skɪlz ˈɪnvənˌtɔri/ danh mục kỹ năng
+81. workforce integration np /ˈwɜːkfɔːs ˌɪntɪˈɡreɪʃən/ tích hợp lực lượng lao động
+82. compensation policy np /ˌkɒmpɛnˈseɪʃən ˈpɒlɪsi/ chính sách tiền lương
+83. employee recognition program np /ɪmˈplɔɪi rɪkəɡˈnɪʃən ˈprəʊɡræm/ chương trình công nhận nhân viên
+84. job restructuring np /ʤɒb ˌriːˈstrʌkʧərɪŋ/ tái cấu trúc công việc
+85. workforce mobility np /ˈwɜːkfɔːs məʊˈbɪlɪti/ sự di chuyển lực lượng lao động
+86. leadership training np /ˈliːdəʃɪp ˈtreɪnɪŋ/ đào tạo lãnh đạo
+87. employee value proposition np /ɪmˈplɔɪi ˈvæljuː prɒpəˈzɪʃən/ đề xuất giá trị nhân viên
+88. performance review np /pəˈfɔːməns rɪˈvjuː/ đánh giá hiệu suất
+89. job competency np /ʤɒb ˈkɒmpɪtənsi/ năng lực công việc
+90. workforce assessment np /ˈwɜːkfɔːs əˈsɛsmənt/ đánh giá lực lượng lao động
+91. employee satisfaction survey np /ɪmˈplɔɪi  ˌsætɪsˈfækʃən ˈsɜːveɪ/ khảo sát sự hài lòng của nhân viên
+92. job performance standards np /ʤɒb pəˈfɔːməns ˈstændədz/ tiêu chuẩn hiệu suất công việc
+93. leadership competencies np /ˈliːdəʃɪp ˈkɒmpɪtənsi/ các năng lực lãnh đạo
+94. employee training program np /ɪmˈplɔɪi ˈtreɪnɪŋ ˈprəʊɡræm/ chương trình đào tạo nhân viên
+95. compensation survey np /ˌkɒmpɛnˈseɪʃən ˈsɜːveɪ/ khảo sát tiền lương
+96. workforce engagement strategy np /ˈwɜːkfɔːs ɪnˈɡeɪdʒmənt ˈstrætədʒi/ chiến lược gắn kết lực lượng lao động
+97. job role clarity np /ʤɒb rəʊl ˈklærɪti/ rõ ràng vai trò công việc
+98. employee experience np /ɪmˈplɔɪi ɪksˈpɪəriəns/ trải nghiệm của nhân viên
+99. workforce flexibility np /ˈwɜːkfɔːs ˌflɛksɪˈbɪlɪti/ sự linh hoạt của lực lượng lao động
+100. compensation and rewards np /ˌkɒmpɛnˈseɪʃən ænd rɪˈwɔːdz/ tiền lương và phần thưởng
+1. corporate governance np /ˈkɔːpərɪt ˈɡʌvənəns/ quản trị doanh nghiệp
+2. strategic planning np /strəˈtiːdʒɪk ˈplænɪŋ/ lập kế hoạch chiến lược
+3. risk management np /rɪsk ˈmænɪdʒmənt/ quản lý rủi ro
+4. stakeholder engagement np /ˈsteɪkhəʊldə ɪnˈɡeɪdʒmənt/ sự tham gia của các bên liên quan
+5. organizational change np /ˌɔːɡənaɪˈzeɪʃənl ʧeɪndʒ/ thay đổi tổ chức
+6. project management np /ˈprɒdʒɛkt ˈmænɪdʒmənt/ quản lý dự án
+7. crisis management np /ˈkraɪsɪs ˈmænɪdʒmənt/ quản lý khủng hoảng
+8. operational efficiency np /ˌɒpəˈreɪʃənl ɪˈfɪʃənsi/ hiệu quả vận hành
+9. leadership succession np /ˈliːdəʃɪp səkˈsɛʃən/ kế nhiệm lãnh đạo
+10. financial performance np /faɪˈnænʃəl pəˈfɔːməns/ hiệu suất tài chính
+11. corporate social responsibility np /ˈkɔːpərɪt ˈsəʊʃəl rɪˌspɒnsɪˈbɪlɪti/ trách nhiệm xã hội của doanh nghiệp
+12. regulatory compliance np /ˌrɛɡjʊˈleɪtəri kəmˈplaɪəns/ tuân thủ quy định
+13. talent development np /ˈtælɪnt dɪˈvɛləpmənt/ phát triển nhân tài
+14. succession planning np /səkˈsɛʃən ˈplænɪŋ/ kế hoạch kế thừa
+15. performance metrics np /pəˈfɔːməns ˈmɛtrɪks/ chỉ số hiệu suất
+16. corporate restructuring np /ˈkɔːpərɪt rɪˈstrʌkʧərɪŋ/ tái cấu trúc doanh nghiệp
+17. change management np /ʧeɪndʒ ˈmænɪdʒmənt/ quản lý sự thay đổi
+18. strategic alignment np /strəˈtiːdʒɪk əˈlaɪnmənt/ sự liên kết chiến lược
+19. operational risk np /ˌɒpəˈreɪʃənl rɪsk/ rủi ro vận hành
+20. business continuity np /ˈbɪznɪs kənˈtɪnjʊɪti/ tính liên tục trong kinh doanh
+21. management accountability np /ˈmænɪdʒmənt əˌkaʊntəˈbɪlɪti/ trách nhiệm quản lý
+22. strategic initiatives np /strəˈtiːdʒɪk ɪˈnɪʃɪətɪvz/ sáng kiến chiến lược
+23. performance improvement np /pəˈfɔːməns ɪmˈpruːvmənt/ cải thiện hiệu suất
+24. business strategy np /ˈbɪznɪs ˈstrætədʒi/ chiến lược kinh doanh
+25. regulatory environment np /ˌrɛɡjʊˈleɪtəri ɪnˈvaɪərənmənt/ môi trường pháp lý
+26. performance benchmarking np /pəˈfɔːməns ˈbɛnʧmɑːkɪŋ/ so sánh hiệu suất
+27. business transformation np /ˈbɪznɪs ˌtrænsfəˈmeɪʃən/ chuyển đổi kinh doanh
+28. organizational resilience np /ˌɔːɡənaɪˈzeɪʃənl rɪˈzɪliəns/ khả năng phục hồi của tổ chức
+29. stakeholder management np /ˈsteɪkhəʊldə ˈmænɪdʒmənt/ quản lý các bên liên quan
+30. performance targets np /pəˈfɔːməns ˈtɑːɡɪts/ mục tiêu hiệu suất
+31. strategic goals np /strəˈtiːdʒɪk ɡəʊlz/ mục tiêu chiến lược
+32. management efficiency np /ˈmænɪdʒmənt ɪˈfɪʃənsi/ hiệu quả quản lý
+33. operational performance np /ˌɒpəˈreɪʃənl pəˈfɔːməns/ hiệu suất vận hành
+34. management innovation np /ˈmænɪdʒmənt ˌɪnəˈveɪʃən/ đổi mới quản lý
+35. corporate ethics np /ˈkɔːpərɪt ˈɛθɪks/ đạo đức doanh nghiệp
+36. strategic vision np /strəˈtiːdʒɪk ˈvɪʒən/ tầm nhìn chiến lược
+37. regulatory framework np /ˌrɛɡjʊˈleɪtəri ˈfreɪmwɜːk/ khung pháp lý
+38. operational oversight np /ˌɒpəˈreɪʃənl ˈəʊvəsaɪt/ giám sát vận hành
+39. financial oversight np /faɪˈnænʃəl ˈəʊvəsaɪt/ giám sát tài chính
+40. corporate transparency np /ˈkɔːpərɪt trænsˈpærənsi/ minh bạch doanh nghiệp
+41. management controls np /ˈmænɪdʒmənt kənˈtrəʊlz/ kiểm soát quản lý
+42. strategic resources np /strəˈtiːdʒɪk rɪˈzɔːsɪz/ nguồn lực chiến lược
+43. risk assessment np /rɪsk əˈsɛsmənt/ đánh giá rủi ro
+44. management hierarchy np /ˈmænɪdʒmənt ˈhaɪərɑːki/ hệ thống quản lý
+45. stakeholder analysis np /ˈsteɪkhəʊldə əˈnælɪsɪs/ phân tích các bên liên quan
+46. performance indicators np /pəˈfɔːməns ˈɪndɪkeɪtəz/ chỉ số hiệu suất
+47. operational strategy np /ˌɒpəˈreɪʃənl ˈstrætədʒi/ chiến lược vận hành
+48. crisis response np /ˈkraɪsɪs rɪˈspɒns/ phản ứng khủng hoảng
+49. management principles np /ˈmænɪdʒmənt ˈprɪnsəplz/ nguyên tắc quản lý
+50. business ethics np /ˈbɪznɪs ˈɛθɪks/ đạo đức kinh doanh
+51. strategic decision-making np /strəˈtiːdʒɪk dɪˈsɪʒən ˈmeɪkɪŋ/ ra quyết định chiến lược
+52. management practices np /ˈmænɪdʒmənt ˈpræktɪsɪz/ thực hành quản lý
+53. operational improvements np /ˌɒpəˈreɪʃənl ɪmˈpruːvmənts/ cải thiện vận hành
+54. business objectives np /ˈbɪznɪs əbˈdʒɛktɪvz/ mục tiêu kinh doanh
+55. stakeholder communication np /ˈsteɪkhəʊldə kəˌmjuːnɪˈkeɪʃən/ giao tiếp với các bên liên quan
+56. performance optimization np /pəˈfɔːməns ˌɒptɪmaɪˈzeɪʃən/ tối ưu hóa hiệu suất
+57. corporate compliance np /ˈkɔːpərɪt kəmˈplaɪəns/ tuân thủ doanh nghiệp
+58. management reporting np /ˈmænɪdʒmənt rɪˈpɔːtɪŋ/ báo cáo quản lý
+59. strategic assessment np /strəˈtiːdʒɪk əˈsɛsmənt/ đánh giá chiến lược
+60. financial planning np /faɪˈnænʃəl ˈplænɪŋ/ lập kế hoạch tài chính
+61. management accountability np /ˈmænɪdʒmənt əˌkaʊntəˈbɪlɪti/ trách nhiệm quản lý
+62. organizational culture np /ˌɔːɡənaɪˈzeɪʃənl ˈkʌlʧə/ văn hóa tổ chức
+63. management innovation np /ˈmænɪdʒmənt ˌɪnəˈveɪʃən/ đổi mới quản lý
+64. business sustainability np /ˈbɪznɪs səˌsteɪnəˈbɪlɪti/ tính bền vững của kinh doanh
+65. stakeholder interests np /ˈsteɪkhəʊldə ˈɪntrɪsts/ lợi ích của các bên liên quan
+66. management philosophy np /ˈmænɪdʒmənt fɪˈlɒsəfi/ triết lý quản lý
+67. strategic foresight np /strəˈtiːdʒɪk ˈfɔːsaɪt/ dự đoán chiến lược
+68. operational risk management np /ˌɒpəˈreɪʃənl rɪsk ˈmænɪdʒmənt/ quản lý rủi ro vận hành
+69. financial stability np /faɪˈnænʃəl stəˈbɪlɪti/ sự ổn định tài chính
+70. management integrity np /ˈmænɪdʒmənt ɪnˈtɛɡrɪti/ tính liêm chính trong quản lý
+71. business processes np /ˈbɪznɪs ˈprɒsɛsɪz/ các quy trình kinh doanh
+72. stakeholder value np /ˈsteɪkhəʊldə ˈvæljuː/ giá trị của các bên liên quan
+73. management framework np /ˈmænɪdʒmənt ˈfreɪmwɜːk/ khung quản lý
+74. strategic objectives np /strəˈtiːdʒɪk əbˈdʒɛktɪvz/ mục tiêu chiến lược
+75. operational excellence np /ˌɒpəˈreɪʃənl ˈɛksələns/ sự xuất sắc trong vận hành
+76. corporate accountability np /ˈkɔːpərɪt əˌkaʊntəˈbɪlɪti/ trách nhiệm doanh nghiệp
+77. management policies np /ˈmænɪdʒmənt ˈpɒlɪsiz/ chính sách quản lý
+78. performance review process np /pəˈfɔːməns rɪˈvjuː ˈprəʊsɛs/ quy trình đánh giá hiệu suất
+79. strategic management np /strəˈtiːdʒɪk ˈmænɪdʒmənt/ quản lý chiến lược
+80. operational strategy np /ˌɒpəˈreɪʃənl ˈstrætədʒi/ chiến lược vận hành
+81. business goals np /ˈbɪznɪs ɡəʊlz/ các mục tiêu kinh doanh
+82. stakeholder priorities np /ˈsteɪkhəʊldə praɪˈɒrɪtiz/ ưu tiên của các bên liên quan
+83. management skills np /ˈmænɪdʒmənt skɪlz/ kỹ năng quản lý
+84. strategic partnerships np /strəˈtiːdʒɪk ˈpɑːtnəʃɪps/ đối tác chiến lược
+85. operational audits np /ˌɒpəˈreɪʃənl ˈɔːdɪts/ kiểm toán vận hành
+86. corporate ethics programs np /ˈkɔːpərɪt ˈɛθɪks ˈprəʊɡræmz/ chương trình đạo đức doanh nghiệp
+87. management goals np /ˈmænɪdʒmənt ɡəʊlz/ các mục tiêu quản lý
+88. strategic insights np /strəˈtiːdʒɪk ˈɪnsaɪts/ những hiểu biết chiến lược
+89. operational cost management np /ˌɒpəˈreɪʃənl kɒst ˈmænɪdʒmənt/ quản lý chi phí vận hành
+90. financial performance metrics np /faɪˈnænʃəl pəˈfɔːməns ˈmɛtrɪks/ chỉ số hiệu suất tài chính
+91. management responsibility np /ˈmænɪdʒmənt rɪˌspɒnsəˈbɪlɪti/ trách nhiệm quản lý
+92. strategic investment np /strəˈtiːdʒɪk ɪnˈvɛstmənt/ đầu tư chiến lược
+93. operational risk assessment np /ˌɒpəˈreɪʃənl rɪsk əˈsɛsmənt/ đánh giá rủi ro vận hành
+94. corporate objectives np /ˈkɔːpərɪt əbˈdʒɛktɪvz/ các mục tiêu doanh nghiệp
+95. management competencies np /ˈmænɪdʒmənt ˈkɒmpɪtənsi/ các năng lực quản lý
+96. strategic imperatives np /strəˈtiːdʒɪk ɪmˈpɛrətɪvz/ những điều bắt buộc chiến lược
+97. operational standards np /ˌɒpəˈreɪʃənl ˈstændədz/ các tiêu chuẩn vận hành
+98. financial governance np /faɪˈnænʃəl ˈɡʌvənəns/ quản trị tài chính
+99. management directives np /ˈmænɪdʒmənt dɪˈrɛktɪvz/ chỉ thị quản lý
+100. strategic implementation np /strəˈtiːdʒɪk ˌɪmplɪmɛnˈteɪʃən/ triển khai chiến lược
+1. itinerary n /aɪˈtɪnərəri/ lịch trình
+2. accommodation n /əˌkɒməˈdeɪʃən/ chỗ ở
+3. excursion n /ɪkˈskɜːʃən/ chuyến du ngoạn
+4. embarkation n /ˌɛmbɑːˈkeɪʃən/ sự lên tàu
+5. disembarkation n /ˌdɪsɪmˈbɑːkeɪʃən/ sự xuống tàu
+6. transit n /ˈtrænzɪt/ quá cảnh
+7. layover n /ˈleɪˌəʊvər/ thời gian nghỉ ngắn
+8. repatriation n /ˌriːˌpætrɪˈeɪʃən/ hồi hương
+9. concierge n /ˌkɒnsɪˈeəʒ/ nhân viên hướng dẫn khách sạn
+10. amenities n /əˈmɛnɪtiz/ tiện nghi
+11. excursion n /ɪkˈskɜːʃən/ chuyến du ngoạn
+12. jet lag n /ˈdʒɛt læɡ/ mệt mỏi do lệch múi giờ
+13. passport n /ˈpɑːspɔːt/ hộ chiếu
+14. customs n /ˈkʌstəmz/ hải quan
+15. visa n /ˈviːzə/ thị thực
+16. terminal n /ˈtɜːmɪnəl/ nhà ga
+17. departure n /dɪˈpɑːʧər/ sự khởi hành
+18. arrival n /əˈraɪvəl/ sự đến nơi
+19. reservation n /ˌrɛzəˈveɪʃən/ sự đặt chỗ
+20. tourism n /ˈtʊərɪzəm/ du lịch
+21. backpacker n /ˈbækˌpækər/ du khách ba lô
+22. hospitality n /ˌhɒspɪˈtæləti/ lòng hiếu khách
+23. cruise n /kruːz/ chuyến du thuyền
+24. expedition n /ˌɛkspɪˈdɪʃən/ cuộc thám hiểm
+25. landmark n /ˈlændmɑːrk/ điểm mốc
+26. sightseeing n /ˈsaɪtˌsiːɪŋ/ tham quan
+27. voyage n /ˈvɔɪɪdʒ/ hành trình
+28. cancellation n /ˌkænsəˈleɪʃən/ sự hủy bỏ
+29. travel agency np /ˈtrævəl ˈeɪdʒənsi/ công ty du lịch
+30. travel insurance np /ˈtrævəl ɪnˈʃʊərəns/ bảo hiểm du lịch
+31. guided tour np /ˈɡaɪdɪd tʊə/ chuyến tham quan có hướng dẫn
+32. group tour np /ɡruːp tʊə/ du lịch theo đoàn
+33. cultural heritage np /ˈkʌltʃərəl ˈhɛrɪtɪdʒ/ di sản văn hóa
+34. tourist attraction np /ˈtʊərɪst əˈtrækʃən/ điểm thu hút khách du lịch
+35. travel itinerary np /ˈtrævəl aɪˈtɪnərəri/ lịch trình du lịch
+36. foreign currency np /ˈfɒrɪnˈkʌrənsi/ ngoại tệ
+37. flight schedule np /flaɪt ˈʃɛdjuːl/ lịch bay
+38. cabin crew np /ˈkæbɪn kruː/ phi hành đoàn
+39. boarding pass np /ˈbɔːdɪŋ pɑːs/ thẻ lên máy bay
+40. baggage claim np /ˈbæɡɪdʒ kleɪm/ khu nhận hành lý
+41. departure lounge np /dɪˈpɑːʧər laʊnʤ/ phòng chờ khởi hành
+42. international terminal np /ˌɪntəˈnæʃənl ˈtɜːmɪnəl/ ga quốc tế
+43. travel destination np /ˈtrævəlˌdɛstɪˈneɪʃən/ điểm đến du lịch
+44. business travel np /ˈbɪznɪs ˈtrævəl/ chuyến công tác
+45. holiday package np /ˈhɒlɪdeɪ ˈpækɪdʒ/ gói kỳ nghỉ
+46. travel voucher np /ˈtrævəl ˈvaʊʧə/ phiếu du lịch
+47. frequent flyer np /ˈfriːkwənt ˈflaɪər/ khách hàng bay thường xuyên
+48. budget airline np /ˈbʌdʒɪt ˈeəlaɪn/ hãng hàng không giá rẻ
+49. travel advisory np /ˈtrævəl ədˈvaɪzəri/ cảnh báo du lịch
+50. package tour np /ˈpækɪdʒ tʊə/ chuyến du lịch trọn gói
+51. travel brochure np /ˈtrævəl ˈbrəʊʃə/ sách hướng dẫn du lịch
+52. travel arrangements np /ˈtrævəl əˈreɪndʒmənts/ sắp xếp du lịch
+53. check-in counter np /ʧɛk-ɪn ˈkaʊntə/ quầy làm thủ tục
+54. travel companion np /ˈtrævəl kəmˈpænjən/ bạn đồng hành du lịch
+55. hotel reservation np /həʊˈtɛl ˌrɛzəˈveɪʃən/ đặt phòng khách sạn
+56. rental car np /ˈrɛntl kɑː/ xe thuê
+57. travel agency np /ˈtrævəl ˈeɪdʒənsi/ công ty du lịch
+58. all-inclusive resort np /ɔːl-ɪnˈkluːsɪv rɪˈzɔːt/ khu nghỉ dưỡng trọn gói
+59. travel reimbursement np /ˈtrævəl ˌriːɪmˈbɜːsmənt/ hoàn trả chi phí du lịch
+60. flight cancellation np /flaɪt ˌkænsəˈleɪʃən/ hủy chuyến bay
+61. scenic route np /ˈsiːnɪk ruːt/ tuyến đường ngắm cảnh
+62. departure gate np /dɪˈpɑːʧər ɡeɪt/ cổng khởi hành
+63. in-flight entertainment np /ɪn-flaɪt ˌɛntəˈteɪnmənt/ giải trí trên chuyến bay
+64. baggage allowance np /ˈbæɡɪdʒ əˈlaʊəns/ mức hành lý cho phép
+65. travel itinerary np /ˈtrævəl aɪˈtɪnərəri/ lịch trình du lịch
+66. round-trip ticket np /raʊnd-trɪp ˈtɪkɪt/ vé khứ hồi
+67. public transportation np /ˈpʌblɪk ˌtrænspɔːˈteɪʃən/ phương tiện giao thông công cộng
+68. tourist visa np /ˈtʊərɪst ˈviːzə/ thị thực du lịch
+69. currency exchange np /ˈkʌrənsi ɪksˈʧeɪndʒ/ trao đổi ngoại tệ
+70. travel destination np /ˈtrævəl ˌdɛstɪˈneɪʃən/ điểm đến du lịch
+71. travel policy np /ˈtrævəl ˈpɒlɪsi/ chính sách du lịch
+72. travel itinerary np /ˈtrævəl aɪˈtɪnərəri/ lịch trình du lịch
+73. travel portal np /ˈtrævəl ˈpɔːtəl/ cổng thông tin du lịch
+74. eco-friendly travel np /ˈiːkəʊ-ˈfrɛndli ˈtrævəl/ du lịch thân thiện với môi trường
+75. holidaymaker n /ˈhɒlɪdeɪ ˌmeɪkə/ người đi nghỉ mát
+76. accommodation n /əˌkɒməˈdeɪʃən/ chỗ ở
+77. backpacker n /ˈbækˌpækər/ du khách ba lô
+78. jetsetter n /ˈdʒɛt ˌsɛtər/ người hay đi du lịch
+79. resort n /rɪˈzɔːt/ khu nghỉ dưỡng
+80. itinerary n /aɪˈtɪnərəri/ lịch trình
+81. sojourn n /ˈsɒdʒɜːn/ sự lưu lại
+82. vacationer n /vəˈkeɪʃənər/ người đi nghỉ mát
+83. wayfarer n /ˈweɪˌfɛrər/ người lữ hành
+84. wanderlust n /ˈwɒndərˌlʌst/ sự thích du lịch
+85. tourist trap n /ˈtʊərɪst træp/ bẫy du lịch
+86. passport control np /ˈpɑːspɔːt kənˈtrəʊl/ kiểm tra hộ chiếu
+87. travel documents np /ˈtrævəl ˈdɒkjʊmənts/ giấy tờ du lịch
+88. travel light np /ˈtrævəl laɪt/ du lịch nhẹ
+89. off the beaten path np /ɒf ðə ˈbiːtn pɑːθ/ ngoài lộ trình du lịch chính
+90. local cuisine np /ˈləʊkəl kwɪˈziːn/ ẩm thực địa phương
+91. cultural immersion np /ˈkʌltʃərəl ɪˈmɜːʃən/ sự hòa nhập văn hóa
+92. guided tour np /ˈɡaɪdɪd tʊə/ chuyến tham quan có hướng dẫn
+93. group tour np /ɡruːp tʊə/ du lịch theo đoàn
+94. hotel reservation np /həʊˈtɛl ˌrɛzəˈveɪʃən/ đặt phòng khách sạn
+95. local attraction np /ˈləʊkəl əˈtrækʃən/ điểm thu hút địa phương
+96. travel insurance np /ˈtrævəl ɪnˈʃʊərəns/ bảo hiểm du lịch
+97. visa application np /ˈviːzə ˌæplɪˈkeɪʃən/ đơn xin thị thực
+98. travel restrictions np /ˈtrævəl rɪˈstrɪkʃənz/ hạn chế du lịch
+99. travel destination np /ˈtrævəl ˌdɛstɪˈneɪʃən/ điểm đến du lịch
+100. guided sightseeing tour np /ˈɡaɪdɪd ˈsaɪtsiːɪŋ tʊə/ chuyến tham quan có hướng dẫn
+1. blockbuster n /ˈblɒkbʌstər/ phim bom tấn
+2. soundtrack n /ˈsaʊndˌtræk/ nhạc phim
+3. premiere n /prɪˈmɪər/ buổi công chiếu
+4. entertainment n /ˌɛntəˈteɪnmənt/ giải trí
+5. documentary n /ˌdɒkjʊˈmɛntəri/ phim tài liệu
+6. genre n /ˈʒɒnrə/ thể loại
+7. screenplay n /ˈskriːnˌpleɪ/ kịch bản
+8. animation n /ˌænɪˈmeɪʃən/ hoạt hình
+9. cinematography n /ˌsɪnəməˈtɒɡrəfi/ nghệ thuật quay phim
+10. director n /dɪˈrɛktər/ đạo diễn
+11. producer n /prəˈdjuːsər/ nhà sản xuất
+12. cast n /kɑːst/ dàn diễn viên
+13. actor n /ˈæktər/ nam diễn viên
+14. actress n /ˈæktrɪs/ nữ diễn viên
+15. award n /əˈwɔːrd/ giải thưởng
+16. nominee n /ˌnɒmɪˈniː/ người được đề cử
+17. festival n /ˈfɛstɪvəl/ lễ hội
+18. choreography n /ˌkɒriˈɒɡrəfi/ vũ đạo
+19. rehearsal n /rɪˈhɜːrsəl/ buổi diễn tập
+20. performance n /pərˈfɔːrməns/ màn biểu diễn
+21. venue n /ˈvɛnjuː/ địa điểm tổ chức
+22. audience n /ˈɔːdiəns/ khán giả
+23. applause n /əˈplɔːz/ tiếng vỗ tay
+24. broadcast n /ˈbrɔːdˌkæst/ phát sóng
+25. episode n /ˈɛpɪsəʊd/ tập phim
+26. season n /ˈsiːzn/ mùa (phim)
+27. finale n /fɪˈnɑːli/ phần kết
+28. subscription n /səbˈskrɪpʃən/ đăng ký
+29. host n /həʊst/ người dẫn chương trình
+30. presenter n /prɪˈzɛntər/ người thuyết trình
+31. viewer n /ˈvjuːər/ người xem
+32. critic n /ˈkrɪtɪk/ nhà phê bình
+33. review n /rɪˈvjuː/ bài đánh giá
+34. ratings n /ˈreɪtɪŋz/ xếp hạng
+35. streaming n /ˈstriːmɪŋ/ phát trực tuyến
+36. box office np /bɒks ˈɒfɪs/ phòng vé
+37. red carpet np /rɛd ˈkɑːpɪt/ thảm đỏ
+38. sound effects np /saʊnd ɪˈfɛkts/ hiệu ứng âm thanh
+39. visual effects np /ˈvɪʒuəl ɪˈfɛkts/ hiệu ứng hình ảnh
+40. special effects np /ˈspɛʃəl ɪˈfɛkts/ hiệu ứng đặc biệt
+41. costume design np /ˈkɒstjuːm dɪˈzaɪn/ thiết kế trang phục
+42. stage design np /steɪdʒ dɪˈzaɪn/ thiết kế sân khấu
+43. script writer np /skrɪpt ˈraɪtər/ biên kịch
+44. leading role np /ˈliːdɪŋ rəʊl/ vai chính
+45. supporting role np /səˈpɔːtɪŋ rəʊl/ vai phụ
+46. film festival np /fɪlm ˈfɛstɪvəl/ liên hoan phim
+47. opening night np /ˈəʊpənɪŋ naɪt/ đêm khai mạc
+48. closing ceremony np /ˈkləʊzɪŋ ˈsɛrəˌmoʊni/ lễ bế mạc
+49. box office hit np /bɒks ˈɒfɪs hɪt/ phim đạt doanh thu cao
+50. music video np /ˈmjuːzɪk ˈvɪdiəʊ/ video âm nhạc
+51. television series np /ˈtɛlɪˌvɪʒən ˈsɪəriːz/ loạt phim truyền hình
+52. reality show np /riˈælɪti ʃəʊ/ chương trình thực tế
+53. talent show np /ˈtælɪnt ʃəʊ/ chương trình tìm kiếm tài năng
+54. game show np /ɡeɪm ʃəʊ/ chương trình trò chơi
+55. live performance np /laɪv pəˈfɔːməns/ biểu diễn trực tiếp
+56. ticket sales np /ˈtɪkɪt seɪlz/ doanh số bán vé
+57. film adaptation np /fɪlm ˌædæpˈteɪʃən/ chuyển thể phim
+58. audience rating np /ˈɔːdiəns ˈreɪtɪŋ/ đánh giá của khán giả
+59. online streaming np /ˈɒnlaɪn ˈstriːmɪŋ/ phát trực tuyến qua mạng
+60. entertainment industry np /ˌɛntəˈteɪnmənt ˈɪndəstri/ ngành công nghiệp giải trí
+61. animation studio np /ˌænɪˈmeɪʃən ˈstjuːdiəʊ/ xưởng phim hoạt hình
+62. behind the scenes np /bɪˈhaɪnd ðə siːnz/ hậu trường
+63. film director np /fɪlm dɪˈrɛktər/ đạo diễn phim
+64. film producer np /fɪlm prəˈdjuːsər/ nhà sản xuất phim
+65. screen adaptation np /skriːn ˌædæpˈteɪʃən/ chuyển thể kịch bản
+66. media coverage np /ˈmiːdiə ˈkʌvərɪʤ/ đưa tin truyền thông
+67. news anchor np /njuːz ˈæŋkər/ phát thanh viên
+68. variety show np /vəˈraɪəti ʃəʊ/ chương trình tạp kỹ
+69. entertainment venue np /ˌɛntəˈteɪnmənt ˈvɛnjuː/ địa điểm giải trí
+70. television network np /ˈtɛlɪˌvɪʒən ˈnɛtwɜːk/ mạng lưới truyền hình
+71. theatrical release np /θiˈætrɪkəl rɪˈliːs/ phát hành phim tại rạp
+72. video on demand np /ˈvɪdiəʊ ɒn dɪˈmɑːnd/ video theo yêu cầu
+73. box office revenue np /bɒks ˈɒfɪs ˈrɛvəˌnjuː/ doanh thu phòng vé
+74. audience engagement np /ˈɔːdiəns ɪnˈɡeɪdʒmənt/ sự tham gia của khán giả
+75. media outlet np /ˈmiːdiə ˈaʊtlɛt/ kênh truyền thông
+76. subscription service np /səbˈskrɪpʃən ˈsɜːvɪs/ dịch vụ đăng ký
+77. production company np /prəˈdʌkʃən ˈkʌmpəni/ công ty sản xuất
+78. film production np /fɪlm prəˈdʌkʃən/ sản xuất phim
+79. entertainment content np /ˌɛntəˈteɪnmənt ˈkɒntɛnt/ nội dung giải trí
+80. theatrical performance np /θiˈætrɪkəl pərˈfɔːməns/ biểu diễn sân khấu
+81. concert hall np /ˈkɒnsət hɔːl/ phòng hòa nhạc
+82. film critic np /fɪlm ˈkrɪtɪk/ nhà phê bình phim
+83. media consumption np /ˈmiːdiə kənˈsʌmpʃən/ tiêu thụ phương tiện truyền thông
+84. press conference np /prɛs ˈkɒnfərəns/ họp báo
+85. box office flop np /bɒks ˈɒfɪs flɒp/ phim thất bại phòng vé
+86. film distributor np /fɪlm dɪˈstrɪbjʊtər/ nhà phân phối phim
+87. audience demographics np /ˈɔːdiəns ˌdɛməˈɡræfɪks/ nhân khẩu học khán giả
+88. media landscape np /ˈmiːdiə ˈlændskeɪp/ bối cảnh truyền thông
+89. publicist n /ˈpʌblɪsɪst/ người phụ trách truyền thông
+90. live streaming np /laɪv ˈstriːmɪŋ/ phát trực tiếp
+91. content creator np /ˈkɒntɛnt kriˈeɪtər/ người sáng tạo nội dung
+92. entertainment news np /ˌɛntəˈteɪnmənt njuːz/ tin tức giải trí
+93. interactive media np /ˌɪntərˈæktɪv ˈmiːdiə/ phương tiện truyền thông tương tác
+94. ticket reservation np /ˈtɪkɪt ˌrɛzəˈveɪʃən/ đặt vé
+95. film rights np /fɪlm raɪts/ quyền phim
+96. celebrity gossip np /sɪˈlɛbrɪti ˈɡɒsɪp/ tin đồn người nổi tiếng
+97. media franchise np /ˈmiːdiə ˈfræntʃaɪz/ thương hiệu truyền thông
+98. online platform np /ˈɒnlaɪn ˈplætfɔːrm/ nền tảng trực tuyến
+99. ticketing system np /ˈtɪkɪtɪŋ ˈsɪstəm/ hệ thống bán vé
+100. live broadcast np /laɪv ˈbrɔːdkɑːst/ phát sóng trực tiếp
+1. diagnosis n /ˌdaɪəɡˈnəʊsɪs/ chẩn đoán
+2. treatment n /ˈtriːtmənt/ điều trị
+3. prescription n /prɪˈskrɪpʃən/ đơn thuốc
+4. symptom n /ˈsɪmptəm/ triệu chứng
+5. chronic adj /ˈkrɒnɪk/ mãn tính
+6. acute adj /əˈkjuːt/ cấp tính
+7. vaccination n /ˌvæksɪˈneɪʃən/ tiêm chủng
+8. prevention n /prɪˈvɛnʃən/ phòng ngừa
+9. rehabilitation n /ˌriːəˌbɪlɪˈteɪʃən/ phục hồi chức năng
+10. nutrition n /njuːˈtrɪʃən/ dinh dưỡng
+11. allergy n /ˈælədʒi/ dị ứng
+12. inflammation n /ˌɪnfləˈmeɪʃən/ viêm
+13. immune system np /ɪˈmjuːn ˈsɪstəm/ hệ miễn dịch
+14. medical history np /ˈmɛdɪkəl ˈhɪstəri/ tiền sử bệnh
+15. general practitioner np /ˈdʒɛnərəl prækˈtɪʃənər/ bác sĩ đa khoa
+16. specialist n /ˈspɛʃəlɪst/ chuyên gia
+17. mental health np /ˈmɛntəl hɛlθ/ sức khỏe tinh thần
+18. physical therapy np /ˈfɪzɪkəl ˈθɛrəpi/ vật lý trị liệu
+19. medical insurance np /ˈmɛdɪkəl ɪnˈʃʊərəns/ bảo hiểm y tế
+20. blood pressure np /blʌd ˈprɛʃə/ huyết áp
+21. cholesterol n /kəˈlɛstərɒl/ cholesterol
+22. heart disease np /hɑːt dɪˈziːz/ bệnh tim
+23. stroke n /strəʊk/ đột quỵ
+24. diabetes n /ˌdaɪəˈbiːtiːz/ tiểu đường
+25. hypertension n /ˌhaɪpəˈtɛnʃən/ cao huyết áp
+26. arthritis n /ɑːˈθraɪtɪs/ viêm khớp
+27. osteoporosis n /ˌɒstiəʊpəˈrəʊsɪs/ loãng xương
+28. respiratory adj /ˈrɛspərətəri/ hô hấp
+29. dermatology n /ˌdɜːməˈtɒlədʒi/ da liễu
+30. pediatrics n /ˌpiːdiˈætrɪks/ nhi khoa
+31. neurology n /njʊˈrɒlədʒi/ thần kinh học
+32. oncology n /ɒnˈkɒlədʒi/ ung thư học
+33. pathology n /pəˈθɒlədʒi/ bệnh lý học
+34. surgery n /ˈsɜːdʒəri/ phẫu thuật
+35. anesthesia n /ˌænəsˈθiːziə/ gây mê
+36. intensive care np /ɪnˈtɛnsɪv kɛə/ chăm sóc đặc biệt
+37. organ transplant np /ˈɔːɡən trænsˈplɑːnt/ cấy ghép nội tạng
+38. genetic disorder np /ʤɪˈnɛtɪk dɪsˈɔːdə/ rối loạn di truyền
+39. cardiovascular adj /ˌkɑːdiəʊˈvæskjʊlə/ tim mạch
+40. infectious disease np /ɪnˈfɛkʃəs dɪˈziːz/ bệnh truyền nhiễm
+41. rehabilitation center np /ˌriːəbɪlɪˈteɪʃən ˈsɛntə/ trung tâm phục hồi chức năng
+42. dental care np /ˈdɛntl kɛə/ chăm sóc răng miệng
+43. holistic medicine np /həˈlɪstɪk ˈmɛdɪsɪn/ y học toàn diện
+44. immune response np /ɪˈmjuːn rɪˈspɒns/ phản ứng miễn dịch
+45. pain management np /peɪn ˈmænɪdʒmənt/ quản lý đau
+46. palliative care np /ˈpælɪeɪtɪv kɛə/ chăm sóc giảm nhẹ
+47. public health np /ˈpʌblɪk hɛlθ/ y tế công cộng
+48. telemedicine n /ˌtɛlɪˈmɛdɪsɪn/ y học từ xa
+49. clinical trial np /ˈklɪnɪkəl traɪəl/ thử nghiệm lâm sàng
+50. pharmaceutical adj /ˌfɑːməˈsuːtɪkəl/ dược phẩm
+51. preventive care np /prɪˈvɛntɪv kɛə/ chăm sóc phòng ngừa
+52. medical breakthrough np /ˈmɛdɪkəl ˈbreɪkθruː/ đột phá y học
+53. health insurance np /hɛlθ ɪnˈʃʊərəns/ bảo hiểm y tế
+54. clinical research np /ˈklɪnɪkəl rɪˈsɜːʧ/ nghiên cứu lâm sàng
+55. general practitioner np /ˈʤɛnərəl prækˈtɪʃənə/ bác sĩ đa khoa
+56. emergency room np /ɪˈmɜːʤənsi ruːm/ phòng cấp cứu
+57. healthcare provider np /ˈhɛlθˌkeə prəˈvaɪdə/ nhà cung cấp dịch vụ y tế
+58. medical record np /ˈmɛdɪkəl ˈrɛkɔːd/ hồ sơ y tế
+59. health and wellness np /hɛlθ ænd ˈwɛlnɪs/ sức khỏe và thể chất
+60. primary care np /ˈpraɪməri kɛə/ chăm sóc ban đầu
+61. healthcare system np /ˈhɛlθˌkeə ˈsɪstəm/ hệ thống chăm sóc sức khỏe
+62. mental illness np /ˈmɛntəl ˈɪlnɪs/ bệnh tâm thần
+63. medical examination np /ˈmɛdɪkəl ɪɡˌzæmɪˈneɪʃən/ khám sức khỏe
+64. physical examination np /ˈfɪzɪkəl ɪɡˌzæmɪˈneɪʃən/ khám sức khỏe thể chất
+65. prescription drug np /prɪˈskrɪpʃən drʌɡ/ thuốc kê đơn
+66. over-the-counter medication np /ˌəʊvəðəˈkaʊntəˌmɛdɪˈkeɪʃən/ thuốc không kê đơn
+67. outpatient care np /ˈaʊtˌpeɪʃənt kɛə/ chăm sóc ngoại trú
+68. inpatient care np /ˈɪnˌpeɪʃənt kɛə/ chăm sóc nội trú
+69. healthcare facility np /ˈhɛlθˌkeə fəˈsɪlɪti/ cơ sở chăm sóc sức khỏe
+70. physical fitness np /ˈfɪzɪkəl ˈfɪtnɪs/ thể dục thể chất
+71. stress management np /strɛs ˈmænɪdʒmənt/ quản lý căng thẳng
+72. weight management np /weɪt ˈmænɪdʒmənt/ quản lý cân nặng
+73. disease prevention np /dɪˈziːz prɪˈvɛnʃən/ phòng ngừa bệnh
+74. health checkup np /hɛlθ ˈʧɛkʌp/ kiểm tra sức khỏe
+75. dental hygiene np /ˈdɛntl ˈhaɪdʒiːn/ vệ sinh răng miệng
+76. preventive medicine np /prɪˈvɛntɪv ˈmɛdɪsɪn/ y học phòng ngừa
+77. medical consultation np /ˈmɛdɪkəl ˌkɒnsəlˈteɪʃən/ tư vấn y tế
+78. health monitoring np /hɛlθ ˈmɒnɪtərɪŋ/ giám sát sức khỏe
+79. prenatal care np /priːˈneɪtl kɛə/ chăm sóc trước sinh
+80. postnatal care np /pəʊstˈneɪtl kɛə/ chăm sóc sau sinh
+81. healthcare costs np /ˈhɛlθˌkeə kɒsts/ chi phí chăm sóc sức khỏe
+82. medical expenses np /ˈmɛdɪkəl ɪkˈspɛnsɪz/ chi phí y tế
+83. health campaign np /hɛlθ kæmˈpeɪn/ chiến dịch y tế
+84. health promotion np /hɛlθ prəˈməʊʃən/ khuyến khích sức khỏe
+85. chronic condition np /ˈkrɒnɪk kənˈdɪʃən/ tình trạng mãn tính
+86. healthy lifestyle np /ˈhɛlθi ˈlaɪfˌstaɪl/ lối sống lành mạnh
+87. lifestyle disease np /ˈlaɪfˌstaɪl dɪˈziːz/ bệnh do lối sống
+88. health policy np /hɛlθ ˈpɒlɪsi/ chính sách y tế
+89. healthcare provider np /ˈhɛlθˌkeə prəˈvaɪdə/ nhà cung cấp dịch vụ y tế
+90. health risk np /hɛlθ rɪsk/ rủi ro sức khỏe
+91. health assessment np /hɛlθ əˈsɛsmənt/ đánh giá sức khỏe
+92. public health initiative np /ˈpʌblɪk hɛlθ ɪˈnɪʃɪətɪv/ sáng kiến y tế công cộng
+93. health outcomes np /hɛlθ ˈaʊtkʌmz/ kết quả sức khỏe
+94. patient care np /ˈpeɪʃənt kɛə/ chăm sóc bệnh nhân
+95. health literacy np /hɛlθ ˈlɪtərəsi/ hiểu biết về y tế
+96. preventive services np /prɪˈvɛntɪv ˈsɜːvɪsɪz/ dịch vụ phòng ngừa
+97. health disparity np /hɛlθ dɪsˈpærɪti/ chênh lệch sức khỏe
+98. health equity np /hɛlθ ˈɛkwɪti/ công bằng y tế
+99. health advocacy np /hɛlθ ˈædvəkəsi/ vận động y tế
+100. health screening np /hɛlθ ˈskriːnɪŋ/ tầm soát sức khỏe

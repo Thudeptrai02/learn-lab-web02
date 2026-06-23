@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Important Updates: New Company Travel Policy & Portal\n\nDear Team,\n\nThis memo outlines crucial updates regarding our company's **travel policy** and upcoming **travel arrangements**. To streamline the process, we are launching a new **travel portal** next month. Employees will now manage their **travel itinerary** and **hotel reservations** directly through this portal, accessing preferred rates for **round-trip tickets** and **rental cars**.\n\nPlease remember that all business **travel reimbursement** requests must adhere to the updated guidelines available on the portal. For international trips, ensuring you have the correct **tourist visa** for your **travel destination** is paramount. While we primarily focus on business, we encourage **eco-friendly travel** practices whenever possible.\n\nIn case of a **flight cancellation**, please contact our designated **travel agency** immediately. They can assist with rebooking and alternative plans, ensuring you reach the **departure gate** on time. Our standard **baggage allowance** remains two checked bags. For personal trips, especially if you're traveling as a **holidaymaker** seeking an **all-inclusive resort**, you might find inspiration in various **travel brochures** available online. Remember to perform **currency exchange** before departure if needed. The portal will also provide information on **public transportation** options at your destination and even suggest a **scenic route** if time permits. Enjoy your **in-flight entertainment** on your next journey!",
+  "passage_vi": "Chủ đề: Cập nhật quan trọng: Chính sách và Cổng thông tin Du lịch mới của Công ty\n\nKính gửi Đội ngũ,\n\nBản ghi nhớ này nêu rõ các cập nhật quan trọng liên quan đến **chính sách du lịch** của công ty chúng ta và các **sắp xếp du lịch** sắp tới. Để hợp lý hóa quy trình, chúng tôi sẽ ra mắt một **cổng thông tin du lịch** mới vào tháng tới. Giờ đây, nhân viên sẽ quản lý **lịch trình du lịch** và **đặt phòng khách sạn** của mình trực tiếp thông qua cổng thông tin này, truy cập các mức giá ưu đãi cho **vé khứ hồi** và **thuê xe ô tô**.\n\nHãy nhớ rằng tất cả các yêu cầu **hoàn trả chi phí du lịch** công tác phải tuân thủ các hướng dẫn cập nhật có sẵn trên cổng thông tin. Đối với các chuyến đi quốc tế, việc đảm bảo bạn có **thị thực du lịch** chính xác cho **điểm đến của bạn** là vô cùng quan trọng. Mặc dù chúng tôi chủ yếu tập trung vào mục đích công việc, chúng tôi khuyến khích các hoạt động **du lịch thân thiện với môi trường** bất cứ khi nào có thể.\n\nTrong trường hợp **chuyến bay bị hủy**, vui lòng liên hệ ngay với **đại lý du lịch** được chỉ định của chúng tôi. Họ có thể hỗ trợ đặt lại vé và các kế hoạch thay thế, đảm bảo bạn đến **cổng khởi hành** đúng giờ. **Hành lý ký gửi** tiêu chuẩn của chúng tôi vẫn là hai kiện. Đối với các chuyến đi cá nhân, đặc biệt nếu bạn là một **khách du lịch** đang tìm kiếm một **khu nghỉ dưỡng trọn gói**, bạn có thể tìm thấy cảm hứng trong nhiều **tài liệu quảng cáo du lịch** có sẵn trực tuyến. Hãy nhớ **đổi tiền tệ** trước khi khởi hành nếu cần. Cổng thông tin cũng sẽ cung cấp thông tin về các lựa chọn **phương tiện giao thông công cộng** tại điểm đến của bạn và thậm chí gợi ý một **tuyến đường ngắm cảnh** nếu thời gian cho phép. Hãy tận hưởng **giải trí trên chuyến bay** trong hành trình tiếp theo của bạn!",
+  "questions": [
+    {
+      "question": "What is the main purpose of this memo?",
+      "options": [
+        "A. To announce changes to the company's travel policy and introduce a new portal.",
+        "B. To advertise new travel destinations and all-inclusive resorts.",
+        "C. To remind employees about the importance of eco-friendly travel practices.",
+        "D. To detail the process for submitting travel reimbursement requests."
+      ],
+      "correct_answer_index": 0,
+      "explanation": "Đoạn văn bắt đầu bằng việc nêu rõ mục đích của bản ghi nhớ là 'nêu rõ các cập nhật quan trọng liên quan đến chính sách du lịch của công ty chúng ta và các sắp xếp du lịch sắp tới' và việc 'ra mắt một cổng thông tin du lịch mới'."
+    },
+    {
+      "question": "According to the memo, what can employees NOT manage directly through the new travel portal?",
+      "options": [
+        "A. Hotel reservations",
+        "B. Round-trip ticket bookings",
+        "C. Rental car arrangements",
+        "D. Tourist visa applications"
+      ],
+      "correct_answer_index": 3,
+      "explanation": "Đoạn văn nêu rõ rằng nhân viên có thể 'quản lý lịch trình du lịch và đặt phòng khách sạn trực tiếp thông qua cổng thông tin này, truy cập các mức giá ưu đãi cho vé khứ hồi và thuê xe ô tô'. Tuy nhiên, nó chỉ nói 'đảm bảo bạn có thị thực du lịch chính xác' là trách nhiệm của nhân viên, chứ không phải quản lý nó thông qua cổng thông tin."
+    },
+    {
+      "question": "What should an employee do if their flight is cancelled?",
+      "options": [
+        "A. Contact the travel agency immediately.",
+        "B. Look for a scenic route to their destination.",
+        "C. Submit a travel reimbursement request through the portal.",
+        "D. Check the baggage allowance regulations."
+      ],
+      "correct_answer_index": 0,
+      "explanation": "Đoạn văn nêu rõ: 'Trong trường hợp chuyến bay bị hủy, vui lòng liên hệ ngay với đại lý du lịch được chỉ định của chúng tôi.'"
+    }
+  ]
+}

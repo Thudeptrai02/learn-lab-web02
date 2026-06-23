@@ -4,7 +4,7 @@ import Layout from '../../../../layouts/Layout.astro';
 export async function getStaticPaths() {
   // Quét toàn bộ JSON trừ thư mục exams
   const allFiles = import.meta.glob('../../../../data/**/*.json', { eager: true });
-  const vocabFiles = Object.keys(allFiles).filter(path => !path.includes('/exams/'));
+  const vocabFiles = Object.keys(allFiles).filter(path => !path.includes('/exams/') && !path.includes('/passages/'));
   
   return vocabFiles.map(path => {
     const fileName = path.split('/').pop().replace('.json', '');
@@ -17,7 +17,7 @@ const { topic } = Astro.params;
 
 // 🚀 TÌM ĐÚNG FILE JSON TRÊN TOÀN BỘ DATA DỰA VÀO TÊN FILE
 const allFiles = import.meta.glob('../../../../data/**/*.json', { eager: true });
-const targetKey = Object.keys(allFiles).find(key => key.endsWith(`/${topic}.json`) && !key.includes('/exams/'));
+const targetKey = Object.keys(allFiles).find(key => key.endsWith(`/${topic}.json`) && !key.includes('/exams/') && !key.includes('/passages/'));
 const cards = targetKey ? (allFiles[targetKey].default || allFiles[targetKey]) : [];
 
 const pageTitle = `${topic.toUpperCase()}`;

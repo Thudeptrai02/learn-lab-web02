@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Enhancing Our Organizational Future: A Holistic Approach\n\nTo: All Department Heads\nFrom: Strategic Planning Committee\nDate: October 26, 2023\n\nDear Team,\n\nAs we navigate an increasingly dynamic business landscape, it’s imperative to continually refine our approach to management principles and business ethics. Our recent stakeholder analysis highlighted the critical need for improved stakeholder management across all levels. To this end, we are initiating a comprehensive business transformation project aimed at strengthening our organizational resilience.\n\nA core component of this initiative involves revisiting our strategic vision and setting ambitious yet achievable strategic goals. We will establish new performance targets and performance indicators, moving beyond mere performance benchmarking to foster true management innovation. Enhanced management efficiency will be a priority, alongside boosting our overall operational performance. This requires a thorough risk assessment and the development of robust crisis response protocols within our operational strategy.\n\nFurthermore, we must ensure corporate transparency and unwavering corporate ethics, operating strictly within the prevailing regulatory framework. Strong management controls, coupled with diligent operational oversight and financial oversight, are crucial. We are also re-evaluating the current management hierarchy to optimize the allocation of strategic resources. Our ultimate aim is to empower our teams, ensuring that our management principles and business ethics guide every decision, driving sustainable growth and success.",
+  "passage_vi": "Chủ đề: Nâng cao tương lai tổ chức của chúng ta: Một cách tiếp cận toàn diện\n\nKính gửi: Tất cả các Trưởng phòng\nTừ: Ban Kế hoạch Chiến lược\nNgày: 26 tháng 10 năm 2023\n\nKính gửi Đội ngũ,\n\nKhi chúng ta điều hướng một bối cảnh kinh doanh ngày càng năng động, việc liên tục tinh chỉnh cách tiếp cận các nguyên tắc quản lý và đạo đức kinh doanh của chúng ta là điều bắt buộc. Phân tích các bên liên quan gần đây của chúng ta đã làm nổi bật nhu cầu cấp thiết về quản lý các bên liên quan được cải thiện ở mọi cấp độ. Để đạt được mục tiêu này, chúng ta đang khởi động một dự án chuyển đổi kinh doanh toàn diện nhằm củng cố khả năng phục hồi của tổ chức.\n\nMột thành phần cốt lõi của sáng kiến này bao gồm việc xem xét lại tầm nhìn chiến lược và đặt ra các mục tiêu chiến lược đầy tham vọng nhưng có thể đạt được. Chúng ta sẽ thiết lập các mục tiêu hiệu suất và chỉ số hiệu suất mới, vượt ra ngoài việc đánh giá hiệu suất so sánh đơn thuần để thúc đẩy đổi mới quản lý thực sự. Hiệu quả quản lý nâng cao sẽ là ưu tiên hàng đầu, cùng với việc nâng cao hiệu suất hoạt động tổng thể của chúng ta. Điều này đòi hỏi một đánh giá rủi ro kỹ lưỡng và phát triển các quy trình ứng phó khủng hoảng mạnh mẽ trong chiến lược hoạt động của chúng ta.\n\nHơn nữa, chúng ta phải đảm bảo minh bạch doanh nghiệp và đạo đức doanh nghiệp không lay chuyển, hoạt động nghiêm ngặt trong khuôn khổ pháp lý hiện hành. Các kiểm soát quản lý chặt chẽ, cùng với giám sát hoạt động và giám sát tài chính cẩn thận, là rất quan trọng. Chúng ta cũng đang đánh giá lại hệ thống cấp bậc quản lý hiện tại để tối ưu hóa việc phân bổ nguồn lực chiến lược. Mục tiêu cuối cùng của chúng ta là trao quyền cho các đội ngũ của mình, đảm bảo rằng nguyên tắc quản lý và đạo đức kinh doanh của chúng ta hướng dẫn mọi quyết định, thúc đẩy tăng trưởng và thành công bền vững.",
+  "questions": [
+    {
+      "question": "What is the primary purpose of the memo?",
+      "options": [
+        "A. To announce new performance targets for the upcoming quarter.",
+        "B. To outline a comprehensive business transformation project.",
+        "C. To detail the results of the latest stakeholder analysis.",
+        "D. To discuss the current management hierarchy and its issues."
+      ],
+      "correct_answer_index": 1,
+      "explanation": "Đoạn văn bắt đầu bằng việc nhấn mạnh sự cần thiết của việc tinh chỉnh cách tiếp cận quản lý và sau đó nêu rõ mục đích chính là 'initiating a comprehensive business transformation project' (khởi động một dự án chuyển đổi kinh doanh toàn diện)."
+    },
+    {
+      "question": "Which of the following is NOT mentioned as a core component of the new initiative?",
+      "options": [
+        "A. Revisiting the strategic vision.",
+        "B. Enhancing management efficiency.",
+        "C. Reducing the size of the workforce.",
+        "D. Developing robust crisis response protocols."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn đề cập đến A, B, D là các thành phần của sáng kiến. Việc 'reducing the size of the workforce' (giảm quy mô lực lượng lao động) không được đề cập."
+    },
+    {
+      "question": "According to the memo, what two aspects are explicitly stated as guiding every decision?",
+      "options": [
+        "A. Strategic goals and performance indicators.",
+        "B. Management hierarchy and strategic resources.",
+        "C. Management principles and business ethics.",
+        "D. Regulatory framework and financial oversight."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn cuối của memo nêu rõ: 'ensuring that our management principles and business ethics guide every decision' (đảm bảo rằng các nguyên tắc quản lý và đạo đức kinh doanh của chúng ta hướng dẫn mọi quyết định)."
+    }
+  ]
+}

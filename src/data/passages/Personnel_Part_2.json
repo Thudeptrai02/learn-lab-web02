@@ -1,0 +1,39 @@
+{
+  "passage_en": "Subject: Enhancing Our Human Capital: A Strategic HR Initiative\n\nDear Team,\n\nWe are excited to announce a comprehensive strategic HR initiative designed to foster a more productive and engaged workforce. Our goal is centered around robust `workforce planning` and `workforce optimization` to enhance overall `employee productivity`. \n\nKey to this endeavor is our renewed focus on `talent management`. We aim to identify and nurture a strong `talent pool` through regular `skills assessment` and tailored `career development` paths. Our updated `performance management` system will feature transparent `performance evaluation` processes, directly linking individual contributions to company goals and improving `employee performance`.\n\nWe are investing significantly in developing `leadership skills` across all levels. A new `leadership coaching` program will help cultivate a robust `leadership pipeline`, ensuring effective `succession planning` for critical roles. To boost `employee morale` and overall `job satisfaction`, we will launch a regular `job satisfaction survey` and introduce enhanced `employee recognition` programs. `Job enrichment` opportunities will also be explored to make roles more engaging.\n\nFurthermore, we are revising our `employee handbook` and improving our `employee orientation` process for new hires. A thorough `compensation analysis` is underway to ensure competitive benefits. We are also implementing a new `competency model` to guide development and ensure consistent standards. Our commitment extends to fostering an inclusive environment through `diversity training` and effective `conflict management` strategies. Finally, we encourage `employee advocacy` to strengthen our company culture.\n\nSincerely,\nThe HR Department",
+  "passage_vi": "Chủ đề: Nâng Cao Nguồn Nhân Lực Của Chúng Ta: Một Sáng Kiến HR Chiến Lược\n\nKính gửi Đội ngũ,\n\nChúng tôi vui mừng thông báo về một sáng kiến HR chiến lược toàn diện được thiết kế để xây dựng một lực lượng lao động hiệu quả và gắn kết hơn. Mục tiêu của chúng tôi tập trung vào `hoạch định nguồn nhân lực` mạnh mẽ và `tối ưu hóa lực lượng lao động` để nâng cao `năng suất của nhân viên` nói chung.\n\nChìa khóa cho nỗ lực này là sự tập trung đổi mới của chúng tôi vào `quản lý tài năng`. Chúng tôi đặt mục tiêu xác định và nuôi dưỡng một `nguồn tài năng` mạnh mẽ thông qua `đánh giá kỹ năng` định kỳ và các lộ trình `phát triển sự nghiệp` được điều chỉnh riêng. Hệ thống `quản lý hiệu suất` cập nhật của chúng tôi sẽ có các quy trình `đánh giá hiệu suất` minh bạch, liên kết trực tiếp các đóng góp cá nhân với mục tiêu công ty và cải thiện `hiệu suất làm việc của nhân viên`.\n\nChúng tôi đang đầu tư đáng kể vào việc phát triển `kỹ năng lãnh đạo` ở tất cả các cấp. Một chương trình `huấn luyện lãnh đạo` mới sẽ giúp xây dựng một `lộ trình lãnh đạo` vững chắc, đảm bảo `kế hoạch kế nhiệm` hiệu quả cho các vai trò quan trọng. Để nâng cao `tinh thần làm việc của nhân viên` và `mức độ hài lòng trong công việc` nói chung, chúng tôi sẽ triển khai `khảo sát mức độ hài lòng trong công việc` định kỳ và giới thiệu các chương trình `khen thưởng nhân viên` được cải thiện. Các cơ hội `làm giàu công việc` cũng sẽ được khám phá để làm cho các vai trò hấp dẫn hơn.\n\nHơn nữa, chúng tôi đang sửa đổi `sổ tay nhân viên` và cải thiện quy trình `định hướng nhân viên` cho nhân viên mới. Một cuộc `phân tích chế độ đãi ngộ` kỹ lưỡng đang được tiến hành để đảm bảo các phúc lợi cạnh tranh. Chúng tôi cũng đang triển khai một `mô hình năng lực` mới để hướng dẫn sự phát triển và đảm bảo các tiêu chuẩn nhất quán. Cam kết của chúng tôi mở rộng đến việc nuôi dưỡng một môi trường hòa nhập thông qua `đào tạo đa dạng` và các chiến lược `quản lý xung đột` hiệu quả. Cuối cùng, chúng tôi khuyến khích `ủng hộ nhân viên` để củng cố văn hóa công ty của chúng ta.\n\nTrân trọng,\nPhòng Nhân sự",
+  "questions": [
+    {
+      "question": "What is the primary purpose of the HR initiative described in the memo?",
+      "options": [
+        "A. To develop a more productive and engaged workforce.",
+        "B. To reduce operational costs by streamlining HR processes.",
+        "C. To outsource certain HR functions to external consultants.",
+        "D. To conduct a thorough review of existing HR policies."
+      ],
+      "correct_answer_index": 0,
+      "explanation": "Đoạn văn mở đầu bằng việc nêu rõ mục đích của sáng kiến HR là \"nuôi dưỡng một lực lượng lao động hiệu quả và gắn kết hơn\" (to foster a more productive and engaged workforce)."
+    },
+    {
+      "question": "Which of the following is NOT mentioned as a strategy directly aimed at developing a strong leadership presence?",
+      "options": [
+        "A. Implementing `leadership coaching` programs.",
+        "B. Cultivating a `leadership pipeline`.",
+        "C. Conducting regular `performance evaluation`.",
+        "D. Ensuring effective `succession planning`."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Các lựa chọn A, B, D đều được đề cập trực tiếp trong đoạn văn như các cách để phát triển sự hiện diện lãnh đạo. \"Đánh giá hiệu suất\" (performance evaluation) được đề cập trong ngữ cảnh quản lý hiệu suất tổng thể của nhân viên, không riêng cho việc phát triển năng lực lãnh đạo."
+    },
+    {
+      "question": "What is the intended outcome of the `job satisfaction survey` and enhanced `employee recognition` programs?",
+      "options": [
+        "A. To refine the `compensation analysis` process.",
+        "B. To improve the `employee orientation` for new hires.",
+        "C. To boost `employee morale` and `job satisfaction`.",
+        "D. To facilitate `conflict management` within teams."
+      ],
+      "correct_answer_index": 2,
+      "explanation": "Đoạn văn nêu rõ: \"Để nâng cao tinh thần làm việc của nhân viên và mức độ hài lòng trong công việc nói chung, chúng tôi sẽ triển khai khảo sát mức độ hài lòng trong công việc định kỳ và giới thiệu các chương trình khen thưởng nhân viên được cải thiện.\" (To boost `employee morale` and overall `job satisfaction`, we will launch a regular `job satisfaction survey` and introduce enhanced `employee recognition` programs.)"
+    }
+  ]
+}
