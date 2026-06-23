@@ -39,6 +39,34 @@ import Header from '../../../../components/Header.astro';
       <div id="errorMsg" class="mt-4 text-red-600 text-sm hidden bg-red-50 p-3 rounded"></div>
     </div>
 
+    <!-- Danh sách bài đọc hệ thống (AI sinh sẵn) -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+      <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <span>📚</span> Các Bài Đọc TOEIC 900+ (Tạo Sẵn)
+      </h2>
+      <p class="text-sm text-gray-500 mb-6">Chọn một chủ đề dưới đây để luyện đọc hiểu ngay với các từ vựng đã được hệ thống tạo sẵn.</p>
+      
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
+        {
+          ['Marketing', 'Personnel', 'Management Issues', 'Travel', 'Entertainment', 'Health'].map(topic => (
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-100">
+              <h3 class="font-bold text-gray-800 text-sm mb-3">{topic}</h3>
+              <div class="grid grid-cols-2 gap-2">
+                {[1, 2, 3, 4].map(part => (
+                  <a 
+                    href={`/english-lab/toeic/vocab-context/${topic}_Part_${part}`}
+                    class="text-center py-1.5 px-2 text-xs font-semibold text-blue-600 bg-white border border-blue-100 rounded hover:bg-blue-600 hover:text-white transition-colors shadow-sm"
+                  >
+                    Part {part}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
     <!-- Kết quả -->
     <div id="resultContainer" class="hidden space-y-8">
       
